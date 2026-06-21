@@ -18,10 +18,15 @@ struct LumiApp: App {
         }
     }()
 
+    @Environment(\.scenePhase) private var scenePhase
+
     var body: some Scene {
         WindowGroup {
             MapHomeView()
         }
         .modelContainer(container)
+        .onChange(of: scenePhase) { _, phase in
+            if phase == .active { Analytics.log(.appOpen) }   // §9 app_open
+        }
     }
 }

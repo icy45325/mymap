@@ -9,7 +9,7 @@ import CoreLocation
 /// - M2：落点持久化（SwiftData，已覆盖）
 /// - M3：加载 Natural Earth 边界，给"去过的国家 / UAE 酋长国"着色（见 `litRegions` 的 TODO）
 /// - M4：顶部计数器（已接，数据随 M3 的 countryCode 解析自动生效）
-/// - M5：FAB 唤起 Capture 录入页（见 `fab` 的 TODO）
+/// - M5：FAB 唤起 Capture 录入页（已接，见 `fab` + `.sheet`）
 struct MapHomeView: View {
 
     @Environment(\.modelContext) private var context
@@ -22,6 +22,7 @@ struct MapHomeView: View {
     private let mapProvider: MapProvider = MapKitProvider()
 
     @State private var showCapture = false
+    @State private var counterPulse = false
 
     var body: some View {
         ZStack(alignment: .top) {
@@ -36,6 +37,12 @@ struct MapHomeView: View {
 
             fab
         }
+        .sheet(isPresented: $showCapture) {
+            // FAB 进来：无预填坐标，靠搜索 / 定位选点
+            CaptureView(source: "fab", prefilledCoordinate: nil)
+        }
+        // 新增足迹后国家数变化 → 计数器跳动（§4.2 点亮反馈）
+        .onChange(of: litCountryCount) { _, _ in pulseCounter() }
     }
 
     // MARK: - 渲染状态
@@ -78,6 +85,16 @@ struct MapHomeView: View {
             .padding(.horizontal, 14)
             .background(Color.litGlow.opacity(0.12), in: Capsule())
             .overlay(Capsule().stroke(Color.litGlow.opacity(0.4), lineWidth: 1))
+            .scaleEffect(counterPulse ? 1.18 : 1)
+    }
+
+    /// 计数器跳动一下（§4.2 点亮反馈）。
+    private func pulseCounter() {
+        withAnimation(.spring(response: 0.3, dampingFraction: 0.45)) { counterPulse = true }
+        Task {
+            try? await Task.sleep(for: .milliseconds(320))
+            withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) { counterPulse = false }
+        }
     }
 
     private var fab: some View {
@@ -99,21 +116,38 @@ struct MapHomeView: View {
                 .padding(20)
             }
         }
-        // TODO(M5): .sheet(isPresented: $showCapture) { CaptureView() }
     }
 
     // MARK: - 动作
 
-    /// M1/M2：点屏落一个足迹并持久化。
-    /// M3 会在这里补：反向地理编码得到 placeName / cityName / countryCode（再驱动着色与计数）。
+    /// 点屏快速落点（§5.1 地图点屏分支）：先即时落库 + 显示 pin，再异步反向地理编码
+    /// 补 placeName / cityName / countryCode（驱动计数，M3 起再驱动着色）。
     private func dropFootprint(at coordinate: CLLocationCoordinate2D) {
-        let footprint = Footprint(placeName: "新足迹", coordinate: coordinate)
+        Analytics.log(.captureStarted(source: "map"))
+
+        // 点亮前的已有国家集合，用于判断"新国家"（§5.1 计数口径）
+        let priorCodes = Set(footprints.compactMap { $0.countryCode })
+
+        let footprint = Footprint(placeName: "标记的地点", coordinate: coordinate)
         context.insert(footprint)
-
-        // 明信片卡已确认持久化：每个足迹同步建一张卡
-        context.insert(Card(footprint: footprint))
-
+        context.insert(Card(footprint: footprint))     // §4.2：每个足迹同步建一张卡
         try? context.save()
+
+        // 异步补全地名与国家码（CLGeocoder 需网络；失败则保留为未识别国家的散点，不崩溃 §7）
+        Task {
+            let place = await Geocoding.resolve(coordinate)
+            if let place {
+                footprint.placeName = place.placeName
+                footprint.cityName = place.cityName
+                footprint.countryCode = place.countryCode
+                try? context.save()
+            }
+            Analytics.log(.footprintCreated(countryCode: place?.countryCode,
+                                            hasPhoto: false, companionsCount: 0))
+            if let code = place?.countryCode, !priorCodes.contains(code) {
+                Analytics.log(.countryLit(countryCode: code, totalLit: priorCodes.count + 1))
+            }
+        }
     }
 }
 
