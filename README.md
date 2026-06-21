@@ -9,7 +9,7 @@
 | **M1** | 工程骨架 + 暗夜地图渲染 + 点屏落点（落库 + pin 显示） | ✅ |
 | **M2** | Capture 录入页（照片/地点/心情/同行人）+ 反向地理编码 + 埋点 | ✅ |
 | **M3** | Natural Earth 边界 + point-in-polygon + 国家/UAE 酋长国着色 | ✅ |
-| M4 | Timeline 时间轴 + 删除 | ⬜ |
+| **M4** | Timeline 时间轴 + 删除 + 底部 TabBar | ✅ |
 | M5 | Stats 成就页 + 底部 TabBar | ⬜ |
 
 边界数据：`Lumi/Resources/admin0.geojson`（Natural Earth 110m 国界，175 国）+

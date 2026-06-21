@@ -22,7 +22,7 @@ struct LumiApp: App {
 
     var body: some Scene {
         WindowGroup {
-            MapHomeView()
+            RootTabView()
         }
         .modelContainer(container)
         .onChange(of: scenePhase) { _, phase in
