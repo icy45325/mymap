@@ -1,6 +1,10 @@
 # Lumi v0 — 世界点亮
 
-在地图上「点亮」去过的地方的个人旅行记录 App。iOS 17+ / SwiftUI · SwiftData · MapKit，纯本地、单用户、无账号。规格见 [`docs/Lumi_v0_PRD.md`](docs/Lumi_v0_PRD.md)。
+在地图上「点亮」去过的地方的个人旅行记录 App。iOS 17+ / SwiftUI · SwiftData · MapKit，纯本地、单用户、无账号。
+
+文档：
+- [需求规格 PRD（原始构想）](docs/Lumi_v0_PRD.md) — v0 功能规格说明 v0.2
+- [架构说明](docs/ARCHITECTURE.md) — 分层、数据流、设计决策、构建验证
 
 ## 里程碑
 
