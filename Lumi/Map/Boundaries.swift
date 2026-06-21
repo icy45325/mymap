@@ -15,6 +15,7 @@ final class Boundaries {
     private struct Region {
         let id: String          // 国家 ISO（"AE"）或酋长国码（"AE-DU"）
         let name: String?
+        let continent: String?  // 仅国家有（成就页洲进度用）
         let polygons: [[[CLLocationCoordinate2D]]]
         /// 经纬度包围盒，point-in-polygon 前的快速剪枝。
         let bbox: (minLon: Double, minLat: Double, maxLon: Double, maxLat: Double)
@@ -25,6 +26,18 @@ final class Boundaries {
 
     /// 世界国家总数（计数器全球百分比的分母，§4.1）。
     var totalCountryCount: Int { countries.count }
+
+    /// 各洲国家总数（成就页洲进度条分母，§4.4）。
+    private(set) lazy var countriesPerContinent: [String: Int] =
+        Dictionary(countries.compactMap(\.continent).map { ($0, 1) }, uniquingKeysWith: +)
+
+    /// 国家码 → 所属大洲。
+    private lazy var continentByCountry: [String: String] =
+        Dictionary(uniqueKeysWithValues: countries.compactMap { region in
+            region.continent.map { (region.id, $0) }
+        })
+
+    func continent(forCountryCode code: String) -> String? { continentByCountry[code] }
 
     private init() {
         countries = Self.load("admin0", idKey: "iso")
@@ -137,7 +150,11 @@ final class Boundaries {
             let lons = coords.map(\.longitude), lats = coords.map(\.latitude)
             let bbox = (lons.min()!, lats.min()!, lons.max()!, lats.max()!)
 
-            return Region(id: id, name: props["name"] as? String, polygons: polygons, bbox: bbox)
+            return Region(id: id,
+                          name: props["name"] as? String,
+                          continent: props["continent"] as? String,
+                          polygons: polygons,
+                          bbox: bbox)
         }
     }
 

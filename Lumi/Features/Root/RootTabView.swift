@@ -20,8 +20,7 @@ struct RootTabView: View {
             TimelineView()
                 .tabItem { Label("足迹", systemImage: "list.bullet.rectangle.fill") }
 
-            // M5 替换为 StatsView
-            ComingSoonView(title: "成就", systemImage: "rosette")
+            StatsView()
                 .tabItem { Label("成就", systemImage: "rosette") }
 
             ComingSoonView(title: "我", systemImage: "person.crop.circle")
