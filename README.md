@@ -7,10 +7,14 @@
 | MS | 内容 | 状态 |
 |----|------|------|
 | **M1** | 工程骨架 + 暗夜地图渲染 + 点屏落点（落库 + pin 显示） | ✅ |
-| M2 | Capture 录入页（照片/地点/心情/同行人）+ 反向地理编码 | ⬜ |
-| M3 | Natural Earth 边界 + point-in-polygon + 国家/UAE 酋长国着色 | ⬜ |
+| **M2** | Capture 录入页（照片/地点/心情/同行人）+ 反向地理编码 + 埋点 | ✅ |
+| **M3** | Natural Earth 边界 + point-in-polygon + 国家/UAE 酋长国着色 | ✅ |
 | M4 | Timeline 时间轴 + 删除 | ⬜ |
 | M5 | Stats 成就页 + 底部 TabBar | ⬜ |
+
+边界数据：`Lumi/Resources/admin0.geojson`（Natural Earth 110m 国界，175 国）+
+`uae_emirates.geojson`（10m UAE admin-1，7 酋长国），坐标精度 4 位。
+point-in-polygon 已用已知坐标离线验证（Abu Dhabi→AE-AZ、Dubai→AE-DU、Paris→FR、公海→nil）。
 
 ## 工程结构
 

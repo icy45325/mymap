@@ -55,30 +55,36 @@ struct MapHomeView: View {
         )
     }
 
-    /// M3 实现：根据已点亮的国家 / 酋长国码，从 Natural Earth 取边界多边形。
-    /// M1 先返回空数组，让地图先跑起来（此时只有足迹 pin，没有区域着色）。
+    /// 已点亮国家 / 酋长国码集合（§5.1 计数口径，distinct）。
+    private var litCountryCodes: Set<String> { Set(footprints.compactMap { $0.countryCode }) }
+    private var litEmirateCodes: Set<String> { Set(footprints.compactMap { $0.subRegionCode }) }
+
+    /// M3：从 Natural Earth 边界取已点亮的国家 / UAE 酋长国多边形着色。
     private var litRegions: [LitRegion] {
-        // TODO(M3): Boundaries.shared.regions(forCountryCodes: litCountryCodes,
-        //                                      emirateCodes: litEmirateCodes)
-        []
+        Boundaries.shared.regions(forCountryCodes: litCountryCodes, emirateCodes: litEmirateCodes)
     }
 
-    // MARK: - 计数（M4）
+    // MARK: - 计数
 
     /// 已点亮国家数 = distinct(countryCode)，同国多次到访不重复计数。
-    private var litCountryCount: Int {
-        Set(footprints.compactMap { $0.countryCode }).count
-    }
+    private var litCountryCount: Int { litCountryCodes.count }
 
     /// 已点亮城市数 = distinct(cityName)，城市为点状打卡。
     private var litCityCount: Int {
         Set(footprints.compactMap { $0.cityName }).count
     }
 
+    /// 全球百分比 = 已点亮国家 / 世界国家总数（§4.1）。
+    private var globalPercent: Int {
+        let total = Boundaries.shared.totalCountryCount
+        guard total > 0 else { return 0 }
+        return Int((Double(litCountryCount) / Double(total) * 100).rounded())
+    }
+
     // MARK: - 子视图
 
     private var counterChip: some View {
-        Text("✦ 已点亮 \(litCountryCount) 国 · \(litCityCount) 城")
+        Text("✦ 已点亮 \(litCountryCount) 国 · 全球 \(globalPercent)% · \(litCityCount) 城")
             .font(Typo.mono(13))
             .foregroundStyle(Color.litGlow)
             .padding(.vertical, 8)
@@ -129,23 +135,28 @@ struct MapHomeView: View {
         let priorCodes = Set(footprints.compactMap { $0.countryCode })
 
         let footprint = Footprint(placeName: "标记的地点", coordinate: coordinate)
+        // 离线 point-in-polygon：国家 / 酋长国即时解析，着色与计数立刻生效（§5.1）
+        footprint.countryCode = Boundaries.shared.countryCode(at: coordinate)
+        if footprint.countryCode == "AE" {
+            footprint.subRegionCode = Boundaries.shared.emirateCode(at: coordinate)
+        }
         context.insert(footprint)
         context.insert(Card(footprint: footprint))     // §4.2：每个足迹同步建一张卡
         try? context.save()
 
-        // 异步补全地名与国家码（CLGeocoder 需网络；失败则保留为未识别国家的散点，不崩溃 §7）
+        let litCode = footprint.countryCode
+        Analytics.log(.footprintCreated(countryCode: litCode, hasPhoto: false, companionsCount: 0))
+        if let code = litCode, !priorCodes.contains(code) {
+            Analytics.log(.countryLit(countryCode: code, totalLit: priorCodes.count + 1))
+        }
+
+        // 异步补全地名 / 城市名（CLGeocoder 需网络；失败也不影响已点亮，不崩溃 §7）
         Task {
-            let place = await Geocoding.resolve(coordinate)
-            if let place {
+            if let place = await Geocoding.resolve(coordinate) {
                 footprint.placeName = place.placeName
                 footprint.cityName = place.cityName
-                footprint.countryCode = place.countryCode
+                if footprint.countryCode == nil { footprint.countryCode = place.countryCode }
                 try? context.save()
-            }
-            Analytics.log(.footprintCreated(countryCode: place?.countryCode,
-                                            hasPhoto: false, companionsCount: 0))
-            if let code = place?.countryCode, !priorCodes.contains(code) {
-                Analytics.log(.countryLit(countryCode: code, totalLit: priorCodes.count + 1))
             }
         }
     }

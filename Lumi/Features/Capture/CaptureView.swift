@@ -25,7 +25,22 @@ struct CaptureView: View {
         var name: String
         var cityName: String?
         var countryCode: String?
+        var subRegionCode: String?
         var coordinate: CLLocationCoordinate2D
+
+        /// 由坐标 + 候选国家码组装：国家 / 酋长国以离线 Boundaries 为准（§5.1），
+        /// 离线判定不到时退回候选码（如搜索结果自带的 isoCountryCode）。
+        init(name: String, cityName: String?, countryCode candidate: String?,
+             coordinate: CLLocationCoordinate2D) {
+            self.name = name
+            self.cityName = cityName
+            self.coordinate = coordinate
+            let resolved = Boundaries.shared.countryCode(at: coordinate) ?? candidate
+            self.countryCode = resolved
+            self.subRegionCode = resolved == "AE"
+                ? Boundaries.shared.emirateCode(at: coordinate)
+                : nil
+        }
 
         /// 二级描述：城市 · 国家。
         var subtitle: String {
@@ -363,6 +378,7 @@ struct CaptureView: View {
             photoAssetIDs: photoAssetID.map { [$0] } ?? []
         )
         footprint.countryCode = selected.countryCode
+        footprint.subRegionCode = selected.subRegionCode
         context.insert(footprint)
         context.insert(Card(footprint: footprint))     // §4.2：同步持久化一张明信片卡
         try? context.save()
