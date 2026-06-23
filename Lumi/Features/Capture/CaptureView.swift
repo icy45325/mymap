@@ -261,14 +261,10 @@ struct CaptureView: View {
                 .font(.headline)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 16)
-                .background(
-                    LinearGradient(colors: [Color.litGlow, Color.litGlow2],
-                                   startPoint: .leading, endPoint: .trailing),
-                    in: Capsule()
-                )
-                .foregroundStyle(Color.ink)
+                .background(LinearGradient.neonH, in: Capsule())
+                .foregroundStyle(.white)
                 .opacity(canLightUp ? 1 : 0.4)
-                .shadow(color: Color.litGlow.opacity(0.5), radius: 12)
+                .shadow(color: Color.nPurple.opacity(0.5), radius: 12)
         }
         .disabled(!canLightUp)
         .padding(.horizontal, Metrics.pad)

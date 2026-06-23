@@ -2,99 +2,171 @@ import SwiftUI
 import SwiftData
 import CoreLocation
 
-/// 世界地图主页（v0 核心页）。
+/// 世界地图主页（核心页）· 暗夜霓虹 v2。
 ///
-/// 里程碑路线：
-/// - M1：地图渲染 + 点屏落点（本文件已覆盖）
-/// - M2：落点持久化（SwiftData，已覆盖）
-/// - M3：加载 Natural Earth 边界，给"去过的国家 / UAE 酋长国"着色（见 `litRegions` 的 TODO）
-/// - M4：顶部计数器（已接，数据随 M3 的 countryCode 解析自动生效）
-/// - M5：FAB 唤起 Capture 录入页（已接，见 `fab` + `.sheet`）
+/// 真实 MapKit 底图（霓虹着色）+ 顶部 HUD 大数字 + 世界进度条 +
+/// 精彩瞬间轮播 + 渐变 FAB。地理判定仍走离线 point-in-polygon（§5.1）。
 struct MapHomeView: View {
 
     @Environment(\.modelContext) private var context
 
-    /// 所有足迹，按到访时间倒序。
     @Query(sort: \Footprint.visitedAt, order: .reverse)
     private var footprints: [Footprint]
 
-    /// 底图 provider —— v0 固定 MapKit。将来换 Mapbox（海外美学）/ 高德（国内合规）只改这一行。
+    /// 底图 provider —— 固定 MapKit。换 Mapbox / 高德只改这一行。
     private let mapProvider: MapProvider = MapKitProvider()
 
     @State private var showCapture = false
     @State private var counterPulse = false
+    @State private var barFraction: Double = 0
+
+    private var stats: LumiStats { LumiStats(footprints: footprints) }
 
     var body: some View {
         ZStack(alignment: .top) {
-            Color.ink.ignoresSafeArea()
+            Color.bg.ignoresSafeArea()
 
-            // 地图：点亮区（M3）+ 足迹点，由 provider 渲染
             mapProvider.makeMapView(renderState)
                 .ignoresSafeArea()
 
-            counterChip
-                .padding(.top, 8)
+            // 顶部 HUD 渐隐到地图
+            LinearGradient(colors: [Color.bg.opacity(0.92), .clear],
+                           startPoint: .top, endPoint: .bottom)
+                .frame(height: 230)
+                .ignoresSafeArea()
+                .allowsHitTesting(false)
 
-            fab
+            VStack(spacing: 0) {
+                hud
+                Spacer()
+                bottomPanel
+            }
         }
+        .preferredColorScheme(.dark)
         .sheet(isPresented: $showCapture) {
-            // FAB 进来：无预填坐标，靠搜索 / 定位选点
             CaptureView(source: "fab", prefilledCoordinate: nil)
         }
-        // 新增足迹后国家数变化 → 计数器跳动（§4.2 点亮反馈）
-        .onChange(of: litCountryCount) { _, _ in pulseCounter() }
+        .onChange(of: stats.countries) { _, _ in pulseCounter() }
+        .onAppear { animateBar() }
+        .onChange(of: stats.worldPercent) { _, _ in animateBar() }
+    }
+
+    // MARK: - HUD（大数字）
+
+    private var hud: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("已点亮 FOOTPRINTS LIT")
+                .font(.system(size: 11, weight: .semibold))
+                .tracking(2.2)
+                .foregroundStyle(Color.muted)
+
+            HStack(alignment: .firstTextBaseline, spacing: 6) {
+                GradientText(text: "\(stats.countries)", font: Typo.serif(54))
+                Text("/ \(stats.worldTotal) 国")
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundStyle(Color.faint)
+            }
+            .scaleEffect(counterPulse ? 1.12 : 1, anchor: .leading)
+
+            HStack(spacing: 8) {
+                Circle().fill(Color.grn).frame(width: 5, height: 5)
+                    .shadow(color: .grn, radius: 4)
+                Text("\(stats.cities) 座城市 · 全球 \(percentText)")
+                    .font(.system(size: 12.5))
+                    .foregroundStyle(Color.muted)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, 26)
+        .padding(.top, 8)
+    }
+
+    private var percentText: String {
+        String(format: "%.1f%%", stats.worldPercent)
+    }
+
+    // MARK: - 底部面板（进度条 + 精彩瞬间 + FAB）
+
+    private var bottomPanel: some View {
+        VStack(spacing: 16) {
+            worldBar
+            if !stats.highlights.isEmpty { highlights }
+            fab
+        }
+        .padding(.horizontal, 18)
+        .padding(.top, 14)
+        .padding(.bottom, 8)
+        .background(
+            LinearGradient(colors: [.clear, Color.bg.opacity(0.9), Color.bg],
+                           startPoint: .top, endPoint: .bottom)
+                .ignoresSafeArea(edges: .bottom)
+                .allowsHitTesting(false)
+        )
+    }
+
+    private var worldBar: some View {
+        VStack(spacing: 7) {
+            HStack {
+                Text("世界进度 World").font(.system(size: 11)).foregroundStyle(Color.muted)
+                Spacer()
+                Text(percentText).font(.system(size: 11, weight: .bold)).foregroundStyle(Color.text)
+            }
+            NeonBar(fraction: barFraction, height: 7)
+        }
+        .padding(.horizontal, 8)
+    }
+
+    private var highlights: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 8) {
+                Text("精彩瞬间").font(.system(size: 13, weight: .semibold)).foregroundStyle(Color.text)
+                Text("HIGHLIGHTS").font(.system(size: 11)).tracking(1.2).foregroundStyle(Color.faint)
+            }
+            .padding(.horizontal, 8)
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 12) {
+                    ForEach(stats.highlights) { h in
+                        HighlightCard(highlight: h)
+                    }
+                }
+                .padding(.horizontal, 4)
+            }
+        }
+    }
+
+    private var fab: some View {
+        Button { showCapture = true } label: {
+            HStack(spacing: 9) {
+                Image(systemName: "sparkles").font(.system(size: 16, weight: .bold))
+                Text("点亮新足迹").font(.system(size: 14.5, weight: .bold)).tracking(0.4)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 17)
+            .background(LinearGradient.neonH, in: RoundedRectangle(cornerRadius: 18))
+            .foregroundStyle(.white)
+            .shadow(color: Color.nPurple.opacity(0.55), radius: 16, y: 8)
+        }
     }
 
     // MARK: - 渲染状态
 
     private var renderState: MapRenderState {
         MapRenderState(
-            litRegions: litRegions,
+            litRegions: Boundaries.shared.regions(forCountryCodes: stats.litCountryCodes,
+                                                  emirateCodes: litEmirateCodes),
             pins: footprints.map { MapPin(id: $0.id, coordinate: $0.coordinate) },
             onTapCoordinate: dropFootprint
         )
     }
 
-    /// 已点亮国家 / 酋长国码集合（§5.1 计数口径，distinct）。
-    private var litCountryCodes: Set<String> { Set(footprints.compactMap { $0.countryCode }) }
     private var litEmirateCodes: Set<String> { Set(footprints.compactMap { $0.subRegionCode }) }
 
-    /// M3：从 Natural Earth 边界取已点亮的国家 / UAE 酋长国多边形着色。
-    private var litRegions: [LitRegion] {
-        Boundaries.shared.regions(forCountryCodes: litCountryCodes, emirateCodes: litEmirateCodes)
+    // MARK: - 动画
+
+    private func animateBar() {
+        withAnimation(.easeOut(duration: 1.3)) { barFraction = stats.worldPercent / 100 }
     }
 
-    // MARK: - 计数
-
-    /// 已点亮国家数 = distinct(countryCode)，同国多次到访不重复计数。
-    private var litCountryCount: Int { litCountryCodes.count }
-
-    /// 已点亮城市数 = distinct(cityName)，城市为点状打卡。
-    private var litCityCount: Int {
-        Set(footprints.compactMap { $0.cityName }).count
-    }
-
-    /// 全球百分比 = 已点亮国家 / 世界国家总数（§4.1）。
-    private var globalPercent: Int {
-        let total = Boundaries.shared.totalCountryCount
-        guard total > 0 else { return 0 }
-        return Int((Double(litCountryCount) / Double(total) * 100).rounded())
-    }
-
-    // MARK: - 子视图
-
-    private var counterChip: some View {
-        Text("✦ 已点亮 \(litCountryCount) 国 · 全球 \(globalPercent)% · \(litCityCount) 城")
-            .font(Typo.mono(13))
-            .foregroundStyle(Color.litGlow)
-            .padding(.vertical, 8)
-            .padding(.horizontal, 14)
-            .background(Color.litGlow.opacity(0.12), in: Capsule())
-            .overlay(Capsule().stroke(Color.litGlow.opacity(0.4), lineWidth: 1))
-            .scaleEffect(counterPulse ? 1.18 : 1)
-    }
-
-    /// 计数器跳动一下（§4.2 点亮反馈）。
     private func pulseCounter() {
         withAnimation(.spring(response: 0.3, dampingFraction: 0.45)) { counterPulse = true }
         Task {
@@ -103,45 +175,19 @@ struct MapHomeView: View {
         }
     }
 
-    private var fab: some View {
-        VStack {
-            Spacer()
-            HStack {
-                Spacer()
-                Button {
-                    showCapture = true
-                } label: {
-                    Label("点亮新足迹", systemImage: "plus")
-                        .font(.subheadline.weight(.semibold))
-                        .padding(.vertical, 12)
-                        .padding(.horizontal, 18)
-                        .background(Color.litGlow, in: Capsule())
-                        .foregroundStyle(Color.ink)
-                        .shadow(color: Color.litGlow.opacity(0.5), radius: 12)
-                }
-                .padding(20)
-            }
-        }
-    }
+    // MARK: - 点屏落点（§5.1）
 
-    // MARK: - 动作
-
-    /// 点屏快速落点（§5.1 地图点屏分支）：先即时落库 + 显示 pin，再异步反向地理编码
-    /// 补 placeName / cityName / countryCode（驱动计数，M3 起再驱动着色）。
     private func dropFootprint(at coordinate: CLLocationCoordinate2D) {
         Analytics.log(.captureStarted(source: "map"))
-
-        // 点亮前的已有国家集合，用于判断"新国家"（§5.1 计数口径）
         let priorCodes = Set(footprints.compactMap { $0.countryCode })
 
         let footprint = Footprint(placeName: "标记的地点", coordinate: coordinate)
-        // 离线 point-in-polygon：国家 / 酋长国即时解析，着色与计数立刻生效（§5.1）
         footprint.countryCode = Boundaries.shared.countryCode(at: coordinate)
         if footprint.countryCode == "AE" {
             footprint.subRegionCode = Boundaries.shared.emirateCode(at: coordinate)
         }
         context.insert(footprint)
-        context.insert(Card(footprint: footprint))     // §4.2：每个足迹同步建一张卡
+        context.insert(Card(footprint: footprint))
         try? context.save()
 
         let litCode = footprint.countryCode
@@ -150,7 +196,6 @@ struct MapHomeView: View {
             Analytics.log(.countryLit(countryCode: code, totalLit: priorCodes.count + 1))
         }
 
-        // 异步补全地名 / 城市名（CLGeocoder 需网络；失败也不影响已点亮，不崩溃 §7）
         Task {
             if let place = await Geocoding.resolve(coordinate) {
                 footprint.placeName = place.placeName
@@ -159,6 +204,29 @@ struct MapHomeView: View {
                 try? context.save()
             }
         }
+    }
+}
+
+/// 精彩瞬间卡（封面 + 标题），点开后跳详情可后续接入。
+private struct HighlightCard: View {
+    let highlight: Highlight
+
+    var body: some View {
+        ZStack(alignment: .bottomLeading) {
+            AssetImage(assetID: highlight.assetID, targetSize: CGSize(width: 500, height: 280))
+                .frame(width: 248, height: 140)
+                .clipped()
+            LinearGradient(colors: [.clear, Color.bg.opacity(0.85)],
+                           startPoint: .center, endPoint: .bottom)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(highlight.title).font(Typo.serif(15)).foregroundStyle(.white)
+                Text(highlight.subtitle).font(.system(size: 10.5)).foregroundStyle(Color.muted)
+            }
+            .padding(13)
+        }
+        .frame(width: 248, height: 140)
+        .clipShape(RoundedRectangle(cornerRadius: 18))
+        .overlay(RoundedRectangle(cornerRadius: 18).stroke(Color.line, lineWidth: 1))
     }
 }
 

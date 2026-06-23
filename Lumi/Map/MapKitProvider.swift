@@ -29,8 +29,8 @@ private struct LumiMapView: View {
                 ForEach(state.litRegions) { region in
                     ForEach(Array(region.rings.enumerated()), id: \.offset) { _, ring in
                         MapPolygon(coordinates: ring)
-                            .foregroundStyle(Color.litGlow.opacity(0.32))
-                            .stroke(Color.litGlow.opacity(0.9), lineWidth: 1)
+                            .foregroundStyle(Color.nPurple.opacity(0.30))
+                            .stroke(Color.nPink.opacity(0.9), lineWidth: 1)
                     }
                 }
                 // ② 足迹点：发光琥珀圆点
@@ -54,19 +54,20 @@ private struct LumiMapView: View {
     }
 }
 
-/// 足迹发光点。
+/// 足迹发光点（霓虹粉→橙渐变 + 白芯）。
 private struct FootprintDot: View {
     var body: some View {
         ZStack {
             Circle()
-                .fill(Color.litGlow.opacity(0.25))
+                .fill(Color.nPink.opacity(0.28))
                 .frame(width: 22, height: 22)
                 .blur(radius: 4)
             Circle()
-                .fill(Color.litGlow)
-                .frame(width: 11, height: 11)
-                .overlay(Circle().stroke(Color.white.opacity(0.85), lineWidth: 1))
-                .shadow(color: Color.litGlow.opacity(0.9), radius: 6)
+                .fill(LinearGradient(colors: [.nPink, .nOrange],
+                                     startPoint: .top, endPoint: .bottom))
+                .frame(width: 12, height: 12)
+                .shadow(color: Color.nPink.opacity(0.9), radius: 6)
+            Circle().fill(.white).frame(width: 4, height: 4)
         }
     }
 }

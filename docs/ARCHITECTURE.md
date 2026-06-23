@@ -33,6 +33,12 @@ LumiApp                      应用入口 + SwiftData 容器（Footprint/Trip/Ca
 - **Card** —— 每个 Footprint 录入时同步建一张明信片卡（1:1，cascade 删除），为后续分享/印刷打底（PRD 设计决策）。
 - **Trip** —— 行程归属容器，v0 最薄一层，为 v0.x 回顾打底。
 
+**展示层（派生，不持久化）** —— 暗夜霓虹 v2 引入，对齐 `lumi_data_model` 字段契约：
+
+- `CountryInfo` / `Region`（`Models/`）：`countryCode` → 国旗 emoji（区域指示符拼合）/ 中文国名（`Locale`）/ 地区分组（中东特判 + 大洲映射）。全部计算属性挂在 `Footprint` 上。
+- `LumiStats` / `Badge` / `BadgeBoard` / `ConquestEntry`（`Features/Stats/Achievements.swift`）：从 `[Footprint]` 聚合徽章状态、大洲征服、概览数字与精彩瞬间。**单一计算入口**保证 地图 / 星迹 / 成就 / 我 四页口径一致。
+- 取舍：徽章不落库为 @Model，规则化派生，避免 SwiftData 迁移与「徽章状态 ↔ 真实数据」不同步。解锁时间以触发里程碑的足迹 `visitedAt` 近似。
+
 ## 3. 核心数据流：点亮判定（PRD §5.1）
 
 ```

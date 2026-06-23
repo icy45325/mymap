@@ -1,66 +1,108 @@
 import SwiftUI
 
-/// 明信片卡详情（§4.3）：只读。v0 不做编辑（详见 PRD 设计决策待确认项 2）。
+/// 明信片卡详情（§4.3）· 暗夜霓虹 v2。只读（v0 不做编辑）。
 struct FootprintDetailView: View {
 
     let footprint: Footprint
 
-    private static let dateFormat: Date.FormatStyle =
-        .dateTime.year().month(.wide).day()
+    @Environment(\.dismiss) private var dismiss
+
+    private static let dateFormat: Date.FormatStyle = .dateTime.year().month(.wide).day()
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 18) {
-                AssetImage(assetID: footprint.photoAssetIDs.first,
-                           targetSize: CGSize(width: 1200, height: 900))
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 260)
-                    .clipShape(RoundedRectangle(cornerRadius: Metrics.radius))
-
-                VStack(alignment: .leading, spacing: 6) {
-                    Text(footprint.placeName)
-                        .font(Typo.display(26))
-                        .foregroundStyle(Color.textPrimary)
-                    Text(locationLine)
-                        .font(.subheadline)
-                        .foregroundStyle(Color.litGlow)
+            VStack(alignment: .leading, spacing: 0) {
+                hero
+                VStack(alignment: .leading, spacing: 18) {
+                    title
+                    statRow
+                    if !footprint.mood.isEmpty {
+                        Text(footprint.mood)
+                            .font(.system(size: 13.5)).lineSpacing(4)
+                            .foregroundStyle(Color(hex: 0xC8C8DC))
+                    }
+                    infoRow("日期", footprint.visitedAt.formatted(Self.dateFormat))
+                    if !footprint.companions.isEmpty {
+                        infoRow("同行人", footprint.companions.joined(separator: "、"))
+                    }
                 }
-
-                if !footprint.mood.isEmpty {
-                    Text("「\(footprint.mood)」")
-                        .font(.body)
-                        .foregroundStyle(Color.textPrimary)
-                        .padding(14)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(Color.panel, in: RoundedRectangle(cornerRadius: Metrics.radius))
-                }
-
-                infoRow("日期", footprint.visitedAt.formatted(Self.dateFormat))
-                if !footprint.companions.isEmpty {
-                    infoRow("同行人", footprint.companions.joined(separator: "、"))
-                }
+                .padding(.horizontal, 26)
+                .padding(.top, 4)
+                .offset(y: -46)
             }
-            .padding(Metrics.pad)
         }
-        .background(Color.ink.ignoresSafeArea())
-        .navigationTitle("足迹")
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbarBackground(Color.ink, for: .navigationBar)
-        .toolbarColorScheme(.dark, for: .navigationBar)
+        .background(Color.bg.ignoresSafeArea())
+        .toolbar(.hidden, for: .navigationBar)
+        .overlay(alignment: .topLeading) { backButton }
         .preferredColorScheme(.dark)
     }
 
-    /// 城市 · 国家（中文国名）。
-    private var locationLine: String {
-        let country = Locale.current.localizedString(forRegionCode: footprint.countryCode ?? "")
-        return [footprint.cityName, country].compactMap { $0 }.joined(separator: " · ")
+    private var hero: some View {
+        ZStack(alignment: .bottom) {
+            AssetImage(assetID: footprint.photoAssetIDs.first,
+                       targetSize: CGSize(width: 1200, height: 900))
+                .frame(maxWidth: .infinity).frame(height: 260).clipped()
+            LinearGradient(colors: [.clear, Color.bg.opacity(0.6), Color.bg],
+                           startPoint: .top, endPoint: .bottom)
+                .frame(height: 160)
+        }
+        .frame(height: 260)
+    }
+
+    private var backButton: some View {
+        Button { dismiss() } label: {
+            Image(systemName: "chevron.left").font(.system(size: 17, weight: .semibold))
+                .foregroundStyle(.white)
+                .frame(width: 38, height: 38)
+                .background(.black.opacity(0.4), in: Circle())
+                .overlay(Circle().stroke(.white.opacity(0.15), lineWidth: 1))
+        }
+        .padding(.leading, 18).padding(.top, 50)
+    }
+
+    private var title: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 8) {
+                Text(footprint.flag).font(.system(size: 26))
+                Text(footprint.title).font(Typo.serif(34)).foregroundStyle(Color.text)
+            }
+            Label {
+                Text(coordinateLine).font(.system(size: 13)).foregroundStyle(Color.muted)
+            } icon: {
+                Image(systemName: "mappin.and.ellipse").foregroundStyle(Color.nPink)
+            }
+        }
+    }
+
+    private var statRow: some View {
+        HStack(spacing: 10) {
+            statCard("\(footprint.photoCount)", "照片")
+            statCard(footprint.region?.displayName ?? "—", "地区")
+            statCard(footprint.flag, "国家")
+        }
+    }
+
+    private func statCard(_ value: String, _ label: String) -> some View {
+        VStack(spacing: 3) {
+            Text(value).font(Typo.serif(20)).foregroundStyle(Color.text)
+            Text(label).font(.system(size: 10.5)).foregroundStyle(Color.muted)
+        }
+        .frame(maxWidth: .infinity).padding(.vertical, 13)
+        .panelCard(15)
     }
 
     private func infoRow(_ label: String, _ value: String) -> some View {
         HStack(alignment: .top) {
-            Text(label).font(.subheadline).foregroundStyle(Color.textSecondary).frame(width: 64, alignment: .leading)
-            Text(value).font(.subheadline).foregroundStyle(Color.textPrimary)
+            Text(label).font(.subheadline).foregroundStyle(Color.muted).frame(width: 64, alignment: .leading)
+            Text(value).font(.subheadline).foregroundStyle(Color.text)
             Spacer()
         }
+    }
+
+    private var coordinateLine: String {
+        var parts: [String] = []
+        if !footprint.locationSubtitle.isEmpty { parts.append(footprint.locationSubtitle) }
+        parts.append(String(format: "%.1f°, %.1f°", footprint.latitude, footprint.longitude))
+        return parts.joined(separator: " · ")
     }
 }
