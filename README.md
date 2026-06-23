@@ -34,6 +34,7 @@ Lumi/
   Design/Components.swift     霓虹组件：六边形徽章 · 环形进度 · 进度条 · 分段器
   Map/                       MapProvider 抽象层 + MapKitProvider 实现（霓虹着色）
   Features/Map/MapHomeView   世界地图主页（核心页）· HUD + 精彩瞬间 + FAB
+  Features/Map/DotMatrixMap  可选沉浸模式：点阵光点世界地图（程序生成，右上角按钮进入）
   Features/Timeline/         星迹时间轴 + 明信片详情
   Features/Stats/            成就页 + Achievements（派生徽章/大洲征服/统计）
   Features/Profile/          「我」本地档案页

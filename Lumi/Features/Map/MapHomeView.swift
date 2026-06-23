@@ -17,6 +17,7 @@ struct MapHomeView: View {
     private let mapProvider: MapProvider = MapKitProvider()
 
     @State private var showCapture = false
+    @State private var showImmersive = false
     @State private var counterPulse = false
     @State private var barFraction: Double = 0
 
@@ -42,9 +43,13 @@ struct MapHomeView: View {
                 bottomPanel
             }
         }
+        .overlay(alignment: .topTrailing) { immersiveButton }
         .preferredColorScheme(.dark)
         .sheet(isPresented: $showCapture) {
             CaptureView(source: "fab", prefilledCoordinate: nil)
+        }
+        .fullScreenCover(isPresented: $showImmersive) {
+            ImmersiveMapView(footprints: footprints) { showImmersive = false }
         }
         .onChange(of: stats.countries) { _, _ in pulseCounter() }
         .onAppear { animateBar() }
@@ -83,6 +88,20 @@ struct MapHomeView: View {
 
     private var percentText: String {
         String(format: "%.1f%%", stats.worldPercent)
+    }
+
+    /// 右上角：进入点阵光点沉浸模式。
+    private var immersiveButton: some View {
+        Button { showImmersive = true } label: {
+            Image(systemName: "arrow.up.left.and.arrow.down.right")
+                .font(.system(size: 15, weight: .semibold))
+                .foregroundStyle(Color.text)
+                .frame(width: 38, height: 38)
+                .background(Color.panel.opacity(0.62), in: RoundedRectangle(cornerRadius: 12))
+                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.line, lineWidth: 1))
+        }
+        .padding(.trailing, 22)
+        .padding(.top, 8)
     }
 
     // MARK: - 底部面板（进度条 + 精彩瞬间 + FAB）
