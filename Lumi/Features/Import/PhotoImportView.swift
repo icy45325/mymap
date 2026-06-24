@@ -98,8 +98,16 @@ struct PhotoImportView: View {
 
     // MARK: - 候选列表
 
+    private var granularityBinding: Binding<ImportGranularity> {
+        Binding(get: { service.granularity }, set: { service.setGranularity($0) })
+    }
+
     private var list: some View {
         VStack(spacing: 0) {
+            SegmentBar(items: ImportGranularity.allCases.map { (value: $0, label: $0.label) },
+                       selection: granularityBinding)
+                .padding(.top, 10).padding(.bottom, 2)
+
             HStack {
                 Text("识别到 \(service.candidates.count) 处地点")
                     .font(.system(size: 12)).foregroundStyle(Color.muted)
