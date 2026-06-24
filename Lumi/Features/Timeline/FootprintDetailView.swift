@@ -1,11 +1,12 @@
 import SwiftUI
 
-/// 明信片卡详情（§4.3）· 暗夜霓虹 v2。只读（v0 不做编辑）。
+/// 明信片卡详情（§4.3）· 暗夜霓虹 v2。支持编辑（地点名 / 日期 / 心情 / 同行人）。
 struct FootprintDetailView: View {
 
     let footprint: Footprint
 
     @Environment(\.dismiss) private var dismiss
+    @State private var showEdit = false
 
     private static let dateFormat: Date.FormatStyle = .dateTime.year().month(.wide).day()
 
@@ -32,7 +33,22 @@ struct FootprintDetailView: View {
         .background(Color.bg.ignoresSafeArea())
         .toolbar(.hidden, for: .navigationBar)
         .overlay(alignment: .topLeading) { backButton }
+        .overlay(alignment: .topTrailing) { editButton }
         .preferredColorScheme(.dark)
+        .sheet(isPresented: $showEdit) {
+            FootprintEditView(footprint: footprint)
+        }
+    }
+
+    private var editButton: some View {
+        Button { showEdit = true } label: {
+            Image(systemName: "square.and.pencil").font(.system(size: 16, weight: .semibold))
+                .foregroundStyle(.white)
+                .frame(width: 38, height: 38)
+                .background(.black.opacity(0.4), in: Circle())
+                .overlay(Circle().stroke(.white.opacity(0.15), lineWidth: 1))
+        }
+        .padding(.trailing, 18).padding(.top, 50)
     }
 
     private var hero: some View {

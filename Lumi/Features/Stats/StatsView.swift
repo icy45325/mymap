@@ -10,11 +10,25 @@ struct StatsView: View {
     @State private var categoryFilter: CatFilter = .all
     @State private var selectedBadge: Badge?
     @State private var celebrate: Badge?
+    /// 用户手动钉选的置顶徽章 id（持久化；空 = 用默认「最高荣耀」）。
+    @AppStorage("lumi.featuredBadgeID") private var pinnedID: String = ""
 
     private enum CatFilter: Hashable { case all, category(BadgeCategory), rare }
 
     private var stats: LumiStats { LumiStats(footprints: footprints) }
     private var board: BadgeBoard { stats.badgeBoard }
+
+    /// 置顶展示：手动钉选（且仍为已解锁）优先，否则回退到稀有度最高的已解锁徽章。
+    private var featuredBadge: Badge? {
+        if !pinnedID.isEmpty,
+           let pinned = board.badges.first(where: { $0.id == pinnedID && $0.state == .lit }) {
+            return pinned
+        }
+        return board.featured
+    }
+    private var isManuallyPinned: Bool {
+        !pinnedID.isEmpty && board.badges.contains { $0.id == pinnedID && $0.state == .lit }
+    }
 
     var body: some View {
         NavigationStack {
@@ -22,7 +36,7 @@ struct StatsView: View {
                 VStack(alignment: .leading, spacing: 18) {
                     header
                     ringSummary
-                    if let f = board.featured { showcase(f) }
+                    if let f = featuredBadge { showcase(f) }
                     SegmentBar(items: segmentItems, selection: $categoryFilter)
                     honeycomb
                     if let n = board.nextUp { nextUpSection(n) }
@@ -83,59 +97,81 @@ struct StatsView: View {
     // MARK: - 置顶展示
 
     private func showcase(_ b: Badge) -> some View {
-        Button { celebrate = b } label: {
-            HStack(alignment: .top) {
-                VStack(alignment: .leading, spacing: 6) {
-                    Text("\(b.rarity.tierName) · \(b.rarity.rawValue.uppercased())")
-                        .font(.system(size: 10, weight: .heavy)).tracking(1.6)
-                        .foregroundStyle(b.rarity.color)
-                    Text(b.name).font(Typo.serif(25)).foregroundStyle(Color.text)
-                    Text(b.desc).font(.system(size: 12)).foregroundStyle(Color(hex: 0xC9C2D6))
-                        .frame(maxWidth: 195, alignment: .leading)
-                    Text("◆ 全球仅 \(b.ownership) 玩家拥有")
-                        .font(.system(size: 10.5)).foregroundStyle(Color(hex: 0xE6C18C))
-                        .padding(.top, 6)
-                }
-                Spacer()
-                HexBadge(badge: b, size: 70)
+        HStack(alignment: .top) {
+            VStack(alignment: .leading, spacing: 6) {
+                Text("\(b.rarity.tierName) · \(b.rarity.rawValue.uppercased())")
+                    .font(.system(size: 10, weight: .heavy)).tracking(1.6)
+                    .foregroundStyle(b.rarity.color)
+                Text(b.name).font(Typo.serif(25)).foregroundStyle(Color.text)
+                Text(b.desc).font(.system(size: 12)).foregroundStyle(Color(hex: 0xC9C2D6))
+                    .frame(maxWidth: 195, alignment: .leading)
+                Text("◆ 全球仅 \(b.ownership) 玩家拥有")
+                    .font(.system(size: 10.5)).foregroundStyle(Color(hex: 0xE6C18C))
+                    .padding(.top, 6)
             }
-            .padding(18)
-            .background(
-                LinearGradient(colors: [Color.nOrange.opacity(0.2), Color.nPink.opacity(0.12), Color.nPurple.opacity(0.18)],
-                               startPoint: .topLeading, endPoint: .bottomTrailing),
-                in: RoundedRectangle(cornerRadius: 20))
-            .overlay(RoundedRectangle(cornerRadius: 20).stroke(Color.nOrange.opacity(0.45), lineWidth: 1))
-            .overlay(alignment: .topTrailing) {
-                Text("📌 已置顶").font(.system(size: 9, weight: .bold)).tracking(1)
-                    .foregroundStyle(Color.nOrange).padding(14)
-            }
+            Spacer()
+            HexBadge(badge: b, size: 70)
         }
-        .buttonStyle(.plain)
+        .padding(18)
+        .background(
+            LinearGradient(colors: [Color.nOrange.opacity(0.2), Color.nPink.opacity(0.12), Color.nPurple.opacity(0.18)],
+                           startPoint: .topLeading, endPoint: .bottomTrailing),
+            in: RoundedRectangle(cornerRadius: 20))
+        .overlay(RoundedRectangle(cornerRadius: 20).stroke(Color.nOrange.opacity(0.45), lineWidth: 1))
+        .overlay(alignment: .topTrailing) { pinControl }
+        .contentShape(Rectangle())
+        .onTapGesture { celebrate = b }
         .padding(.horizontal, 22)
+    }
+
+    /// 置顶角标：手动钉选时给「取消置顶」按钮；默认则标「最高荣耀」。
+    @ViewBuilder private var pinControl: some View {
+        if isManuallyPinned {
+            Button { pinnedID = "" } label: {
+                Label("取消置顶", systemImage: "pin.slash.fill")
+                    .font(.system(size: 9, weight: .bold)).tracking(0.5)
+                    .foregroundStyle(Color.nOrange)
+                    .padding(.vertical, 5).padding(.horizontal, 9)
+                    .background(Color.black.opacity(0.32), in: Capsule())
+            }
+            .buttonStyle(.plain)
+            .padding(12)
+        } else {
+            Text("桂冠 · 最高荣耀").font(.system(size: 9, weight: .bold)).tracking(1)
+                .foregroundStyle(Color.nOrange).padding(14)
+        }
     }
 
     // MARK: - 蜂巢
 
     private var honeycomb: some View {
         let rows = honeycombRows
-        let size: CGFloat = 60
-        let hSpacing: CGFloat = 7
-        let rowOverlap = size * 1.15 * 0.25          // 尖顶六边形镶嵌量 ≈17
-        let stagger = (size + hSpacing) / 2          // 交替行错半个间距 ≈33
-        return VStack(spacing: -rowOverlap) {
+        let stagger: CGFloat = 30                     // 交替行错位量（仅左右错，绝不上下叠）
+        return VStack(spacing: 16) {                  // 正间距：行与行不再遮挡
             ForEach(Array(rows.enumerated()), id: \.offset) { idx, row in
-                HStack(spacing: hSpacing) {
-                    ForEach(row) { b in
-                        HexBadge(badge: b, size: size, dimmed: !matches(b))
-                            .onTapGesture { selectedBadge = b }
-                    }
+                HStack(spacing: 12) {
+                    ForEach(row) { b in honeyCell(b) }
                 }
-                // 交替行左右错位，使下行嵌进上行缝隙而非正上方（整体保持居中）
                 .offset(x: idx.isMultiple(of: 2) ? -stagger / 2 : stagger / 2)
             }
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, 10)
+        .padding(.vertical, 12)
+    }
+
+    /// 蜂巢单元：徽章 + 名称。点击任意处看「是什么 / 怎么得到」。
+    private func honeyCell(_ b: Badge) -> some View {
+        VStack(spacing: 5) {
+            HexBadge(badge: b, size: 58, dimmed: !matches(b))
+            Text(b.name)
+                .font(.system(size: 9, weight: .medium))
+                .foregroundStyle(matches(b) ? Color.muted : Color.faint)
+                .lineLimit(1).minimumScaleFactor(0.8)
+                .frame(maxWidth: 66)
+        }
+        .frame(width: 66)
+        .contentShape(Rectangle())
+        .onTapGesture { selectedBadge = b }
     }
 
     /// 把徽章按 4 / 3 交替切成蜂巢行。
@@ -227,6 +263,9 @@ struct StatsView: View {
 private struct BadgeSheet: View {
     let badge: Badge
 
+    @AppStorage("lumi.featuredBadgeID") private var pinnedID: String = ""
+    private var isPinned: Bool { pinnedID == badge.id }
+
     private static let dateFormat: Date.FormatStyle = .dateTime.year().month().day()
 
     var body: some View {
@@ -237,18 +276,49 @@ private struct BadgeSheet: View {
             Text("\(badge.rarity.tierName) · \(badge.rarity.rawValue.uppercased())")
                 .font(.system(size: 10.5, weight: .heavy)).tracking(1.6)
                 .foregroundStyle(badge.rarity.color).padding(.top, 7)
-            Text(badge.desc).font(.system(size: 13)).foregroundStyle(Color(hex: 0xC9C2D6))
-                .multilineTextAlignment(.center).padding(.top, 13).padding(.horizontal, 26)
+
+            // 怎么得到：解锁条件文案（+ 进行中进度）
+            VStack(spacing: 8) {
+                Text(badge.state == .lit ? "已解锁" : "解锁条件")
+                    .font(.system(size: 10, weight: .bold)).tracking(1.5)
+                    .foregroundStyle(badge.state == .lit ? Color.grn : Color.nCyan)
+                Text(badge.desc).font(.system(size: 13)).foregroundStyle(Color(hex: 0xC9C2D6))
+                    .multilineTextAlignment(.center)
+                if badge.state == .prog, let p = badge.progress {
+                    NeonBar(fraction: p, height: 8).frame(height: 8)
+                    Text(badge.progressText ?? "").font(.system(size: 11)).foregroundStyle(Color.muted)
+                }
+            }
+            .padding(.top, 13).padding(.horizontal, 26)
+
             HStack(spacing: 10) {
                 statBox(badge.ownership, "全球持有率")
                 statBox(stateValue, stateLabel)
             }
-            .padding(.top, 20).padding(.horizontal, 26)
+            .padding(.top, 18).padding(.horizontal, 26)
+
+            // 置顶控制：仅已解锁可钉选；可随时取消
+            if badge.state == .lit {
+                Button { pinnedID = isPinned ? "" : badge.id } label: {
+                    Label(isPinned ? "取消置顶" : "设为置顶展示",
+                          systemImage: isPinned ? "pin.slash.fill" : "pin.fill")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(isPinned ? Color.nOrange : .white)
+                        .frame(maxWidth: .infinity).padding(.vertical, 12)
+                        .background(isPinned
+                            ? AnyShapeStyle(Color.panel)
+                            : AnyShapeStyle(LinearGradient.neonH), in: Capsule())
+                        .overlay(Capsule().stroke(isPinned ? Color.nOrange.opacity(0.5) : .clear, lineWidth: 1))
+                }
+                .buttonStyle(.plain)
+                .padding(.top, 16).padding(.horizontal, 26)
+            }
+
             Spacer()
         }
         .frame(maxWidth: .infinity)
         .background(Color(hex: 0x0F0F1B).ignoresSafeArea())
-        .presentationDetents([.medium])
+        .presentationDetents([.medium, .large])
         .presentationDragIndicator(.hidden)
         .preferredColorScheme(.dark)
     }

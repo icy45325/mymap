@@ -56,9 +56,9 @@ struct HexBadge: View {
                 .clipShape(Hexagon())
                 .padding(2)
             }
-            // 图标
-            Image(systemName: badge.state == .locked ? "lock.fill" : badge.icon)
-                .font(.system(size: size * 0.36, weight: .semibold))
+            // 图标（锁定也显示真实图标，只是变暗——让人看清是什么徽章）
+            Image(systemName: badge.icon)
+                .font(.system(size: size * 0.34, weight: .semibold))
                 .foregroundStyle(iconColor)
             // 进度百分比
             if badge.state == .prog, let p = badge.progress {
@@ -72,6 +72,17 @@ struct HexBadge: View {
             }
         }
         .frame(width: size, height: h)
+        // 锁定标记：底部小锁，标明未解锁但不挡住图标
+        .overlay(alignment: .bottom) {
+            if badge.state == .locked {
+                Image(systemName: "lock.fill")
+                    .font(.system(size: size * 0.15, weight: .bold))
+                    .foregroundStyle(.white.opacity(0.92))
+                    .padding(size * 0.07)
+                    .background(Circle().fill(Color.black.opacity(0.6)))
+                    .offset(y: -size * 0.14)
+            }
+        }
         .shadow(color: badge.state == .lit ? badge.rarity.color.opacity(0.55) : .black.opacity(0.4),
                 radius: badge.state == .lit ? 9 : 4, y: 3)
         .opacity(dimmed ? 0.13 : 1)
@@ -93,7 +104,7 @@ struct HexBadge: View {
         }
     }
     private var iconColor: Color {
-        badge.state == .locked ? .faint : .white
+        badge.state == .locked ? Color(hex: 0x8C8CA6) : .white   // 锁定图标可见而非隐没
     }
 }
 
