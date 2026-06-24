@@ -48,7 +48,7 @@ Siri / Spotlight / 小组件 / 快捷指令 / 锁屏按钮**。即便 v0.x 也�
 
 | 阶段 | 接什么 | 理由 |
 |------|--------|------|
-| **v0.x（早做）** | App Intents「点亮这里」+ 一个主屏/锁屏小组件 + 「去年今日」 | 纯本地、几乎不增后端负担，却立刻有「系统级存在感」，杠杆最高 |
+| **v0.x（早做）** | App Intents「点亮这里」+ 一个主屏/锁屏小组件 ✅ *(已落地，待真机验证，见 [widget-app-intent-setup.md](widget-app-intent-setup.md))*；「去年今日」待做 | 纯本地、几乎不增后端负担，却立刻有「系统级存在感」，杠杆最高 |
 | **内容阶段** | Journaling Suggestions + Foundation Models 故事片 + StandBy 回放 | 接「AI 故事片 / 怀念」主线 |
 | **社交阶段** | SharePlay + CloudKit 共享 + 好友 | 放大「一起」，但需自建/付费层与合规 |
 

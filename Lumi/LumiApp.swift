@@ -4,19 +4,9 @@ import SwiftData
 /// Lumi v0 应用入口。
 ///
 /// 单一 SwiftData 容器承载三个实体；纯本地、无账号、无网络（搜索地点除外）。
+/// 容器收敛到 `LumiStore.shared`，与「点亮这里」App Intent 共用同一实例。
 @main
 struct LumiApp: App {
-
-    /// 全应用共享的持久化容器。杀进程重启数据不丢（§10 数据与稳定性）。
-    let container: ModelContainer = {
-        let schema = Schema([Footprint.self, Trip.self, Card.self])
-        let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
-        do {
-            return try ModelContainer(for: schema, configurations: config)
-        } catch {
-            fatalError("无法创建 ModelContainer: \(error)")
-        }
-    }()
 
     @Environment(\.scenePhase) private var scenePhase
 
@@ -24,9 +14,12 @@ struct LumiApp: App {
         WindowGroup {
             RootTabView()
         }
-        .modelContainer(container)
+        .modelContainer(LumiStore.shared)
         .onChange(of: scenePhase) { _, phase in
-            if phase == .active { Analytics.log(.appOpen) }   // §9 app_open
+            if phase == .active {
+                Analytics.log(.appOpen)                       // §9 app_open
+                WidgetSync.refresh(LumiStore.shared.mainContext)  // 启动即对齐小组件快照
+            }
         }
     }
 }

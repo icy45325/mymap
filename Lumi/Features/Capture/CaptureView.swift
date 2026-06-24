@@ -409,6 +409,8 @@ struct CaptureView: View {
         context.insert(Card(footprint: footprint))     // §4.2：同步持久化一张明信片卡
         try? context.save()
 
+        WidgetSync.refresh(context)                     // 点亮后对齐主屏小组件计数
+
         saved = true
         Analytics.log(.footprintCreated(countryCode: footprint.countryCode,
                                         hasPhoto: photoAssetID != nil,
