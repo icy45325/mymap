@@ -4,6 +4,9 @@
 中的「v0 之后」线索整理成分阶段路线。完整产品蓝图以《Lumi 产品与架构总览》为准，本文档仅
 做工程侧的阶段拆解与依赖关系，随验证结果滚动更新。
 
+> iOS 系统能力的逐项设想（小组件 / App Intents / Live Activity / Foundation Models / SharePlay…）
+> 单独记在 [`ios-native-capabilities.md`](ios-native-capabilities.md)。
+
 > iOS 系统能力（小组件 / App Intents / Live Activity / Foundation Models 等）的接入设想，
 > 见 [`ios-native-capabilities.md`](ios-native-capabilities.md)。
 
