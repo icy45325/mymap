@@ -4,6 +4,9 @@
 中的「v0 之后」线索整理成分阶段路线。完整产品蓝图以《Lumi 产品与架构总览》为准，本文档仅
 做工程侧的阶段拆解与依赖关系，随验证结果滚动更新。
 
+> iOS 系统能力（小组件 / App Intents / Live Activity / Foundation Models 等）的接入设想，
+> 见 [`ios-native-capabilities.md`](ios-native-capabilities.md)。
+
 > 北极星：Lumi 定位于竞品最弱的「**记忆 / 共创**」象限——完整形态 = 交换日记 + AI 故事片 +
 > 共创圈子。每个阶段只有在前一阶段的核心假设被验证后才推进，**未验证则修回路，而非加功能**。
 
