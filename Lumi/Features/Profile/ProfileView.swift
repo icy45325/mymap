@@ -43,8 +43,19 @@ struct ProfileView: View {
                 Text("Lv.\(stats.level) 探索者").font(.system(size: 12)).foregroundStyle(Color.muted)
             }
             Spacer()
+            NavigationLink { WishlistView() } label: { topIcon("heart") }
+            NavigationLink { SettingsView() } label: { topIcon("gearshape") }
         }
         .padding(.horizontal, 26)
+    }
+
+    private func topIcon(_ systemName: String) -> some View {
+        Image(systemName: systemName)
+            .font(.system(size: 16, weight: .semibold))
+            .foregroundStyle(Color.text)
+            .frame(width: 38, height: 38)
+            .background(Color.panel, in: Circle())
+            .overlay(Circle().stroke(Color.line, lineWidth: 1))
     }
 
     private var statsRow: some View {

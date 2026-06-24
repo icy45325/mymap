@@ -9,8 +9,8 @@ import SwiftData
 /// 也保证两边永远指向同一个本地库文件（§10 数据与稳定性）。
 enum LumiStore {
 
-    /// 与 §10 对齐的三实体 schema。
-    static let schema = Schema([Footprint.self, Trip.self, Card.self])
+    /// 实体 schema（足迹 / 行程 / 卡片 / 心愿）。新增实体走 SwiftData 轻量自动迁移。
+    static let schema = Schema([Footprint.self, Trip.self, Card.self, Wish.self])
 
     /// 进程级共享容器。杀进程重启数据不丢；冷启动失败直接 fatal（与原入口一致）。
     static let shared: ModelContainer = {

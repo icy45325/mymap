@@ -9,10 +9,14 @@ import SwiftData
 struct LumiApp: App {
 
     @Environment(\.scenePhase) private var scenePhase
+    @AppStorage("appLanguage") private var appLanguage: String = AppLanguage.system.rawValue
+
+    private var language: AppLanguage { AppLanguage(rawValue: appLanguage) ?? .system }
 
     var body: some Scene {
         WindowGroup {
             RootTabView()
+                .applyLanguage(language)
         }
         .modelContainer(LumiStore.shared)
         .onChange(of: scenePhase) { _, phase in

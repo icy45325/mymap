@@ -13,7 +13,8 @@ enum WidgetSync {
         let descriptor = FetchDescriptor<Footprint>(sortBy: [SortDescriptor(\.createdAt)])
         let footprints = (try? context.fetch(descriptor)) ?? []
         let stats = LumiStats(footprints: footprints)
-        let last = footprints.last   // 按 createdAt 升序，末位即最近一次点亮
+        // 「上次你在」按**实际到访时间**（visitedAt）取最近，而非添加顺序
+        let last = footprints.max { $0.visitedAt < $1.visitedAt }
 
         // 精简回忆（按 visitedAt 升序），供「去年今日」按日期匹配。
         let memories = footprints
