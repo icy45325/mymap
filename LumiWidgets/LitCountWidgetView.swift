@@ -21,21 +21,18 @@ struct LitCountWidgetView: View {
     // MARK: - 主屏中尺寸（示意图同款）
 
     private var medium: some View {
-        HStack(spacing: 0) {
+        HStack(spacing: 12) {
             DotField(litCodes: snapshot.litCountryCodes)
                 .frame(maxWidth: .infinity)
-                .padding(14)
             statsColumn
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.trailing, 4)
         }
+        .padding(WidgetChrome.pad)
     }
 
     private var statsColumn: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text("LUMI · 点亮战绩")
-                .font(.system(size: 10, weight: .semibold)).tracking(2)
-                .foregroundStyle(WidgetTheme.muted)
+            WidgetHeader(section: "点亮战绩")
             Text("\(snapshot.countries)")
                 .font(WidgetTheme.serif(48))
                 .foregroundStyle(WidgetTheme.orange)
@@ -57,10 +54,9 @@ struct LitCountWidgetView: View {
 
     private var small: some View {
         ZStack {
-            DotField(litCodes: snapshot.litCountryCodes, baseDot: 2.5, litDot: 6)
-                .opacity(0.5)
-                .padding(8)
+            DotMatrixBackdrop(litCodes: snapshot.litCountryCodes)   // 满幅肌理
             VStack(alignment: .leading, spacing: 2) {
+                WidgetHeader(section: "点亮战绩")
                 Spacer()
                 Text("\(snapshot.countries)")
                     .font(WidgetTheme.serif(44))
@@ -70,7 +66,8 @@ struct LitCountWidgetView: View {
                     .font(.system(size: 12, weight: .semibold))
                     .foregroundStyle(WidgetTheme.text)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            .padding(WidgetChrome.pad)
         }
     }
 

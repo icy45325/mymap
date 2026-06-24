@@ -20,56 +20,62 @@ struct OnThisDayWidgetView: View {
     // MARK: - 主屏中尺寸
 
     private var medium: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            header
-            if let m = entry.memory {
-                HStack(spacing: 8) {
-                    Text(WidgetTheme.flag(for: m.countryCode)).font(.system(size: 26))
-                    Text(m.placeName)
-                        .font(WidgetTheme.serif(28))
-                        .foregroundStyle(WidgetTheme.text)
-                        .lineLimit(1).minimumScaleFactor(0.6)
+        ZStack {
+            DotMatrixBackdrop(litCodes: entry.litCountryCodes)
+            VStack(alignment: .leading, spacing: 6) {
+                WidgetHeader(section: "去年今日")
+                if let m = entry.memory {
+                    HStack(spacing: 8) {
+                        Text(WidgetTheme.flag(for: m.countryCode)).font(.system(size: 26))
+                        Text(m.placeName)
+                            .font(WidgetTheme.serif(28))
+                            .foregroundStyle(WidgetTheme.text)
+                            .lineLimit(1).minimumScaleFactor(0.6)
+                    }
+                    Text(recallLine(m))
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundStyle(WidgetTheme.orange)
+                    if let mood = m.mood {
+                        Text("「\(mood)」")
+                            .font(.system(size: 12))
+                            .foregroundStyle(WidgetTheme.muted)
+                            .lineLimit(2)
+                    }
+                    Spacer(minLength: 0)
+                } else {
+                    emptyState
                 }
-                Text(recallLine(m))
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundStyle(WidgetTheme.orange)
-                if let mood = m.mood {
-                    Text("「\(mood)」")
-                        .font(.system(size: 12))
-                        .foregroundStyle(WidgetTheme.muted)
-                        .lineLimit(2)
-                }
-                Spacer(minLength: 0)
-            } else {
-                emptyState
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            .padding(WidgetChrome.pad)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .padding(16)
     }
 
     // MARK: - 主屏小尺寸
 
     private var small: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            header
-            Spacer(minLength: 0)
-            if let m = entry.memory {
-                Text(WidgetTheme.flag(for: m.countryCode)).font(.system(size: 24))
-                Text(m.placeName)
-                    .font(WidgetTheme.serif(22))
-                    .foregroundStyle(WidgetTheme.text)
-                    .lineLimit(1).minimumScaleFactor(0.6)
-                Text(recallLine(m))
-                    .font(.system(size: 10.5, weight: .medium))
-                    .foregroundStyle(WidgetTheme.orange)
-                    .lineLimit(1)
-            } else {
-                emptyState
+        ZStack {
+            DotMatrixBackdrop(litCodes: entry.litCountryCodes)   // 满幅肌理
+            VStack(alignment: .leading, spacing: 4) {
+                WidgetHeader(section: "去年今日")
+                Spacer(minLength: 0)
+                if let m = entry.memory {
+                    Text(WidgetTheme.flag(for: m.countryCode)).font(.system(size: 24))
+                    Text(m.placeName)
+                        .font(WidgetTheme.serif(22))
+                        .foregroundStyle(WidgetTheme.text)
+                        .lineLimit(1).minimumScaleFactor(0.6)
+                    Text(recallLine(m))
+                        .font(.system(size: 10.5, weight: .medium))
+                        .foregroundStyle(WidgetTheme.orange)
+                        .lineLimit(1)
+                } else {
+                    emptyState
+                }
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            .padding(WidgetChrome.pad)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .padding(14)
     }
 
     // MARK: - 锁屏
@@ -102,12 +108,6 @@ struct OnThisDayWidgetView: View {
     }
 
     // MARK: - 公共件
-
-    private var header: some View {
-        Text("LUMI · 去年今日")
-            .font(.system(size: 10, weight: .semibold)).tracking(2)
-            .foregroundStyle(WidgetTheme.muted)
-    }
 
     private var emptyState: some View {
         VStack(alignment: .leading, spacing: 4) {

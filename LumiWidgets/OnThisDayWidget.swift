@@ -31,10 +31,11 @@ enum OnThisDay {
     }
 }
 
-/// 时间线条目：某一天 + 当天匹配到的回忆。
+/// 时间线条目：某一天 + 当天匹配到的回忆 + 星图点位（统一品牌肌理用）。
 struct OnThisDayEntry: TimelineEntry {
     let date: Date
     let memory: LumiMemory?
+    var litCountryCodes: [String] = []
 }
 
 /// Provider：生成未来若干天的每日条目，让小组件每天自动滚动到「那天的去年今日」，
@@ -49,11 +50,14 @@ struct OnThisDayProvider: TimelineProvider {
 
     func getSnapshot(in context: Context, completion: @escaping (OnThisDayEntry) -> Void) {
         if context.isPreview {
-            completion(OnThisDayEntry(date: Date(), memory: Self.previewMemory()))
+            let m = Self.previewMemory()
+            completion(OnThisDayEntry(date: Date(), memory: m, litCountryCodes: [m.countryCode ?? "AE"]))
             return
         }
         let snap = LumiSnapshotStore.load()
-        completion(OnThisDayEntry(date: Date(), memory: OnThisDay.memory(for: Date(), from: snap.memories)))
+        completion(OnThisDayEntry(date: Date(),
+                                  memory: OnThisDay.memory(for: Date(), from: snap.memories),
+                                  litCountryCodes: snap.litCountryCodes))
     }
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<OnThisDayEntry>) -> Void) {
@@ -67,7 +71,8 @@ struct OnThisDayProvider: TimelineProvider {
             // 第 0 天用「现在」作为生效时间，确保立即可见；其余落在当日零点。
             let effectiveDate = offset == 0 ? Date() : day
             entries.append(OnThisDayEntry(date: effectiveDate,
-                                          memory: OnThisDay.memory(for: day, from: snap.memories)))
+                                          memory: OnThisDay.memory(for: day, from: snap.memories),
+                                          litCountryCodes: snap.litCountryCodes))
         }
         completion(Timeline(entries: entries, policy: .atEnd))
     }
