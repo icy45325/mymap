@@ -29,10 +29,14 @@ final class Footprint {
     var subRegionCode: String?
 
     // MARK: - 内容
-    var visitedAt: Date
+    var visitedAt: Date         // 行程开始日（单日时即当天）
+    var endedAt: Date?          // 行程结束日；nil = 单天
     var mood: String            // 一句心情
     var companions: [String]    // 同行人（v0 先存名字字符串）
     var photoAssetIDs: [String] // PhotoKit 本地标识符（v0 不拷贝原图，只引用相册）
+
+    /// 是否为多天行程。
+    var isMultiDay: Bool { endedAt != nil }
 
     // MARK: - 关系
     var trip: Trip?
@@ -51,6 +55,7 @@ final class Footprint {
          coordinate: CLLocationCoordinate2D,
          cityName: String? = nil,
          visitedAt: Date = .now,
+         endedAt: Date? = nil,
          mood: String = "",
          companions: [String] = [],
          photoAssetIDs: [String] = [],
@@ -62,6 +67,7 @@ final class Footprint {
         self.latitude = coordinate.latitude
         self.longitude = coordinate.longitude
         self.visitedAt = visitedAt
+        self.endedAt = endedAt
         self.mood = mood
         self.companions = companions
         self.photoAssetIDs = photoAssetIDs

@@ -57,6 +57,7 @@ struct CaptureView: View {
     @State private var photoPreview: Image?
     @State private var photoAssetID: String?
     @State private var visitedAt: Date = .now
+    @State private var endedAt: Date = .now
     @State private var mood: String = ""
     @State private var companions: [String] = []
     @State private var companionDraft: String = ""
@@ -84,7 +85,10 @@ struct CaptureView: View {
             }
             .background(Color.ink.ignoresSafeArea())
             .scrollDismissesKeyboard(.interactively)
-            .safeAreaInset(edge: .bottom) { lightUpButton }
+            .safeAreaInset(edge: .bottom) {
+                lightUpButton
+                    .ignoresSafeArea(.keyboard, edges: .bottom)   // 键盘弹出不顶起主按钮
+            }
             .navigationTitle("新足迹")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -102,18 +106,15 @@ struct CaptureView: View {
         .onDisappear(perform: onDisappear)
     }
 
-    // MARK: - 照片
+    // MARK: - 照片（16:9 中心裁剪，不溢出）
     private var photoSection: some View {
         PhotosPicker(selection: $photoItem, matching: .images, photoLibrary: .shared()) {
             ZStack {
-                RoundedRectangle(cornerRadius: Metrics.radius)
-                    .fill(Color.panel)
-                    .overlay(RoundedRectangle(cornerRadius: Metrics.radius).stroke(Color.line, lineWidth: 1))
+                Color.panel
                 if let photoPreview {
                     photoPreview
                         .resizable()
-                        .scaledToFill()
-                        .clipShape(RoundedRectangle(cornerRadius: Metrics.radius))
+                        .scaledToFill()          // 中心裁剪填满 16:9 框，溢出由容器 clip
                 } else {
                     VStack(spacing: 8) {
                         Image(systemName: "photo.badge.plus")
@@ -125,8 +126,10 @@ struct CaptureView: View {
                     }
                 }
             }
-            .frame(height: 200)
             .frame(maxWidth: .infinity)
+            .aspectRatio(16.0 / 9.0, contentMode: .fit)
+            .clipShape(RoundedRectangle(cornerRadius: Metrics.radius))
+            .overlay(RoundedRectangle(cornerRadius: Metrics.radius).stroke(Color.line, lineWidth: 1))
         }
         .onChange(of: photoItem) { _, item in
             Task { await loadPhoto(item) }
@@ -196,11 +199,32 @@ struct CaptureView: View {
         .background(Color.panel, in: RoundedRectangle(cornerRadius: Metrics.radius))
     }
 
-    // MARK: - 日期
+    // MARK: - 日期（开始 / 结束，可选一段时间）
     private var dateSection: some View {
         VStack(alignment: .leading, spacing: 10) {
             sectionLabel("日期", systemImage: "calendar")
-            DatePicker("", selection: $visitedAt, in: ...Date.now, displayedComponents: .date)
+            VStack(spacing: 10) {
+                dateRow("开始") {
+                    DatePicker("", selection: $visitedAt, in: ...Date.now, displayedComponents: .date)
+                        .onChange(of: visitedAt) { _, start in
+                            if endedAt < start { endedAt = start }   // 结束不早于开始
+                        }
+                }
+                Divider().overlay(Color.lineSoft)
+                dateRow("结束") {
+                    DatePicker("", selection: $endedAt, in: visitedAt...Date.now, displayedComponents: .date)
+                }
+            }
+            .padding(12)
+            .background(Color.panel, in: RoundedRectangle(cornerRadius: Metrics.radius))
+        }
+    }
+
+    private func dateRow<Picker: View>(_ label: String, @ViewBuilder _ picker: () -> Picker) -> some View {
+        HStack {
+            Text(label).font(.subheadline).foregroundStyle(Color.textSecondary)
+            Spacer()
+            picker()
                 .labelsHidden()
                 .datePickerStyle(.compact)
                 .tint(Color.litGlow)
@@ -364,13 +388,19 @@ struct CaptureView: View {
         // 点亮前的已有国家集合，用于判断"新国家"（§5.1）
         let priorCodes = Set(footprints.compactMap { $0.countryCode })
 
+        // 合并未提交的同行人草稿（用户打了字但没点「+」/回车也不丢）
+        let pending = companionDraft.trimmingCharacters(in: .whitespaces)
+        let finalCompanions = (companions + (pending.isEmpty ? [] : [pending]))
+            .reduce(into: [String]()) { acc, name in if !acc.contains(name) { acc.append(name) } }
+
         let footprint = Footprint(
             placeName: selected.name,
             coordinate: selected.coordinate,
             cityName: selected.cityName,
             visitedAt: visitedAt,
+            endedAt: endedAt > visitedAt ? endedAt : nil,   // 仅多天时记录结束日
             mood: mood.trimmingCharacters(in: .whitespaces),
-            companions: companions,
+            companions: finalCompanions,
             photoAssetIDs: photoAssetID.map { [$0] } ?? []
         )
         footprint.countryCode = selected.countryCode
@@ -382,7 +412,7 @@ struct CaptureView: View {
         saved = true
         Analytics.log(.footprintCreated(countryCode: footprint.countryCode,
                                         hasPhoto: photoAssetID != nil,
-                                        companionsCount: companions.count))
+                                        companionsCount: finalCompanions.count))
         if let code = footprint.countryCode, !priorCodes.contains(code) {
             Analytics.log(.countryLit(countryCode: code, totalLit: priorCodes.count + 1))
         }

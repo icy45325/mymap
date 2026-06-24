@@ -9,61 +9,45 @@ import CoreLocation
 //  真实地理判定仍在主页 MapKit + 离线 point-in-polygon，二者解耦。
 // ─────────────────────────────────────────────────────────────
 
-/// 沉浸式点阵地图全屏页。
-struct ImmersiveMapView: View {
+/// 点阵光点地图背景（首页默认底图，展示用、不接收点击）。
+/// 霓虹氛围光 + 点阵陆地 + 足迹脉冲光点，铺满容器；地理录入靠 FAB / 放大后的真实地图。
+struct DotMatrixBackground: View {
     let footprints: [Footprint]
-    let onClose: () -> Void
 
     @State private var pulse = false
-    @State private var drift = false
-
-    private var cities: Int { Set(footprints.compactMap { $0.cityName }).count }
-    private var countries: Int { Set(footprints.compactMap { $0.countryCode }).count }
 
     var body: some View {
-        ZStack {
-            // 霓虹氛围底
-            RadialGradient(colors: [Color.nPurple.opacity(0.34), Color(hex: 0x05050C)],
-                           center: UnitPoint(x: 0.58, y: 0.4), startRadius: 20, endRadius: 420)
-                .ignoresSafeArea()
-
-            GeometryReader { geo in
-                let mapW = geo.size.width * 1.3
-                let mapH = mapW * 188.0 / 360.0
+        GeometryReader { geo in
+            let mapW = geo.size.width * 1.25
+            let mapH = mapW * 188.0 / 360.0
+            ZStack {
+                RadialGradient(colors: [Color.nPurple.opacity(0.30), .clear],
+                               center: UnitPoint(x: 0.5, y: 0.42), startRadius: 20, endRadius: 360)
                 ZStack {
                     DotMatrixWorld(footprints: footprints)
                     PinsLayer(footprints: footprints, pulse: pulse)
                 }
                 .frame(width: mapW, height: mapH)
-                .position(x: geo.size.width / 2, y: geo.size.height / 2)
-                .offset(x: drift ? 12 : -12, y: drift ? -7 : 7)
+                .position(x: geo.size.width / 2, y: geo.size.height * 0.42)
             }
-            .ignoresSafeArea()
-
-            VStack {
-                topBar
-                Spacer()
-                Text("足迹光点由经纬度投影生成 · 点 ✕ 退出沉浸模式")
-                    .font(.system(size: 11.5)).foregroundStyle(Color.faint)
-                    .padding(.bottom, 30)
-            }
+            .frame(width: geo.size.width, height: geo.size.height)
         }
-        .preferredColorScheme(.dark)
+        .allowsHitTesting(false)
         .onAppear {
             withAnimation(.easeOut(duration: 2.4).repeatForever(autoreverses: false)) { pulse = true }
-            withAnimation(.easeInOut(duration: 9).repeatForever(autoreverses: true)) { drift = true }
         }
     }
+}
 
-    private var topBar: some View {
-        HStack(alignment: .top) {
-            VStack(alignment: .leading, spacing: 6) {
-                Text("我的世界").font(Typo.serif(25)).foregroundStyle(Color.text)
-                Text("\(countries) 国 · \(cities) 城 已点亮")
-                    .font(.system(size: 10.5)).tracking(1.8).textCase(.uppercase)
-                    .foregroundStyle(Color.muted)
-            }
-            Spacer()
+/// 放大后的真实 MapKit 地图全屏页（不含精彩瞬间；保留点屏落点）。
+struct RealMapScreen: View {
+    let mapView: AnyView
+    let onClose: () -> Void
+
+    var body: some View {
+        ZStack(alignment: .topTrailing) {
+            Color.bg.ignoresSafeArea()
+            mapView.ignoresSafeArea()
             Button(action: onClose) {
                 Image(systemName: "xmark").font(.system(size: 14, weight: .semibold))
                     .foregroundStyle(.white)
@@ -71,8 +55,9 @@ struct ImmersiveMapView: View {
                     .background(.black.opacity(0.42), in: Circle())
                     .overlay(Circle().stroke(.white.opacity(0.2), lineWidth: 1))
             }
+            .padding(.trailing, 22).padding(.top, 54)
         }
-        .padding(.horizontal, 24).padding(.top, 54)
+        .preferredColorScheme(.dark)
     }
 }
 

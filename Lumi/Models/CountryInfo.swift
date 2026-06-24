@@ -111,4 +111,11 @@ extension Footprint {
         if let c = countryName, c != cityName { parts.append(c) }
         return parts.joined(separator: "，")
     }
+
+    /// 行程日期文案：单天 → 单日期；多天 → 「起 – 止」。
+    func visitSpanText(_ style: Date.FormatStyle = .dateTime.year().month(.abbreviated).day()) -> String {
+        let start = visitedAt.formatted(style)
+        guard let end = endedAt, end > visitedAt else { return start }
+        return "\(start) – \(end.formatted(style))"
+    }
 }

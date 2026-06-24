@@ -67,14 +67,11 @@ struct TimelineView: View {
                     .font(Typo.serif(15)).foregroundStyle(Color.muted)
                     .padding(.leading, 26).padding(.top, 16).padding(.bottom, 10)
                 ForEach(group.items) { fp in
-                    TimelineItem(footprint: fp, isLatest: fp.id == footprints.first?.id)
+                    TimelineItem(footprint: fp,
+                                 isLatest: fp.id == footprints.first?.id,
+                                 onDelete: { pendingDelete = fp })
                         .padding(.horizontal, 22)
                         .padding(.bottom, 20)
-                        .contextMenu {
-                            Button(role: .destructive) { pendingDelete = fp } label: {
-                                Label("删除", systemImage: "trash")
-                            }
-                        }
                 }
             }
         }
@@ -133,6 +130,7 @@ struct TimelineView: View {
 private struct TimelineItem: View {
     let footprint: Footprint
     let isLatest: Bool
+    let onDelete: () -> Void
 
     private static let dateFormat: Date.FormatStyle = .dateTime.year().month(.abbreviated).day()
 
@@ -161,13 +159,24 @@ private struct TimelineItem: View {
                 card
             }
             .buttonStyle(.plain)
+            // 长按：选中卡片高亮浮于系统变暗蒙层之上（preview 用不透明底，避免发虚）
+            .contextMenu {
+                Button(role: .destructive, action: onDelete) {
+                    Label("删除", systemImage: "trash")
+                }
+            } preview: {
+                card
+                    .frame(width: 320)
+                    .padding(12)
+                    .background(Color.panel)
+            }
         }
     }
 
     private var card: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 8) {
-                Text(footprint.visitedAt.formatted(Self.dateFormat))
+                Text(footprint.visitSpanText(Self.dateFormat))
                     .font(.system(size: 11)).foregroundStyle(Color.muted)
                 if isLatest {
                     Text("最新").font(.system(size: 9, weight: .bold)).tracking(1)

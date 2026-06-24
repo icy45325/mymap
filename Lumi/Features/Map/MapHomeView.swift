@@ -27,7 +27,8 @@ struct MapHomeView: View {
         ZStack(alignment: .top) {
             Color.bg.ignoresSafeArea()
 
-            mapProvider.makeMapView(renderState)
+            // 默认底图：点阵光点地图（展示用）。放大后才是真实 MapKit 地图。
+            DotMatrixBackground(footprints: footprints)
                 .ignoresSafeArea()
 
             // 顶部 HUD 渐隐到地图
@@ -49,7 +50,7 @@ struct MapHomeView: View {
             CaptureView(source: "fab", prefilledCoordinate: nil)
         }
         .fullScreenCover(isPresented: $showImmersive) {
-            ImmersiveMapView(footprints: footprints) { showImmersive = false }
+            RealMapScreen(mapView: mapProvider.makeMapView(renderState)) { showImmersive = false }
         }
         .onChange(of: stats.countries) { _, _ in pulseCounter() }
         .onAppear { animateBar() }
@@ -90,7 +91,7 @@ struct MapHomeView: View {
         String(format: "%.1f%%", stats.worldPercent)
     }
 
-    /// 右上角：进入点阵光点沉浸模式。
+    /// 右上角：放大查看真实 MapKit 地图（全屏）。
     private var immersiveButton: some View {
         Button { showImmersive = true } label: {
             Image(systemName: "arrow.up.left.and.arrow.down.right")

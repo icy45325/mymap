@@ -118,14 +118,20 @@ struct StatsView: View {
 
     private var honeycomb: some View {
         let rows = honeycombRows
-        return VStack(spacing: -14) {
-            ForEach(Array(rows.enumerated()), id: \.offset) { _, row in
-                HStack(spacing: 7) {
+        let size: CGFloat = 60
+        let hSpacing: CGFloat = 7
+        let rowOverlap = size * 1.15 * 0.25          // 尖顶六边形镶嵌量 ≈17
+        let stagger = (size + hSpacing) / 2          // 交替行错半个间距 ≈33
+        return VStack(spacing: -rowOverlap) {
+            ForEach(Array(rows.enumerated()), id: \.offset) { idx, row in
+                HStack(spacing: hSpacing) {
                     ForEach(row) { b in
-                        HexBadge(badge: b, size: 60, dimmed: !matches(b))
+                        HexBadge(badge: b, size: size, dimmed: !matches(b))
                             .onTapGesture { selectedBadge = b }
                     }
                 }
+                // 交替行左右错位，使下行嵌进上行缝隙而非正上方（整体保持居中）
+                .offset(x: idx.isMultiple(of: 2) ? -stagger / 2 : stagger / 2)
             }
         }
         .frame(maxWidth: .infinity)

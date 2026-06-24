@@ -21,10 +21,8 @@ struct FootprintDetailView: View {
                             .font(.system(size: 13.5)).lineSpacing(4)
                             .foregroundStyle(Color(hex: 0xC8C8DC))
                     }
-                    infoRow("日期", footprint.visitedAt.formatted(Self.dateFormat))
-                    if !footprint.companions.isEmpty {
-                        infoRow("同行人", footprint.companions.joined(separator: "、"))
-                    }
+                    infoRow("日期", footprint.visitSpanText(Self.dateFormat))
+                    if !footprint.companions.isEmpty { companionsSection }
                 }
                 .padding(.horizontal, 26)
                 .padding(.top, 4)
@@ -89,6 +87,24 @@ struct FootprintDetailView: View {
         }
         .frame(maxWidth: .infinity).padding(.vertical, 13)
         .panelCard(15)
+    }
+
+    private var companionsSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("同行人").font(.subheadline).foregroundStyle(Color.muted)
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    ForEach(footprint.companions, id: \.self) { name in
+                        Label(name, systemImage: "person.fill")
+                            .font(.system(size: 12, weight: .medium))
+                            .foregroundStyle(Color.text)
+                            .padding(.vertical, 6).padding(.horizontal, 12)
+                            .background(Color.glass, in: Capsule())
+                            .overlay(Capsule().stroke(Color.nPurple.opacity(0.5), lineWidth: 1))
+                    }
+                }
+            }
+        }
     }
 
     private func infoRow(_ label: String, _ value: String) -> some View {
