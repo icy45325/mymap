@@ -11,7 +11,16 @@ import Foundation
 //  两个 target（见工程的 LumiShared 同步组）。
 // ─────────────────────────────────────────────────────────────
 
-/// 喂给小组件的派生快照：只放展示要用的标量，不放足迹原文（隐私 + 体积）。
+/// 一条精简回忆：供「去年今日」小组件按日期回看（不放照片 / 同行人，隐私 + 体积）。
+struct LumiMemory: Codable, Equatable {
+    var visitedAt: Date
+    var placeName: String        // 城市 ?? 地点名
+    var countryName: String?     // 中文国名
+    var countryCode: String?     // ISO_A2，用于国旗
+    var mood: String?            // 一句心情（可空）
+}
+
+/// 喂给小组件的派生快照：只放展示要用的标量 / 精简回忆，不放足迹原文（隐私 + 体积）。
 struct LumiSnapshot: Codable, Equatable {
 
     /// 已点亮国家数（distinct countryCode）。
@@ -28,6 +37,9 @@ struct LumiSnapshot: Codable, Equatable {
     var lastCountryName: String?
     var lastVisitedAt: Date?
 
+    /// 全部足迹的精简回忆（按 visitedAt 升序），供「去年今日」按日期匹配。
+    var memories: [LumiMemory]
+
     /// 快照生成时间（调试 / 兜底刷新判断用）。
     var updatedAt: Date
 
@@ -35,22 +47,22 @@ struct LumiSnapshot: Codable, Equatable {
     static let empty = LumiSnapshot(
         countries: 0, cities: 0, worldPercent: 0, litCountryCodes: [],
         lastPlaceName: nil, lastCountryName: nil, lastVisitedAt: nil,
-        updatedAt: .distantPast)
+        memories: [], updatedAt: .distantPast)
 
     /// 小组件画廊 / 预览占位（与产品示意图一致：9 国 · 5%）。
     static let sample = LumiSnapshot(
         countries: 9, cities: 23, worldPercent: 5,
         litCountryCodes: ["AE", "CN", "JP", "FR", "GB", "US", "TH", "SG", "IT"],
         lastPlaceName: "迪拜", lastCountryName: "阿拉伯联合酋长国", lastVisitedAt: nil,
-        updatedAt: .distantPast)
+        memories: [], updatedAt: .distantPast)
 }
 
 /// App Group 常量（主 App 与小组件共用同一套标识）。
 enum LumiAppGroup {
     /// App Group 容器标识；主 App 与小组件的 entitlements 都要声明它。
     static let id = "group.com.lumi.v0"
-    /// 快照在共享 UserDefaults 里的键。
-    static let snapshotKey = "lumi.snapshot.v1"
+    /// 快照在共享 UserDefaults 里的键（v2 起含 memories；快照全派生，升级即由 App 重写）。
+    static let snapshotKey = "lumi.snapshot.v2"
     /// 小组件 kind（StaticConfiguration / reloadTimelines(ofKind:) 共用）。
     static let widgetKind = "LitCountWidget"
 }

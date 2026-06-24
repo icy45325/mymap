@@ -36,4 +36,18 @@ enum WidgetTheme {
     static func serif(_ size: CGFloat, weight: Font.Weight = .bold) -> Font {
         .system(size: size, weight: weight, design: .serif)
     }
+
+    /// ISO_A2 → 国旗 emoji（区域指示符拼合；取值同 App 内 CountryInfo.flag）。
+    static func flag(for code: String?) -> String {
+        guard let raw = code, raw.count >= 2 else { return "🏳️" }
+        let cc = String(raw.prefix(2)).uppercased()
+        let base: UInt32 = 0x1F1E6   // 🇦
+        var scalars = String.UnicodeScalarView()
+        for ascii in cc.unicodeScalars {
+            guard ascii.value >= 65, ascii.value <= 90,
+                  let s = UnicodeScalar(base + ascii.value - 65) else { return "🏳️" }
+            scalars.append(s)
+        }
+        return String(scalars)
+    }
 }

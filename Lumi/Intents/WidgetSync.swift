@@ -15,6 +15,18 @@ enum WidgetSync {
         let stats = LumiStats(footprints: footprints)
         let last = footprints.last   // 按 createdAt 升序，末位即最近一次点亮
 
+        // 精简回忆（按 visitedAt 升序），供「去年今日」按日期匹配。
+        let memories = footprints
+            .sorted { $0.visitedAt < $1.visitedAt }
+            .map { fp in
+                LumiMemory(
+                    visitedAt: fp.visitedAt,
+                    placeName: fp.title,
+                    countryName: fp.countryName,
+                    countryCode: fp.countryCode,
+                    mood: fp.mood.isEmpty ? nil : fp.mood)
+            }
+
         let snapshot = LumiSnapshot(
             countries: stats.countries,
             cities: stats.cities,
@@ -23,6 +35,7 @@ enum WidgetSync {
             lastPlaceName: last?.title,
             lastCountryName: last?.countryName,
             lastVisitedAt: last?.visitedAt,
+            memories: memories,
             updatedAt: .now)
 
         LumiSnapshotStore.save(snapshot)
