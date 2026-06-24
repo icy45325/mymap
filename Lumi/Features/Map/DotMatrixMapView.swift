@@ -21,8 +21,8 @@ struct DotMatrixBackground: View {
             let mapW = geo.size.width * 1.25
             let mapH = mapW * 188.0 / 360.0
             ZStack {
-                RadialGradient(colors: [Color.nPurple.opacity(0.30), .clear],
-                               center: UnitPoint(x: 0.5, y: 0.42), startRadius: 20, endRadius: 360)
+                RadialGradient(colors: [Color.nPurple.opacity(0.30), Color.nPurple.opacity(0.06), .clear],
+                               center: UnitPoint(x: 0.5, y: 0.42), startRadius: 20, endRadius: 460)
                 ZStack {
                     DotMatrixWorld(footprints: footprints)
                     PinsLayer(footprints: footprints, pulse: pulse)
@@ -136,10 +136,10 @@ private struct DotMatrixWorld: View {
     }
 
     private static func style(forDistance d: Double) -> (Color, CGFloat) {
-        if d < 0.045 { return (Color(hex: 0xE59BF0), 1.6) }
-        if d < 0.085 { return (Color(hex: 0x9B6FD0), 1.35) }
-        if d < 0.13  { return (Color(hex: 0x5B4A82), 1.1) }
-        return (Color(hex: 0x2A2A3C), 1.05)
+        if d < 0.045 { return (Color(hex: 0xE59BF0), 1.7) }   // 紧邻足迹：亮粉
+        if d < 0.085 { return (Color(hex: 0xB07FE0), 1.45) }  // 近：紫
+        if d < 0.16  { return (Color(hex: 0x6E5FA0), 1.2) }   // 中距过渡：暗紫（更宽，过渡更顺）
+        return (Color(hex: 0x46466A), 1.15)                   // 基线：清晰冷靛蓝——未去过的大陆也读成完整点阵地球
     }
 
     /// 确定性抖动（避免每帧重绘抖动闪烁）：返回约 -0.7...0.7。
