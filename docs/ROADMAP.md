@@ -7,9 +7,6 @@
 > iOS 系统能力的逐项设想（小组件 / App Intents / Live Activity / Foundation Models / SharePlay…）
 > 单独记在 [`ios-native-capabilities.md`](ios-native-capabilities.md)。
 
-> iOS 系统能力（小组件 / App Intents / Live Activity / Foundation Models 等）的接入设想，
-> 见 [`ios-native-capabilities.md`](ios-native-capabilities.md)。
-
 > 北极星：Lumi 定位于竞品最弱的「**记忆 / 共创**」象限——完整形态 = 交换日记 + AI 故事片 +
 > 共创圈子。每个阶段只有在前一阶段的核心假设被验证后才推进，**未验证则修回路，而非加功能**。
 
