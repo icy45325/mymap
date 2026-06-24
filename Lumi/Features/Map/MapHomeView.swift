@@ -50,7 +50,7 @@ struct MapHomeView: View {
             CaptureView(source: "fab", prefilledCoordinate: nil)
         }
         .fullScreenCover(isPresented: $showImmersive) {
-            RealMapScreen(mapView: mapProvider.makeMapView(renderState)) { showImmersive = false }
+            RealMapScreen(provider: mapProvider) { showImmersive = false }
         }
         .onChange(of: stats.countries) { _, _ in pulseCounter() }
         .onAppear { animateBar() }
@@ -168,19 +168,6 @@ struct MapHomeView: View {
         }
     }
 
-    // MARK: - 渲染状态
-
-    private var renderState: MapRenderState {
-        MapRenderState(
-            litRegions: Boundaries.shared.regions(forCountryCodes: stats.litCountryCodes,
-                                                  emirateCodes: litEmirateCodes),
-            pins: footprints.map { MapPin(id: $0.id, coordinate: $0.coordinate) },
-            onTapCoordinate: dropFootprint
-        )
-    }
-
-    private var litEmirateCodes: Set<String> { Set(footprints.compactMap { $0.subRegionCode }) }
-
     // MARK: - 动画
 
     private func animateBar() {
@@ -192,37 +179,6 @@ struct MapHomeView: View {
         Task {
             try? await Task.sleep(for: .milliseconds(320))
             withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) { counterPulse = false }
-        }
-    }
-
-    // MARK: - 点屏落点（§5.1）
-
-    private func dropFootprint(at coordinate: CLLocationCoordinate2D) {
-        Analytics.log(.captureStarted(source: "map"))
-        let priorCodes = Set(footprints.compactMap { $0.countryCode })
-
-        let footprint = Footprint(placeName: "标记的地点", coordinate: coordinate)
-        footprint.countryCode = Boundaries.shared.countryCode(at: coordinate)
-        if footprint.countryCode == "AE" {
-            footprint.subRegionCode = Boundaries.shared.emirateCode(at: coordinate)
-        }
-        context.insert(footprint)
-        context.insert(Card(footprint: footprint))
-        try? context.save()
-
-        let litCode = footprint.countryCode
-        Analytics.log(.footprintCreated(countryCode: litCode, hasPhoto: false, companionsCount: 0))
-        if let code = litCode, !priorCodes.contains(code) {
-            Analytics.log(.countryLit(countryCode: code, totalLit: priorCodes.count + 1))
-        }
-
-        Task {
-            if let place = await Geocoding.resolve(coordinate) {
-                footprint.placeName = place.placeName
-                footprint.cityName = place.cityName
-                if footprint.countryCode == nil { footprint.countryCode = place.countryCode }
-                try? context.save()
-            }
         }
     }
 }

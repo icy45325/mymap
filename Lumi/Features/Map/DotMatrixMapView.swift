@@ -39,28 +39,6 @@ struct DotMatrixBackground: View {
     }
 }
 
-/// 放大后的真实 MapKit 地图全屏页（不含精彩瞬间；保留点屏落点）。
-struct RealMapScreen: View {
-    let mapView: AnyView
-    let onClose: () -> Void
-
-    var body: some View {
-        ZStack(alignment: .topTrailing) {
-            Color.bg.ignoresSafeArea()
-            mapView.ignoresSafeArea()
-            Button(action: onClose) {
-                Image(systemName: "xmark").font(.system(size: 14, weight: .semibold))
-                    .foregroundStyle(.white)
-                    .frame(width: 36, height: 36)
-                    .background(.black.opacity(0.42), in: Circle())
-                    .overlay(Circle().stroke(.white.opacity(0.2), lineWidth: 1))
-            }
-            .padding(.trailing, 22).padding(.top, 54)
-        }
-        .preferredColorScheme(.dark)
-    }
-}
-
 // MARK: - 投影
 
 /// 等距圆柱投影：WGS-84 → 归一化 0...1（x 经度、y 纬度）。
