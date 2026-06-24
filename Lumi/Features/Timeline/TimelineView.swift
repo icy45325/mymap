@@ -12,6 +12,7 @@ struct TimelineView: View {
 
     @State private var regionFilter: RegionFilter = .all
     @State private var pendingDelete: Footprint?
+    @State private var showImport = false
 
     private enum RegionFilter: Hashable { case all, region(Region) }
 
@@ -32,6 +33,24 @@ struct TimelineView: View {
             Button("删除", role: .destructive) { confirmDelete() }
             Button("取消", role: .cancel) { pendingDelete = nil }
         }
+        .sheet(isPresented: $showImport) {
+            PhotoImportView(existing: footprints)
+        }
+    }
+
+    /// 从相册同步历史足迹的入口按钮（顶部用）。
+    private var importButton: some View {
+        Button {
+            Analytics.log(.photoImportOpened)
+            showImport = true
+        } label: {
+            Label("从相册同步", systemImage: "photo.badge.plus")
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundStyle(Color.nPink)
+                .padding(.vertical, 7).padding(.horizontal, 13)
+                .background(Color.panel, in: Capsule())
+                .overlay(Capsule().stroke(Color.nPink.opacity(0.4), lineWidth: 1))
+        }
     }
 
     // MARK: - 内容
@@ -49,12 +68,13 @@ struct TimelineView: View {
     }
 
     private var header: some View {
-        HStack(alignment: .lastTextBaseline) {
+        HStack(alignment: .center) {
             VStack(alignment: .leading, spacing: 2) {
                 Text("Footprints").font(Typo.serif(27))
                 Text(statLine).font(.system(size: 11)).tracking(1.2).foregroundStyle(Color.faint)
             }
             Spacer()
+            importButton
         }
         .padding(.horizontal, 26).padding(.top, 16)
     }
@@ -78,10 +98,25 @@ struct TimelineView: View {
     }
 
     private var emptyState: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: 14) {
             Image(systemName: "sparkles").font(.system(size: 44)).foregroundStyle(Color.nPurple)
             Text("还没有星迹").font(.headline).foregroundStyle(Color.text)
-            Text("回地图点亮第一个地方").font(.subheadline).foregroundStyle(Color.muted)
+            Text("从相册一键找回去过的地方，或回地图点亮第一个")
+                .font(.subheadline).foregroundStyle(Color.muted)
+                .multilineTextAlignment(.center).padding(.horizontal, 40)
+
+            Button {
+                Analytics.log(.photoImportOpened)
+                showImport = true
+            } label: {
+                Label("从相册同步历史足迹", systemImage: "photo.badge.plus")
+                    .font(.headline)
+                    .padding(.vertical, 14).padding(.horizontal, 22)
+                    .background(LinearGradient.neonH, in: Capsule())
+                    .foregroundStyle(.white)
+                    .shadow(color: Color.nPurple.opacity(0.5), radius: 12)
+            }
+            .padding(.top, 6)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }

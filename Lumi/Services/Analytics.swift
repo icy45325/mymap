@@ -15,16 +15,20 @@ enum Analytics {
         case countryLit(countryCode: String, totalLit: Int)  // 点亮一个**新**国家
         case timelineViewed(footprintCount: Int)
         case statsViewed(totalLit: Int, percent: Int)
+        case photoImportOpened                               // 打开「从相册同步」
+        case photoImportCompleted(imported: Int)             // 导入完成
 
         var name: String {
             switch self {
-            case .appOpen:           return "app_open"
-            case .captureStarted:    return "capture_started"
-            case .captureAbandoned:  return "capture_abandoned"
-            case .footprintCreated:  return "footprint_created"
-            case .countryLit:        return "country_lit"
-            case .timelineViewed:    return "timeline_viewed"
-            case .statsViewed:       return "stats_viewed"
+            case .appOpen:              return "app_open"
+            case .captureStarted:       return "capture_started"
+            case .captureAbandoned:     return "capture_abandoned"
+            case .footprintCreated:     return "footprint_created"
+            case .countryLit:           return "country_lit"
+            case .timelineViewed:       return "timeline_viewed"
+            case .statsViewed:          return "stats_viewed"
+            case .photoImportOpened:    return "photo_import_opened"
+            case .photoImportCompleted: return "photo_import_completed"
             }
         }
 
@@ -46,6 +50,10 @@ enum Analytics {
                 return ["footprint_count": "\(footprintCount)"]
             case let .statsViewed(totalLit, percent):
                 return ["total_lit": "\(totalLit)", "percent": "\(percent)"]
+            case .photoImportOpened:
+                return [:]
+            case let .photoImportCompleted(imported):
+                return ["imported": "\(imported)"]
             }
         }
     }
