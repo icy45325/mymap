@@ -53,8 +53,8 @@ struct RealMapScreen: View {
             Button("取消", role: .cancel) { tapped = nil }
         }
         .sheet(item: $yearPickFor) { place in
-            YearPickerSheet(country: place.countryName) { year in
-                lightCountry(place, year: year)
+            VisitDetailsSheet(place: place) { year, month, city in
+                lightCountry(place, year: year, month: month, city: city)
             }
         }
     }
@@ -92,16 +92,19 @@ struct RealMapScreen: View {
         tapped = TappedPlace(coordinate: coordinate, countryCode: code)
     }
 
-    private func lightCountry(_ place: TappedPlace, year: Int) {
+    private func lightCountry(_ place: TappedPlace, year: Int, month: Int, city: PresetCity?) {
         let prior = Set(footprints.compactMap { $0.countryCode })
-        let date = Calendar.current.date(from: DateComponents(year: year, month: 1, day: 1)) ?? Date()
+        let date = Calendar.current.date(from: DateComponents(year: year, month: month, day: 1)) ?? Date()
 
-        let footprint = Footprint(placeName: place.countryName,
-                                  coordinate: place.coordinate,
+        // 选了城市则用城市坐标/名字落点，否则以国家落点
+        let coordinate = city?.coordinate ?? place.coordinate
+        let footprint = Footprint(placeName: city?.name ?? place.countryName,
+                                  coordinate: coordinate,
+                                  cityName: city?.name,
                                   visitedAt: date)
         footprint.countryCode = place.countryCode
         if place.countryCode == "AE" {
-            footprint.subRegionCode = Boundaries.shared.emirateCode(at: place.coordinate)
+            footprint.subRegionCode = Boundaries.shared.emirateCode(at: coordinate)
         }
         context.insert(footprint)
         context.insert(Card(footprint: footprint))
@@ -131,36 +134,56 @@ struct RealMapScreen: View {
     }
 }
 
-/// 选择「哪一年去的」——快速点亮用，年份决定它落在时间线的哪一年。
-private struct YearPickerSheet: View {
-    let country: String
-    let onPick: (Int) -> Void
+/// 选择「哪年/哪月去的」+ 可选城市（默认折叠不选）——快速点亮用。
+private struct VisitDetailsSheet: View {
+    let place: RealMapScreen.TappedPlace
+    let onPick: (_ year: Int, _ month: Int, _ city: PresetCity?) -> Void
 
     @Environment(\.dismiss) private var dismiss
     @State private var year: Int
+    @State private var month: Int
+    @State private var selectedCity: PresetCity?
+    @State private var citiesExpanded = false
     private let years: [Int]
+    private let cities: [PresetCity]
 
-    init(country: String, onPick: @escaping (Int) -> Void) {
-        self.country = country
+    init(place: RealMapScreen.TappedPlace,
+         onPick: @escaping (Int, Int, PresetCity?) -> Void) {
+        self.place = place
         self.onPick = onPick
-        let current = Calendar.current.component(.year, from: Date())
+        let cal = Calendar.current
+        let current = cal.component(.year, from: Date())
         self.years = Array(stride(from: current, through: current - 60, by: -1))
         _year = State(initialValue: current)
+        _month = State(initialValue: cal.component(.month, from: Date()))
+        self.cities = CityCatalog.cities(for: place.countryCode)
     }
+
+    private var monthSymbols: [String] { Calendar.current.shortMonthSymbols }
 
     var body: some View {
         NavigationStack {
             VStack(spacing: 14) {
-                Text("你哪一年去的 \(country)？")
+                Text("你哪一年去的 \(place.countryName)？")
                     .font(Typo.serif(20)).foregroundStyle(Color.text)
                     .multilineTextAlignment(.center)
                     .padding(.top, 8)
-                Picker("", selection: $year) {
-                    ForEach(years, id: \.self) { Text("\($0) 年").tag($0) }
+
+                HStack(spacing: 0) {
+                    Picker("", selection: $year) {
+                        ForEach(years, id: \.self) { Text("\($0) 年").tag($0) }
+                    }
+                    .pickerStyle(.wheel).labelsHidden().frame(maxWidth: .infinity)
+                    Picker("", selection: $month) {
+                        ForEach(1...12, id: \.self) { m in Text(monthSymbols[m - 1]).tag(m) }
+                    }
+                    .pickerStyle(.wheel).labelsHidden().frame(maxWidth: .infinity)
                 }
-                .pickerStyle(.wheel)
-                .labelsHidden()
-                Button { onPick(year); dismiss() } label: {
+                .frame(height: 130)
+
+                if !cities.isEmpty { citySection }
+
+                Button { onPick(year, month, selectedCity); dismiss() } label: {
                     Text("点亮 ✦").font(.headline)
                         .frame(maxWidth: .infinity).padding(.vertical, 15)
                         .background(LinearGradient.neonH, in: Capsule())
@@ -178,7 +201,46 @@ private struct YearPickerSheet: View {
             .toolbarBackground(Color.bg, for: .navigationBar)
             .toolbarColorScheme(.dark, for: .navigationBar)
         }
-        .presentationDetents([.height(340)])
+        .presentationDetents([.height(cities.isEmpty ? 360 : 470)])
         .preferredColorScheme(.dark)
+    }
+
+    /// 可选城市：默认折叠、不选中；点选某城高亮，再点取消。
+    private var citySection: some View {
+        DisclosureGroup(isExpanded: $citiesExpanded) {
+            ScrollView {
+                LazyVStack(spacing: 6) {
+                    ForEach(cities) { city in
+                        Button {
+                            selectedCity = (selectedCity == city) ? nil : city
+                        } label: {
+                            HStack {
+                                Text(city.name).foregroundStyle(Color.text)
+                                Spacer()
+                                if selectedCity == city {
+                                    Image(systemName: "checkmark.circle.fill").foregroundStyle(Color.nPink)
+                                }
+                            }
+                            .padding(.vertical, 9).padding(.horizontal, 12)
+                            .background(selectedCity == city ? Color.nPink.opacity(0.14) : Color.panel,
+                                        in: RoundedRectangle(cornerRadius: 10))
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+                .padding(.top, 4)
+            }
+            .frame(maxHeight: 150)
+        } label: {
+            HStack {
+                Text("城市（可选）").font(.subheadline).foregroundStyle(Color.muted)
+                Spacer()
+                if let c = selectedCity {
+                    Text(c.name).font(.system(size: 13, weight: .medium)).foregroundStyle(Color.nPink)
+                }
+            }
+        }
+        .tint(Color.muted)
+        .padding(.horizontal, 8)
     }
 }
