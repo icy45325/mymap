@@ -3,6 +3,8 @@
 本文档是 Lumi 的**逐条需求台账**：收录用户口述需求与历史规划，按主题分组并标注交付状态，
 作为后续开发的单一事实源。阶段级蓝图见 [`ROADMAP.md`](ROADMAP.md)，iOS 系统能力设想见
 [`ios-native-capabilities.md`](ios-native-capabilities.md)，产品规格见 [`Lumi_v0_PRD.md`](Lumi_v0_PRD.md)。
+账号体系 / 数据迁移 / 交换日记·明信片 / IM 分享的细化设计见
+[`DESIGN-accounts-and-exchange.md`](DESIGN-accounts-and-exchange.md)。
 
 ## 状态图例
 
@@ -70,8 +72,10 @@
 
 | 需求 | 说明 | 状态 | 来源 / 关联 |
 |------|------|------|-------------|
-| 好友分享 | 增加好友分享功能；「我的」支持好友共享 | 💡 | ICY 06-24（依赖账号体系，见下方历史规划） |
+| 好友分享 | 增加好友分享功能；「我的」支持好友共享 | 💡 | ICY 06-24；设计见 [DESIGN-accounts-and-exchange](DESIGN-accounts-and-exchange.md) |
 | 通讯录邀请好友 | 获取通讯录权限，通过通讯录邀请好友加入 App | 💡 | ICY 06-24 |
+| App 内分享地点/店铺（IM） | 用户间分享旅行地点 / 好店铺；并能从谷歌地图把店铺分享进 Lumi，形成闭环 | 💡 | ICY 06-25；设计见 [DESIGN-accounts-and-exchange §5](DESIGN-accounts-and-exchange.md#5-im-即时通讯--内容分享icy-说的接-im) |
+| 账号体系 + 本地数据迁移 | 首版纯本地无账号；后续加账号并把本地数据无损「认领」为用户（local-first） | 💡 | ICY 06-25；设计见 [DESIGN-accounts-and-exchange §1–3](DESIGN-accounts-and-exchange.md) |
 
 ## 8. 推荐 / 行程规划
 
@@ -79,7 +83,7 @@
 |------|------|------|-------------|
 | 推荐 | 推荐旅行地、推荐好玩的人 / traveler | 💡 | ICY 06-24 |
 | 规划行程 | 行程规划能力 | 💡 | ICY 06-24 |
-| 共同行程 + 交换日志 | 行程可分享好友、创建**共同行程**；行程结束后互发「交换日志」，各自记录旅行心情并分享给对方 | 💡 | ICY 06-24（对应 ROADMAP v0.x「交换日记」） |
+| 共同行程 + 交换日志 | 行程可分享好友、创建**共同行程**；行程结束后互发「交换日志」，各自记录旅行心情并分享给对方 | 💡 | ICY 06-24；设计见 [DESIGN-accounts-and-exchange §4](DESIGN-accounts-and-exchange.md#4-交换日记--明信片exchange--postcard) |
 
 ---
 

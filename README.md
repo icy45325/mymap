@@ -10,6 +10,7 @@
 - [架构说明](docs/ARCHITECTURE.md) — 分层、数据流、设计决策、构建验证
 - [路线图 Roadmap](docs/ROADMAP.md) — v0.x / v1 / v2 分阶段规划与依赖
 - [需求与进度跟踪](docs/REQUIREMENTS.md) — 逐条需求台账 + 交付状态
+- [设计：账号体系 / 迁移 / 交换日记 / IM 分享](docs/DESIGN-accounts-and-exchange.md) — 社交与共创主线细化设计
 
 ## 里程碑
 
