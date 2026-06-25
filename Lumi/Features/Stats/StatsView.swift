@@ -18,8 +18,10 @@ struct StatsView: View {
     private var stats: LumiStats { LumiStats(footprints: footprints) }
     private var board: BadgeBoard { stats.badgeBoard }
 
-    /// 置顶展示：手动钉选（且仍为已解锁）优先，否则回退到稀有度最高的已解锁徽章。
+    /// 置顶展示：`"none"` = 用户选择「全部不置顶」(不展示)；手动钉选（且仍为已解锁）优先；
+    /// 否则（空串，初始默认）回退到稀有度最高的已解锁徽章。
     private var featuredBadge: Badge? {
+        if pinnedID == "none" { return nil }
         if !pinnedID.isEmpty,
            let pinned = board.badges.first(where: { $0.id == pinnedID && $0.state == .lit }) {
             return pinned
@@ -124,10 +126,10 @@ struct StatsView: View {
         .padding(.horizontal, 22)
     }
 
-    /// 置顶角标：手动钉选时给「取消置顶」按钮；默认则标「最高荣耀」。
+    /// 置顶角标：手动钉选时给「取消置顶」；自动「最高荣耀」时也可选择「不展示」(全部不置顶)。
     @ViewBuilder private var pinControl: some View {
         if isManuallyPinned {
-            Button { pinnedID = "" } label: {
+            Button { pinnedID = "none" } label: {
                 Label("取消置顶", systemImage: "pin.slash.fill")
                     .font(.system(size: 9, weight: .bold)).tracking(0.5)
                     .foregroundStyle(Color.nOrange)
@@ -137,8 +139,12 @@ struct StatsView: View {
             .buttonStyle(.plain)
             .padding(12)
         } else {
-            Text("桂冠 · 最高荣耀").font(.system(size: 9, weight: .bold)).tracking(1)
-                .foregroundStyle(Color.nOrange).padding(14)
+            Menu {
+                Button("不展示徽章", systemImage: "eye.slash") { pinnedID = "none" }
+            } label: {
+                Text("桂冠 · 最高荣耀").font(.system(size: 9, weight: .bold)).tracking(1)
+                    .foregroundStyle(Color.nOrange).padding(14)
+            }
         }
     }
 
@@ -299,7 +305,7 @@ private struct BadgeSheet: View {
 
             // 置顶控制：仅已解锁可钉选；可随时取消
             if badge.state == .lit {
-                Button { pinnedID = isPinned ? "" : badge.id } label: {
+                Button { pinnedID = isPinned ? "none" : badge.id } label: {
                     Label((isPinned ? "取消置顶" : "设为置顶展示").localized,
                           systemImage: isPinned ? "pin.slash.fill" : "pin.fill")
                         .font(.system(size: 13, weight: .semibold))
