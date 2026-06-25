@@ -2657,6 +2657,134 @@
         }
       }
     },
+    "复制口令": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy code"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "نسخ الرمز"
+          }
+        }
+      }
+    },
+    "已复制口令": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Code copied"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تم نسخ الرمز"
+          }
+        }
+      }
+    },
+    "二维码": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "QR code"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "رمز QR"
+          }
+        }
+      }
+    },
+    "或发口令 / 二维码 —— 对方在 Lumi 里自动收下": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Or send a code / QR — they receive it inside Lumi"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أو أرسل رمزًا / QR — يستلمونه داخل Lumi"
+          }
+        }
+      }
+    },
+    "收到一张明信片 ✦": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You received a postcard ✦"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "وصلتك بطاقة بريدية ✦"
+          }
+        }
+      }
+    },
+    "收下 ✦": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accept ✦"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "استلام ✦"
+          }
+        }
+      }
+    },
+    "忽略": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ignore"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تجاهل"
+          }
+        }
+      }
+    },
+    "%@ 寄来 · %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "From %1$@ · %2$@"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "من %1$@ · %2$@"
+          }
+        }
+      }
+    },
     "分享徽章": {
       "localizations": {
         "en": {
