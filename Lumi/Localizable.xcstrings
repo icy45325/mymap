@@ -2577,6 +2577,86 @@
         }
       }
     },
+    "明信片": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Postcard"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "بطاقة بريدية"
+          }
+        }
+      }
+    },
+    "明信片寄语": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Postcard note"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "عبارة البطاقة"
+          }
+        }
+      }
+    },
+    "在明信片上写点什么…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Write something on the postcard…"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "اكتب شيئًا على البطاقة…"
+          }
+        }
+      }
+    },
+    "分享明信片": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Share postcard"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "مشاركة البطاقة"
+          }
+        }
+      }
+    },
+    "想把%@的这一刻寄给你 ✦": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wish you were here in %@ ✦"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ليتك كنت هنا في %@ ✦"
+          }
+        }
+      }
+    },
     "分享徽章": {
       "localizations": {
         "en": {

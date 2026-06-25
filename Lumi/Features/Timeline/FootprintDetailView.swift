@@ -7,6 +7,7 @@ struct FootprintDetailView: View {
 
     @Environment(\.dismiss) private var dismiss
     @State private var showEdit = false
+    @State private var showPostcard = false
 
     private static let dateFormat: Date.FormatStyle = .dateTime.year().month(.wide).day()
 
@@ -24,6 +25,13 @@ struct FootprintDetailView: View {
                     }
                     infoRow("日期", footprint.visitSpanText(Self.dateFormat))
                     if !footprint.companions.isEmpty { companionsSection }
+                    Button { showPostcard = true } label: {
+                        Label("分享明信片", systemImage: "paperplane.fill")
+                            .font(.system(size: 14, weight: .semibold)).foregroundStyle(.white)
+                            .frame(maxWidth: .infinity).padding(.vertical, 13)
+                            .background(LinearGradient.neonH, in: Capsule())
+                    }
+                    .padding(.top, 4)
                 }
                 .padding(.horizontal, 26)
                 .padding(.top, 4)
@@ -37,6 +45,9 @@ struct FootprintDetailView: View {
         .preferredColorScheme(.dark)
         .sheet(isPresented: $showEdit) {
             FootprintEditView(footprint: footprint)
+        }
+        .sheet(isPresented: $showPostcard) {
+            PostcardSheet(footprint: footprint)
         }
     }
 

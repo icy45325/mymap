@@ -336,6 +336,38 @@
           }
         }
       }
+    },
+    "已点亮 %lld 国 · %lld 城": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld countries · %2$lld cities"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld دولة · %2$lld مدينة"
+          }
+        }
+      }
+    },
+    "世界正被你逐一点亮 ✦": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lighting up the world, one by one ✦"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تُضيء العالم واحدًا تلو الآخر ✦"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

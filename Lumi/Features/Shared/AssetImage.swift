@@ -1,6 +1,22 @@
 import SwiftUI
 import Photos
 
+/// 按 assetID 异步取相册原图（供 ImageRenderer 等需要「先拿到 UIImage 再同步渲染」的场景，如明信片）。
+func loadAssetUIImage(_ assetID: String?, targetSize: CGSize = CGSize(width: 1080, height: 1440)) async -> UIImage? {
+    guard let assetID,
+          let asset = PHAsset.fetchAssets(withLocalIdentifiers: [assetID], options: nil).firstObject
+    else { return nil }
+    let options = PHImageRequestOptions()
+    options.isNetworkAccessAllowed = true
+    options.deliveryMode = .highQualityFormat   // 单次回调，避免 continuation 多次 resume
+    options.resizeMode = .exact
+    return await withCheckedContinuation { cont in
+        PHImageManager.default().requestImage(
+            for: asset, targetSize: targetSize, contentMode: .aspectFill, options: options
+        ) { img, _ in cont.resume(returning: img) }
+    }
+}
+
 /// 按 PhotoKit 本地标识符加载相册图（v0 不拷贝原图，只引用）。
 /// 资源失效（用户从系统相册删了照片）→ 显示占位图，不崩溃（§7）。
 struct AssetImage: View {

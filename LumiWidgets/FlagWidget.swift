@@ -1,42 +1,88 @@
 import WidgetKit
 import SwiftUI
 
-/// 国旗集合视图：展示去过国家的国旗（最多 5 个）。
-/// （作为 `LumiWidget` 的「国旗」模式使用；不再单列为独立小组件。）
+/// 国旗集合视图：小尺寸＝精简几面 + 计数；中尺寸(长条)＝铺满去过国家国旗 + 一句话。
+/// （作为 `LumiWidget` 的「国旗」模式使用。）
 struct FlagWidgetView: View {
     let snapshot: LumiSnapshot
     @Environment(\.widgetFamily) private var family
 
-    private var maxFlags: Int { family == .systemSmall ? 4 : 5 }
-    private var flags: [String] { snapshot.litCountryCodes.prefix(maxFlags).map(flagEmoji) }
-    private var overflow: Int { max(0, snapshot.countries - flags.count) }
+    private var allFlags: [String] { snapshot.litCountryCodes.map(flagEmoji) }
 
     var body: some View {
+        if allFlags.isEmpty {
+            VStack(alignment: .leading, spacing: 10) {
+                WidgetHeader(section: "去过的国旗")
+                Spacer()
+                Text("还没有点亮国家").font(.system(size: 12)).foregroundStyle(WidgetTheme.muted)
+                Spacer()
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+            .padding(WidgetChrome.pad)
+        } else if family == .systemSmall {
+            small
+        } else {
+            medium
+        }
+    }
+
+    // 小尺寸：4 面国旗 + 计数
+    private var small: some View {
         VStack(alignment: .leading, spacing: 10) {
             WidgetHeader(section: "去过的国旗")
-            if flags.isEmpty {
-                Spacer()
-                Text("还没有点亮国家")
-                    .font(.system(size: 12)).foregroundStyle(WidgetTheme.muted)
-                Spacer()
-            } else {
-                Spacer(minLength: 0)
-                HStack(spacing: family == .systemSmall ? 4 : 8) {
-                    ForEach(Array(flags.enumerated()), id: \.offset) { _, f in
-                        Text(f).font(.system(size: family == .systemSmall ? 30 : 40))
-                    }
-                    if overflow > 0 {
-                        Text("+\(overflow)")
-                            .font(.system(size: family == .systemSmall ? 15 : 18, weight: .bold))
-                            .foregroundStyle(WidgetTheme.orange)
-                    }
+            Spacer(minLength: 0)
+            HStack(spacing: 4) {
+                ForEach(Array(allFlags.prefix(4).enumerated()), id: \.offset) { _, f in
+                    Text(f).font(.system(size: 30))
                 }
-                Spacer(minLength: 0)
-                Text("已点亮 \(snapshot.countries) 国")
-                    .font(.system(size: 12, weight: .semibold)).foregroundStyle(WidgetTheme.text)
+                if snapshot.countries > 4 {
+                    Text("+\(snapshot.countries - 4)").font(.system(size: 14, weight: .bold))
+                        .foregroundStyle(WidgetTheme.orange)
+                }
             }
+            Spacer(minLength: 0)
+            Text("已点亮 \(snapshot.countries) 国")
+                .font(.system(size: 12, weight: .semibold)).foregroundStyle(WidgetTheme.text)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+        .padding(WidgetChrome.pad)
+    }
+
+    // 中尺寸(长条)：铺满国旗 + 计数 + 一句话
+    private let perRow = 11
+    private let maxShown = 33
+    private var shown: [String] { Array(allFlags.prefix(maxShown)) }
+    private var rows: [[String]] {
+        stride(from: 0, to: shown.count, by: perRow).map { Array(shown[$0..<min($0 + perRow, shown.count)]) }
+    }
+    private var overflow: Int { max(0, snapshot.countries - shown.count) }
+
+    private var medium: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(alignment: .firstTextBaseline) {
+                WidgetHeader(section: "去过的国旗")
+                Spacer()
+                Text("已点亮 \(snapshot.countries) 国 · \(snapshot.cities) 城")
+                    .font(.system(size: 10.5, weight: .semibold)).foregroundStyle(WidgetTheme.muted)
+            }
+            Spacer(minLength: 0)
+            VStack(alignment: .leading, spacing: 3) {
+                ForEach(Array(rows.enumerated()), id: \.offset) { _, row in
+                    HStack(spacing: 2) {
+                        ForEach(Array(row.enumerated()), id: \.offset) { _, f in
+                            Text(f).font(.system(size: 19))
+                        }
+                    }
+                }
+                if overflow > 0 {
+                    Text("+\(overflow) 更多").font(.system(size: 10, weight: .bold)).foregroundStyle(WidgetTheme.orange)
+                }
+            }
+            Spacer(minLength: 0)
+            Text("世界正被你逐一点亮 ✦")
+                .font(.system(size: 11, weight: .medium)).foregroundStyle(WidgetTheme.text)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .padding(WidgetChrome.pad)
     }
 }
