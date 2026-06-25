@@ -269,6 +269,7 @@ struct StatsView: View {
 private struct BadgeSheet: View {
     let badge: Badge
 
+    @State private var shareImage: Image?
     @AppStorage("lumi.featuredBadgeID") private var pinnedID: String = ""
     private var isPinned: Bool { pinnedID == badge.id }
 
@@ -318,12 +319,30 @@ private struct BadgeSheet: View {
                 }
                 .buttonStyle(.plain)
                 .padding(.top, 16).padding(.horizontal, 26)
+
+                // 分享：渲染成图分享（逻辑同明信片，§验收 #10）
+                if let shareImage {
+                    ShareLink(item: shareImage,
+                              preview: SharePreview(badge.name.localized, image: shareImage)) {
+                        Label("分享徽章", systemImage: "square.and.arrow.up")
+                            .font(.system(size: 13, weight: .semibold)).foregroundStyle(Color.nCyan)
+                            .frame(maxWidth: .infinity).padding(.vertical, 12)
+                            .background(Color.panel, in: Capsule())
+                            .overlay(Capsule().stroke(Color.nCyan.opacity(0.5), lineWidth: 1))
+                    }
+                    .padding(.top, 10).padding(.horizontal, 26)
+                }
             }
 
             Spacer()
         }
         .frame(maxWidth: .infinity)
         .background(Color(hex: 0x0F0F1B).ignoresSafeArea())
+        .onAppear {
+            if badge.state == .lit, shareImage == nil {
+                shareImage = ShareRender.image(BadgeShareCard(badge: badge))
+            }
+        }
         .presentationDetents([.medium, .large])
         .presentationDragIndicator(.hidden)
         .preferredColorScheme(.dark)
