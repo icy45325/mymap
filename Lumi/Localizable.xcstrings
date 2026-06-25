@@ -2561,6 +2561,22 @@
         }
       }
     },
+    "分享": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Share"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "مشاركة"
+          }
+        }
+      }
+    },
     "✦ 成就解锁 · Lit on Lumi": {
       "localizations": {
         "en": {

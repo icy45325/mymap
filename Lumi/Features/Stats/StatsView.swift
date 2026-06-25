@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import UIKit
 
 /// 点亮成就（§4.4）· 暗夜霓虹 v2。
 /// 环形概览 + 置顶展示 + 蜂巢徽章 + 分类筛选 + 即将解锁 + 大洲征服环。
@@ -12,6 +13,9 @@ struct StatsView: View {
     @State private var celebrate: Badge?
     /// 用户手动钉选的置顶徽章 id（持久化；空 = 用默认「最高荣耀」）。
     @AppStorage("lumi.featuredBadgeID") private var pinnedID: String = ""
+    /// 已「见过」的解锁徽章 id（逗号分隔），用于检测新解锁并弹庆祝。
+    @AppStorage("lumi.seenBadges") private var seenBadgesRaw: String = ""
+    @AppStorage("lumi.badgesInit") private var badgesInit: Bool = false
 
     private enum CatFilter: Hashable { case all, category(BadgeCategory), rare }
 
@@ -30,6 +34,24 @@ struct StatsView: View {
     }
     private var isManuallyPinned: Bool {
         !pinnedID.isEmpty && board.badges.contains { $0.id == pinnedID && $0.state == .lit }
+    }
+
+    /// 检测新解锁徽章并弹庆祝。首次（升级到本版本）静默播种已有解锁，避免一次性弹一堆。
+    private func detectNewUnlocks() {
+        let litIDs = Set(board.badges.filter { $0.state == .lit }.map(\.id))
+        var seen = Set(seenBadgesRaw.split(separator: ",").map(String.init))
+        guard badgesInit else {
+            seen = litIDs; badgesInit = true
+            seenBadgesRaw = seen.sorted().joined(separator: ",")
+            return
+        }
+        let fresh = litIDs.subtracting(seen)
+        guard !fresh.isEmpty else { return }
+        if celebrate == nil, let first = board.badges.first(where: { fresh.contains($0.id) }) {
+            celebrate = first                      // 一次弹一个；其余并入已见
+        }
+        seen.formUnion(litIDs)
+        seenBadgesRaw = seen.sorted().joined(separator: ",")
     }
 
     var body: some View {
@@ -52,7 +74,11 @@ struct StatsView: View {
         }
         .preferredColorScheme(.dark)
         .tint(Color.nPink)
-        .onAppear { Analytics.log(.statsViewed(totalLit: stats.countries, percent: Int(stats.worldPercent.rounded()))) }
+        .onAppear {
+            Analytics.log(.statsViewed(totalLit: stats.countries, percent: Int(stats.worldPercent.rounded())))
+            detectNewUnlocks()
+        }
+        .onChange(of: board.unlockedCount) { _, _ in detectNewUnlocks() }
         .sheet(item: $selectedBadge) { BadgeSheet(badge: $0) }
         .overlay { if let c = celebrate { UnlockCelebration(badge: c) { celebrate = nil } } }
     }
@@ -278,7 +304,7 @@ private struct BadgeSheet: View {
     var body: some View {
         VStack(spacing: 0) {
             Capsule().fill(Color.line).frame(width: 40, height: 4).padding(.top, 11).padding(.bottom, 18)
-            HexBadge(badge: badge, size: 96)
+            HolographicBadge(badge: badge, size: 104)
             Text(badge.name.localized).font(Typo.serif(24)).foregroundStyle(Color.text).padding(.top, 16)
             Text("\(badge.rarity.tierName.localized) · \(badge.rarity.rawValue.uppercased())")
                 .font(.system(size: 10.5, weight: .heavy)).tracking(1.6)
@@ -377,22 +403,36 @@ private struct UnlockCelebration: View {
     let onDismiss: () -> Void
 
     @State private var shown = false
+    @State private var shareImage: Image?
 
     var body: some View {
         ZStack {
-            RadialGradient(colors: [Color.nPurple.opacity(0.32), Color.bg.opacity(0.95)],
+            RadialGradient(colors: [badge.color.opacity(0.3), Color.bg.opacity(0.96)],
                            center: .center, startRadius: 10, endRadius: 360)
                 .ignoresSafeArea()
+            // 粒子迸发（在徽章后方扩散）
+            UnlockBurst(color: badge.color)
+                .frame(width: 360, height: 360)
+                .opacity(shown ? 1 : 0)
             VStack(spacing: 9) {
-                HexBadge(badge: badge, size: 122)
-                    .shadow(color: badge.rarity.color.opacity(0.7), radius: 24)
+                HolographicBadge(badge: badge, size: 132)
                     .padding(.bottom, 16)
                 Text("成就解锁 · UNLOCKED").font(.system(size: 12, weight: .bold)).tracking(3)
                     .foregroundStyle(Color.nCyan)
                 Text(badge.name.localized).font(Typo.serif(33)).foregroundStyle(Color.text)
                 Text("\(badge.rarity.tierName.localized) · \(badge.rarity.rawValue.uppercased())")
                     .font(.system(size: 11.5, weight: .heavy)).tracking(1.8)
-                    .foregroundStyle(badge.rarity.color)
+                    .foregroundStyle(badge.color)
+                if let shareImage {
+                    ShareLink(item: shareImage,
+                              preview: SharePreview(badge.name.localized, image: shareImage)) {
+                        Label("分享", systemImage: "square.and.arrow.up")
+                            .font(.system(size: 13, weight: .semibold)).foregroundStyle(.white)
+                            .padding(.vertical, 11).padding(.horizontal, 26)
+                            .background(LinearGradient.neonH, in: Capsule())
+                    }
+                    .padding(.top, 18)
+                }
             }
             .scaleEffect(shown ? 1 : 0.5).opacity(shown ? 1 : 0)
             VStack {
@@ -402,6 +442,10 @@ private struct UnlockCelebration: View {
         }
         .contentShape(Rectangle())
         .onTapGesture { onDismiss() }
-        .onAppear { withAnimation(.spring(response: 0.6, dampingFraction: 0.55)) { shown = true } }
+        .onAppear {
+            withAnimation(.spring(response: 0.6, dampingFraction: 0.55)) { shown = true }
+            UINotificationFeedbackGenerator().notificationOccurred(.success)
+            shareImage = ShareRender.image(BadgeShareCard(badge: badge))
+        }
     }
 }
