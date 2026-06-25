@@ -53,7 +53,7 @@
 
 **文件**：新 `Features/Postcard/`、App 层 URL 处理、`Info.plist`（URL types / associated domains）。**工作量 L**。
 
-### B4 · 变现（决策依赖）—— 若 MVP 即带 paywall
+### B4 · 变现 —— ✅ MVP 即带「轻 paywall」（已定）
 - [ ] StoreKit 2 接入 + 商店产品配置（Lumi Plus 月/年 + 终身买断）
 - [ ] **RevenueCat 接入**（跨平台 entitlement，为 Android 打底）
 - [ ] Plus 门控：高清导出 / 全部明信片模板 / 国旗等额外小组件 / 地图皮肤
@@ -96,9 +96,9 @@
 
 ## 待拍板
 
-1. **MVP 是否带 paywall**：建议「轻 paywall」（核心免费，Plus 卖高清导出/全模板/额外小组件），
-   不伤留存验证；若想先纯免费验证，则 B4 顺延到 v1。
-2. **徽章美术方向**：需要你给风格参考，否则 B2 难落地。
-3. **视频上传（≤3min）**：MVP stretch 还是 Plus/快速跟进？（建议后者，避免拖累 MVP）
+1. ✅ **已定（2026-06-25）**：MVP 带 **轻 paywall** —— 核心集邮回路免费，Plus 卖高清导出 / 全部明信片模板 /
+   国旗等额外小组件 / 地图皮肤。B4 纳入 MVP，但 paywall 保持轻。
+2. 🔲 **徽章美术方向**：仍需你给风格参考，否则 B2 难落地。
+3. ✅ **已定（2026-06-25）**：视频上传（≤3min）**不进 MVP**，归 **Plus / 快速跟进**（MVP 后随即做）。
 
 > 拍板后把对应条目状态回填 [`REQUIREMENTS.md`](REQUIREMENTS.md)。
