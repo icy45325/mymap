@@ -75,7 +75,9 @@
 | 好友分享 | 增加好友分享功能；「我的」支持好友共享 | 💡 | ICY 06-24；设计见 [DESIGN-accounts-and-exchange](DESIGN-accounts-and-exchange.md) |
 | 通讯录邀请好友 | 获取通讯录权限，通过通讯录邀请好友加入 App | 💡 | ICY 06-24 |
 | App 内分享地点/店铺（IM） | 用户间分享旅行地点 / 好店铺；并能从谷歌地图把店铺分享进 Lumi，形成闭环 | 💡 | ICY 06-25；设计见 [DESIGN-accounts-and-exchange §5](DESIGN-accounts-and-exchange.md#5-im-即时通讯--内容分享icy-说的接-im) |
+| 明信片口令/二维码分享 | 发送方复制链接 / 下载二维码，对方在 App 内打开即自动接收明信片；先纯本地，后并入 IM 闭环 | 📋 | ICY 06-25；设计见 [DESIGN-accounts-and-exchange §4](DESIGN-accounts-and-exchange.md#4-交换日记--明信片exchange--postcard) |
 | 账号体系 + 本地数据迁移 | 首版纯本地无账号；后续加账号并把本地数据无损「认领」为用户（local-first） | 💡 | ICY 06-25；设计见 [DESIGN-accounts-and-exchange §1–3](DESIGN-accounts-and-exchange.md) |
+| Android 客户端 | 确定目标，短期先 iOS；账号/同步层因此走跨平台 BaaS（非 CloudKit），后端与数据模型两端复用 | 💡 | ICY 06-25；设计见 [DESIGN-accounts-and-exchange §2](DESIGN-accounts-and-exchange.md#2-数据迁移本地--账号这就是可行性的关键) |
 
 ## 8. 推荐 / 行程规划
 

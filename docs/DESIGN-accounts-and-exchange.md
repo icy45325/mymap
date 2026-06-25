@@ -33,42 +33,48 @@
 **现状**：SwiftData 本地库；四个模型 `Footprint / Trip / Card / Wish` 都有稳定主键
 `@Attribute(.unique) var id: UUID`。稳定 UUID 是迁移的好底子（记录身份不会变）。
 
-迁移有两条路，**推荐分层组合**：
+> 🧭 **平台决策（已定，ICY 2026-06-25）**：**Android 是确定目标，短期先 iOS**。这直接决定了同步/账号层
+> 选型——**不要走 CloudKit**。CloudKit 仅 Apple 生态，上 Android 时个人数据无法跨过去，会被迫做**第二次迁移**。
+> 因此账号层一步到位选**跨平台后端（BaaS）**；CloudKit 仅作「若永远 iOS-only」的备选，此处不采用。
 
-### 方案 A —— SwiftData + CloudKit 私有库（推荐用于「个人数据」）
-原理：给 `ModelContainer` 配 `cloudKitDatabase`，SwiftData 自动把本地库镜像进用户 **iCloud 私有库**，
-跟 Apple ID 走，**零自建后端**。老用户首次登录 iCloud 后，本地已有数据自动上行同步——**数据无损、对用户无感**。
+迁移有两条路；鉴于上面的平台决策，**采用方案 B**：
 
-> ⚠️ **关键约束（必须现在就知道）**：SwiftData + CloudKit 镜像有硬性要求：
-> - **不支持 `@Attribute(.unique)`** —— 当前 4 个模型全用了 `.unique id`，开 CloudKit 前**必须去掉**，
->   改成「应用层按 UUID 去重」。
-> - 所有属性需**可选或带默认值**；关系需**可选**。
-> - 这条决定了「上架前是否就把模型改成 CloudKit 友好」，强烈建议在加同步前做一次 schema spike（见 §6/验证）。
+### 方案 A —— SwiftData + CloudKit 私有库（❌ 不采用，仅记录）
+给 `ModelContainer` 配 `cloudKitDatabase` 即可零后端同步个人数据，跟 Apple ID 走、对用户无感。
+**但仅 Apple 生态**，与「要做 Android」冲突，故不选。
 
-### 方案 B —— 自建 / BaaS 后端（用于「跨用户社交 / IM」）
-个人数据走 A，但**好友、IM 消息、跨用户共享**这类 CloudKit 不擅长的，需要后端（自建或 Supabase/Firebase）。
-迁移方式：本地导出 → 上传 → 服务端按 UUID 认领归属到 user。
+> ⚠️ 附带知识点：SwiftData + CloudKit 镜像**不支持 `@Attribute(.unique)`** 且要求字段全可选。
+> **由于我们不走 CloudKit，这条硬约束对本项目不成立** —— 当前 4 个模型的 `.unique id` 可以保留。
+> （详见 [§6](#6-现在就该做的向前兼容动作) 对该点的最终处理。）
+
+### 方案 B —— 跨平台后端 / BaaS（✅ 采用）
+个人数据 + 跨用户社交/IM 都走一套跨平台后端（如 **Supabase**＝Postgres+实时+Auth，关系型社交图谱友好；
+或 **Firebase**＝Firestore 实时 + 与谷歌生态协同）。iOS / Android 共用同一后端与数据模型。
+迁移方式：本地导出 → 上传 → 服务端**按稳定 UUID 认领**归属到 user，**数据无损**。
 
 ### 推荐组合
 | 数据 | 归属 | 通道 |
 |------|------|------|
-| 个人足迹 / 行程 / 明信片 / 心愿 | 本人 | CloudKit 私有库（方案 A） |
-| 好友关系 / IM 消息 / 推荐流 | 跨用户 | 后端 / BaaS（方案 B，社交阶段才上） |
-| 共同行程 / 交换日记 | 双方 | CKShare（轻）或后端 |
+| 个人足迹 / 行程 / 明信片 / 心愿 | 本人 | BaaS（私有，按 user 隔离） |
+| 好友关系 / IM 消息 / 推荐流 | 跨用户 | BaaS（实时通道） |
+| 共同行程 / 交换日记 | 双方 | BaaS（共享记录 + 权限） |
 
-**迁移落地步骤**（加账号那一版）：① schema 改 CloudKit 友好（去 `.unique` 等）→ ② 接 Sign in with Apple →
-③ 开 CloudKit 私有库，本地数据自动上行 → ④（社交阶段）把需要共享的实体投到后端并按 UUID 认领。
+**迁移落地步骤**（加账号那一版）：① 接 BaaS Auth（见 §3）→ ② 首次登录把本地 SwiftData 导出、按 UUID
+上传认领 → ③ 之后本地 ↔ 后端双向同步（SwiftData 仍作离线缓存，local-first 体验不变）→ ④ 同一套后端
+直接支撑 Android 端。**无 CloudKit、无二次迁移。**
 
 ---
 
 ## 3. 账号体系（身份层）
 
-- **主身份推荐 Sign in with Apple**：零摩擦、隐私友好、与「个人/家庭记忆」气质一致、Apple 审核友好
-  （一旦提供任何第三方登录，Apple 要求必须同时提供 Apple 登录）。
+- **跨平台身份走 BaaS Auth**（因要支持 Android）：统一 user id 由后端签发，iOS / Android 共用。
+- **登录方式**：iOS 端提供 **Sign in with Apple**（Apple 规定：只要提供第三方登录就必须同时提供 Apple 登录）+
+  **Google 登录**（天然跨平台，且与「接谷歌内容」协同）；Android 端以 Google 登录为主。后端把这些 OAuth 身份
+  归一到同一 user。
 - **渐进式身份**：匿名本地用户（上架首版）→ 可选登录 → 登录即「认领」本地数据并开启同步。**登录永远是可选项**，
   不挡住纯本地使用，保住 local-first 体验。
 - **归属抽象**：引入「当前用户 / `ownerID`」概念；纯本地阶段恒等于一个匿名本地用户，加账号后替换为真实 user id。
-- **付费门槛**：CloudKit / 推送 / 后端都需 **付费 Apple Developer Program**（v0 免费自签到此为止）。
+- **付费门槛**：上架 / 推送需 **付费 Apple Developer Program**（v0 免费自签到此为止）；后端另计托管成本。
 
 ---
 
@@ -79,8 +85,15 @@
 
 分三个由轻到重的台阶，**前两阶不需要账号即可上线**：
 
-1. **单机明信片导出（先做，纯本地）**：`Card` → `ImageRenderer` 渲染成图 → `ShareLink` 分享 /
-   `AirPrint` 打印 / 发 iMessage。把「点亮成果」变成社交货币，零后端。
+1. **单机明信片导出 + 口令/二维码「自动接收」（先做，纯本地，无后端）** —— *ICY 2026-06-25 提案*
+   - **导出**：`Card` → `ImageRenderer` 渲染成图 → `ShareLink` 分享 / `AirPrint` 打印 / 发 iMessage。
+   - **发送方**：把明信片内容编码成一段**分享口令 / universal link**，可「复制链接」或「下载二维码图」，
+     走任意渠道（微信/iMessage/相册）发给对方。
+   - **接收方**：对方**在 App 内打开该链接**（或粘贴口令 / 扫码）→ App 解码 → **自动接收并存入明信片收藏**。
+   - **payload 设计**：明信片字段（地点 / 日期 / 心情 / 模板 / 封面图引用）编码进链接；体积大的封面图先压缩内嵌，
+     或仅传「足迹要素」让对方端重渲染。携带发送者昵称与一个**幂等 token**（避免重复接收）。
+   - **闭环演进**：此为「**带外传输（out-of-band）**」雏形——先靠用户手动转发链接打通；待 §5 的 IM 上线后，
+     同一 payload 改为**站内直接投递**，无需复制粘贴，真正闭环。**先本地、后系统内**正是 ICY 设想的顺序。
 2. **共同行程（需身份）**：双人/多人共享一个 `Trip`——用 **CKShare**（CloudKit 共享，零自建后端）
    或后端共享。模型补充：`Trip` 增 `ownerID` / `participants`。
 3. **交换日志（仪式感，需身份+通道）**：同一行程下双方**各自先写**心情 → 行程结束后**互相解锁**对方的日志
@@ -118,12 +131,14 @@ UGC + 社交必带**举报 / 屏蔽 / 拉黑**，且触发 Apple **2026 年中**
 
 即便首版纯本地，这几件几乎零成本，却能让将来加账号 / 同步 / 分享平滑很多：
 
-1. **保留稳定 UUID 主键**（已有 ✓）。
-2. **评估去掉 `@Attribute(.unique)`**：4 个模型都用了，是 CloudKit 的硬冲突项；改为应用层按 UUID 去重。
-3. **新增字段一律可选 / 带默认值，关系可选**（CloudKit 友好），从现在的新模型就遵守。
-4. **抽象「当前用户 / `ownerID`」**：现在恒为匿名本地用户，加账号时只换实现。
-5. **明信片走 `ImageRenderer` + `ShareLink`**：分享/导出不依赖账号，可最早上线。
-6. **预留 deep link / URL scheme**：分享卡片回跳的基础设施，Share Extension 与 IM 都要用。
+1. **保留稳定 UUID 主键**（已有 ✓）—— 将作为后端记录的 remote id，迁移认领的锚点。
+2. **`@Attribute(.unique)` 可保留**：因不走 CloudKit（见 §2），其「不支持 unique」的约束对本项目不成立，
+   4 个模型现状无需改动。
+3. **抽象「当前用户 / `ownerID`」**：现在恒为匿名本地用户，加账号时只换实现。
+4. **可同步实体预留 `updatedAt` / 软删除标记**：双向同步与冲突合并的基础（本地优先合并）。
+5. **明信片走 `ImageRenderer` + `ShareLink` + 分享口令/二维码**：分享/导出/接收不依赖账号，可最早上线
+   （见 §4 的「口令/二维码自动接收」流程）。
+6. **预留 deep link / universal link / URL scheme**：明信片接收、Share Extension、IM 回跳都要用。
 
 ---
 
@@ -132,19 +147,21 @@ UGC + 社交必带**举报 / 屏蔽 / 拉黑**，且触发 Apple **2026 年中**
 | 能力 | 阶段 | 需后端？ | 依赖 |
 |------|------|---------|------|
 | 明信片导出 / 打印 / 发 iMessage | v0.x | 否 | `Card` + ImageRenderer/ShareLink |
+| 明信片口令/二维码「自动接收」 | v0.x | 否 | universal link + payload 编解码 + 幂等 token |
 | 谷歌店铺 Share Extension 导入 | v0.x | 否 | Share Extension + 地点解析 + deep link |
-| Schema 改 CloudKit 友好（去 `.unique`/全可选） | v1 前置 | 否 | 一次性迁移 spike |
-| Sign in with Apple + 个人数据 CloudKit 同步 + 本地认领 | v1 | iCloud | 付费 Developer Program |
-| 共同行程 / 交换日志 | v1 | CKShare 或后端 | 身份 + `Trip.participants` + `DiaryEntry` |
-| 好友图谱 + App 内 IM 消息 | v2 | 是 | 后端/BaaS + 合规（举报/年龄分级） |
+| BaaS Auth（Apple/Google 登录）+ 个人数据同步 + 本地认领 | v1 | **是（BaaS）** | 选型 Supabase/Firebase + 本地导出认领 |
+| 共同行程 / 交换日志 | v1 | 是（BaaS） | 身份 + `Trip.participants` + `DiaryEntry` |
+| 好友图谱 + App 内 IM 消息 | v2 | 是（BaaS 实时） | 合规（举报/年龄分级） |
+| Android 客户端 | v2 | 共用同一 BaaS | 复用后端与数据模型 |
 | 推荐旅行地 / 推荐 traveler | v2 | 是 | 后端 + 内容/关系数据 |
 
 ---
 
 ## 8. 开放问题 / 待定
 
-- **CloudKit 还是自建/BaaS？** CloudKit = 零后端、隐私、但仅 Apple 生态、IM 弱；后端 = 跨平台 + IM 灵活、
-  但要运维与合规。**是否要 Android / Web 基本决定这个选择**。建议：个人数据 CloudKit，社交/IM 用后端，混合。
+- ~~CloudKit 还是 BaaS？~~ **已定**：因 Android 是确定目标，账号/同步层走**跨平台 BaaS**，不走 CloudKit（见 §2）。
+- **BaaS 选 Supabase 还是 Firebase？** Supabase（Postgres）关系型社交图谱 + RLS 权限更顺手、可自托管；
+  Firebase（Firestore）实时与离线 SDK 成熟、与谷歌生态协同。**待选型**（建议按「社交关系复杂度 vs 上手速度」拍板）。
 - **谷歌内容合规**：优先「接收 share URL / 系统地点」而非直连 Places API；商用条款需复核。
 - **VIP 变现与账号的关系**：纯本地版如何收费？账号上线后权益如何承接？（与本文身份层相关，单列商业设计。）
 - **交换日记的「仪式」边界**：先写后换 / 是否可撤回 / 是否限同一行程，需产品定义。
@@ -155,6 +172,8 @@ UGC + 社交必带**举报 / 屏蔽 / 拉黑**，且触发 Apple **2026 年中**
 
 1. 本文为设计文档，**无代码改动**；评审通过后按 §7 拆任务并回填 [`REQUIREMENTS.md`](REQUIREMENTS.md)
    对应的 💡 条目（社交/共享、推荐/行程、交换日志）。
-2. 两个**早期技术验证（PoC）**，验证后再决定排期：
-   - **Schema spike**：把模型改成「去 `.unique` + 全可选」并开 CloudKit 私有库，验证本地数据无损上行同步。
+2. **早期技术验证（PoC）**，验证后再决定排期：
+   - **明信片口令/二维码自动接收 PoC**：A 设备生成 universal link/二维码 → B 设备打开自动收卡（纯本地、无后端，可最先做）。
    - **Share Extension PoC**：从谷歌地图 App 分享一个店铺 → Lumi 接住并解析成地点卡。
+   - **BaaS 同步 spike**（加账号前）：选定 Supabase/Firebase，验证「本地 SwiftData 按 UUID 导出认领 + 双向同步」，
+     并确认同一后端可被 Android 复用。
