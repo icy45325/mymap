@@ -71,11 +71,15 @@ struct Badge: Identifiable {
     let icon: String          // SF Symbol
     let desc: String
     let ownership: String     // 全球持有率文案，如 "8%"
+    var tint: Color? = nil    // 逐徽章霓虹色（覆盖 rarity 默认色）
 
     var state: BadgeState
     var unlockedAt: Date?     // 仅 lit
     var progressText: String? // 仅 prog，如 "27 / 30 国"
     var progress: Double?     // 仅 prog，0...1
+
+    /// 渲染用主色：优先逐徽章 tint，回退稀有度色。
+    var color: Color { tint ?? rarity.color }
 }
 
 // MARK: - 大洲征服 / 概览
@@ -165,6 +169,42 @@ struct LumiStats {
     func litRegion(_ region: Region) -> Bool {
         footprints.contains { $0.region == region }
     }
+
+    // —— 新检测（参考徽章表） ——
+
+    /// 南极洲：落点在南纬 60° 以下即算（坐标判定，无需边界数据）。
+    var litAntarctica: Bool { footprints.contains { $0.latitude < -60 } }
+    var antarcticaVisits: Int { footprints.filter { $0.latitude < -60 }.count }
+
+    /// 跳岛狂人：点亮的不同「岛屿国家/地区」数。
+    var islandCountryCount: Int { litCountryCodes.intersection(Self.islandCountries).count }
+
+    /// 丛林探索者：是否点亮过雨林国家。
+    var litRainforest: Bool { !litCountryCodes.isDisjoint(with: Self.rainforestCountries) }
+    static func isRainforest(_ code: String) -> Bool { rainforestCountries.contains(code) }
+
+    /// 制霸七大洲：覆盖的地理大洲数（含南极洲，共 7）。
+    var continentsCovered: Int {
+        var set = Set<String>()
+        for code in litCountryCodes {
+            if let cont = Boundaries.shared.continent(forCountryCode: code) { set.insert(cont) }
+        }
+        if litAntarctica { set.insert("Antarctica") }
+        return set.intersection(Self.sevenContinents).count
+    }
+
+    private static let sevenContinents: Set<String> = [
+        "Asia", "Europe", "Africa", "North America", "South America", "Oceania", "Antarctica",
+    ]
+    /// 主要岛屿国家/地区（ISO_A2，精选可扩充）。
+    private static let islandCountries: Set<String> = [
+        "MV", "ID", "PH", "JP", "GB", "IS", "MT", "MU", "LK", "CY", "NZ", "FJ",
+        "SC", "BS", "BB", "MG", "JM", "DO", "CU", "IE", "TW", "MS", "WS", "TO", "PW",
+    ]
+    /// 雨林覆盖率高的国家（ISO_A2，精选可扩充）。
+    private static let rainforestCountries: Set<String> = [
+        "BR", "ID", "CO", "PE", "CD", "MY", "VE", "BO", "EC", "CR", "PA", "GA", "CM", "CG", "GH",
+    ]
 }
 
 // MARK: - 徽章目录（点亮规则）
@@ -175,67 +215,95 @@ enum BadgeCatalog {
     static func evaluate(_ s: LumiStats) -> [Badge] {
         let c = s.countries
         let cities = s.cities
-        let continentsCovered = s.conquest.filter { $0.lit > 0 }.count
+        let continents = s.continentsCovered
 
         func milestone(_ id: String, _ name: String, _ rarity: Rarity, _ cat: BadgeCategory,
-                       _ icon: String, _ desc: String, _ pct: String,
+                       _ icon: String, _ desc: String, _ pct: String, _ tint: Color,
                        target: Int, current: Int, unit: String) -> Badge {
             if current >= target {
                 return Badge(id: id, name: name, rarity: rarity, category: cat, icon: icon,
-                             desc: desc, ownership: pct, state: .lit,
+                             desc: desc, ownership: pct, tint: tint, state: .lit,
                              unlockedAt: s.unlockDate(atCountryCount: min(target, c)))
             }
             return Badge(id: id, name: name, rarity: rarity, category: cat, icon: icon,
-                         desc: desc, ownership: pct, state: .prog,
+                         desc: desc, ownership: pct, tint: tint, state: .prog,
                          progressText: "\(current) / \(target) \(unit.localized)",
                          progress: Double(current) / Double(target))
         }
 
         func flag(_ id: String, _ name: String, _ rarity: Rarity, _ cat: BadgeCategory,
-                  _ icon: String, _ desc: String, _ pct: String,
+                  _ icon: String, _ desc: String, _ pct: String, _ tint: Color,
                   unlocked: Bool, at: Date?) -> Badge {
             Badge(id: id, name: name, rarity: rarity, category: cat, icon: icon,
-                  desc: desc, ownership: pct, state: unlocked ? .lit : .locked,
+                  desc: desc, ownership: pct, tint: tint, state: unlocked ? .lit : .locked,
                   unlockedAt: unlocked ? at : nil)
+        }
+
+        func firstVisit(_ predicate: (Footprint) -> Bool) -> Date? {
+            s.footprints.filter(predicate).min { $0.visitedAt < $1.visitedAt }?.visitedAt
         }
 
         let list: [Badge] = [
             flag("first", "初次点亮", .common, .explore, "mappin",
-                 "点亮你的第一个足迹。旅程由此开始。", "88%",
+                 "点亮你的第一个足迹。旅程由此开始。", "88%", Color(hex: 0x9999FF),
                  unlocked: c >= 1, at: s.unlockDate(atCountryCount: 1)),
 
-            milestone("five", "环游五国", .rare, .milestone, "globe.asia.australia.fill",
-                      "点亮 5 个不同国家。", "31%", target: 5, current: c, unit: "国"),
+            milestone("five", "五国纵横", .rare, .milestone, "globe.asia.australia.fill",
+                      "全球累计点亮 5 个不同国家。", "31%", Color(hex: 0x4A90E2),
+                      target: 5, current: c, unit: "国"),
 
-            milestone("world", "环球旅人", .epic, .milestone, "safari.fill",
-                      "点亮 30 个国家即可解锁这枚史诗徽章。", "5%", target: 30, current: c, unit: "国"),
+            milestone("world", "环球旅行家", .epic, .milestone, "safari.fill",
+                      "点亮 30 个国家解锁这枚史诗徽章。", "5%", Color(hex: 0xFF0055),
+                      target: 30, current: c, unit: "国"),
 
-            flag("desert", "沙漠拓荒者", .epic, .milestone, "sun.max.fill",
-                 "首次点亮中东地区，开启一整片新大陆。", "8%",
-                 unlocked: s.litRegion(.meast), at: s.footprints.first { $0.region == .meast }?.visitedAt),
+            flag("desert", "大漠先锋", .epic, .milestone, "sun.max.fill",
+                 "在干旱 / 沙漠气候城市（如阿布扎比、迪拜）打卡。", "8%", Color(hex: 0xE91E63),
+                 unlocked: s.litRegion(.meast), at: firstVisit { $0.region == .meast }),
+
+            milestone("cities", "百城斩", .common, .milestone, "building.2.fill",
+                      "全球累计打卡的不同城市总数达 100。", "4%", Color(hex: 0x607D8B),
+                      target: 100, current: cities, unit: "城"),
+
+            milestone("continents", "制霸七大洲", .legendary, .explore, "globe",
+                      "全球 7 个大洲均至少含 1 个点亮足迹。", "1%", Color(hex: 0xFF9900),
+                      target: 7, current: continents, unit: "洲"),
 
             flag("asiastar", "亚洲之星", .epic, .continent, "star.fill",
-                 "在亚洲点亮足迹。", "11%",
-                 unlocked: s.litRegion(.asia), at: s.footprints.first { $0.region == .asia }?.visitedAt),
+                 "在亚洲点亮足迹。", "11%", Color(hex: 0xFF3366),
+                 unlocked: s.litRegion(.asia), at: firstVisit { $0.region == .asia }),
 
-            flag("europe", "欧陆漫游", .rare, .continent, "calendar",
-                 "在欧洲点亮足迹。", "19%",
-                 unlocked: s.litRegion(.europe), at: s.footprints.first { $0.region == .europe }?.visitedAt),
+            flag("europe", "欧洲漫游者", .rare, .continent, "calendar",
+                 "在欧洲点亮足迹。", "19%", Color(hex: 0x33CCFF),
+                 unlocked: s.litRegion(.europe), at: firstVisit { $0.region == .europe }),
 
-            milestone("cities", "百城灯火", .common, .milestone, "building.2.fill",
-                      "累计点亮 100 座城市。", "4%", target: 100, current: cities, unit: "城"),
+            flag("africa", "非洲开拓者", .rare, .continent, "tree.fill",
+                 "在非洲点亮首个国家。", "14%", Color(hex: 0x00CC66),
+                 unlocked: s.litRegion(.africa), at: firstVisit { $0.region == .africa }),
 
-            milestone("continents", "七洲集齐", .legendary, .explore, "globe",
-                      "集齐各大洲的足迹。终极荣耀。", "1%",
-                      target: 5, current: continentsCovered, unit: "洲"),
+            flag("americas", "美洲征服者", .epic, .continent, "mountain.2.fill",
+                 "在北美 / 南美点亮首个国家。", "3%", Color(hex: 0xFF6600),
+                 unlocked: s.litRegion(.americas), at: firstVisit { $0.region == .americas }),
 
-            flag("africa", "非洲先锋", .rare, .continent, "leaf.fill",
-                 "点亮非洲首个国家。", "14%",
-                 unlocked: s.litRegion(.africa), at: s.footprints.first { $0.region == .africa }?.visitedAt),
+            flag("oceania", "大洋洲游牧民", .epic, .continent, "figure.surfing",
+                 "在大洋洲点亮首个国家。", "6%", Color(hex: 0x00F2FE),
+                 unlocked: s.litRegion(.oceania), at: firstVisit { $0.region == .oceania }),
 
-            flag("americas", "美洲征服", .epic, .continent, "globe.americas.fill",
-                 "点亮美洲首个国家。", "3%",
-                 unlocked: s.litRegion(.americas), at: s.footprints.first { $0.region == .americas }?.visitedAt),
+            flag("antarctica", "南极洲探险家", .legendary, .continent, "snowflake",
+                 "在南极洲（南纬 60° 以下）成功打卡。", "0.5%", Color(hex: 0xE0F7FA),
+                 unlocked: s.litAntarctica, at: firstVisit { $0.latitude < -60 }),
+
+            flag("antarcticaPro", "极寒先锋", .legendary, .continent, "snowflake.circle.fill",
+                 "多次造访南极极寒点（≥ 2 次）。", "0.2%", Color(hex: 0xB3E5FC),
+                 unlocked: s.antarcticaVisits >= 2, at: firstVisit { $0.latitude < -60 }),
+
+            flag("jungle", "丛林探索者", .epic, .continent, "leaf.fill",
+                 "在雨林覆盖率极高国家（如巴西、印尼）打卡。", "2%", Color(hex: 0x2E7D32),
+                 unlocked: s.litRainforest,
+                 at: firstVisit { $0.countryCode.map { LumiStats.isRainforest($0) } ?? false }),
+
+            flag("island", "跳岛狂人", .rare, .streak, "sailboat.fill",
+                 "点亮 3 个不相连的岛屿国家 / 地区。", "7%", Color(hex: 0x00BFA5),
+                 unlocked: s.islandCountryCount >= 3, at: nil),
         ]
 
         return list

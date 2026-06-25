@@ -1921,7 +1921,7 @@
         }
       }
     },
-    "环游五国": {
+    "五国纵横": {
       "localizations": {
         "en": {
           "stringUnit": {
@@ -1937,7 +1937,7 @@
         }
       }
     },
-    "环球旅人": {
+    "环球旅行家": {
       "localizations": {
         "en": {
           "stringUnit": {
@@ -1953,7 +1953,7 @@
         }
       }
     },
-    "沙漠拓荒者": {
+    "大漠先锋": {
       "localizations": {
         "en": {
           "stringUnit": {
@@ -1965,6 +1965,38 @@
           "stringUnit": {
             "state": "translated",
             "value": "رائد الصحراء"
+          }
+        }
+      }
+    },
+    "百城斩": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hundred Cities"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "مئة مدينة"
+          }
+        }
+      }
+    },
+    "制霸七大洲": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All Continents"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "كل القارات السبع"
           }
         }
       }
@@ -1985,7 +2017,7 @@
         }
       }
     },
-    "欧陆漫游": {
+    "欧洲漫游者": {
       "localizations": {
         "en": {
           "stringUnit": {
@@ -2001,39 +2033,7 @@
         }
       }
     },
-    "百城灯火": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hundred Cities"
-          }
-        },
-        "ar": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "مئة مدينة"
-          }
-        }
-      }
-    },
-    "七洲集齐": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "All Continents"
-          }
-        },
-        "ar": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "كل القارات"
-          }
-        }
-      }
-    },
-    "非洲先锋": {
+    "非洲开拓者": {
       "localizations": {
         "en": {
           "stringUnit": {
@@ -2049,7 +2049,7 @@
         }
       }
     },
-    "美洲征服": {
+    "美洲征服者": {
       "localizations": {
         "en": {
           "stringUnit": {
@@ -2061,6 +2061,86 @@
           "stringUnit": {
             "state": "translated",
             "value": "غازي الأمريكتين"
+          }
+        }
+      }
+    },
+    "大洋洲游牧民": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oceania Nomad"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "بدوي أوقيانوسيا"
+          }
+        }
+      }
+    },
+    "南极洲探险家": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Antarctica Explorer"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "مستكشف القطب الجنوبي"
+          }
+        }
+      }
+    },
+    "极寒先锋": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Antarctica Pioneer"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "رائد الصقيع"
+          }
+        }
+      }
+    },
+    "丛林探索者": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jungle Explorer"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "مستكشف الأدغال"
+          }
+        }
+      }
+    },
+    "跳岛狂人": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Island Hopper"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "قافز الجزر"
           }
         }
       }
@@ -2081,7 +2161,7 @@
         }
       }
     },
-    "点亮 5 个不同国家。": {
+    "全球累计点亮 5 个不同国家。": {
       "localizations": {
         "en": {
           "stringUnit": {
@@ -2097,7 +2177,7 @@
         }
       }
     },
-    "点亮 30 个国家即可解锁这枚史诗徽章。": {
+    "点亮 30 个国家解锁这枚史诗徽章。": {
       "localizations": {
         "en": {
           "stringUnit": {
@@ -2113,18 +2193,50 @@
         }
       }
     },
-    "首次点亮中东地区，开启一整片新大陆。": {
+    "在干旱 / 沙漠气候城市（如阿布扎比、迪拜）打卡。": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Light the Middle East for the first time."
+            "value": "Check in at an arid / desert city (e.g. Abu Dhabi, Dubai)."
           }
         },
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "أضئ الشرق الأوسط لأول مرة."
+            "value": "سجّل وصولًا في مدينة صحراوية (مثل أبوظبي، دبي)."
+          }
+        }
+      }
+    },
+    "全球累计打卡的不同城市总数达 100。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reach 100 distinct cities checked in worldwide."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "بلوغ 100 مدينة مختلفة حول العالم."
+          }
+        }
+      }
+    },
+    "全球 7 个大洲均至少含 1 个点亮足迹。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Light at least one footprint on all 7 continents."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أضئ بصمة واحدة على الأقل في كل القارات السبع."
           }
         }
       }
@@ -2161,39 +2273,7 @@
         }
       }
     },
-    "累计点亮 100 座城市。": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Light up 100 cities in total."
-          }
-        },
-        "ar": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "أضئ 100 مدينة إجمالًا."
-          }
-        }
-      }
-    },
-    "集齐各大洲的足迹。终极荣耀。": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Collect footprints on every continent. The ultimate honor."
-          }
-        },
-        "ar": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "اجمع بصمات في كل القارات. الشرف الأقصى."
-          }
-        }
-      }
-    },
-    "点亮非洲首个国家。": {
+    "在非洲点亮首个国家。": {
       "localizations": {
         "en": {
           "stringUnit": {
@@ -2209,7 +2289,7 @@
         }
       }
     },
-    "点亮美洲首个国家。": {
+    "在北美 / 南美点亮首个国家。": {
       "localizations": {
         "en": {
           "stringUnit": {
@@ -2221,6 +2301,86 @@
           "stringUnit": {
             "state": "translated",
             "value": "أضئ أول دولة في الأمريكتين."
+          }
+        }
+      }
+    },
+    "在大洋洲点亮首个国家。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Light your first country in Oceania."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أضئ أول دولة في أوقيانوسيا."
+          }
+        }
+      }
+    },
+    "在南极洲（南纬 60° 以下）成功打卡。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check in within Antarctica (below 60°S)."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "سجّل وصولًا في القطب الجنوبي (تحت 60° جنوبًا)."
+          }
+        }
+      }
+    },
+    "多次造访南极极寒点（≥ 2 次）。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Visit Antarctica's frozen points more than once (≥ 2)."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "زر نقاط القطب الجنوبي المتجمدة أكثر من مرة (≥ 2)."
+          }
+        }
+      }
+    },
+    "在雨林覆盖率极高国家（如巴西、印尼）打卡。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check in at a rainforest-rich country (e.g. Brazil, Indonesia)."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "سجّل وصولًا في دولة غنية بالغابات المطيرة (مثل البرازيل، إندونيسيا)."
+          }
+        }
+      }
+    },
+    "点亮 3 个不相连的岛屿国家 / 地区。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Light 3 separate island nations / regions."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أضئ 3 دول / مناطق جزرية منفصلة."
           }
         }
       }

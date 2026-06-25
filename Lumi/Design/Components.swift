@@ -83,7 +83,7 @@ struct HexBadge: View {
                     .offset(y: -size * 0.14)
             }
         }
-        .shadow(color: badge.state == .lit ? badge.rarity.color.opacity(0.55) : .black.opacity(0.4),
+        .shadow(color: badge.state == .lit ? badge.color.opacity(0.55) : .black.opacity(0.4),
                 radius: badge.state == .lit ? 9 : 4, y: 3)
         .opacity(dimmed ? 0.13 : 1)
         .animation(.easeInOut(duration: 0.25), value: dimmed)
@@ -91,8 +91,8 @@ struct HexBadge: View {
 
     private var rimColor: Color {
         switch badge.state {
-        case .lit:    return badge.rarity.color.opacity(0.8)
-        case .prog:   return badge.rarity.color.opacity(0.6)
+        case .lit:    return badge.color.opacity(0.8)
+        case .prog:   return badge.color.opacity(0.6)
         case .locked: return Color(hex: 0x242436)
         }
     }
