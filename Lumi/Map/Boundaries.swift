@@ -116,9 +116,21 @@ final class Boundaries {
 
     // MARK: - GeoJSON 加载
 
+    /// 在 App 包里定位资源：兼容「平铺到包根」与「保留 Resources/ 子目录」两种布局，
+    /// 最后递归兜底搜索整个包（同步文件组的拷贝位置不固定，这样最稳）。
+    private static func bundledJSON(_ name: String) -> URL? {
+        if let u = Bundle.main.url(forResource: name, withExtension: "json") { return u }
+        if let u = Bundle.main.url(forResource: name, withExtension: "json", subdirectory: "Resources") { return u }
+        let target = "\(name).json"
+        if let e = FileManager.default.enumerator(at: Bundle.main.bundleURL, includingPropertiesForKeys: nil) {
+            for case let f as URL in e where f.lastPathComponent == target { return f }
+        }
+        return nil
+    }
+
     private static func load(_ resource: String, idKey: String) -> [Region] {
-        // 资源用 .json 扩展名：Xcode 同步文件组会自动拷贝 .json；.geojson 不被识别、不入包 → 之前 nil 崩溃。
-        guard let url = Bundle.main.url(forResource: resource, withExtension: "json"),
+        // 资源用 .json 扩展名：Xcode 同步文件组会自动拷贝 .json；.geojson 不被识别、不入包。
+        guard let url = bundledJSON(resource),
               let data = try? Data(contentsOf: url),
               let root = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
               let features = root["features"] as? [[String: Any]]
