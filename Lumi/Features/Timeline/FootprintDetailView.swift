@@ -53,12 +53,27 @@ struct FootprintDetailView: View {
 
     private var hero: some View {
         ZStack(alignment: .bottom) {
-            AssetImage(assetID: footprint.photoAssetIDs.first,
-                       targetSize: CGSize(width: 1200, height: 900))
-                .frame(maxWidth: .infinity).frame(height: 260).clipped()
+            Group {
+                if footprint.photoAssetIDs.count > 1 {
+                    // 多图：左右滑动切换 + 页码圆点（§验收 #4）
+                    TabView {
+                        ForEach(footprint.photoAssetIDs, id: \.self) { id in
+                            AssetImage(assetID: id, targetSize: CGSize(width: 1200, height: 900))
+                                .frame(maxWidth: .infinity).frame(height: 260).clipped()
+                        }
+                    }
+                    .tabViewStyle(.page(indexDisplayMode: .always))
+                    .indexViewStyle(.page(backgroundDisplayMode: .interactive))
+                } else {
+                    AssetImage(assetID: footprint.photoAssetIDs.first,
+                               targetSize: CGSize(width: 1200, height: 900))
+                        .frame(maxWidth: .infinity).frame(height: 260).clipped()
+                }
+            }
             LinearGradient(colors: [.clear, Color.bg.opacity(0.6), Color.bg],
                            startPoint: .top, endPoint: .bottom)
                 .frame(height: 160)
+                .allowsHitTesting(false)
         }
         .frame(height: 260)
     }

@@ -76,12 +76,13 @@ final class PhotoImportService: ObservableObject {
     func importSelected(into context: ModelContext) -> Int {
         let chosen = candidates.filter(\.selected)
         for c in chosen {
+            // §验收 #3：默认只记「地点 + 最早到访时间」，不导入照片/视频；照片由用户在编辑里按需添加。
             let fp = Footprint(
                 placeName: c.placeName,
                 coordinate: c.coordinate,
                 cityName: c.cityName,
                 visitedAt: c.date,
-                photoAssetIDs: c.assetIDs)
+                photoAssetIDs: [])
             fp.countryCode = c.countryCode
             fp.subRegionCode = c.subRegionCode
             context.insert(fp)

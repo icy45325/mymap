@@ -10,6 +10,9 @@ import CoreLocation
 @Model
 final class Footprint {
 
+    /// 单条足迹最多可附带的照片数（§验收需求）。
+    static let maxPhotos = 21
+
     // MARK: - 身份
     @Attribute(.unique) var id: UUID
     var createdAt: Date

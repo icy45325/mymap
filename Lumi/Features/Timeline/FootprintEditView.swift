@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import PhotosUI
 
 /// 足迹编辑：改 地点名 / 日期（开始 + 可选结束）/ 心情 / 同行人。
 /// 位置与国家码不在此改（改坐标要重判定，超出编辑范围）。
@@ -17,6 +18,8 @@ struct FootprintEditView: View {
     @State private var multiDay: Bool
     @State private var companions: [String]
     @State private var companionDraft = ""
+    @State private var photoIDs: [String]
+    @State private var pickerItems: [PhotosPickerItem] = []
 
     init(footprint: Footprint) {
         self.footprint = footprint
@@ -26,6 +29,7 @@ struct FootprintEditView: View {
         _endedAt = State(initialValue: footprint.endedAt ?? footprint.visitedAt)
         _multiDay = State(initialValue: footprint.endedAt != nil)
         _companions = State(initialValue: footprint.companions)
+        _photoIDs = State(initialValue: footprint.photoAssetIDs)
     }
 
     var body: some View {
@@ -33,6 +37,7 @@ struct FootprintEditView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 22) {
                     placeSection
+                    photosSection
                     dateSection
                     moodSection
                     companionsSection
@@ -71,6 +76,61 @@ struct FootprintEditView: View {
                 .padding(12)
                 .background(Color.panel, in: RoundedRectangle(cornerRadius: Metrics.radius))
         }
+    }
+
+    // MARK: - 照片（增加 / 删除 / 替换，最多 21 张）
+
+    private var photosSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            sectionLabel("照片", systemImage: "photo.on.rectangle")
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 10) {
+                    ForEach(photoIDs, id: \.self) { id in
+                        ZStack(alignment: .topTrailing) {
+                            AssetImage(assetID: id, targetSize: CGSize(width: 200, height: 200))
+                                .frame(width: 84, height: 84)
+                                .clipShape(RoundedRectangle(cornerRadius: 12))
+                            Button { photoIDs.removeAll { $0 == id } } label: {
+                                Image(systemName: "xmark.circle.fill")
+                                    .font(.system(size: 18))
+                                    .foregroundStyle(.white, .black.opacity(0.55))
+                            }
+                            .padding(3)
+                        }
+                    }
+                    if photoIDs.count < Footprint.maxPhotos {
+                        PhotosPicker(selection: $pickerItems,
+                                     maxSelectionCount: Footprint.maxPhotos - photoIDs.count,
+                                     matching: .images,
+                                     photoLibrary: .shared()) {
+                            VStack(spacing: 4) {
+                                Image(systemName: "plus")
+                                Text("增加")
+                            }
+                            .font(.system(size: 13, weight: .medium))
+                            .foregroundStyle(Color.litGlow)
+                            .frame(width: 84, height: 84)
+                            .background(Color.panel, in: RoundedRectangle(cornerRadius: 12))
+                            .overlay(RoundedRectangle(cornerRadius: 12)
+                                .stroke(Color.line, style: StrokeStyle(lineWidth: 1, dash: [4])))
+                        }
+                    }
+                }
+            }
+            Text("最多 \(Footprint.maxPhotos) 张 · 已选 \(photoIDs.count)")
+                .font(.system(size: 11)).foregroundStyle(Color.textSecondary)
+        }
+        .onChange(of: pickerItems) { _, items in mergePicked(items) }
+    }
+
+    /// 把刚选的照片并入（去重 + 不超过上限），随后清空选择器。
+    private func mergePicked(_ items: [PhotosPickerItem]) {
+        guard !items.isEmpty else { return }
+        for id in items.compactMap(\.itemIdentifier)
+        where !photoIDs.contains(id) && photoIDs.count < Footprint.maxPhotos {
+            photoIDs.append(id)
+        }
+        pickerItems = []
     }
 
     // MARK: - 日期
@@ -184,6 +244,7 @@ struct FootprintEditView: View {
         footprint.visitedAt = visitedAt
         footprint.endedAt = (multiDay && endedAt > visitedAt) ? endedAt : nil
         footprint.companions = finalCompanions
+        footprint.photoAssetIDs = Array(photoIDs.prefix(Footprint.maxPhotos))
         try? context.save()
 
         WidgetSync.refresh(context)   // 日期改动可能影响「去年今日」/ 最近一次
