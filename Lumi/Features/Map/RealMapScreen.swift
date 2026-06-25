@@ -53,8 +53,8 @@ struct RealMapScreen: View {
             Button("取消", role: .cancel) { tapped = nil }
         }
         .sheet(item: $yearPickFor) { place in
-            VisitDetailsSheet(place: place) { year, month, city in
-                lightCountry(place, year: year, month: month, city: city)
+            VisitDetailsSheet(place: place) { year, month, cities in
+                lightCountry(place, year: year, month: month, cities: cities)
             }
         }
     }
@@ -92,25 +92,27 @@ struct RealMapScreen: View {
         tapped = TappedPlace(coordinate: coordinate, countryCode: code)
     }
 
-    private func lightCountry(_ place: TappedPlace, year: Int, month: Int, city: PresetCity?) {
+    private func lightCountry(_ place: TappedPlace, year: Int, month: Int, cities: [PresetCity]) {
         let prior = Set(footprints.compactMap { $0.countryCode })
         let date = Calendar.current.date(from: DateComponents(year: year, month: month, day: 1)) ?? Date()
 
-        // 选了城市则用城市坐标/名字落点，否则以国家落点
-        let coordinate = city?.coordinate ?? place.coordinate
-        let footprint = Footprint(placeName: city?.name ?? place.countryName,
-                                  coordinate: coordinate,
-                                  cityName: city?.name,
-                                  visitedAt: date)
-        footprint.countryCode = place.countryCode
-        if place.countryCode == "AE" {
-            footprint.subRegionCode = Boundaries.shared.emirateCode(at: coordinate)
+        // 勾选了城市 → 每个城市各点亮一条；未选 → 以国家落点一条
+        let targets: [(name: String, coord: CLLocationCoordinate2D, city: String?)] = cities.isEmpty
+            ? [(place.countryName, place.coordinate, nil)]
+            : cities.map { ($0.name, $0.coordinate, $0.name) }
+
+        for t in targets {
+            let footprint = Footprint(placeName: t.name, coordinate: t.coord, cityName: t.city, visitedAt: date)
+            footprint.countryCode = place.countryCode
+            if place.countryCode == "AE" {
+                footprint.subRegionCode = Boundaries.shared.emirateCode(at: t.coord)
+            }
+            context.insert(footprint)
+            context.insert(Card(footprint: footprint))
+            Analytics.log(.footprintCreated(countryCode: place.countryCode, hasPhoto: false, companionsCount: 0))
         }
-        context.insert(footprint)
-        context.insert(Card(footprint: footprint))
         try? context.save()
 
-        Analytics.log(.footprintCreated(countryCode: place.countryCode, hasPhoto: false, companionsCount: 0))
         if !prior.contains(place.countryCode) {
             Analytics.log(.countryLit(countryCode: place.countryCode, totalLit: prior.count + 1))
         }
@@ -134,21 +136,20 @@ struct RealMapScreen: View {
     }
 }
 
-/// 选择「哪年/哪月去的」+ 可选城市（默认折叠不选）——快速点亮用。
+/// 选择「哪年/哪月去的」+ 打卡城市（默认展开、开关多选）——快速点亮用。
 private struct VisitDetailsSheet: View {
     let place: RealMapScreen.TappedPlace
-    let onPick: (_ year: Int, _ month: Int, _ city: PresetCity?) -> Void
+    let onPick: (_ year: Int, _ month: Int, _ cities: [PresetCity]) -> Void
 
     @Environment(\.dismiss) private var dismiss
     @State private var year: Int
     @State private var month: Int
-    @State private var selectedCity: PresetCity?
-    @State private var citiesExpanded = false
+    @State private var selectedCities: Set<PresetCity> = []
     private let years: [Int]
     private let cities: [PresetCity]
 
     init(place: RealMapScreen.TappedPlace,
-         onPick: @escaping (Int, Int, PresetCity?) -> Void) {
+         onPick: @escaping (Int, Int, [PresetCity]) -> Void) {
         self.place = place
         self.onPick = onPick
         let cal = Calendar.current
@@ -183,8 +184,8 @@ private struct VisitDetailsSheet: View {
 
                 if !cities.isEmpty { citySection }
 
-                Button { onPick(year, month, selectedCity); dismiss() } label: {
-                    Text("点亮 ✦").font(.headline)
+                Button { onPick(year, month, Array(selectedCities)); dismiss() } label: {
+                    Text(buttonTitle).font(.headline)
                         .frame(maxWidth: .infinity).padding(.vertical, 15)
                         .background(LinearGradient.neonH, in: Capsule())
                         .foregroundStyle(.white)
@@ -201,46 +202,35 @@ private struct VisitDetailsSheet: View {
             .toolbarBackground(Color.bg, for: .navigationBar)
             .toolbarColorScheme(.dark, for: .navigationBar)
         }
-        .presentationDetents([.height(cities.isEmpty ? 360 : 470)])
+        .presentationDetents([.large])
         .preferredColorScheme(.dark)
     }
 
-    /// 可选城市：默认折叠、不选中；点选某城高亮，再点取消。
+    private var buttonTitle: LocalizedStringKey {
+        selectedCities.isEmpty ? "点亮 ✦" : "点亮 \(selectedCities.count) 城 ✦"
+    }
+
+    /// 打卡城市：默认展开、开关多选；不选则以国家落点。
     private var citySection: some View {
-        DisclosureGroup(isExpanded: $citiesExpanded) {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("打卡城市（可选 · 可多选）").font(.subheadline).foregroundStyle(Color.muted)
+                .padding(.horizontal, 8)
             ScrollView {
-                LazyVStack(spacing: 6) {
+                VStack(spacing: 6) {
                     ForEach(cities) { city in
-                        Button {
-                            selectedCity = (selectedCity == city) ? nil : city
-                        } label: {
-                            HStack {
-                                Text(city.name).foregroundStyle(Color.text)
-                                Spacer()
-                                if selectedCity == city {
-                                    Image(systemName: "checkmark.circle.fill").foregroundStyle(Color.nPink)
-                                }
-                            }
-                            .padding(.vertical, 9).padding(.horizontal, 12)
-                            .background(selectedCity == city ? Color.nPink.opacity(0.14) : Color.panel,
-                                        in: RoundedRectangle(cornerRadius: 10))
+                        Toggle(isOn: Binding(
+                            get: { selectedCities.contains(city) },
+                            set: { on in if on { selectedCities.insert(city) } else { selectedCities.remove(city) } }
+                        )) {
+                            Text(city.name).foregroundStyle(Color.text)
                         }
-                        .buttonStyle(.plain)
+                        .tint(Color.nPink)
+                        .padding(.vertical, 8).padding(.horizontal, 12)
+                        .background(Color.panel, in: RoundedRectangle(cornerRadius: 10))
                     }
                 }
-                .padding(.top, 4)
             }
-            .frame(maxHeight: 150)
-        } label: {
-            HStack {
-                Text("城市（可选）").font(.subheadline).foregroundStyle(Color.muted)
-                Spacer()
-                if let c = selectedCity {
-                    Text(c.name).font(.system(size: 13, weight: .medium)).foregroundStyle(Color.nPink)
-                }
-            }
+            .frame(maxHeight: 220)
         }
-        .tint(Color.muted)
-        .padding(.horizontal, 8)
     }
 }

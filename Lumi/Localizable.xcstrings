@@ -2545,6 +2545,38 @@
         }
       }
     },
+    "打卡城市（可选 · 可多选）": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cities (optional · multi-select)"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "المدن (اختياري · متعدد)"
+          }
+        }
+      }
+    },
+    "点亮 %lld 城 ✦": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Light %lld cities ✦"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أضئ %lld مدينة ✦"
+          }
+        }
+      }
+    },
     "分享徽章": {
       "localizations": {
         "en": {
