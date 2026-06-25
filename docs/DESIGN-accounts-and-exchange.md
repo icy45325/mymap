@@ -160,9 +160,9 @@ UGC + 社交必带**举报 / 屏蔽 / 拉黑**，且触发 Apple **2026 年中**
 ## 8. 开放问题 / 待定
 
 - ~~CloudKit 还是 BaaS？~~ **已定**：因 Android 是确定目标，账号/同步层走**跨平台 BaaS**，不走 CloudKit（见 §2）。
-- **BaaS 选 Supabase 还是 Firebase？** Supabase（Postgres）关系型社交图谱 + RLS 权限更顺手、可自托管；
-  Firebase（Firestore）实时与离线 SDK 成熟、与谷歌生态协同。**待选型**（建议按「社交关系复杂度 vs 上手速度」拍板）。
+- **BaaS 选 Supabase 还是 Firebase？** 对比与倾向见 [`DESIGN-baas-selection.md`](DESIGN-baas-selection.md)（倾向 Supabase，待 PoC 拍板）。
 - **谷歌内容合规**：优先「接收 share URL / 系统地点」而非直连 Places API；商用条款需复核。
+- **VIP 变现 × 账号**：纯本地如何收费、账号化后权益如何承接，见 [`DESIGN-monetization.md`](DESIGN-monetization.md)。
 - **VIP 变现与账号的关系**：纯本地版如何收费？账号上线后权益如何承接？（与本文身份层相关，单列商业设计。）
 - **交换日记的「仪式」边界**：先写后换 / 是否可撤回 / 是否限同一行程，需产品定义。
 

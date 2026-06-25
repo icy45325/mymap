@@ -11,6 +11,8 @@
 - [路线图 Roadmap](docs/ROADMAP.md) — v0.x / v1 / v2 分阶段规划与依赖
 - [需求与进度跟踪](docs/REQUIREMENTS.md) — 逐条需求台账 + 交付状态
 - [设计：账号体系 / 迁移 / 交换日记 / IM 分享](docs/DESIGN-accounts-and-exchange.md) — 社交与共创主线细化设计
+- [设计：VIP 变现 × 账号](docs/DESIGN-monetization.md) — 免费/付费切分、计费基础设施、账号化承接
+- [选型：BaaS（Supabase vs Firebase）](docs/DESIGN-baas-selection.md) — 跨平台后端对比与决策记录
 
 ## 里程碑
 
