@@ -5,8 +5,7 @@ import SwiftUI
 @main
 struct LumiWidgetsBundle: WidgetBundle {
     var body: some Widget {
-        LitCountWidget()
-        OnThisDayWidget()
-        FlagWidget()
+        LumiWidget()          // 战绩 / 国旗（模式可切）
+        OnThisDayWidget()     // 去年今日
     }
 }

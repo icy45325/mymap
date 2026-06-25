@@ -1,37 +1,8 @@
 import WidgetKit
 import SwiftUI
 
-/// 国旗集合小组件：展示去过国家的国旗（最多 5 个）。
-
-struct FlagEntry: TimelineEntry {
-    let date: Date
-    let snapshot: LumiSnapshot
-}
-
-struct FlagProvider: TimelineProvider {
-    func placeholder(in context: Context) -> FlagEntry {
-        FlagEntry(date: Date(), snapshot: .sample)
-    }
-    func getSnapshot(in context: Context, completion: @escaping (FlagEntry) -> Void) {
-        completion(FlagEntry(date: Date(), snapshot: context.isPreview ? .sample : LumiSnapshotStore.load()))
-    }
-    func getTimeline(in context: Context, completion: @escaping (Timeline<FlagEntry>) -> Void) {
-        completion(Timeline(entries: [FlagEntry(date: Date(), snapshot: LumiSnapshotStore.load())], policy: .never))
-    }
-}
-
-struct FlagWidget: Widget {
-    var body: some WidgetConfiguration {
-        StaticConfiguration(kind: LumiAppGroup.flagWidgetKind, provider: FlagProvider()) { entry in
-            FlagWidgetView(snapshot: entry.snapshot)
-                .containerBackground(for: .widget) { WidgetTheme.bgGradient }
-        }
-        .configurationDisplayName("去过的国旗")
-        .description("展示你去过国家的国旗集合（最多 5 个）。")
-        .supportedFamilies([.systemSmall, .systemMedium])
-    }
-}
-
+/// 国旗集合视图：展示去过国家的国旗（最多 5 个）。
+/// （作为 `LumiWidget` 的「国旗」模式使用；不再单列为独立小组件。）
 struct FlagWidgetView: View {
     let snapshot: LumiSnapshot
     @Environment(\.widgetFamily) private var family
