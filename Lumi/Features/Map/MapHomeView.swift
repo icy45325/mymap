@@ -190,8 +190,8 @@ private struct HighlightCard: View {
 
     var body: some View {
         ZStack(alignment: .bottomLeading) {
-            AssetImage(assetID: highlight.assetID, targetSize: CGSize(width: 500, height: 280))
-                .frame(width: 248, height: 140)
+            AssetImage(assetID: highlight.assetID, targetSize: CGSize(width: 660, height: 414))
+                .frame(width: 300, height: 188)
                 .clipped()
             LinearGradient(colors: [.clear, Color.bg.opacity(0.85)],
                            startPoint: .center, endPoint: .bottom)
@@ -201,7 +201,7 @@ private struct HighlightCard: View {
             }
             .padding(13)
         }
-        .frame(width: 248, height: 140)
+        .frame(width: 300, height: 188)
         .clipShape(RoundedRectangle(cornerRadius: 18))
         .overlay(RoundedRectangle(cornerRadius: 18).stroke(Color.line, lineWidth: 1))
     }

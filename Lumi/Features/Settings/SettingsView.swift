@@ -9,6 +9,8 @@ struct SettingsView: View {
             VStack(alignment: .leading, spacing: 18) {
                 section("小组件 Widgets") {
                     VStack(alignment: .leading, spacing: 12) {
+                        widgetPreviewStrip
+                        Divider().overlay(Color.line)
                         widgetRow("rectangle.3.group", "点亮计数", "主屏 / 锁屏显示已点亮国家数与全球占比")
                         Divider().overlay(Color.line)
                         widgetRow("calendar", "去年今日", "回看往年此刻去过的地方")
@@ -55,6 +57,61 @@ struct SettingsView: View {
         .toolbarBackground(Color.bg, for: .navigationBar)
         .toolbarColorScheme(.dark, for: .navigationBar)
         .preferredColorScheme(.dark)
+    }
+
+    // MARK: - 小组件样式预览（App 内近似 mock，非真实小组件渲染）
+
+    private var widgetPreviewStrip: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 12) {
+                statsPreview
+                flagsPreview
+                onThisDayPreview
+            }
+            .padding(.vertical, 2)
+        }
+    }
+
+    private var previewBG: LinearGradient {
+        LinearGradient(colors: [Color(hex: 0x12101F), Color(hex: 0x0A0A16)],
+                       startPoint: .topLeading, endPoint: .bottomTrailing)
+    }
+
+    private func previewCard<C: View>(_ section: LocalizedStringKey, width: CGFloat = 150,
+                                      @ViewBuilder _ content: () -> C) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text("LUMI · ").font(.system(size: 8, weight: .semibold)).tracking(1)
+                .foregroundStyle(Color.muted)
+            + Text(section).font(.system(size: 8, weight: .semibold)).tracking(1).foregroundStyle(Color.muted)
+            content()
+        }
+        .frame(width: width, height: 96, alignment: .topLeading)
+        .padding(11)
+        .background(previewBG, in: RoundedRectangle(cornerRadius: 14))
+        .overlay(RoundedRectangle(cornerRadius: 14).stroke(Color.line, lineWidth: 1))
+    }
+
+    private var statsPreview: some View {
+        previewCard("点亮战绩") {
+            Spacer(minLength: 0)
+            Text("12").font(Typo.serif(34)).foregroundStyle(Color.nOrange)
+            Text("个国家 · 全球 5%").font(.system(size: 9)).foregroundStyle(Color.text)
+        }
+    }
+    private var flagsPreview: some View {
+        previewCard("去过的国旗") {
+            Spacer(minLength: 0)
+            Text(["AE","CN","JP","FR","GB"].map(flagEmoji).joined())
+                .font(.system(size: 22))
+            Text("已点亮 12 国").font(.system(size: 9, weight: .semibold)).foregroundStyle(Color.text)
+        }
+    }
+    private var onThisDayPreview: some View {
+        previewCard("去年今日") {
+            Spacer(minLength: 0)
+            Text("✈️").font(.system(size: 26))
+            Text("去年此刻你在 东京 ✦").font(.system(size: 9)).foregroundStyle(Color.text).lineLimit(2)
+        }
     }
 
     private func widgetRow(_ icon: String, _ name: LocalizedStringKey, _ desc: LocalizedStringKey) -> some View {
