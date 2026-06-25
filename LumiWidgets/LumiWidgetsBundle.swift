@@ -7,5 +7,6 @@ struct LumiWidgetsBundle: WidgetBundle {
     var body: some Widget {
         LitCountWidget()
         OnThisDayWidget()
+        FlagWidget()
     }
 }

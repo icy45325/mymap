@@ -40,6 +40,6 @@ enum WidgetSync {
             updatedAt: .now)
 
         LumiSnapshotStore.save(snapshot)
-        WidgetCenter.shared.reloadTimelines(ofKind: LumiAppGroup.widgetKind)
+        WidgetCenter.shared.reloadAllTimelines()   // 计数 / 去年今日 / 国旗 三类一起刷新
     }
 }

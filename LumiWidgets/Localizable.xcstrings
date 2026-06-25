@@ -272,6 +272,70 @@
           }
         }
       }
+    },
+    "去过的国旗": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flags Visited"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الأعلام"
+          }
+        }
+      }
+    },
+    "展示你去过国家的国旗集合（最多 5 个）。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flags of the countries you've visited (up to 5)."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أعلام الدول التي زرتها (حتى 5)."
+          }
+        }
+      }
+    },
+    "还没有点亮国家": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No countries lit yet"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "لا دول مضاءة بعد"
+          }
+        }
+      }
+    },
+    "已点亮 %lld 国": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld countries lit"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld دولة مضاءة"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

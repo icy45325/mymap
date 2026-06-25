@@ -65,6 +65,8 @@ enum LumiAppGroup {
     static let snapshotKey = "lumi.snapshot.v2"
     /// 小组件 kind（StaticConfiguration / reloadTimelines(ofKind:) 共用）。
     static let widgetKind = "LitCountWidget"
+    /// 国旗集合小组件 kind。
+    static let flagWidgetKind = "LumiFlagWidget"
 }
 
 /// 共享快照的读写入口（App Group UserDefaults，JSON 编码）。

@@ -2577,6 +2577,38 @@
         }
       }
     },
+    "去过的国旗": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flags visited"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أعلام زرتها"
+          }
+        }
+      }
+    },
+    "展示去过国家的国旗集合（最多 5 个）": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flags of countries you've visited (up to 5)"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أعلام الدول التي زرتها (حتى 5)"
+          }
+        }
+      }
+    },
     "✦ 成就解锁 · Lit on Lumi": {
       "localizations": {
         "en": {

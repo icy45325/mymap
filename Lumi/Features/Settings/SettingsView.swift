@@ -13,6 +13,8 @@ struct SettingsView: View {
                         Divider().overlay(Color.line)
                         widgetRow("calendar", "去年今日", "回看往年此刻去过的地方")
                         Divider().overlay(Color.line)
+                        widgetRow("flag.2.crossed", "去过的国旗", "展示去过国家的国旗集合（最多 5 个）")
+                        Divider().overlay(Color.line)
                         Text("添加方式：长按桌面空白处 → 左上角「+」→ 搜索 “Lumi” → 选择小组件。小组件文案跟随系统语言。")
                             .font(.system(size: 11)).foregroundStyle(Color.muted)
                             .fixedSize(horizontal: false, vertical: true)
