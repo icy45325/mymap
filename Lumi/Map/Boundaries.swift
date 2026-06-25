@@ -1,5 +1,6 @@
 import Foundation
 import CoreLocation
+import UIKit   // NSDataAsset
 
 /// 行政区边界（Natural Earth）。负责两件事（§5.1）：
 /// 1. **离线 point-in-polygon**：坐标 → 国家码 / UAE 酋长国码（不需网络，点亮判定的事实来源）。
@@ -116,26 +117,14 @@ final class Boundaries {
 
     // MARK: - GeoJSON 加载
 
-    /// 在 App 包里定位资源：兼容「平铺到包根」与「保留 Resources/ 子目录」两种布局，
-    /// 最后递归兜底搜索整个包（同步文件组的拷贝位置不固定，这样最稳）。
-    private static func bundledJSON(_ name: String) -> URL? {
-        if let u = Bundle.main.url(forResource: name, withExtension: "json") { return u }
-        if let u = Bundle.main.url(forResource: name, withExtension: "json", subdirectory: "Resources") { return u }
-        let target = "\(name).json"
-        if let e = FileManager.default.enumerator(at: Bundle.main.bundleURL, includingPropertiesForKeys: nil) {
-            for case let f as URL in e where f.lastPathComponent == target { return f }
-        }
-        return nil
-    }
-
     private static func load(_ resource: String, idKey: String) -> [Region] {
-        // 资源用 .json 扩展名：Xcode 同步文件组会自动拷贝 .json；.geojson 不被识别、不入包。
-        guard let url = bundledJSON(resource),
-              let data = try? Data(contentsOf: url),
-              let root = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+        // 边界数据放在 Asset Catalog 的 Data Set 里，用 NSDataAsset 读取——
+        // 资源目录一定会编译进包(Assets.car)，规避同步文件组不收录散装 json 的问题。
+        guard let asset = NSDataAsset(name: resource),
+              let root = try? JSONSerialization.jsonObject(with: asset.data) as? [String: Any],
               let features = root["features"] as? [[String: Any]]
         else {
-            assertionFailure("边界资源缺失或解析失败: \(resource).json")
+            assertionFailure("边界资源缺失或解析失败: \(resource)（Asset Catalog Data Set）")
             return []
         }
 
