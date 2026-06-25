@@ -1,6 +1,5 @@
 import Foundation
 import CoreLocation
-import UIKit   // NSDataAsset
 
 /// 行政区边界（Natural Earth）。负责两件事（§5.1）：
 /// 1. **离线 point-in-polygon**：坐标 → 国家码 / UAE 酋长国码（不需网络，点亮判定的事实来源）。
@@ -118,13 +117,17 @@ final class Boundaries {
     // MARK: - GeoJSON 加载
 
     private static func load(_ resource: String, idKey: String) -> [Region] {
-        // 边界数据放在 Asset Catalog 的 Data Set 里，用 NSDataAsset 读取——
-        // 资源目录一定会编译进包(Assets.car)，规避同步文件组不收录散装 json 的问题。
-        guard let asset = NSDataAsset(name: resource),
-              let root = try? JSONSerialization.jsonObject(with: asset.data) as? [String: Any],
+        // 数据内嵌在 BoundaryData（base64 常量），不依赖任何资源打包。
+        let data: Data
+        switch resource {
+        case "admin0":        data = BoundaryData.admin0
+        case "uae_emirates":  data = BoundaryData.uaeEmirates
+        default:              data = Data()
+        }
+        guard let root = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
               let features = root["features"] as? [[String: Any]]
         else {
-            assertionFailure("边界资源缺失或解析失败: \(resource)（Asset Catalog Data Set）")
+            assertionFailure("边界数据解析失败: \(resource)")
             return []
         }
 
