@@ -117,12 +117,13 @@ final class Boundaries {
     // MARK: - GeoJSON 加载
 
     private static func load(_ resource: String, idKey: String) -> [Region] {
-        guard let url = Bundle.main.url(forResource: resource, withExtension: "geojson"),
+        // 资源用 .json 扩展名：Xcode 同步文件组会自动拷贝 .json；.geojson 不被识别、不入包 → 之前 nil 崩溃。
+        guard let url = Bundle.main.url(forResource: resource, withExtension: "json"),
               let data = try? Data(contentsOf: url),
               let root = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
               let features = root["features"] as? [[String: Any]]
         else {
-            assertionFailure("边界资源缺失或解析失败: \(resource).geojson")
+            assertionFailure("边界资源缺失或解析失败: \(resource).json")
             return []
         }
 
