@@ -125,14 +125,15 @@ struct OnThisDayWidgetView: View {
     private func recallLine(_ m: LumiMemory) -> String {
         let place = m.countryName ?? m.placeName
         let years = yearsBetween(m)
-        let prefix = years <= 1 ? "去年此刻，你在" : "\(years) 年前的今天，你在"
-        return "\(prefix) \(place) ✦"
+        if years <= 1 { return String(localized: "去年此刻，你在 \(place) ✦") }
+        return String(localized: "\(years) 年前的今天，你在 \(place) ✦")
     }
 
     /// 锁屏紧凑短语：「去年今日」/「N 年前今日」。
     private func yearsAgoPhrase(_ m: LumiMemory) -> String {
         let years = yearsBetween(m)
-        return years <= 1 ? "去年今日" : "\(years) 年前今日"
+        if years <= 1 { return String(localized: "去年今日") }
+        return String(localized: "\(years) 年前今日")
     }
 
     private func yearsBetween(_ m: LumiMemory) -> Int {

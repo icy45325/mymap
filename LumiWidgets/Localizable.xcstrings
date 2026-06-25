@@ -1,0 +1,278 @@
+{
+  "sourceLanguage": "zh-Hans",
+  "strings": {
+    "点亮战绩": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lit Stats"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الإحصاءات"
+          }
+        }
+      }
+    },
+    "去年今日": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On This Day"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "في مثل هذا اليوم"
+          }
+        }
+      }
+    },
+    "个国家被你点亮 · 全球 %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "countries lit · %@ of the world"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "دولة أضأتها · %@ من العالم"
+          }
+        }
+      }
+    },
+    "国 · 全球 %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "countries · %@"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "دولة · %@"
+          }
+        }
+      }
+    },
+    "✦ 已点亮 %lld 国": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ %lld countries lit"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ أضأت %lld دولة"
+          }
+        }
+      }
+    },
+    "全球 %@ · %lld 城": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ of world · %lld cities"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ من العالم · %lld مدينة"
+          }
+        }
+      }
+    },
+    "✦ 点亮 %lld 国 · 全球 %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ %lld countries · %@"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ %lld دولة · %@"
+          }
+        }
+      }
+    },
+    "上次你在 %@ ✦": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Last in %@ ✦"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "آخر مرة في %@ ✦"
+          }
+        }
+      }
+    },
+    "这一天还没有回忆": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No memory on this day"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "لا ذكرى في هذا اليوم"
+          }
+        }
+      }
+    },
+    "去点亮一个足迹，明年今日就有得回看了 ✦": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Light a footprint — next year you'll revisit it ✦"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أضئ بصمة — وستتذكرها في العام القادم ✦"
+          }
+        }
+      }
+    },
+    "去年此刻，你在 %@ ✦": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A year ago you were in %@ ✦"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "قبل عام كنت في %@ ✦"
+          }
+        }
+      }
+    },
+    "%lld 年前的今天，你在 %@ ✦": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld years ago today you were in %2$@ ✦"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "قبل %1$lld أعوام كنت في %2$@ ✦"
+          }
+        }
+      }
+    },
+    "%lld 年前今日": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld years ago today"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "قبل %lld أعوام اليوم"
+          }
+        }
+      }
+    },
+    "✦ 去年今日": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ On This Day"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ في مثل هذا اليوم"
+          }
+        }
+      }
+    },
+    "还没有足迹，去点亮一个": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No footprints yet — light one"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "لا بصمات بعد — أضئ واحدة"
+          }
+        }
+      }
+    },
+    "✦ %@你在 %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ %1$@ you were in %2$@"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ %1$@ كنت في %2$@"
+          }
+        }
+      }
+    },
+    "✦ 去年今日 · 去点亮一个足迹": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ On This Day · light a footprint"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ في مثل هذا اليوم · أضئ بصمة"
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

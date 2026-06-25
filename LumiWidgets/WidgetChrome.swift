@@ -14,7 +14,7 @@ enum WidgetChrome {
 struct WidgetHeader: View {
     let section: String
     var body: some View {
-        Text("LUMI · \(section)")
+        Text("LUMI · \(section.localized)")
             .font(.system(size: 10, weight: .semibold)).tracking(2)
             .foregroundStyle(WidgetTheme.muted)
     }
