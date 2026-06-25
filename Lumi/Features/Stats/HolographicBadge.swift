@@ -9,7 +9,7 @@ struct HolographicBadge: View {
     @StateObject private var motion = MotionTilt()
 
     var body: some View {
-        TimelineView(.animation) { tl in
+        SwiftUI.TimelineView(.animation) { tl in
             let t = tl.date.timeIntervalSinceReferenceDate
             let shift = motion.roll * 0.6 + sin(t * 0.5) * 0.18      // 流光相位
             ZStack {
@@ -71,7 +71,7 @@ struct UnlockBurst: View {
     }
 
     var body: some View {
-        TimelineView(.animation) { tl in
+        SwiftUI.TimelineView(.animation) { tl in
             let elapsed = tl.date.timeIntervalSince(start)
             Canvas { ctx, size in
                 let c = CGPoint(x: size.width / 2, y: size.height / 2)
