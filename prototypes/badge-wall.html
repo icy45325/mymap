@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<title>Lumi · 全息徽章墙原型</title>
+<!--
+  视觉原型（spec / 演示）—— 不是进 App 的 WebView。
+  作用：锁定「全息箔流光 + 倾斜 + 点击大图 + 解锁 pop 粒子」的观感与参数，
+  iOS 原生 Metal shader / SwiftUI 实现对齐它。
+  桌面：移动鼠标倾斜；手机：陀螺仪倾斜（需授权）。点击徽章看大图；底部「模拟解锁」看 pop 动效。
+-->
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; background: #06060E; overflow: hidden; font-family: -apple-system, "PingFang SC", system-ui, sans-serif; }
+  #app { position: fixed; inset: 0; }
+  canvas { display: block; }
+  .hud { position: fixed; left: 0; right: 0; text-align: center; color: #8585A0; pointer-events: none; user-select: none; }
+  .hud.top { top: 18px; }
+  .hud.top .t { color: #F1F1FA; font-size: 15px; font-weight: 700; letter-spacing: 2px; }
+  .hud.top .s { font-size: 11px; margin-top: 4px; }
+  .controls { position: fixed; bottom: 26px; left: 0; right: 0; display: flex; gap: 12px; justify-content: center; }
+  button { font: inherit; font-size: 13px; font-weight: 600; color: #fff; border: 0; padding: 12px 20px; border-radius: 999px;
+           background: linear-gradient(90deg,#FF3D9A,#A24CFF,#3DE0FF); box-shadow: 0 8px 24px rgba(162,76,255,.45); cursor: pointer; }
+  button.ghost { background: #11111D; border: 1px solid #252537; box-shadow: none; color: #C9C2D6; }
+  /* 大图信息面板 */
+  #panel { position: fixed; left: 50%; bottom: -60%; transform: translateX(-50%); width: min(92vw,420px);
+           background: rgba(15,15,27,.82); backdrop-filter: blur(18px); border: 1px solid #252537; border-radius: 26px 26px 0 0;
+           padding: 22px 24px 30px; color: #F1F1FA; transition: bottom .45s cubic-bezier(.2,.8,.2,1); z-index: 10; }
+  #panel.show { bottom: 0; }
+  #panel .name { font-size: 24px; font-weight: 700; }
+  #panel .tier { font-size: 11px; font-weight: 800; letter-spacing: 1.5px; margin-top: 6px; }
+  #panel .desc { font-size: 13px; color: #C9C2D6; line-height: 1.5; margin-top: 12px; }
+  #panel .own  { font-size: 11px; color: #E6C18C; margin-top: 12px; }
+  #panel .close { position: absolute; top: 16px; right: 18px; color: #8585A0; pointer-events: auto; cursor: pointer; font-size: 20px; }
+  .grab { pointer-events: auto; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div class="hud top"><div class="t">LUMI · 徽章墙</div><div class="s">移动鼠标 / 倾斜手机看全息流光 · 点击徽章看大图</div></div>
+<div class="controls">
+  <button id="unlock">模拟解锁 ✦</button>
+  <button class="ghost" id="gyro">开启陀螺仪</button>
+</div>
+<div id="panel">
+  <div class="close" id="panelClose">✕</div>
+  <div class="name" id="pName"></div>
+  <div class="tier" id="pTier"></div>
+  <div class="desc" id="pDesc"></div>
+  <div class="own" id="pOwn"></div>
+</div>
+
+<script type="importmap">
+{ "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js" } }
+</script>
+<script type="module">
+import * as THREE from 'three';
+
+// —— 徽章数据（参考表节选）——
+const BADGES = [
+  { name:'亚洲之星',    en:'Star of Asia',        color:'#FF3366', icon:'★', tier:'EPIC · 史诗',     desc:'在亚洲点亮足迹。',                 own:'全球 11% 拥有' },
+  { name:'欧洲漫游者',  en:'Europe Roamer',       color:'#33CCFF', icon:'❖', tier:'RARE · 稀有',     desc:'在欧洲点亮足迹。',                 own:'全球 19% 拥有' },
+  { name:'非洲开拓者',  en:'Africa Pioneer',      color:'#00CC66', icon:'❀', tier:'RARE · 稀有',     desc:'在非洲点亮首个国家。',             own:'全球 14% 拥有' },
+  { name:'美洲征服者',  en:'Americas Conqueror',  color:'#FF6600', icon:'▲', tier:'EPIC · 史诗',     desc:'在北美 / 南美点亮首个国家。',      own:'全球 3% 拥有'  },
+  { name:'大洋洲游牧民',en:'Oceania Nomad',       color:'#00F2FE', icon:'≈', tier:'EPIC · 史诗',     desc:'在大洋洲点亮首个国家。',           own:'全球 6% 拥有'  },
+  { name:'制霸七大洲',  en:'All Continents',      color:'#FF9900', icon:'◍', tier:'LEGENDARY · 传说',desc:'全球 7 个大洲均至少含 1 个足迹。', own:'全球 1% 拥有'  },
+  { name:'南极洲探险家',en:'Antarctica Explorer', color:'#E0F7FA', icon:'❄', tier:'LEGENDARY · 传说',desc:'在南极洲（南纬 60° 以下）打卡。',   own:'全球 0.5% 拥有'},
+  { name:'跳岛狂人',    en:'Island Hopper',       color:'#00BFA5', icon:'⛵', tier:'RARE · 稀有',     desc:'点亮 3 个不相连的岛屿国家 / 地区。',own:'全球 7% 拥有' },
+  { name:'环球旅行家',  en:'Globetrotter',        color:'#FF0055', icon:'✦', tier:'EPIC · 史诗',     desc:'点亮 30 个国家解锁。',             own:'全球 5% 拥有'  },
+];
+
+const app = document.getElementById('app');
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(45, innerWidth/innerHeight, 0.1, 100);
+camera.position.set(0, 0, 9);
+const renderer = new THREE.WebGLRenderer({ antialias:true, alpha:true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+app.appendChild(renderer.domElement);
+
+// —— 尖顶六边形 geometry（uv 用本地坐标，供 shader 算流光）——
+function hexGeometry(r=1){
+  const shape = new THREE.Shape();
+  for(let i=0;i<6;i++){
+    const a = Math.PI/180*(60*i - 90);        // pointy-top
+    const x = Math.cos(a)*r, y = Math.sin(a)*r;
+    i===0 ? shape.moveTo(x,y) : shape.lineTo(x,y);
+  }
+  shape.closePath();
+  const g = new THREE.ShapeGeometry(shape);
+  g.computeBoundingBox();
+  return g;
+}
+const HEX = hexGeometry(0.92);
+
+// —— 全息 shader（base tint + 彩虹箔 + 扫光带 + 边缘光，随 tilt 偏移）——
+const vert = `
+  varying vec2 vP;
+  void main(){ vP = position.xy; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }
+`;
+const frag = `
+  precision highp float;
+  varying vec2 vP;
+  uniform vec3 uColor; uniform float uTime; uniform vec2 uTilt; uniform float uLit;
+  vec3 hsv(float h){ vec3 c=abs(mod(h*6.0+vec3(0.,4.,2.),6.)-3.)-1.; return clamp(c,0.,1.); }
+  void main(){
+    float ang = atan(vP.y, vP.x);
+    float rad = length(vP);
+    // 彩虹箔：位置 + 时间 + 倾斜驱动相位
+    float phase = vP.x*0.9 + vP.y*0.6 + uTime*0.12 + uTilt.x*1.6 - uTilt.y*1.2;
+    vec3 rainbow = hsv(fract(phase));
+    // 扫光带：一条随时间 + 倾斜移动的高光斜带
+    float band = smoothstep(0.12,0.0, abs(sin((vP.x+vP.y)*1.4 - uTime*1.1 - uTilt.x*2.0)) - 0.86);
+    // 边缘光
+    float edge = smoothstep(0.78,0.94, rad);
+    vec3 base = mix(uColor*0.35, uColor, 0.5 + 0.5*rad);
+    vec3 col = mix(base, rainbow, (0.45 + 0.35*edge) * uLit);
+    col += band * (0.6*uLit) * (0.5+0.5*rainbow);
+    col += edge * uColor * 0.6;
+    gl_FragColor = vec4(col, 1.0);
+  }
+`;
+
+const group = new THREE.Group();
+scene.add(group);
+
+// 蜂巢布局（4/3/2 行错位）
+const rows = [4,3,2];
+const meshes = [];
+const dx = 1.7, dy = 1.5;
+let idx = 0;
+rows.forEach((n, r) => {
+  const y = (1 - r) * dy;
+  for(let i=0;i<n && idx<BADGES.length;i++,idx++){
+    const b = BADGES[idx];
+    const mat = new THREE.ShaderMaterial({
+      vertexShader:vert, fragmentShader:frag,
+      uniforms:{ uColor:{value:new THREE.Color(b.color)}, uTime:{value:0}, uTilt:{value:new THREE.Vector2()}, uLit:{value:1} }
+    });
+    const m = new THREE.Mesh(HEX, mat);
+    m.position.set((i-(n-1)/2)*dx, y, 0);
+    m.userData = { badge:b, base:m.position.clone() };
+    group.add(m);
+    meshes.push(m);
+    // 图标（用 sprite 文字近似；原生用 SF Symbol）
+    const cv = document.createElement('canvas'); cv.width=cv.height=128;
+    const cx = cv.getContext('2d'); cx.fillStyle='#fff'; cx.font='64px system-ui'; cx.textAlign='center'; cx.textBaseline='middle';
+    cx.fillText(b.icon, 64, 70);
+    const tex = new THREE.CanvasTexture(cv);
+    const spr = new THREE.Sprite(new THREE.SpriteMaterial({ map:tex, transparent:true, depthWrite:false }));
+    spr.scale.set(0.9,0.9,1); spr.position.copy(m.position); spr.position.z=0.05;
+    spr.userData.follow = m;
+    group.add(spr);
+  }
+});
+
+// —— 倾斜 ——
+const tilt = new THREE.Vector2();
+const tiltTarget = new THREE.Vector2();
+addEventListener('pointermove', e=>{
+  tiltTarget.set((e.clientX/innerWidth-0.5)*2, (e.clientY/innerHeight-0.5)*2);
+});
+document.getElementById('gyro').onclick = async ()=>{
+  if(typeof DeviceOrientationEvent!=='undefined' && DeviceOrientationEvent.requestPermission){
+    try{ await DeviceOrientationEvent.requestPermission(); }catch(e){}
+  }
+  addEventListener('deviceorientation', e=>{
+    tiltTarget.set((e.gamma||0)/45, (e.beta||0)/45);
+  });
+};
+
+// —— 点击聚焦大图 ——
+const ray = new THREE.Raycaster();
+let focused = null;
+const panel = document.getElementById('panel');
+addEventListener('pointerdown', e=>{
+  if(e.target.closest('#panel') || e.target.closest('.controls')) return;
+  const nd = new THREE.Vector2(e.clientX/innerWidth*2-1, -(e.clientY/innerHeight*2-1));
+  ray.setFromCamera(nd, camera);
+  const hit = ray.intersectObjects(meshes)[0];
+  if(hit){ focusBadge(hit.object); }
+});
+function focusBadge(m){
+  focused = m;
+  const b = m.userData.badge;
+  document.getElementById('pName').textContent = b.name + '  ' + b.en;
+  document.getElementById('pTier').textContent = b.tier; document.getElementById('pTier').style.color=b.color;
+  document.getElementById('pDesc').textContent = b.desc;
+  document.getElementById('pOwn').textContent = '◆ ' + b.own;
+  panel.classList.add('show');
+}
+document.getElementById('panelClose').onclick = ()=>{ panel.classList.remove('show'); focused=null; };
+
+// —— 解锁 pop + 粒子迸发 ——
+let burst = null, burstT = 0;
+function spawnBurst(color){
+  if(burst) group.remove(burst);
+  const N = 220;
+  const pos = new Float32Array(N*3), vel = [];
+  for(let i=0;i<N;i++){ pos[i*3]=0;pos[i*3+1]=0;pos[i*3+2]=0.3;
+    const a=Math.random()*Math.PI*2, sp=1.5+Math.random()*3.5;
+    vel.push(new THREE.Vector3(Math.cos(a)*sp, Math.sin(a)*sp, (Math.random()-0.5)*2)); }
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(pos,3));
+  const mat = new THREE.PointsMaterial({ color:new THREE.Color(color), size:0.12, transparent:true, blending:THREE.AdditiveBlending, depthWrite:false });
+  burst = new THREE.Points(g, mat); burst.userData.vel = vel; burstT = 0; group.add(burst);
+}
+document.getElementById('unlock').onclick = ()=>{
+  const b = BADGES[Math.floor(Math.random()*BADGES.length)];
+  spawnBurst(b.color);
+  focusBadge(meshes.find(m=>m.userData.badge===b) || meshes[0]);
+};
+
+// —— 渲染循环 ——
+const clock = new THREE.Clock();
+function animate(){
+  requestAnimationFrame(animate);
+  const t = clock.getElapsedTime();
+  tilt.lerp(tiltTarget, 0.06);
+  group.rotation.y = tilt.x * 0.25;
+  group.rotation.x = tilt.y * 0.18;
+
+  meshes.forEach(m=>{
+    m.material.uniforms.uTime.value = t;
+    m.material.uniforms.uTilt.value.copy(tilt);
+    const f = (m===focused) ? 1 : 0;
+    // 聚焦的徽章前移放大并自转
+    const targetZ = f? 1.6:0, targetS = f? 1.7:1;
+    m.position.z += (targetZ - m.position.z)*0.12;
+    m.scale.x += (targetS - m.scale.x)*0.12; m.scale.y = m.scale.x;
+    if(f) m.rotation.z = Math.sin(t*1.2)*0.18;
+    else  m.rotation.z += (0 - m.rotation.z)*0.1;
+  });
+  // sprite 跟随其六边形
+  group.children.forEach(c=>{ if(c.userData.follow){ const m=c.userData.follow;
+    c.position.set(m.position.x, m.position.y, m.position.z+0.06); c.scale.setScalar(0.9*m.scale.x); }});
+
+  if(burst){ burstT += 0.016; const p = burst.geometry.attributes.position;
+    burst.userData.vel.forEach((v,i)=>{ p.array[i*3]+=v.x*0.016; p.array[i*3+1]+=v.y*0.016; p.array[i*3+2]+=v.z*0.016; v.multiplyScalar(0.96); });
+    p.needsUpdate = true; burst.material.opacity = Math.max(0, 1 - burstT/1.4);
+    if(burstT>1.4){ group.remove(burst); burst=null; } }
+
+  renderer.render(scene, camera);
+}
+animate();
+addEventListener('resize', ()=>{ camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth,innerHeight); });
+</script>
+</body>
+</html>
