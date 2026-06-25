@@ -2224,6 +2224,198 @@
           }
         }
       }
+    },
+    "增加": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "إضافة"
+          }
+        }
+      }
+    },
+    "最多 %lld 张 · 已选 %lld": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Up to %1$lld · %2$lld selected"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "حتى %1$lld · %2$lld محدد"
+          }
+        }
+      }
+    },
+    "不展示徽章": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Don't feature any"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "عدم عرض أي وسام"
+          }
+        }
+      }
+    },
+    "小组件 Widgets": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Widgets"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الودجات"
+          }
+        }
+      }
+    },
+    "点亮计数": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lit Count"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "عدّاد الإضاءة"
+          }
+        }
+      }
+    },
+    "主屏 / 锁屏显示已点亮国家数与全球占比": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lit countries & world % on home/lock screen"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الدول المضاءة ونسبة العالم على الشاشة الرئيسية/المقفلة"
+          }
+        }
+      }
+    },
+    "去年今日": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On This Day"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "في مثل هذا اليوم"
+          }
+        }
+      }
+    },
+    "回看往年此刻去过的地方": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Revisit where you were in past years"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تذكّر أين كنت في السنوات الماضية"
+          }
+        }
+      }
+    },
+    "添加方式：长按桌面空白处 → 左上角「+」→ 搜索 “Lumi” → 选择小组件。小组件文案跟随系统语言。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "To add: long-press the home screen → “+” top-left → search “Lumi” → pick a widget. Widget text follows the system language."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "للإضافة: اضغط مطولًا على الشاشة الرئيسية ← «+» أعلى اليسار ← ابحث «Lumi» ← اختر ودجت. نص الودجت يتبع لغة النظام."
+          }
+        }
+      }
+    },
+    "城市（可选）": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "City (optional)"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "المدينة (اختياري)"
+          }
+        }
+      }
+    },
+    "分享徽章": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Share badge"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "مشاركة الوسام"
+          }
+        }
+      }
+    },
+    "✦ 成就解锁 · Lit on Lumi": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ Achievement · Lit on Lumi"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ إنجاز · على Lumi"
+          }
+        }
+      }
     }
   },
   "version": "1.0"
