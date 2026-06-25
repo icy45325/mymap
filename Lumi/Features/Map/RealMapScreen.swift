@@ -17,7 +17,7 @@ struct RealMapScreen: View {
     @State private var tapped: TappedPlace?
     @State private var yearPickFor: TappedPlace?
 
-    private struct TappedPlace: Identifiable {
+    fileprivate struct TappedPlace: Identifiable {
         let id = UUID()
         let coordinate: CLLocationCoordinate2D
         let countryCode: String
