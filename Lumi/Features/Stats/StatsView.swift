@@ -87,7 +87,7 @@ struct StatsView: View {
     private func kv(_ v: String, _ l: String) -> some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(v).font(.system(size: 13, weight: .bold)).foregroundStyle(Color.text)
-            Text(l).font(.system(size: 9)).foregroundStyle(Color.muted)
+            Text(l.localized).font(.system(size: 9)).foregroundStyle(Color.muted)
         }
         .padding(.vertical, 8).padding(.horizontal, 10)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -99,11 +99,11 @@ struct StatsView: View {
     private func showcase(_ b: Badge) -> some View {
         HStack(alignment: .top) {
             VStack(alignment: .leading, spacing: 6) {
-                Text("\(b.rarity.tierName) · \(b.rarity.rawValue.uppercased())")
+                Text("\(b.rarity.tierName.localized) · \(b.rarity.rawValue.uppercased())")
                     .font(.system(size: 10, weight: .heavy)).tracking(1.6)
                     .foregroundStyle(b.rarity.color)
-                Text(b.name).font(Typo.serif(25)).foregroundStyle(Color.text)
-                Text(b.desc).font(.system(size: 12)).foregroundStyle(Color(hex: 0xC9C2D6))
+                Text(b.name.localized).font(Typo.serif(25)).foregroundStyle(Color.text)
+                Text(b.desc.localized).font(.system(size: 12)).foregroundStyle(Color(hex: 0xC9C2D6))
                     .frame(maxWidth: 195, alignment: .leading)
                 Text("◆ 全球仅 \(b.ownership) 玩家拥有")
                     .font(.system(size: 10.5)).foregroundStyle(Color(hex: 0xE6C18C))
@@ -163,7 +163,7 @@ struct StatsView: View {
     private func honeyCell(_ b: Badge) -> some View {
         VStack(spacing: 5) {
             HexBadge(badge: b, size: 58, dimmed: !matches(b))
-            Text(b.name)
+            Text(b.name.localized)
                 .font(.system(size: 9, weight: .medium))
                 .foregroundStyle(matches(b) ? Color.muted : Color.faint)
                 .lineLimit(1).minimumScaleFactor(0.8)
@@ -220,7 +220,7 @@ struct StatsView: View {
                 HStack(spacing: 13) {
                     HexBadge(badge: b, size: 46)
                     VStack(alignment: .leading, spacing: 6) {
-                        Text("\(b.name) · \(b.rarity.tierName)").font(.system(size: 14, weight: .semibold))
+                        Text("\(b.name.localized) · \(b.rarity.tierName.localized)").font(.system(size: 14, weight: .semibold))
                             .foregroundStyle(Color.text)
                         Text("即将解锁 · \(b.progressText ?? "")").font(.system(size: 10.5))
                             .foregroundStyle(Color.muted)
@@ -248,7 +248,7 @@ struct StatsView: View {
                                      colors: [c.region.color, c.region.color.opacity(0.5)]) {
                             Text("\(c.percent)%").font(Typo.serif(13)).foregroundStyle(Color.text)
                         }
-                        Text(c.region.displayName).font(.system(size: 10)).foregroundStyle(Color.muted)
+                        Text(c.region.displayName.localized).font(.system(size: 10)).foregroundStyle(Color.muted)
                     }
                     .frame(maxWidth: .infinity)
                 }
@@ -272,17 +272,17 @@ private struct BadgeSheet: View {
         VStack(spacing: 0) {
             Capsule().fill(Color.line).frame(width: 40, height: 4).padding(.top, 11).padding(.bottom, 18)
             HexBadge(badge: badge, size: 96)
-            Text(badge.name).font(Typo.serif(24)).foregroundStyle(Color.text).padding(.top, 16)
-            Text("\(badge.rarity.tierName) · \(badge.rarity.rawValue.uppercased())")
+            Text(badge.name.localized).font(Typo.serif(24)).foregroundStyle(Color.text).padding(.top, 16)
+            Text("\(badge.rarity.tierName.localized) · \(badge.rarity.rawValue.uppercased())")
                 .font(.system(size: 10.5, weight: .heavy)).tracking(1.6)
                 .foregroundStyle(badge.rarity.color).padding(.top, 7)
 
             // 怎么得到：解锁条件文案（+ 进行中进度）
             VStack(spacing: 8) {
-                Text(badge.state == .lit ? "已解锁" : "解锁条件")
+                Text((badge.state == .lit ? "已解锁" : "解锁条件").localized)
                     .font(.system(size: 10, weight: .bold)).tracking(1.5)
                     .foregroundStyle(badge.state == .lit ? Color.grn : Color.nCyan)
-                Text(badge.desc).font(.system(size: 13)).foregroundStyle(Color(hex: 0xC9C2D6))
+                Text(badge.desc.localized).font(.system(size: 13)).foregroundStyle(Color(hex: 0xC9C2D6))
                     .multilineTextAlignment(.center)
                 if badge.state == .prog, let p = badge.progress {
                     NeonBar(fraction: p, height: 8).frame(height: 8)
@@ -300,7 +300,7 @@ private struct BadgeSheet: View {
             // 置顶控制：仅已解锁可钉选；可随时取消
             if badge.state == .lit {
                 Button { pinnedID = isPinned ? "" : badge.id } label: {
-                    Label(isPinned ? "取消置顶" : "设为置顶展示",
+                    Label((isPinned ? "取消置顶" : "设为置顶展示").localized,
                           systemImage: isPinned ? "pin.slash.fill" : "pin.fill")
                         .font(.system(size: 13, weight: .semibold))
                         .foregroundStyle(isPinned ? Color.nOrange : .white)
@@ -325,21 +325,21 @@ private struct BadgeSheet: View {
 
     private var stateValue: String {
         switch badge.state {
-        case .lit:    return badge.unlockedAt?.formatted(Self.dateFormat) ?? "已获得"
-        case .prog:   return badge.progressText ?? "进行中"
-        case .locked: return "未解锁"
+        case .lit:    return badge.unlockedAt?.formatted(Self.dateFormat) ?? "已获得".localized
+        case .prog:   return badge.progressText ?? "进行中".localized
+        case .locked: return "未解锁".localized
         }
     }
     private var stateLabel: String {
         switch badge.state {
-        case .lit: return "获得时间"; case .prog: return "当前进度"; case .locked: return "状态"
+        case .lit: return "获得时间".localized; case .prog: return "当前进度".localized; case .locked: return "状态".localized
         }
     }
 
     private func statBox(_ v: String, _ l: String) -> some View {
         VStack(spacing: 3) {
             Text(v).font(.system(size: 15, weight: .semibold)).foregroundStyle(Color.text)
-            Text(l).font(.system(size: 9)).foregroundStyle(Color.muted)
+            Text(l.localized).font(.system(size: 9)).foregroundStyle(Color.muted)
         }
         .frame(maxWidth: .infinity).padding(.vertical, 13).panelCard(13)
     }
@@ -364,8 +364,8 @@ private struct UnlockCelebration: View {
                     .padding(.bottom, 16)
                 Text("成就解锁 · UNLOCKED").font(.system(size: 12, weight: .bold)).tracking(3)
                     .foregroundStyle(Color.nCyan)
-                Text(badge.name).font(Typo.serif(33)).foregroundStyle(Color.text)
-                Text("\(badge.rarity.tierName) · \(badge.rarity.rawValue.uppercased())")
+                Text(badge.name.localized).font(Typo.serif(33)).foregroundStyle(Color.text)
+                Text("\(badge.rarity.tierName.localized) · \(badge.rarity.rawValue.uppercased())")
                     .font(.system(size: 11.5, weight: .heavy)).tracking(1.8)
                     .foregroundStyle(badge.rarity.color)
             }

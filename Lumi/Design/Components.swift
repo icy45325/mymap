@@ -162,7 +162,7 @@ struct SegmentBar<T: Hashable>: View {
                     Button {
                         withAnimation(.easeInOut(duration: 0.2)) { selection = item.value }
                     } label: {
-                        Text(item.label)
+                        Text(item.label.localized)
                             .font(.system(size: 12, weight: .semibold))
                             .foregroundStyle(on ? .white : Color.muted)
                             .padding(.vertical, 7).padding(.horizontal, 15)

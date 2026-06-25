@@ -149,11 +149,13 @@
 			};
 			buildConfigurationList = AA0000000000000000000054 /* Build configuration list for PBXProject "Lumi" */;
 			compatibilityVersion = "Xcode 15.0";
-			developmentRegion = en;
+			developmentRegion = "zh-Hans";
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
 				Base,
+				"zh-Hans",
+				ar,
 			);
 			mainGroup = AA0000000000000000000030;
 			minimizedProjectReferenceProxies = 1;

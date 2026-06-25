@@ -423,7 +423,7 @@ struct CaptureView: View {
 
     // MARK: - 小工具
     private func sectionLabel(_ title: String, systemImage: String) -> some View {
-        Label(title, systemImage: systemImage)
+        Label(title.localized, systemImage: systemImage)
             .font(.subheadline.weight(.semibold))
             .foregroundStyle(Color.textSecondary)
     }

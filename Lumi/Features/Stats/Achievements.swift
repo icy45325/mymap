@@ -187,7 +187,7 @@ enum BadgeCatalog {
             }
             return Badge(id: id, name: name, rarity: rarity, category: cat, icon: icon,
                          desc: desc, ownership: pct, state: .prog,
-                         progressText: "\(current) / \(target) \(unit)",
+                         progressText: "\(current) / \(target) \(unit.localized)",
                          progress: Double(current) / Double(target))
         }
 

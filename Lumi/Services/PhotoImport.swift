@@ -163,7 +163,7 @@ final class PhotoImportService: ObservableObject {
                 latitude: c.latitude,
                 longitude: c.longitude,
                 date: c.earliest,
-                placeName: CountryInfo.chineseName(for: c.country) ?? "未知地点",
+                placeName: CountryInfo.localizedName(for: c.country) ?? String(localized: "未知地点"),
                 cityName: nil,
                 subRegionCode: c.subRegion,
                 assetIDs: c.ids)
@@ -286,5 +286,5 @@ struct ImportCandidate: Identifiable, Sendable {
     var coordinate: CLLocationCoordinate2D { .init(latitude: latitude, longitude: longitude) }
     var photoCount: Int { assetIDs.count }
     var flag: String { CountryInfo.flag(for: countryCode) }
-    var countryName: String? { CountryInfo.chineseName(for: countryCode) }
+    var countryName: String? { CountryInfo.localizedName(for: countryCode) }
 }

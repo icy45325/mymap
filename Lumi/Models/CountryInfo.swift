@@ -55,12 +55,10 @@ enum CountryInfo {
         return String(scalars)
     }
 
-    private static let zh = Locale(identifier: "zh_Hans")
-
-    /// ISO_A2 → 中文国名（如 "AE" → "阿拉伯联合酋长国"）。
-    static func chineseName(for code: String?) -> String? {
+    /// ISO_A2 → 本地化国名（随系统语言：阿联酋 / United Arab Emirates / الإمارات）。
+    static func localizedName(for code: String?) -> String? {
         guard let code else { return nil }
-        return zh.localizedString(forRegionCode: String(code.prefix(2)))
+        return Locale.current.localizedString(forRegionCode: String(code.prefix(2)))
     }
 
     /// 中东国家码（这些国家在展示上归入「中东」分组，而非地理大洲）。
@@ -90,7 +88,7 @@ extension Footprint {
     var flag: String { CountryInfo.flag(for: countryCode) }
 
     /// 中文国名（由 countryCode 派生；公海 / 无匹配为 nil）。
-    var countryName: String? { CountryInfo.chineseName(for: countryCode) }
+    var countryName: String? { CountryInfo.localizedName(for: countryCode) }
 
     /// 展示分组（由 countryCode + 大洲派生）。
     var region: Region? {

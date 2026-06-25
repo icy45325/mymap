@@ -70,7 +70,7 @@ struct ProfileView: View {
     private func stat(_ v: String, _ l: String) -> some View {
         VStack(spacing: 3) {
             Text(v).font(Typo.serif(21)).foregroundStyle(Color.text)
-            Text(l).font(.system(size: 10)).foregroundStyle(Color.muted)
+            Text(l.localized).font(.system(size: 10)).foregroundStyle(Color.muted)
         }
         .frame(maxWidth: .infinity).padding(.vertical, 12).panelCard(15)
     }

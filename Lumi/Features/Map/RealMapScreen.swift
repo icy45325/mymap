@@ -21,7 +21,7 @@ struct RealMapScreen: View {
         let id = UUID()
         let coordinate: CLLocationCoordinate2D
         let countryCode: String
-        var countryName: String { CountryInfo.chineseName(for: countryCode) ?? "这个国家" }
+        var countryName: String { CountryInfo.localizedName(for: countryCode) ?? String(localized: "这个国家") }
     }
 
     private var litCountryCodes: Set<String> { Set(footprints.compactMap { $0.countryCode }) }
@@ -153,7 +153,7 @@ private struct YearPickerSheet: View {
                     .multilineTextAlignment(.center)
                     .padding(.top, 8)
                 Picker("", selection: $year) {
-                    ForEach(years, id: \.self) { Text(verbatim: "\($0) 年").tag($0) }
+                    ForEach(years, id: \.self) { Text("\($0) 年").tag($0) }
                 }
                 .pickerStyle(.wheel)
                 .labelsHidden()

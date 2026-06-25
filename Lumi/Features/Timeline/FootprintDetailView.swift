@@ -91,7 +91,7 @@ struct FootprintDetailView: View {
     private var statRow: some View {
         HStack(spacing: 10) {
             statCard("\(footprint.photoCount)", "照片")
-            statCard(footprint.region?.displayName ?? "—", "地区")
+            statCard(footprint.region?.displayName.localized ?? "—", "地区")
             statCard(footprint.flag, "国家")
         }
     }
@@ -99,7 +99,7 @@ struct FootprintDetailView: View {
     private func statCard(_ value: String, _ label: String) -> some View {
         VStack(spacing: 3) {
             Text(value).font(Typo.serif(20)).foregroundStyle(Color.text)
-            Text(label).font(.system(size: 10.5)).foregroundStyle(Color.muted)
+            Text(label.localized).font(.system(size: 10.5)).foregroundStyle(Color.muted)
         }
         .frame(maxWidth: .infinity).padding(.vertical, 13)
         .panelCard(15)
@@ -125,7 +125,7 @@ struct FootprintDetailView: View {
 
     private func infoRow(_ label: String, _ value: String) -> some View {
         HStack(alignment: .top) {
-            Text(label).font(.subheadline).foregroundStyle(Color.muted).frame(width: 64, alignment: .leading)
+            Text(label.localized).font(.subheadline).foregroundStyle(Color.muted).frame(width: 64, alignment: .leading)
             Text(value).font(.subheadline).foregroundStyle(Color.text)
             Spacer()
         }

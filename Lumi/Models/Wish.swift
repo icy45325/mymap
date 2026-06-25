@@ -22,7 +22,7 @@ final class Wish {
     // MARK: - 派生
     var coordinate: CLLocationCoordinate2D { .init(latitude: latitude, longitude: longitude) }
     var flag: String { CountryInfo.flag(for: countryCode) }
-    var countryName: String? { CountryInfo.chineseName(for: countryCode) }
+    var countryName: String? { CountryInfo.localizedName(for: countryCode) }
     /// 展示标题：优先城市，退回地点名。
     var title: String { cityName ?? placeName }
 
