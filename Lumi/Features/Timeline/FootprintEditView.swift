@@ -45,7 +45,7 @@ struct FootprintEditView: View {
                 }
                 .padding(Metrics.pad)
             }
-            .background(Color.ink.ignoresSafeArea())
+            .background(Color.ink.opacity(0.78).ignoresSafeArea())
             .scrollDismissesKeyboard(.interactively)
             .navigationTitle("编辑足迹")
             .navigationBarTitleDisplayMode(.inline)
@@ -64,6 +64,8 @@ struct FootprintEditView: View {
         }
         .preferredColorScheme(.dark)
         .tint(Color.litGlow)
+        .presentationBackground(.ultraThinMaterial)   // 背景虚化，编辑面板悬浮前置（#7）
+        .presentationCornerRadius(28)
     }
 
     // MARK: - 地点名

@@ -35,7 +35,9 @@ struct SettingsView: View {
                                     .fixedSize(horizontal: false, vertical: true)
                             }
                             Spacer()
-                            Image(systemName: "arrow.up.forward.app").foregroundStyle(Color.nPink)
+                            Image(systemName: "arrow.up.forward.app")
+                                .flipsForRightToLeftLayoutDirection(true)
+                                .foregroundStyle(Color.nPink)
                         }
                         .padding(.vertical, 13).padding(.horizontal, 14)
                     }

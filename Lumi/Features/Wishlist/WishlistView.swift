@@ -141,12 +141,17 @@ private struct AddWishView: View {
 
     private func add(_ result: PlaceResult) {
         let code = Boundaries.shared.countryCode(at: result.coordinate) ?? result.countryCode
+        // 同地点（国家 + 城市）已在心愿单则不重复
+        let existing = (try? context.fetch(FetchDescriptor<Wish>())) ?? []
+        if existing.contains(where: { $0.countryCode == code && $0.cityName == result.cityName }) {
+            dismiss(); return
+        }
         let wish = Wish(placeName: result.name,
                         coordinate: result.coordinate,
                         cityName: result.cityName,
                         countryCode: code)
         context.insert(wish)
-        try? context.save()
+        do { try context.save() } catch { assertionFailure("保存心愿失败: \(error)") }
         dismiss()
     }
 }

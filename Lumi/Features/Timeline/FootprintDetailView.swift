@@ -80,7 +80,7 @@ struct FootprintDetailView: View {
 
     private var backButton: some View {
         Button { dismiss() } label: {
-            Image(systemName: "chevron.left").font(.system(size: 17, weight: .semibold))
+            Image(systemName: "chevron.backward").font(.system(size: 17, weight: .semibold))
                 .foregroundStyle(.white)
                 .frame(width: 38, height: 38)
                 .background(.black.opacity(0.4), in: Circle())

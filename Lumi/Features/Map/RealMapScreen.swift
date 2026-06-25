@@ -115,12 +115,15 @@ struct RealMapScreen: View {
     }
 
     private func addWish(_ place: TappedPlace) {
-        // 已在心愿单则不重复
+        // 已在心愿单（同国家、未指定城市）则不重复添加
+        let existing = (try? context.fetch(FetchDescriptor<Wish>())) ?? []
+        guard !existing.contains(where: { $0.countryCode == place.countryCode && $0.cityName == nil }) else { return }
+
         let wish = Wish(placeName: place.countryName,
                         coordinate: place.coordinate,
                         countryCode: place.countryCode)
         context.insert(wish)
-        try? context.save()
+        do { try context.save() } catch { assertionFailure("保存心愿失败: \(error)") }
     }
 
     private var tappedDialog: Binding<Bool> {

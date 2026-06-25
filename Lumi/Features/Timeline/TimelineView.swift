@@ -144,7 +144,7 @@ struct TimelineView: View {
 
     private var statLine: String {
         let year = Calendar.current.component(.year, from: footprints.first?.visitedAt ?? .now)
-        return "\(year) · 已记录 \(footprints.count) 段"
+        return String(localized: "\(year) · 已记录 \(footprints.count) 段")
     }
 
     // MARK: - 删除

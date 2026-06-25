@@ -96,6 +96,7 @@ struct MapHomeView: View {
         Button { showImmersive = true } label: {
             Image(systemName: "arrow.up.left.and.arrow.down.right")
                 .font(.system(size: 15, weight: .semibold))
+                .flipsForRightToLeftLayoutDirection(true)
                 .foregroundStyle(Color.text)
                 .frame(width: 38, height: 38)
                 .background(Color.panel.opacity(0.62), in: RoundedRectangle(cornerRadius: 12))
