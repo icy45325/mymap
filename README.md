@@ -9,6 +9,7 @@
 - [需求规格 PRD（原始构想）](docs/Lumi_v0_PRD.md) — v0 功能规格说明 v0.2
 - [架构说明](docs/ARCHITECTURE.md) — 分层、数据流、设计决策、构建验证
 - [路线图 Roadmap](docs/ROADMAP.md) — v0.x / v1 / v2 分阶段规划与依赖
+- [需求与进度跟踪](docs/REQUIREMENTS.md) — 逐条需求台账 + 交付状态
 
 ## 里程碑
 
