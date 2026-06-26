@@ -11,6 +11,7 @@ struct PostcardSheet: View {
     @State private var cover: UIImage?
     @State private var shareImage: Image?
     @State private var qr: Image?
+    @State private var cardFile: URL?                // AirDrop 用的 .lumicard 文件
     @State private var copied = false
     @State private var token = UUID().uuidString    // 本张分享卡的幂等标识（稳定）
 
@@ -58,28 +59,22 @@ struct PostcardSheet: View {
                         ProgressView().tint(Color.nPink).frame(maxWidth: .infinity).padding(.vertical, 14)
                     }
 
-                    // 口令 / 二维码：对方在 Lumi 里粘贴口令即可自动收下
+                    // 链接 / 二维码 / 隔空投送：对方扫码或点开即在 Lumi 自动收下
                     VStack(spacing: 10) {
-                        Text("或发口令 / 二维码 —— 对方在 Lumi 里自动收下")
+                        Text("链接 / 二维码 / 隔空投送 —— 对方扫码或点开即在 Lumi 收下")
                             .font(.system(size: 11)).foregroundStyle(Color.muted)
                             .multilineTextAlignment(.center)
-                        HStack(spacing: 12) {
-                            Button { copyToken() } label: {
-                                Label(copied ? "已复制口令" : "复制口令",
-                                      systemImage: copied ? "checkmark" : "doc.on.doc")
-                                    .font(.system(size: 13, weight: .semibold)).foregroundStyle(Color.nCyan)
-                                    .frame(maxWidth: .infinity).padding(.vertical, 11)
-                                    .background(Color.panel, in: Capsule())
-                                    .overlay(Capsule().stroke(Color.nCyan.opacity(0.5), lineWidth: 1))
+                        HStack(spacing: 10) {
+                            Button { copyLink() } label: {
+                                miniLabel(copied ? "已复制" : "复制链接", copied ? "checkmark" : "link", Color.nCyan)
                             }
                             if let qr {
                                 ShareLink(item: qr, preview: SharePreview("Lumi 明信片二维码", image: qr)) {
-                                    Label("二维码", systemImage: "qrcode")
-                                        .font(.system(size: 13, weight: .semibold)).foregroundStyle(Color.nPink)
-                                        .frame(maxWidth: .infinity).padding(.vertical, 11)
-                                        .background(Color.panel, in: Capsule())
-                                        .overlay(Capsule().stroke(Color.nPink.opacity(0.5), lineWidth: 1))
+                                    miniLabel("二维码", "qrcode", Color.nPink)
                                 }
+                            }
+                            if let cardFile {
+                                ShareLink(item: cardFile) { miniLabel("隔空投送", "paperplane", Color.nPurple) }
                             }
                         }
                     }
@@ -103,14 +98,27 @@ struct PostcardSheet: View {
         .onChange(of: message) { _, _ in rerender() }
     }
 
+    private func miniLabel(_ title: LocalizedStringKey, _ icon: String, _ tint: Color) -> some View {
+        Label(title, systemImage: icon)
+            .font(.system(size: 12, weight: .semibold)).foregroundStyle(tint)
+            .frame(maxWidth: .infinity).padding(.vertical, 11)
+            .background(Color.panel, in: Capsule())
+            .overlay(Capsule().stroke(tint.opacity(0.5), lineWidth: 1))
+    }
+
+    private var shareLinkString: String {
+        PostcardToken.shareURL(tokenString)?.absoluteString ?? tokenString
+    }
+
     @MainActor private func rerender() {
         shareImage = ShareRender.image(PostcardView(footprint: footprint, cover: cover, message: message))
-        qr = PostcardToken.qrImage(tokenString).map { Image(uiImage: $0) }
+        qr = PostcardToken.qrImage(shareLinkString).map { Image(uiImage: $0) }
+        cardFile = PostcardToken.writeCardFile(tokenString)
         copied = false
     }
 
-    private func copyToken() {
-        UIPasteboard.general.string = tokenString
+    private func copyLink() {
+        UIPasteboard.general.string = shareLinkString
         // 标记本机已「见过」此 token，避免发送方自己再被弹「收到明信片」
         var seen = Set(receivedTokensRaw.split(separator: ",").map(String.init))
         seen.insert(token)

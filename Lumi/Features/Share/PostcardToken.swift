@@ -35,13 +35,50 @@ enum PostcardToken {
         return try? JSONDecoder().decode(PostcardPayload.self, from: data)
     }
 
-    /// 从任意文本（剪贴板可能含其它内容）里提取口令。
+    /// 从任意文本里提取口令：兼容裸口令 `LUMI1:…` 与链接 `lumi://card?t=…`。
     static func find(in text: String) -> PostcardPayload? {
-        guard let r = text.range(of: prefix) else { return nil }
-        let tail = text[r.lowerBound...]
-        let tokenStr = tail.split(whereSeparator: { $0 == " " || $0 == "\n" || $0 == "\r" }).first.map(String.init)
-            ?? String(tail)
-        return decode(tokenStr)
+        func firstWord(from i: Substring.Index, of s: String) -> String {
+            let tail = s[i...]
+            return tail.split(whereSeparator: { $0 == " " || $0 == "\n" || $0 == "\r" }).first.map(String.init)
+                ?? String(tail)
+        }
+        if let r = text.range(of: "lumi://"), let url = URL(string: firstWord(from: r.lowerBound, of: text)) {
+            return payload(from: url)
+        }
+        if let r = text.range(of: prefix) {
+            return decode(firstWord(from: r.lowerBound, of: text))
+        }
+        return nil
+    }
+
+    // MARK: - URL scheme / AirDrop 文件
+
+    /// 可点链接 / 二维码用：`lumi://card?t=<口令>`。
+    static func shareURL(_ tokenString: String) -> URL? {
+        var c = URLComponents()
+        c.scheme = "lumi"; c.host = "card"
+        c.queryItems = [URLQueryItem(name: "t", value: tokenString)]
+        return c.url
+    }
+
+    /// 从 URL 取载荷：`lumi://card?t=…` 或 AirDrop 来的 `.lumicard` 文件。
+    static func payload(from url: URL) -> PostcardPayload? {
+        if url.isFileURL {
+            guard let s = try? String(contentsOf: url, encoding: .utf8) else { return nil }
+            return find(in: s)
+        }
+        if let comps = URLComponents(url: url, resolvingAgainstBaseURL: false),
+           comps.scheme == "lumi",
+           let t = comps.queryItems?.first(where: { $0.name == "t" })?.value {
+            return decode(t)
+        }
+        return nil
+    }
+
+    /// 写一个 `.lumicard` 临时文件用于 AirDrop / 分享。
+    static func writeCardFile(_ tokenString: String) -> URL? {
+        let url = FileManager.default.temporaryDirectory.appendingPathComponent("Lumi 明信片.lumicard")
+        do { try Data(tokenString.utf8).write(to: url); return url } catch { return nil }
     }
 
     /// 把口令生成二维码图。

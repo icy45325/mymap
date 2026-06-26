@@ -81,6 +81,7 @@
 | 明信片口令/二维码分享 | 发送方复制链接 / 下载二维码，对方在 App 内打开即自动接收明信片；先纯本地，后并入 IM 闭环 | 📋 | ICY 06-25；设计见 [DESIGN-accounts-and-exchange §4](DESIGN-accounts-and-exchange.md#4-交换日记--明信片exchange--postcard) |
 | 账号体系 + 本地数据迁移 | 首版纯本地无账号；后续加账号并把本地数据无损「认领」为用户（local-first） | 💡 | ICY 06-25；设计见 [DESIGN-accounts-and-exchange §1–3](DESIGN-accounts-and-exchange.md) |
 | Android 客户端 | 确定目标，短期先 iOS；账号/同步层因此走跨平台 BaaS（非 CloudKit），后端与数据模型两端复用 | 💡 | ICY 06-25；设计见 [DESIGN-accounts-and-exchange §2](DESIGN-accounts-and-exchange.md#2-数据迁移本地--账号这就是可行性的关键) |
+| Android NFC「碰一碰」收发明信片 | 两台 Android 设备碰一碰传明信片（**iOS 原生不支持手机互碰**，Android 端后续可做） | 💡 | ICY 06-25 |
 
 ## 8. 推荐 / 行程规划
 

@@ -10,7 +10,8 @@ struct RootTabView: View {
     @Environment(\.scenePhase) private var scenePhase
     /// 已接收 / 已发送过的明信片口令（逗号分隔），用于幂等去重。
     @AppStorage("lumi.receivedTokens") private var receivedTokensRaw: String = ""
-    @State private var incoming: PostcardPayload?
+    /// 接收枢纽：剪贴板 / 扫码 / lumi:// / AirDrop 四入口统一到这里。
+    @ObservedObject private var inbox = PostcardInbox.shared
 
     init() {
         // 暗夜霓虹半透明 Tab 栏
@@ -43,23 +44,19 @@ struct RootTabView: View {
             if phase == .active { checkClipboardForPostcard() }
         }
         .alert("收到一张明信片 ✦",
-               isPresented: Binding(get: { incoming != nil }, set: { if !$0 { incoming = nil } }),
-               presenting: incoming) { payload in
+               isPresented: Binding(get: { inbox.pending != nil }, set: { if !$0 { inbox.pending = nil } }),
+               presenting: inbox.pending) { payload in
             Button("收下 ✦") { receive(payload) }
-            Button("忽略", role: .cancel) { markSeen(payload.token); incoming = nil }
+            Button("忽略", role: .cancel) { markSeen(payload.token); inbox.pending = nil }
         } message: { payload in
             Text(payload.sender.map { "\($0) 寄来 · \(payload.place)" } ?? payload.place)
         }
     }
 
-    // MARK: - 明信片接收（剪贴板口令）
+    // MARK: - 明信片接收（统一走 PostcardInbox）
 
     private func checkClipboardForPostcard() {
-        guard let text = UIPasteboard.general.string,
-              let payload = PostcardToken.find(in: text),
-              !seenTokens.contains(payload.token)
-        else { return }
-        incoming = payload
+        if let text = UIPasteboard.general.string { inbox.handle(text: text) }
     }
 
     private func receive(_ p: PostcardPayload) {
@@ -78,7 +75,7 @@ struct RootTabView: View {
         try? context.save()
         markSeen(p.token)
         WidgetSync.refresh(context)
-        incoming = nil
+        inbox.pending = nil
     }
 
     private var seenTokens: Set<String> {

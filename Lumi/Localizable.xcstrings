@@ -2785,6 +2785,134 @@
         }
       }
     },
+    "复制链接": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy link"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "نسخ الرابط"
+          }
+        }
+      }
+    },
+    "已复制": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copied"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تم النسخ"
+          }
+        }
+      }
+    },
+    "隔空投送": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AirDrop"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AirDrop"
+          }
+        }
+      }
+    },
+    "链接 / 二维码 / 隔空投送 —— 对方扫码或点开即在 Lumi 收下": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Link / QR / AirDrop — they scan or tap to receive in Lumi"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "رابط / QR / AirDrop — يمسحون أو ينقرون للاستلام في Lumi"
+          }
+        }
+      }
+    },
+    "扫码收明信片": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scan to receive"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "امسح للاستلام"
+          }
+        }
+      }
+    },
+    "把二维码放进取景框": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Place the QR code in the frame"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ضع رمز QR داخل الإطار"
+          }
+        }
+      }
+    },
+    "此设备无法扫码": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This device can't scan"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "لا يمكن المسح على هذا الجهاز"
+          }
+        }
+      }
+    },
+    "可改用「复制口令 / 隔空投送」接收。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Use Copy link / AirDrop instead."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "استخدم نسخ الرابط / AirDrop بدلًا من ذلك."
+          }
+        }
+      }
+    },
     "分享徽章": {
       "localizations": {
         "en": {

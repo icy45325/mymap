@@ -13,6 +13,7 @@ struct LumiApp: App {
     var body: some Scene {
         WindowGroup {
             RootTabView()
+                .onOpenURL { url in PostcardInbox.shared.handle(url: url) }  // lumi:// 链接 / AirDrop .lumicard 文件
         }
         .modelContainer(LumiStore.shared)
         .onChange(of: scenePhase) { _, phase in
