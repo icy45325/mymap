@@ -49,14 +49,17 @@
 		AA0000000000000000000091 /* Exceptions for "Lumi" folder in "Lumi" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				Info.plist,
+				"Info.plist",
+				"Lumi.entitlements",
+				"Lumi.storekit",
 			);
 			target = AA0000000000000000000040 /* Lumi */;
 		};
 		BB0000000000000000000091 /* Exceptions for "LumiWidgets" folder in "LumiWidgets" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				Info.plist,
+				"Info.plist",
+				"LumiWidgets.entitlements",
 			);
 			target = BB0000000000000000000040 /* LumiWidgets */;
 		};
