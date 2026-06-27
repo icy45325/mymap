@@ -3,6 +3,12 @@
   "strings": {
     "点亮战绩": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "点亮战绩"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -19,6 +25,12 @@
     },
     "去年今日": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "去年今日"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -35,6 +47,12 @@
     },
     "个国家被你点亮 · 全球 %@": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "个国家被你点亮 · 全球 %@"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -51,6 +69,12 @@
     },
     "国 · 全球 %@": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "国 · 全球 %@"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -67,6 +91,12 @@
     },
     "✦ 已点亮 %lld 国": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ 已点亮 %lld 国"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -83,6 +113,12 @@
     },
     "全球 %@ · %lld 城": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "全球 %@ · %lld 城"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -99,6 +135,12 @@
     },
     "✦ 点亮 %lld 国 · 全球 %@": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ 点亮 %lld 国 · 全球 %@"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -115,6 +157,12 @@
     },
     "上次你在 %@ ✦": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上次你在 %@ ✦"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -131,6 +179,12 @@
     },
     "这一天还没有回忆": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "这一天还没有回忆"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -147,6 +201,12 @@
     },
     "去点亮一个足迹，明年今日就有得回看了 ✦": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "去点亮一个足迹，明年今日就有得回看了 ✦"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -163,6 +223,12 @@
     },
     "去年此刻，你在 %@ ✦": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "去年此刻，你在 %@ ✦"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -179,6 +245,12 @@
     },
     "%lld 年前的今天，你在 %@ ✦": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld 年前的今天，你在 %@ ✦"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -195,6 +267,12 @@
     },
     "%lld 年前今日": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld 年前今日"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -211,6 +289,12 @@
     },
     "✦ 去年今日": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ 去年今日"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -227,6 +311,12 @@
     },
     "还没有足迹，去点亮一个": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "还没有足迹，去点亮一个"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -243,6 +333,12 @@
     },
     "✦ %@你在 %@": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ %@你在 %@"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -259,6 +355,12 @@
     },
     "✦ 去年今日 · 去点亮一个足迹": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ 去年今日 · 去点亮一个足迹"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -275,6 +377,12 @@
     },
     "去过的国旗": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "去过的国旗"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -291,6 +399,12 @@
     },
     "展示你去过国家的国旗集合（最多 5 个）。": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "展示你去过国家的国旗集合（最多 5 个）。"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -307,6 +421,12 @@
     },
     "还没有点亮国家": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "还没有点亮国家"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -323,6 +443,12 @@
     },
     "已点亮 %lld 国": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已点亮 %lld 国"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -339,6 +465,12 @@
     },
     "已点亮 %lld 国 · %lld 城": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已点亮 %lld 国 · %lld 城"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -355,6 +487,12 @@
     },
     "世界正被你逐一点亮 ✦": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "世界正被你逐一点亮 ✦"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -371,6 +509,12 @@
     },
     "展示去过国家的国旗集合。": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "展示去过国家的国旗集合。"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -387,6 +531,12 @@
     },
     "已点亮 %lld 国 · +%lld": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已点亮 %lld 国 · +%lld"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",

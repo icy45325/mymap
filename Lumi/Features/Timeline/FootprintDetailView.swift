@@ -145,19 +145,26 @@ struct FootprintDetailView: View {
     }
 
     private var statRow: some View {
+        // 固定行高：长地区名（如阿语「الشرق الأوسط」）不再把格子撑高；
+        // 「照片」「国家」窄一点，把宽度让给中间的「地区」。
         HStack(spacing: 10) {
-            statCard("\(footprint.photoCount)", "照片")
+            statCard("\(footprint.photoCount)", "照片", width: 72)
             statCard(footprint.region?.displayName.localized ?? "—", "地区")
-            statCard(footprint.flag, "国家")
+            statCard(footprint.flag, "国家", width: 72)
         }
+        .frame(height: 62)
     }
 
-    private func statCard(_ value: String, _ label: String) -> some View {
+    private func statCard(_ value: String, _ label: String, width: CGFloat? = nil) -> some View {
         VStack(spacing: 3) {
             Text(value).font(Typo.serif(20)).foregroundStyle(Color.text)
+                .lineLimit(1).minimumScaleFactor(0.55)
             Text(label.localized).font(.system(size: 10.5)).foregroundStyle(Color.muted)
+                .lineLimit(1)
         }
-        .frame(maxWidth: .infinity).padding(.vertical, 13)
+        .padding(.horizontal, 6)
+        .frame(width: width, height: 62)
+        .frame(maxWidth: width == nil ? .infinity : nil)
         .panelCard(15)
     }
 

@@ -157,12 +157,18 @@ struct PostcardFlipCard: View {
     private var locEn: String { (footprint.cityName ?? footprint.title).uppercased() }
     private var locZh: String { footprint.locationSubtitle.isEmpty ? footprint.title : footprint.locationSubtitle }
 
+    /// 上传的是竖图（高>宽）时，整张明信片转为竖版，避免横版裁切丢内容。
+    private var isPortrait: Bool {
+        guard let c = cover else { return false }
+        return c.size.height > c.size.width * 1.05
+    }
+
     var body: some View {
         ZStack {
             front.opacity(flipped ? 0 : 1)
             back.opacity(flipped ? 1 : 0).rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
         }
-        .aspectRatio(1.55, contentMode: .fit)
+        .aspectRatio(isPortrait ? 0.66 : 1.55, contentMode: .fit)
         .rotation3DEffect(.degrees(flipped ? 180 : 0), axis: (x: 0, y: 1, z: 0))
         .animation(.easeInOut(duration: 0.6), value: flipped)
         .shadow(color: .black.opacity(0.45), radius: 16, y: 8)
@@ -183,7 +189,49 @@ struct PostcardFlipCard: View {
         .clipShape(RoundedRectangle(cornerRadius: 9))
     }
 
-    private var back: some View {
+    @ViewBuilder private var back: some View {
+        if isPortrait { backPortrait } else { backLandscape }
+    }
+
+    /// 竖版背面：上＝国家/地名 + 寄语，下＝邮票/邮戳 + 寄给。
+    private var backPortrait: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            HStack(spacing: 5) {
+                Text(footprint.flag).font(.system(size: 15))
+                Text(locEn)
+                    .font(theme.msgSerif ? Typo.serif(15, weight: .semibold) : .system(size: 14, weight: .bold))
+                    .foregroundStyle(theme.ink).lineLimit(1).minimumScaleFactor(0.6)
+            }
+            Text(locZh).font(.system(size: 9)).foregroundStyle(theme.addr).lineLimit(1)
+            Rectangle().fill(theme.line).frame(height: 1).padding(.vertical, 9)
+            Text(message)
+                .font(theme.msgSerif ? Typo.serif(13, weight: .regular).italic() : .system(size: 13, weight: .light))
+                .lineSpacing(4).foregroundStyle(theme.msgColor)
+            Spacer(minLength: 8)
+            Rectangle().fill(theme.line).frame(height: 1).padding(.bottom, 8)
+            HStack(alignment: .bottom) {
+                VStack(alignment: .leading, spacing: 1) {
+                    Text("寄给").font(.system(size: 9)).foregroundStyle(theme.addr)
+                    Text(recipient.isEmpty ? " " : recipient)
+                        .font(theme.msgSerif ? Typo.serif(14) : .system(size: 14, weight: .medium))
+                        .foregroundStyle(theme.ink).lineLimit(1)
+                }
+                Spacer()
+                ZStack(alignment: .bottomLeading) {
+                    PostcardStampView(stamp: stamp)
+                        .frame(width: 54, height: 64).rotationEffect(.degrees(4))
+                    postmark.offset(x: -16, y: 10)
+                }
+            }
+        }
+        .padding(18)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .background(theme.paper)
+        .overlay { if theme.paperPattern { DiagonalPaper().stroke(Color(hex: 0x785F3C).opacity(0.06), lineWidth: 1) } }
+        .clipShape(RoundedRectangle(cornerRadius: 9))
+    }
+
+    private var backLandscape: some View {
         HStack(spacing: 0) {
             // 左：地点（国家 / 地名）+ 寄语
             VStack(alignment: .leading, spacing: 6) {

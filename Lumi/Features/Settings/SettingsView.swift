@@ -116,7 +116,7 @@ struct SettingsView: View {
                     Text("有想法或遇到问题？写信告诉我们")
                         .font(.system(size: 14, weight: .medium)).foregroundStyle(Color.text)
                         .fixedSize(horizontal: false, vertical: true)
-                    Text("icy45325@hotmail.com")
+                    Text("点这里发邮件给我们")
                         .font(.system(size: 11)).foregroundStyle(Color.muted)
                 }
                 Spacer()

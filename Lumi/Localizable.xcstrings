@@ -3,6 +3,12 @@
   "strings": {
     "地图": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "地图"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -19,6 +25,12 @@
     },
     "星迹": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "星迹"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -35,6 +47,12 @@
     },
     "成就": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "成就"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -51,6 +69,12 @@
     },
     "我": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "我"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -67,6 +91,12 @@
     },
     "已点亮 FOOTPRINTS LIT": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已点亮 FOOTPRINTS LIT"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -83,6 +113,12 @@
     },
     "/ %lld 国": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "/ %lld 国"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -99,6 +135,12 @@
     },
     "%lld 座城市 · 全球 %@": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld 座城市 · 全球 %@"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -115,6 +157,12 @@
     },
     "世界进度 World": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "世界进度 World"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -131,6 +179,12 @@
     },
     "精彩瞬间": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "精彩瞬间"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -147,6 +201,12 @@
     },
     "点亮新足迹": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "点亮新足迹"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -163,6 +223,12 @@
     },
     "Footprints": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Footprints"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -179,6 +245,12 @@
     },
     "从相册同步": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "从相册同步"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -195,6 +267,12 @@
     },
     "还没有星迹": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "还没有星迹"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -211,6 +289,12 @@
     },
     "从相册一键找回去过的地方，或回地图点亮第一个": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "从相册一键找回去过的地方，或回地图点亮第一个"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -227,6 +311,12 @@
     },
     "从相册同步历史足迹": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "从相册同步历史足迹"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -243,6 +333,12 @@
     },
     "删除这条足迹？": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "删除这条足迹？"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -259,6 +355,12 @@
     },
     "删除": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "删除"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -275,6 +377,12 @@
     },
     "取消": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "取消"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -291,6 +399,12 @@
     },
     "%lld · 已记录 %lld 段": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld · 已记录 %lld 段"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -307,6 +421,12 @@
     },
     "同行人": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "同行人"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -323,6 +443,12 @@
     },
     "日期": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "日期"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -339,6 +465,12 @@
     },
     "照片": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "照片"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -355,6 +487,12 @@
     },
     "地区": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "地区"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -371,6 +509,12 @@
     },
     "国家": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "国家"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -387,6 +531,12 @@
     },
     "编辑足迹": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "编辑足迹"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -403,6 +553,12 @@
     },
     "保存": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "保存"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -419,6 +575,12 @@
     },
     "地点名": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "地点名"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -435,6 +597,12 @@
     },
     "一句心情": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "一句心情"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -451,6 +619,12 @@
     },
     "多天行程": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "多天行程"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -467,6 +641,12 @@
     },
     "和谁一起？": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "和谁一起？"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -483,6 +663,12 @@
     },
     "开始": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "开始"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -499,6 +685,12 @@
     },
     "结束": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "结束"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -515,6 +707,12 @@
     },
     "记一句此刻的感受…": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "记一句此刻的感受…"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -531,6 +729,12 @@
     },
     "新足迹": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新足迹"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -547,6 +751,12 @@
     },
     "加一张照片（可跳过）": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "加一张照片（可跳过）"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -563,6 +773,12 @@
     },
     "地点": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "地点"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -579,6 +795,12 @@
     },
     "搜索地点": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "搜索地点"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -595,6 +817,12 @@
     },
     "点亮这里 ✦": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "点亮这里 ✦"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -611,6 +839,12 @@
     },
     "更改": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更改"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -627,6 +861,12 @@
     },
     "我的世界": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "我的世界"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -643,6 +883,12 @@
     },
     "Lv.%lld 探索者": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lv.%lld 探索者"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -659,6 +905,12 @@
     },
     "城市": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "城市"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -675,6 +927,12 @@
     },
     "勋章": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "勋章"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -691,6 +949,12 @@
     },
     "距离 Lv.%lld 还差 %lld 国": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "距离 Lv.%lld 还差 %lld 国"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -707,6 +971,12 @@
     },
     "最近点亮 Recent": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最近点亮 Recent"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -723,6 +993,12 @@
     },
     "还没有足迹 · 回地图点亮第一个地方": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "还没有足迹 · 回地图点亮第一个地方"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -739,6 +1015,12 @@
     },
     "未知地区": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未知地区"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -755,6 +1037,12 @@
     },
     "未知地点": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未知地点"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -771,6 +1059,12 @@
     },
     "设置": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设置"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -787,6 +1081,12 @@
     },
     "语言 Language": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "语言 Language"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -803,6 +1103,12 @@
     },
     "语言跟随系统": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "语言跟随系统"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -819,6 +1125,12 @@
     },
     "在「系统设置 › Lumi」里可单独为本应用选择语言": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在「系统设置 › Lumi」里可单独为本应用选择语言"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -835,6 +1147,12 @@
     },
     "心愿单": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "心愿单"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -851,6 +1169,12 @@
     },
     "还没有心愿": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "还没有心愿"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -867,6 +1191,12 @@
     },
     "搜索添加想去的地方，或在地图上点选标记": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "搜索添加想去的地方，或在地图上点选标记"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -883,6 +1213,12 @@
     },
     "添加心愿": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "添加心愿"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -899,6 +1235,12 @@
     },
     "搜索想去的城市 / 国家": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "搜索想去的城市 / 国家"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -915,6 +1257,12 @@
     },
     "还没去过的热门目的地": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "还没去过的热门目的地"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -931,6 +1279,12 @@
     },
     "热门目的地都在你的清单里了 ✦": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "热门目的地都在你的清单里了 ✦"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -947,6 +1301,12 @@
     },
     "同步历史足迹": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "同步历史足迹"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -963,6 +1323,12 @@
     },
     "关闭": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关闭"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -979,6 +1345,12 @@
     },
     "全选": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "全选"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -995,6 +1367,12 @@
     },
     "全不选": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "全不选"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1011,6 +1389,12 @@
     },
     "请求相册权限…": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请求相册权限…"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1027,6 +1411,12 @@
     },
     "正在从相册识别去过的地方…": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在从相册识别去过的地方…"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1043,6 +1433,12 @@
     },
     "无法访问相册": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法访问相册"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1059,6 +1455,12 @@
     },
     "到「设置 › 隐私 › 照片」允许 Lumi 读取相册后再试。": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "到「设置 › 隐私 › 照片」允许 Lumi 读取相册后再试。"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1075,6 +1477,12 @@
     },
     "打开设置": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打开设置"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1091,6 +1499,12 @@
     },
     "没找到带位置的新照片": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "没找到带位置的新照片"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1107,6 +1521,12 @@
     },
     "相册里带定位信息的照片都已点亮，或暂时没有可识别的地点。": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "相册里带定位信息的照片都已点亮，或暂时没有可识别的地点。"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1123,6 +1543,12 @@
     },
     "识别到 %lld 处地点": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "识别到 %lld 处地点"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1139,6 +1565,12 @@
     },
     "导入 %lld 个足迹 ✦": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "导入 %lld 个足迹 ✦"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1155,6 +1587,12 @@
     },
     "选择要导入的地点": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "选择要导入的地点"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1171,6 +1609,12 @@
     },
     "按城市": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "按城市"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1187,6 +1631,12 @@
     },
     "按国家": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "按国家"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1203,6 +1653,12 @@
     },
     "点一个国家：标记去过或加入心愿": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "点一个国家：标记去过或加入心愿"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1219,6 +1675,12 @@
     },
     "已点亮 · 再记一次": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已点亮 · 再记一次"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1235,6 +1697,12 @@
     },
     "我去过这里 ✦": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "我去过这里 ✦"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1251,6 +1719,12 @@
     },
     "加入心愿单": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "加入心愿单"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1267,6 +1741,12 @@
     },
     "你哪一年去的 %@？": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你哪一年去的 %@？"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1283,6 +1763,12 @@
     },
     "%lld 年": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld 年"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1299,6 +1785,12 @@
     },
     "点亮 ✦": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "点亮 ✦"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1315,6 +1807,12 @@
     },
     "这个国家": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "这个国家"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1331,6 +1829,12 @@
     },
     "普通": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "普通"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1347,6 +1851,12 @@
     },
     "稀有": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "稀有"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1363,6 +1873,12 @@
     },
     "史诗": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "史诗"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1379,6 +1895,12 @@
     },
     "传说": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "传说"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1395,6 +1917,12 @@
     },
     "探索": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "探索"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1411,6 +1939,12 @@
     },
     "大洲": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "大洲"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1427,6 +1961,12 @@
     },
     "里程碑": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "里程碑"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1443,6 +1983,12 @@
     },
     "连续": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "连续"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1459,6 +2005,12 @@
     },
     "亚洲": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "亚洲"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1475,6 +2027,12 @@
     },
     "欧洲": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "欧洲"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1491,6 +2049,12 @@
     },
     "中东": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "中东"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1507,6 +2071,12 @@
     },
     "美洲": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "美洲"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1523,6 +2093,12 @@
     },
     "非洲": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "非洲"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1539,6 +2115,12 @@
     },
     "大洋洲": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "大洋洲"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1555,6 +2137,12 @@
     },
     "徽章收藏": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "徽章收藏"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1571,6 +2159,12 @@
     },
     "已点亮国": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已点亮国"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1587,6 +2181,12 @@
     },
     "全部": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "全部"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1603,6 +2203,12 @@
     },
     "即将解锁 Next up": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "即将解锁 Next up"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1619,6 +2225,12 @@
     },
     "大洲征服 Conquest": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "大洲征服 Conquest"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1635,6 +2247,12 @@
     },
     "桂冠 · 最高荣耀": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "桂冠 · 最高荣耀"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1651,6 +2269,12 @@
     },
     "取消置顶": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "取消置顶"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1667,6 +2291,12 @@
     },
     "设为置顶展示": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设为置顶展示"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1683,6 +2313,12 @@
     },
     "已解锁": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已解锁"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1699,6 +2335,12 @@
     },
     "解锁条件": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "解锁条件"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1715,6 +2357,12 @@
     },
     "◆ 全球仅 %@ 玩家拥有": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "◆ 全球仅 %@ 玩家拥有"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1731,6 +2379,12 @@
     },
     "全球持有率": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "全球持有率"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1747,6 +2401,12 @@
     },
     "获得时间": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "获得时间"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1763,6 +2423,12 @@
     },
     "当前进度": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前进度"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1779,6 +2445,12 @@
     },
     "状态": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "状态"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1795,6 +2467,12 @@
     },
     "已获得": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已获得"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1811,6 +2489,12 @@
     },
     "进行中": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "进行中"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1827,6 +2511,12 @@
     },
     "未解锁": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未解锁"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1843,6 +2533,12 @@
     },
     "成就解锁 · UNLOCKED": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "成就解锁 · UNLOCKED"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1859,6 +2555,12 @@
     },
     "即将解锁 · %@": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "即将解锁 · %@"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1875,6 +2577,12 @@
     },
     "点击任意处继续": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "点击任意处继续"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1891,6 +2599,12 @@
     },
     "国": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "国"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1907,6 +2621,12 @@
     },
     "城": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "城"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1923,6 +2643,12 @@
     },
     "洲": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "洲"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1939,6 +2665,12 @@
     },
     "初次点亮": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "初次点亮"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1955,6 +2687,12 @@
     },
     "五国纵横": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "五国纵横"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1971,6 +2709,12 @@
     },
     "环球旅行家": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "环球旅行家"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1987,6 +2731,12 @@
     },
     "大漠先锋": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "大漠先锋"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2003,6 +2753,12 @@
     },
     "百城斩": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "百城斩"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2019,6 +2775,12 @@
     },
     "制霸七大洲": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "制霸七大洲"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2035,6 +2797,12 @@
     },
     "亚洲之星": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "亚洲之星"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2051,6 +2819,12 @@
     },
     "欧洲漫游者": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "欧洲漫游者"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2067,6 +2841,12 @@
     },
     "非洲开拓者": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "非洲开拓者"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2083,6 +2863,12 @@
     },
     "美洲征服者": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "美洲征服者"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2099,6 +2885,12 @@
     },
     "大洋洲游牧民": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "大洋洲游牧民"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2115,6 +2907,12 @@
     },
     "南极洲探险家": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "南极洲探险家"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2131,6 +2929,12 @@
     },
     "极寒先锋": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "极寒先锋"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2147,6 +2951,12 @@
     },
     "丛林探索者": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "丛林探索者"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2163,6 +2973,12 @@
     },
     "跳岛狂人": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "跳岛狂人"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2179,6 +2995,12 @@
     },
     "点亮你的第一个足迹。旅程由此开始。": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "点亮你的第一个足迹。旅程由此开始。"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2195,6 +3017,12 @@
     },
     "全球累计点亮 5 个不同国家。": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "全球累计点亮 5 个不同国家。"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2211,6 +3039,12 @@
     },
     "点亮 30 个国家解锁这枚史诗徽章。": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "点亮 30 个国家解锁这枚史诗徽章。"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2227,6 +3061,12 @@
     },
     "在干旱 / 沙漠气候城市（如阿布扎比、迪拜）打卡。": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在干旱 / 沙漠气候城市（如阿布扎比、迪拜）打卡。"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2243,6 +3083,12 @@
     },
     "全球累计打卡的不同城市总数达 100。": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "全球累计打卡的不同城市总数达 100。"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2259,6 +3105,12 @@
     },
     "全球 7 个大洲均至少含 1 个点亮足迹。": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "全球 7 个大洲均至少含 1 个点亮足迹。"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2275,6 +3127,12 @@
     },
     "在亚洲点亮足迹。": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在亚洲点亮足迹。"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2291,6 +3149,12 @@
     },
     "在欧洲点亮足迹。": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在欧洲点亮足迹。"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2307,6 +3171,12 @@
     },
     "在非洲点亮首个国家。": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在非洲点亮首个国家。"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2323,6 +3193,12 @@
     },
     "在北美 / 南美点亮首个国家。": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在北美 / 南美点亮首个国家。"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2339,6 +3215,12 @@
     },
     "在大洋洲点亮首个国家。": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在大洋洲点亮首个国家。"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2355,6 +3237,12 @@
     },
     "在南极洲（南纬 60° 以下）成功打卡。": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在南极洲（南纬 60° 以下）成功打卡。"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2371,6 +3259,12 @@
     },
     "多次造访南极极寒点（≥ 2 次）。": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "多次造访南极极寒点（≥ 2 次）。"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2387,6 +3281,12 @@
     },
     "在雨林覆盖率极高国家（如巴西、印尼）打卡。": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在雨林覆盖率极高国家（如巴西、印尼）打卡。"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2403,6 +3303,12 @@
     },
     "点亮 3 个不相连的岛屿国家 / 地区。": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "点亮 3 个不相连的岛屿国家 / 地区。"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2419,6 +3325,12 @@
     },
     "增加": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "增加"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2435,6 +3347,12 @@
     },
     "最多 %lld 张 · 已选 %lld": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最多 %lld 张 · 已选 %lld"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2451,6 +3369,12 @@
     },
     "不展示徽章": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "不展示徽章"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2467,6 +3391,12 @@
     },
     "小组件 Widgets": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "小组件 Widgets"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2483,6 +3413,12 @@
     },
     "点亮计数": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "点亮计数"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2499,6 +3435,12 @@
     },
     "主屏 / 锁屏显示已点亮国家数与全球占比": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "主屏 / 锁屏显示已点亮国家数与全球占比"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2515,6 +3457,12 @@
     },
     "去年今日": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "去年今日"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2531,6 +3479,12 @@
     },
     "回看往年此刻去过的地方": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "回看往年此刻去过的地方"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2547,6 +3501,12 @@
     },
     "添加方式：长按桌面空白处 → 左上角「+」→ 搜索 “Lumi” → 选择小组件。小组件文案跟随系统语言。": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "添加方式：长按桌面空白处 → 左上角「+」→ 搜索 “Lumi” → 选择小组件。小组件文案跟随系统语言。"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2563,6 +3523,12 @@
     },
     "城市（可选）": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "城市（可选）"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2579,6 +3545,12 @@
     },
     "打卡城市（可选 · 可多选）": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打卡城市（可选 · 可多选）"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2595,6 +3567,12 @@
     },
     "点亮 %lld 城 ✦": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "点亮 %lld 城 ✦"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2611,6 +3589,12 @@
     },
     "明信片": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "明信片"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2627,6 +3611,12 @@
     },
     "明信片寄语": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "明信片寄语"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2643,6 +3633,12 @@
     },
     "在明信片上写点什么…": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在明信片上写点什么…"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2659,6 +3655,12 @@
     },
     "分享明信片": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "分享明信片"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2675,6 +3677,12 @@
     },
     "想把%@的这一刻寄给你 ✦": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "想把%@的这一刻寄给你 ✦"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2691,6 +3699,12 @@
     },
     "复制口令": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "复制口令"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2707,6 +3721,12 @@
     },
     "已复制口令": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已复制口令"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2723,6 +3743,12 @@
     },
     "二维码": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "二维码"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2739,6 +3765,12 @@
     },
     "或发口令 / 二维码 —— 对方在 Lumi 里自动收下": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "或发口令 / 二维码 —— 对方在 Lumi 里自动收下"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2755,6 +3787,12 @@
     },
     "收到一张明信片 ✦": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "收到一张明信片 ✦"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2771,6 +3809,12 @@
     },
     "收下 ✦": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "收下 ✦"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2787,6 +3831,12 @@
     },
     "忽略": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "忽略"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2803,6 +3853,12 @@
     },
     "%@ 寄来 · %@": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 寄来 · %@"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2819,6 +3875,12 @@
     },
     "复制链接": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "复制链接"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2835,6 +3897,12 @@
     },
     "已复制": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已复制"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2851,6 +3919,12 @@
     },
     "隔空投送": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "隔空投送"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2867,6 +3941,12 @@
     },
     "链接 / 二维码 / 隔空投送 —— 对方扫码或点开即在 Lumi 收下": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "链接 / 二维码 / 隔空投送 —— 对方扫码或点开即在 Lumi 收下"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2883,6 +3963,12 @@
     },
     "扫码收明信片": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "扫码收明信片"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2899,6 +3985,12 @@
     },
     "把二维码放进取景框": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "把二维码放进取景框"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2915,6 +4007,12 @@
     },
     "此设备无法扫码": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此设备无法扫码"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2931,6 +4029,12 @@
     },
     "可改用「复制口令 / 隔空投送」接收。": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "可改用「复制口令 / 隔空投送」接收。"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2947,6 +4051,12 @@
     },
     "明信片墙": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "明信片墙"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2963,6 +4073,12 @@
     },
     "还没有明信片": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "还没有明信片"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2979,6 +4095,12 @@
     },
     "点亮足迹会生成明信片；收到的明信片也会收进这里": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "点亮足迹会生成明信片；收到的明信片也会收进这里"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2995,6 +4117,12 @@
     },
     "我的": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "我的"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3011,6 +4139,12 @@
     },
     "收到的": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "收到的"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3027,6 +4161,12 @@
     },
     "✦ 收到": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ 收到"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3043,6 +4183,12 @@
     },
     "护照本": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "护照本"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3059,6 +4205,12 @@
     },
     "我的护照本": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "我的护照本"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3075,6 +4227,12 @@
     },
     "去过 %lld 国 · 翻开看看出入境章": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "去过 %lld 国 · 翻开看看出入境章"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3091,6 +4249,12 @@
     },
     "去过 %lld 国 · %lld 城": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "去过 %lld 国 · %lld 城"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3107,6 +4271,12 @@
     },
     "护照还是空的": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "护照还是空的"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3123,6 +4293,12 @@
     },
     "去点亮第一个国家，盖下第一枚入境章": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "去点亮第一个国家，盖下第一枚入境章"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3139,6 +4315,12 @@
     },
     "个人资料": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "个人资料"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3155,6 +4337,12 @@
     },
     "昵称": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "昵称"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3171,6 +4359,12 @@
     },
     "你的昵称": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你的昵称"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3187,6 +4381,12 @@
     },
     "国籍": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "国籍"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3203,6 +4403,12 @@
     },
     "选择国籍": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "选择国籍"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3219,6 +4425,12 @@
     },
     "完成": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完成"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3235,6 +4447,12 @@
     },
     "还没有收到明信片": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "还没有收到明信片"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3251,6 +4469,12 @@
     },
     "朋友用扫码 / 链接 / 隔空投送寄来的明信片，会收进这里": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "朋友用扫码 / 链接 / 隔空投送寄来的明信片，会收进这里"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3267,6 +4491,12 @@
     },
     "收到的明信片都在这": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "收到的明信片都在这"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3283,6 +4513,12 @@
     },
     "想去的地方": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "想去的地方"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3299,6 +4535,12 @@
     },
     "今年的足迹": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "今年的足迹"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3315,6 +4557,12 @@
     },
     "分享徽章": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "分享徽章"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3331,6 +4579,12 @@
     },
     "分享": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "分享"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3347,6 +4601,12 @@
     },
     "去过的国旗": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "去过的国旗"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3363,6 +4623,12 @@
     },
     "展示去过国家的国旗集合（最多 5 个）": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "展示去过国家的国旗集合（最多 5 个）"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3379,6 +4645,12 @@
     },
     "✦ 成就解锁 · Lit on Lumi": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ 成就解锁 · Lit on Lumi"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3395,6 +4667,12 @@
     },
     "Lumi Plus": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lumi Plus"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3411,6 +4689,12 @@
     },
     "按月": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "按月"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3427,6 +4711,12 @@
     },
     "按年": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "按年"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3443,6 +4733,12 @@
     },
     "终身": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "终身"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3459,6 +4755,12 @@
     },
     "恢复购买": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "恢复购买"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3475,6 +4777,12 @@
     },
     "解锁更精致的明信片与更多记忆增益": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "解锁更精致的明信片与更多记忆增益"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3491,6 +4799,12 @@
     },
     "明信片无水印 · 高清导出": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "明信片无水印 · 高清导出"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3507,6 +4821,12 @@
     },
     "去掉 Lumi 水印，3 倍分辨率导出": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "去掉 Lumi 水印，3 倍分辨率导出"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3523,6 +4843,12 @@
     },
     "全部明信片样式 & 邮票": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "全部明信片样式 & 邮票"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3539,6 +4865,12 @@
     },
     "解锁所有卡面样式与邮票贴图": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "解锁所有卡面样式与邮票贴图"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3555,6 +4887,12 @@
     },
     "地图皮肤 & 主题": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "地图皮肤 & 主题"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3571,6 +4909,12 @@
     },
     "更多地图配色与主题": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更多地图配色与主题"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3587,6 +4931,12 @@
     },
     "云同步 · 多设备 · 跨平台": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "云同步 · 多设备 · 跨平台"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3603,6 +4953,12 @@
     },
     "换机不丢，iOS / Android 共享权益": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "换机不丢，iOS / Android 共享权益"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3619,6 +4975,12 @@
     },
     "进阶统计 · 年度回顾": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "进阶统计 · 年度回顾"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3635,6 +4997,12 @@
     },
     "更深的足迹洞察与年度叙事": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更深的足迹洞察与年度叙事"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3651,6 +5019,12 @@
     },
     "现已可用": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "现已可用"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3667,6 +5041,12 @@
     },
     "即将推出": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "即将推出"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3683,6 +5063,12 @@
     },
     "省": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "省"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3699,6 +5085,12 @@
     },
     "每月 · 随时取消": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "每月 · 随时取消"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3715,6 +5107,12 @@
     },
     "每年 · 折合更省": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "每年 · 折合更省"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3731,6 +5129,12 @@
     },
     "一次性买断 · 永久": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "一次性买断 · 永久"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3747,6 +5151,12 @@
     },
     "开始订阅": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "开始订阅"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3763,6 +5173,12 @@
     },
     "解锁终身 Plus": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "解锁终身 Plus"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3779,6 +5195,12 @@
     },
     "订阅会自动续订，可随时在「设置 › Apple ID › 订阅」取消。付款将在确认购买时记入你的 Apple ID。": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "订阅会自动续订，可随时在「设置 › Apple ID › 订阅」取消。付款将在确认购买时记入你的 Apple ID。"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3795,6 +5217,12 @@
     },
     "隐私政策": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "隐私政策"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3811,6 +5239,12 @@
     },
     "使用条款": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用条款"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3827,6 +5261,12 @@
     },
     "已解锁 Lumi Plus ✦": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已解锁 Lumi Plus ✦"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3843,6 +5283,12 @@
     },
     "感谢支持——所有 Plus 权益已为你打开。": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "感谢支持——所有 Plus 权益已为你打开。"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3859,6 +5305,12 @@
     },
     "好": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "好"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3875,6 +5327,12 @@
     },
     "邮寄明信片": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "邮寄明信片"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3891,6 +5349,12 @@
     },
     "明信片带 Lumi 水印": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "明信片带 Lumi 水印"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3907,6 +5371,12 @@
     },
     "升级 Plus 去水印 · 高清导出": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "升级 Plus 去水印 · 高清导出"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3923,6 +5393,12 @@
     },
     "升级": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "升级"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3939,6 +5415,12 @@
     },
     "Lumi Plus 已解锁": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lumi Plus 已解锁"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3955,6 +5437,12 @@
     },
     "升级 Lumi Plus": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "升级 Lumi Plus"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3971,6 +5459,12 @@
     },
     "感谢支持——全部权益已开启 ✦": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "感谢支持——全部权益已开启 ✦"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3987,6 +5481,12 @@
     },
     "明信片去水印高清导出，更多增益陆续解锁": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "明信片去水印高清导出，更多增益陆续解锁"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4003,6 +5503,12 @@
     },
     "我的旅行护照": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "我的旅行护照"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4019,6 +5525,12 @@
     },
     "拟真": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "拟真"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4035,6 +5547,12 @@
     },
     "星夜": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "星夜"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4051,6 +5569,12 @@
     },
     "封面": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "封面"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4067,6 +5591,12 @@
     },
     "资料页": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "资料页"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4083,6 +5613,12 @@
     },
     "入境章": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "入境章"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4099,6 +5635,12 @@
     },
     "入境章详情": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "入境章详情"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4115,6 +5657,12 @@
     },
     "姓名": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "姓名"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4131,6 +5679,12 @@
     },
     "签发": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "签发"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4147,6 +5701,12 @@
     },
     "个国家已点亮": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "个国家已点亮"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4163,6 +5723,12 @@
     },
     "入境口岸": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "入境口岸"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4179,6 +5745,12 @@
     },
     "入境日期": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "入境日期"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4195,6 +5767,12 @@
     },
     "入境方式": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "入境方式"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4211,6 +5789,12 @@
     },
     "空运入境": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "空运入境"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4227,6 +5811,12 @@
     },
     "还没有个人信息": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "还没有个人信息"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4243,6 +5833,12 @@
     },
     "设置姓名和国籍，生成你的专属护照本": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设置姓名和国籍，生成你的专属护照本"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4259,6 +5855,12 @@
     },
     "添加个人信息": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "添加个人信息"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4275,6 +5877,12 @@
     },
     "旅行者": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "旅行者"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4291,6 +5899,12 @@
     },
     "护照风格": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "护照风格"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4307,6 +5921,12 @@
     },
     "样式": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "样式"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4323,6 +5943,12 @@
     },
     "邮票": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "邮票"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4339,6 +5965,12 @@
     },
     "翻面": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "翻面"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4355,6 +5987,12 @@
     },
     "寄给": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "寄给"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4371,6 +6009,12 @@
     },
     "远方的你": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "远方的你"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4387,6 +6031,12 @@
     },
     "复古": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "复古"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4403,6 +6053,12 @@
     },
     "现代": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "现代"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4419,6 +6075,12 @@
     },
     "插画": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "插画"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4435,6 +6097,12 @@
     },
     "航空": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "航空"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4451,6 +6119,12 @@
     },
     "语言已切换": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "语言已切换"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4467,6 +6141,12 @@
     },
     "请关闭并重新打开 Lumi 以应用新语言。": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请关闭并重新打开 Lumi 以应用新语言。"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4483,6 +6163,12 @@
     },
     "切换后需重启 App 生效。也可在「系统设置 › Lumi › 语言」中调整。": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "切换后需重启 App 生效。也可在「系统设置 › Lumi › 语言」中调整。"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4499,6 +6185,12 @@
     },
     "搜索真实地点，重新定位": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "搜索真实地点，重新定位"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4515,6 +6207,12 @@
     },
     "已定位：%@": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已定位：%@"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4531,6 +6229,12 @@
     },
     "往来的人": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "往来的人"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4547,6 +6251,12 @@
     },
     "空运": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "空运"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4563,6 +6273,12 @@
     },
     "陆运": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "陆运"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4579,6 +6295,12 @@
     },
     "海运": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "海运"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4595,6 +6317,12 @@
     },
     "推荐": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "推荐"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4611,6 +6339,12 @@
     },
     "最佳季节": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最佳季节"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4627,6 +6361,12 @@
     },
     "中文显示中文、阿拉伯语显示阿语，其余默认英文；如需单独指定，可在「系统设置 › Lumi」里调整。": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "中文显示中文、阿拉伯语显示阿语，其余默认英文；如需单独指定，可在「系统设置 › Lumi」里调整。"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4643,6 +6383,12 @@
     },
     "点亮战绩": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "点亮战绩"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4659,6 +6405,12 @@
     },
     "个国家 · 全球 5%": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "个国家 · 全球 5%"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4675,6 +6427,12 @@
     },
     "已点亮 12 国": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已点亮 12 国"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4691,6 +6449,12 @@
     },
     "去年此刻你在 东京 ✦": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "去年此刻你在 东京 ✦"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4707,6 +6471,12 @@
     },
     "最新": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最新"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4723,6 +6493,12 @@
     },
     "反馈与建议": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "反馈与建议"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4739,6 +6515,12 @@
     },
     "有想法或遇到问题？写信告诉我们": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "有想法或遇到问题？写信告诉我们"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4755,6 +6537,12 @@
     },
     "发送反馈邮件": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "发送反馈邮件"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4769,8 +6557,36 @@
         }
       }
     },
+    "点这里发邮件给我们": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "点这里发邮件给我们"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tap to email us"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "انقر لمراسلتنا"
+          }
+        }
+      }
+    },
     "Lumi 反馈": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lumi 反馈"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4787,6 +6603,12 @@
     },
     "已识别 %lld / %lld 处": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已识别 %lld / %lld 处"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4803,6 +6625,12 @@
     },
     "预计还需约 %lld 秒": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "预计还需约 %lld 秒"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4819,6 +6647,12 @@
     },
     "预计还需约 %lld 分钟": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "预计还需约 %lld 分钟"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4835,6 +6669,12 @@
     },
     "即将完成…": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "即将完成…"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4851,6 +6691,12 @@
     },
     "点亮了 %lld 个徽章": {
       "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "点亮了 %lld 个徽章"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",

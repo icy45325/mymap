@@ -238,7 +238,7 @@ struct FootprintEditView: View {
         }
     }
 
-    private func dateRow<Picker: View>(_ label: String, @ViewBuilder _ picker: () -> Picker) -> some View {
+    private func dateRow<Picker: View>(_ label: LocalizedStringKey, @ViewBuilder _ picker: () -> Picker) -> some View {
         HStack {
             Text(label).font(.subheadline).foregroundStyle(Color.textSecondary)
             Spacer()
