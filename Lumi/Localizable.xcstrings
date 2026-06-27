@@ -4848,6 +4848,22 @@
           }
         }
       }
+    },
+    "点亮了 %lld 个徽章": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlocked %lld badges"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "فتحت %lld أوسمة"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

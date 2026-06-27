@@ -374,55 +374,49 @@ private struct BadgeSheet: View {
 // MARK: - 解锁庆祝
 
 struct UnlockCelebration: View {
-    let badge: Badge
+    let badges: [Badge]
     let onDismiss: () -> Void
+
+    init(badge: Badge, onDismiss: @escaping () -> Void) {
+        self.badges = [badge]; self.onDismiss = onDismiss
+    }
+    init(badges: [Badge], onDismiss: @escaping () -> Void) {
+        self.badges = badges; self.onDismiss = onDismiss
+    }
 
     @State private var shown = false
     @State private var shareImage: Image?
 
+    private var isMulti: Bool { badges.count > 1 }
+    /// 用首枚的颜色驱动背景/粒子（多枚时取一个主色即可）。
+    private var accent: Color { badges.first?.color ?? .nPink }
+
     var body: some View {
         ZStack {
             // 背景遮罩调暗、收紧光晕，避免与下层内容混在一起
-            RadialGradient(colors: [badge.color.opacity(0.22), Color.bg.opacity(0.985)],
+            RadialGradient(colors: [accent.opacity(0.22), Color.bg.opacity(0.985)],
                            center: .center, startRadius: 10, endRadius: 300)
                 .ignoresSafeArea()
             Color.bg.opacity(0.55).ignoresSafeArea()
             // 粒子迸发（在徽章后方扩散）
-            UnlockBurst(color: badge.color)
+            UnlockBurst(color: accent)
                 .frame(width: 360, height: 360)
                 .opacity(shown ? 0.85 : 0)
-            VStack(spacing: 9) {
-                HolographicBadge(badge: badge, size: 132)
-                    .padding(.bottom, 16)
-                Text("成就解锁 · UNLOCKED").font(.system(size: 12, weight: .bold)).tracking(3)
-                    .foregroundStyle(Color.nCyan)
-                Text(badge.name.localized).font(Typo.serif(33)).foregroundStyle(Color.text)
-                Text("\(badge.rarity.tierName.localized) · \(badge.rarity.rawValue.uppercased())")
-                    .font(.system(size: 11.5, weight: .heavy)).tracking(1.8)
-                    .foregroundStyle(badge.color)
-                if let shareImage {
-                    ShareLink(item: shareImage,
-                              preview: SharePreview(badge.name.localized, image: shareImage)) {
-                        Label("分享", systemImage: "square.and.arrow.up")
-                            .font(.system(size: 13, weight: .semibold)).foregroundStyle(.white)
-                            .padding(.vertical, 11).padding(.horizontal, 26)
-                            .background(LinearGradient.neonH, in: Capsule())
-                    }
-                    .padding(.top, 18)
-                }
-            }
-            .padding(.vertical, 36).padding(.horizontal, 34)
-            // 内容卡片底：把徽章与文字托在一张半透明卡上，与粒子背景分层
-            .background(
-                RoundedRectangle(cornerRadius: 28, style: .continuous)
-                    .fill(Color.bg.opacity(0.72))
-                    .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 28, style: .continuous))
-                    .overlay(RoundedRectangle(cornerRadius: 28, style: .continuous)
-                        .stroke(badge.color.opacity(0.45), lineWidth: 1))
-                    .shadow(color: badge.color.opacity(0.35), radius: 30, y: 8)
-            )
-            .padding(.horizontal, 40)
-            .scaleEffect(shown ? 1 : 0.5).opacity(shown ? 1 : 0)
+
+            content
+                .padding(.vertical, 36).padding(.horizontal, 30)
+                // 内容卡片底：把徽章与文字托在一张半透明卡上，与粒子背景分层
+                .background(
+                    RoundedRectangle(cornerRadius: 28, style: .continuous)
+                        .fill(Color.bg.opacity(0.72))
+                        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 28, style: .continuous))
+                        .overlay(RoundedRectangle(cornerRadius: 28, style: .continuous)
+                            .stroke(accent.opacity(0.45), lineWidth: 1))
+                        .shadow(color: accent.opacity(0.35), radius: 30, y: 8)
+                )
+                .padding(.horizontal, isMulti ? 28 : 40)
+                .scaleEffect(shown ? 1 : 0.5).opacity(shown ? 1 : 0)
+
             VStack {
                 Spacer()
                 Text("点击任意处继续").font(.system(size: 11)).foregroundStyle(Color.faint).padding(.bottom, 42)
@@ -433,7 +427,55 @@ struct UnlockCelebration: View {
         .onAppear {
             withAnimation(.spring(response: 0.6, dampingFraction: 0.55)) { shown = true }
             UINotificationFeedbackGenerator().notificationOccurred(.success)
-            shareImage = ShareRender.image(BadgeShareCard(badge: badge))
+            if !isMulti, let b = badges.first {
+                shareImage = ShareRender.image(BadgeShareCard(badge: b))
+            }
         }
+    }
+
+    @ViewBuilder private var content: some View {
+        if isMulti { multiContent } else { singleContent }
+    }
+
+    // 单枚：大图 + 名称 + 稀有度 + 分享（保持原样）
+    @ViewBuilder private var singleContent: some View {
+        let badge = badges[0]
+        VStack(spacing: 9) {
+            HolographicBadge(badge: badge, size: 132).padding(.bottom, 16)
+            Text("成就解锁 · UNLOCKED").font(.system(size: 12, weight: .bold)).tracking(3)
+                .foregroundStyle(Color.nCyan)
+            Text(badge.name.localized).font(Typo.serif(33)).foregroundStyle(Color.text)
+            Text("\(badge.rarity.tierName.localized) · \(badge.rarity.rawValue.uppercased())")
+                .font(.system(size: 11.5, weight: .heavy)).tracking(1.8)
+                .foregroundStyle(badge.color)
+            if let shareImage {
+                ShareLink(item: shareImage,
+                          preview: SharePreview(badge.name.localized, image: shareImage)) {
+                    Label("分享", systemImage: "square.and.arrow.up")
+                        .font(.system(size: 13, weight: .semibold)).foregroundStyle(.white)
+                        .padding(.vertical, 11).padding(.horizontal, 26)
+                        .background(LinearGradient.neonH, in: Capsule())
+                }
+                .padding(.top, 18)
+            }
+        }
+    }
+
+    // 多枚：汇总「点亮了 N 个徽章」+ 徽章拼在一起，不展示具体名字
+    @ViewBuilder private var multiContent: some View {
+        let cols = min(badges.count, 3)
+        let size: CGFloat = badges.count <= 4 ? 92 : (badges.count <= 6 ? 78 : 66)
+        let grid = Array(repeating: GridItem(.flexible(), spacing: 12), count: cols)
+        VStack(spacing: 14) {
+            Text("成就解锁 · UNLOCKED").font(.system(size: 12, weight: .bold)).tracking(3)
+                .foregroundStyle(Color.nCyan)
+            LazyVGrid(columns: grid, spacing: 14) {
+                ForEach(badges) { b in HexBadge(badge: b, size: size) }
+            }
+            Text("点亮了 \(badges.count) 个徽章")
+                .font(Typo.serif(27)).foregroundStyle(Color.text)
+                .multilineTextAlignment(.center)
+        }
+        .frame(maxWidth: 320)
     }
 }

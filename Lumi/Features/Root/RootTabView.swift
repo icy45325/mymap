@@ -14,7 +14,7 @@ struct RootTabView: View {
     /// 已「见过」的解锁徽章 id；用于在**添加足迹时**检测新解锁并弹庆祝（全 App 级）。
     @AppStorage("lumi.seenBadges") private var seenBadgesRaw: String = ""
     @AppStorage("lumi.badgesInit") private var badgesInit: Bool = false
-    @State private var celebrateBadge: Badge?
+    @State private var celebrateBadges: [Badge] = []
     /// 接收枢纽：剪贴板 / 扫码 / lumi:// / AirDrop 四入口统一到这里。
     @ObservedObject private var inbox = PostcardInbox.shared
 
@@ -49,7 +49,7 @@ struct RootTabView: View {
             if phase == .active { checkClipboardForPostcard() }
         }
         .onChange(of: footprints.count) { _, _ in detectNewUnlocks() }   // 添加足迹即判断是否点亮新徽章
-        .overlay { if let b = celebrateBadge { UnlockCelebration(badge: b) { celebrateBadge = nil } } }
+        .overlay { if !celebrateBadges.isEmpty { UnlockCelebration(badges: celebrateBadges) { celebrateBadges = [] } } }
         .alert("收到一张明信片 ✦",
                isPresented: Binding(get: { inbox.pending != nil }, set: { if !$0 { inbox.pending = nil } }),
                presenting: inbox.pending) { payload in
@@ -103,8 +103,9 @@ struct RootTabView: View {
         }
         let fresh = litIDs.subtracting(seen)
         guard !fresh.isEmpty else { return }
-        if celebrateBadge == nil, let first = board.badges.first(where: { fresh.contains($0.id) }) {
-            celebrateBadge = first
+        // 一次可能解锁多枚：收集全部新解锁，交给庆祝弹窗（单枚=大图带名，多枚=汇总不带名）
+        if celebrateBadges.isEmpty {
+            celebrateBadges = board.badges.filter { $0.state == .lit && fresh.contains($0.id) }
         }
         seen.formUnion(litIDs)
         seenBadgesRaw = seen.sorted().joined(separator: ",")
