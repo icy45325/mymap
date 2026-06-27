@@ -8,6 +8,7 @@ struct PostcardSheet: View {
     @Environment(\.dismiss) private var dismiss
     @AppStorage("lumi.receivedTokens") private var receivedTokensRaw: String = ""
     @ObservedObject private var store = PlusStore.shared
+    @ObservedObject private var contacts = PostcardContacts.shared
     @State private var message: String
     @State private var cover: UIImage?
     @State private var shareImage: Image?
@@ -59,11 +60,14 @@ struct PostcardSheet: View {
                     }
 
                     editorBlock("寄给") {
-                        TextField("远方的你", text: $recipient)
-                            .foregroundStyle(Color.text)
-                            .padding(12)
-                            .background(Color.panel, in: RoundedRectangle(cornerRadius: 12))
-                            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.line, lineWidth: 1))
+                        VStack(alignment: .leading, spacing: 8) {
+                            TextField("远方的你", text: $recipient)
+                                .foregroundStyle(Color.text)
+                                .padding(12)
+                                .background(Color.panel, in: RoundedRectangle(cornerRadius: 12))
+                                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.line, lineWidth: 1))
+                            if recipient.isEmpty && !contacts.recent.isEmpty { contactSuggestions }
+                        }
                     }
 
                     stylePicker
@@ -77,6 +81,9 @@ struct PostcardSheet: View {
                                 .background(LinearGradient.neonH, in: Capsule())
                                 .foregroundStyle(.white)
                         }
+                        .simultaneousGesture(TapGesture().onEnded {
+                            contacts.record(recipient, sent: true)   // 寄出即攒往来
+                        })
                     } else {
                         ProgressView().tint(Color.nPink).frame(maxWidth: .infinity).padding(.vertical, 14)
                     }
@@ -205,6 +212,27 @@ struct PostcardSheet: View {
         .buttonStyle(.plain)
     }
 
+    /// 往来联系人快选（点一下填入「寄给」）。
+    private var contactSuggestions: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                ForEach(contacts.recent.prefix(8)) { c in
+                    Button { recipient = c.name } label: {
+                        HStack(spacing: 5) {
+                            Image(systemName: "person.fill").font(.system(size: 9)).foregroundStyle(Color.nCyan)
+                            Text(c.name).font(.system(size: 12)).foregroundStyle(Color.text).lineLimit(1)
+                        }
+                        .padding(.vertical, 6).padding(.horizontal, 11)
+                        .background(Color.panel, in: Capsule())
+                        .overlay(Capsule().stroke(Color.line, lineWidth: 1))
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .padding(.horizontal, 2)
+        }
+    }
+
     private func miniLabel(_ title: LocalizedStringKey, _ icon: String, _ tint: Color) -> some View {
         Label(title, systemImage: icon)
             .font(.system(size: 12, weight: .semibold)).foregroundStyle(tint)
@@ -229,6 +257,7 @@ struct PostcardSheet: View {
 
     private func copyLink() {
         UIPasteboard.general.string = shareLinkString
+        contacts.record(recipient, sent: true)   // 复制链接寄出也攒往来
         // 标记本机已「见过」此 token，避免发送方自己再被弹「收到明信片」
         var seen = Set(receivedTokensRaw.split(separator: ",").map(String.init))
         seen.insert(token)

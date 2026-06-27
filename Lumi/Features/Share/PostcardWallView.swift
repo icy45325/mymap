@@ -5,6 +5,7 @@ import SwiftData
 /// 自己点亮的足迹不是明信片；自己寄出的（按明信片逻辑）自己也看不到。
 struct PostcardWallView: View {
     @Query(sort: \Footprint.createdAt, order: .reverse) private var footprints: [Footprint]
+    @ObservedObject private var contacts = PostcardContacts.shared
     @State private var selected: Footprint?
 
     private var items: [Footprint] { footprints.filter { $0.isReceived } }
@@ -13,13 +14,22 @@ struct PostcardWallView: View {
 
     var body: some View {
         Group {
-            if items.isEmpty { empty }
-            else {
+            if items.isEmpty && contacts.recent.isEmpty {
+                empty
+            } else {
                 ScrollView {
-                    LazyVGrid(columns: cols, spacing: 12) {
-                        ForEach(items) { fp in
-                            Button { selected = fp } label: { PostcardCell(footprint: fp) }
-                                .buttonStyle(.plain)
+                    VStack(alignment: .leading, spacing: 16) {
+                        if !contacts.recent.isEmpty { contactsStrip }
+                        if items.isEmpty {
+                            Text("还没有收到明信片").font(.subheadline).foregroundStyle(Color.muted)
+                                .frame(maxWidth: .infinity).padding(.vertical, 28)
+                        } else {
+                            LazyVGrid(columns: cols, spacing: 12) {
+                                ForEach(items) { fp in
+                                    Button { selected = fp } label: { PostcardCell(footprint: fp) }
+                                        .buttonStyle(.plain)
+                                }
+                            }
                         }
                     }
                     .padding(16)
@@ -33,6 +43,29 @@ struct PostcardWallView: View {
         .toolbarColorScheme(.dark, for: .navigationBar)
         .preferredColorScheme(.dark)
         .sheet(item: $selected) { PostcardSheet(footprint: $0) }
+    }
+
+    /// 往来的人（本地 social-lite）：收 / 发明信片攒下的昵称头像横条。
+    private var contactsStrip: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("往来的人").font(.system(size: 13, weight: .semibold)).foregroundStyle(Color.muted)
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 12) {
+                    ForEach(contacts.recent) { c in
+                        VStack(spacing: 5) {
+                            ZStack {
+                                Circle().fill(LinearGradient.neon).frame(width: 46, height: 46)
+                                    .overlay(Circle().stroke(Color.line, lineWidth: 1))
+                                Text(String(c.name.prefix(1))).font(Typo.serif(18)).foregroundStyle(.white)
+                            }
+                            Text(c.name).font(.system(size: 10)).foregroundStyle(Color.muted)
+                                .lineLimit(1).frame(width: 52)
+                        }
+                    }
+                }
+                .padding(.horizontal, 2)
+            }
+        }
     }
 
     private var empty: some View {

@@ -4528,6 +4528,22 @@
           }
         }
       }
+    },
+    "往来的人": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "People you've exchanged with"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "من تبادلت معهم"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

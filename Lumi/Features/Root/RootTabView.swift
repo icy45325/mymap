@@ -85,6 +85,7 @@ struct RootTabView: View {
         context.insert(Card(footprint: fp))
         try? context.save()
         markSeen(p.token)
+        PostcardContacts.shared.record(p.sender, sent: false)   // 攒「往来的人」(本地)
         WidgetSync.refresh(context)
         inbox.pending = nil
     }
