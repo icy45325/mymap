@@ -169,6 +169,9 @@ struct PostcardFlipCard: View {
             back.opacity(flipped ? 1 : 0).rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
         }
         .aspectRatio(isPortrait ? 0.66 : 1.55, contentMode: .fit)
+        // 限制在一屏内：竖版更窄(≤300)、横版≤345，避免预览卡撑满屏
+        .frame(maxWidth: isPortrait ? 300 : 345)
+        .frame(maxWidth: .infinity)
         .rotation3DEffect(.degrees(flipped ? 180 : 0), axis: (x: 0, y: 1, z: 0))
         .animation(.easeInOut(duration: 0.6), value: flipped)
         .shadow(color: .black.opacity(0.45), radius: 16, y: 8)

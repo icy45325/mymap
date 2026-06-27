@@ -13,6 +13,7 @@ struct TimelineView: View {
     @State private var regionFilter: RegionFilter = .all
     @State private var pendingDelete: Footprint?
     @State private var showImport = false
+    @State private var showCapture = false
 
     private enum RegionFilter: Hashable { case all, region(Region) }
 
@@ -36,6 +37,21 @@ struct TimelineView: View {
         .sheet(isPresented: $showImport) {
             PhotoImportView(existing: footprints)
         }
+        .sheet(isPresented: $showCapture) {
+            CaptureView(source: "timeline", prefilledCoordinate: nil)
+        }
+    }
+
+    /// 顶部「点亮新足迹」入口（icon 形式）。
+    private var newFootprintButton: some View {
+        Button { showCapture = true } label: {
+            Image(systemName: "plus")
+                .font(.system(size: 17, weight: .bold)).foregroundStyle(.white)
+                .frame(width: 38, height: 38)
+                .background(LinearGradient.neonH, in: Circle())
+                .shadow(color: Color.nPurple.opacity(0.5), radius: 8)
+        }
+        .accessibilityLabel(Text("点亮新足迹"))
     }
 
     /// 从相册同步历史足迹的入口按钮（顶部用）。
@@ -75,7 +91,10 @@ struct TimelineView: View {
                 Text(statLine).font(.system(size: 11)).tracking(1.2).foregroundStyle(Color.faint)
             }
             Spacer()
-            importButton
+            HStack(spacing: 10) {
+                importButton
+                newFootprintButton
+            }
         }
         .padding(.horizontal, 26).padding(.top, 16)
     }
@@ -149,6 +168,14 @@ struct TimelineView: View {
                     .shadow(color: Color.nPurple.opacity(0.5), radius: 12)
             }
             .padding(.top, 6)
+
+            Button { showCapture = true } label: {
+                Label("点亮新足迹", systemImage: "plus")
+                    .font(.system(size: 14, weight: .semibold)).foregroundStyle(Color.nPink)
+                    .padding(.vertical, 10).padding(.horizontal, 18)
+                    .background(Color.panel, in: Capsule())
+                    .overlay(Capsule().stroke(Color.nPink.opacity(0.4), lineWidth: 1))
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }

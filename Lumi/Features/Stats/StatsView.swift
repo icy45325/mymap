@@ -157,11 +157,28 @@ struct StatsView: View {
     private var honeycomb: some View {
         let cols = Array(repeating: GridItem(.flexible(), spacing: 14), count: 3)
         return LazyVGrid(columns: cols, spacing: 18) {
-            ForEach(board.badges) { b in badgeCell(b) }
+            ForEach(sortedBadges) { b in badgeCell(b) }
         }
         .frame(maxWidth: .infinity)
         .padding(.horizontal, 22)
         .padding(.vertical, 12)
+    }
+
+    /// 排序：已点亮在最前 → 进行中按点亮进度从高到低 → 完全未解锁在最后；同档保持原顺序。
+    private var sortedBadges: [Badge] {
+        func rank(_ b: Badge) -> Double {
+            switch b.state {
+            case .lit:    return 100                 // 已点亮最前
+            case .prog:   return b.progress ?? 0     // 进行中按进度 0…1
+            case .locked: return -1                  // 完全未解锁最后
+            }
+        }
+        return board.badges.enumerated()
+            .sorted { a, b in
+                let ra = rank(a.element), rb = rank(b.element)
+                return ra != rb ? ra > rb : a.offset < b.offset
+            }
+            .map(\.element)
     }
 
     /// 单元：徽章 + 名称。点击看「是什么 / 怎么得到」。插画徽章自带名字，不再重复文字。
@@ -267,13 +284,14 @@ private struct BadgeSheet: View {
             VStack(spacing: 0) {
                 Capsule().fill(Color.line).frame(width: 40, height: 4).padding(.top, 11)
 
-                // ——— 主角：放大的徽章 + 光晕基座，突出收集感 ———
-                ZStack {
-                    Circle()
-                        .fill(RadialGradient(colors: [badge.color.opacity(badge.state == .lit ? 0.55 : 0.22), .clear],
-                                             center: .center, startRadius: 4, endRadius: 160))
-                        .frame(width: 320, height: 320)
-                        .blur(radius: 6)
+                // ——— 主角：放大的徽章，光晕只作底部基座（不再整圈罩在大图上）———
+                ZStack(alignment: .bottom) {
+                    Ellipse()
+                        .fill(RadialGradient(colors: [badge.color.opacity(badge.state == .lit ? 0.6 : 0.2), .clear],
+                                             center: .center, startRadius: 2, endRadius: 130))
+                        .frame(width: 250, height: 100)
+                        .blur(radius: 24)
+                        .offset(y: -6)
                     HolographicBadge(badge: badge, size: 200)
                 }
                 .frame(height: 290)
