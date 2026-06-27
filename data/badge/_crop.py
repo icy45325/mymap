@@ -19,11 +19,14 @@ LANGS = ["en", "zh", "ar"]
 
 
 def remove_bg(im, tol=24):
-    """从四边 flood fill 把与边角同色的浅底/灰底/透明抠成透明，保留主体内部。"""
+    """从四边 flood fill 把背景抠成透明，保留主体内部。
+    若本身就是透明底（边角 alpha≈0），只按 alpha 判背景，**不**做颜色键，
+    避免误伤深色徽章内部（如暗底六边形）。"""
     im = im.convert("RGBA")
     w, h = im.size
     px = im.load()
     corners = [px[0, 0], px[w - 1, 0], px[0, h - 1], px[w - 1, h - 1]]
+    transparent_src = sum(c[3] for c in corners) // 4 < 12
     br = sum(c[0] for c in corners) // 4
     bg = sum(c[1] for c in corners) // 4
     bb = sum(c[2] for c in corners) // 4
@@ -31,6 +34,8 @@ def remove_bg(im, tol=24):
     def is_bg(p):
         if p[3] < 12:
             return True
+        if transparent_src:
+            return False
         if abs(p[0] - br) <= tol and abs(p[1] - bg) <= tol and abs(p[2] - bb) <= tol:
             return True
         mx, mn = max(p[0], p[1], p[2]), min(p[0], p[1], p[2])

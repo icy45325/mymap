@@ -256,7 +256,7 @@ enum BadgeCatalog {
 
             milestone("world", "环球旅行家", .epic, .milestone, "safari.fill",
                       "点亮 30 个国家解锁这枚史诗徽章。", "5%", Color(hex: 0xFF0055),
-                      target: 30, current: c, unit: "国"),
+                      target: 30, current: c, unit: "国", image: "badge_world"),
 
             flag("desert", "大漠先锋", .epic, .milestone, "sun.max.fill",
                  "在干旱 / 沙漠气候城市（如阿布扎比、迪拜）打卡。", "8%", Color(hex: 0xE91E63),
