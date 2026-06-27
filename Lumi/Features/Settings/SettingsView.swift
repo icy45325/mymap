@@ -121,6 +121,7 @@ struct SettingsView: View {
                 }
             }
             .padding(.vertical, 13).padding(.horizontal, 14)
+            .contentShape(Rectangle())   // 整行可点（含 Spacer 空白区），避免点空白没反应
         }
         .buttonStyle(.plain)
         .background(Color.panel, in: RoundedRectangle(cornerRadius: 14))
