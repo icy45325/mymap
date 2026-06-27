@@ -71,6 +71,7 @@ struct PassportView: View {
             if let d = detail { detailOverlay(d) }
         }
         .toolbar(.hidden, for: .navigationBar)
+        .toolbar(.hidden, for: .tabBar)   // 二级页：隐藏底部 Tab，整页沉浸
         .overlay(alignment: .topLeading) { backButton }
         .preferredColorScheme(.dark)
         .sheet(isPresented: $showProfileEdit) { ProfileEditView() }
@@ -114,17 +115,14 @@ struct PassportView: View {
 
     // MARK: - 护照主体
 
+    /// 整页护照：去掉底部翻页条，书本占满可用空间，顶部留白最小。
     private var passport: some View {
-        VStack(spacing: 0) {
-            Spacer(minLength: 8)
-            book
-            pageDots
-            Spacer(minLength: 16)
-        }
-        .padding(.top, 56)   // 给左上返回按钮留出空间
+        book
+            .padding(.top, 44)    // 仅给左上返回按钮让位，尽量少留白
+            .padding(.bottom, 8)
     }
 
-    // MARK: - 翻页书（左右滑动）
+    // MARK: - 翻页书（左右滑动，整页放大）
 
     private var book: some View {
         TabView(selection: $page) {
@@ -135,25 +133,12 @@ struct PassportView: View {
             }
         }
         .tabViewStyle(.page(indexDisplayMode: .never))
-        .frame(maxWidth: 330)
         .aspectRatio(0.7, contentMode: .fit)
-        .clipShape(RoundedRectangle(cornerRadius: 14))
-        .overlay(RoundedRectangle(cornerRadius: 14).stroke(.white.opacity(0.05), lineWidth: 1))
-        .shadow(color: .black.opacity(0.6), radius: 26, x: 0, y: 22)
-        .padding(.horizontal, 22)
-    }
-
-    /// 仅进度点（无说明文字、无箭头）；左右滑动翻页。
-    private var pageDots: some View {
-        HStack(spacing: 5) {
-            ForEach(Array(0..<pageCount), id: \.self) { i in
-                Capsule()
-                    .fill(i == page ? AnyShapeStyle(LinearGradient.neonH) : AnyShapeStyle(Color.white.opacity(0.22)))
-                    .frame(width: i == page ? 18 : 6, height: 6)
-                    .animation(.easeInOut(duration: 0.3), value: page)
-            }
-        }
-        .padding(.top, 18)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .overlay(RoundedRectangle(cornerRadius: 16).stroke(.white.opacity(0.06), lineWidth: 1))
+        .shadow(color: .black.opacity(0.6), radius: 28, x: 0, y: 22)
+        .padding(.horizontal, 14)
     }
 
     // MARK: - 页 0：封面

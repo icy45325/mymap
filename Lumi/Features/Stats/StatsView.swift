@@ -390,13 +390,15 @@ struct UnlockCelebration: View {
 
     var body: some View {
         ZStack {
-            RadialGradient(colors: [badge.color.opacity(0.3), Color.bg.opacity(0.96)],
-                           center: .center, startRadius: 10, endRadius: 360)
+            // 背景遮罩调暗、收紧光晕，避免与下层内容混在一起
+            RadialGradient(colors: [badge.color.opacity(0.22), Color.bg.opacity(0.985)],
+                           center: .center, startRadius: 10, endRadius: 300)
                 .ignoresSafeArea()
+            Color.bg.opacity(0.55).ignoresSafeArea()
             // 粒子迸发（在徽章后方扩散）
             UnlockBurst(color: badge.color)
                 .frame(width: 360, height: 360)
-                .opacity(shown ? 1 : 0)
+                .opacity(shown ? 0.85 : 0)
             VStack(spacing: 9) {
                 HolographicBadge(badge: badge, size: 132)
                     .padding(.bottom, 16)
@@ -417,6 +419,17 @@ struct UnlockCelebration: View {
                     .padding(.top, 18)
                 }
             }
+            .padding(.vertical, 36).padding(.horizontal, 34)
+            // 内容卡片底：把徽章与文字托在一张半透明卡上，与粒子背景分层
+            .background(
+                RoundedRectangle(cornerRadius: 28, style: .continuous)
+                    .fill(Color.bg.opacity(0.72))
+                    .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 28, style: .continuous))
+                    .overlay(RoundedRectangle(cornerRadius: 28, style: .continuous)
+                        .stroke(badge.color.opacity(0.45), lineWidth: 1))
+                    .shadow(color: badge.color.opacity(0.35), radius: 30, y: 8)
+            )
+            .padding(.horizontal, 40)
             .scaleEffect(shown ? 1 : 0.5).opacity(shown ? 1 : 0)
             VStack {
                 Spacer()

@@ -4784,6 +4784,70 @@
           }
         }
       }
+    },
+    "已识别 %lld / %lld 处": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld / %2$lld places found"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld / %2$lld مكان"
+          }
+        }
+      }
+    },
+    "预计还需约 %lld 秒": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "About %lld s left"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "يتبقى نحو %lld ث"
+          }
+        }
+      }
+    },
+    "预计还需约 %lld 分钟": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "About %lld min left"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "يتبقى نحو %lld د"
+          }
+        }
+      }
+    },
+    "即将完成…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Almost done…"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "على وشك الانتهاء…"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

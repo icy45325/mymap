@@ -40,6 +40,7 @@ struct PostcardWallView: View {
         .background(Color.bg.ignoresSafeArea())
         .navigationTitle("明信片墙")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar(.hidden, for: .tabBar)
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button { showScanner = true } label: {

@@ -18,6 +18,7 @@ struct WishlistView: View {
         .background(Color.bg.ignoresSafeArea())
         .navigationTitle("心愿单")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar(.hidden, for: .tabBar)
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button { showAdd = true } label: { Image(systemName: "plus") }

@@ -44,6 +44,7 @@ struct FootprintDetailView: View {
         .ignoresSafeArea(edges: .top)          // 顶部照片墙通栏，盖住 status bar 黑边
         .background(Color.bg.ignoresSafeArea())
         .toolbar(.hidden, for: .navigationBar)
+        .toolbar(.hidden, for: .tabBar)
         .overlay(alignment: .topLeading) { backButton }
         .overlay(alignment: .topTrailing) { editButton }
         .preferredColorScheme(.dark)

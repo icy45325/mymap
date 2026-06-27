@@ -56,12 +56,40 @@ struct PhotoImportView: View {
     // MARK: - 扫描中
 
     private var scanning: some View {
-        VStack(spacing: 14) {
+        VStack(spacing: 16) {
             ProgressView().tint(Color.nPink).scaleEffect(1.3)
             Text(service.phase == .requesting ? "请求相册权限…" : "正在从相册识别去过的地方…")
                 .font(.subheadline).foregroundStyle(Color.muted)
+                .multilineTextAlignment(.center)
+
+            // 反向地理编码阶段：确定性进度 + 预计剩余时间
+            if service.phase == .scanning && service.scanTotal > 0 {
+                VStack(spacing: 8) {
+                    NeonBar(fraction: service.scanProgress, height: 8)
+                    HStack {
+                        Text("已识别 \(service.scanDone) / \(service.scanTotal) 处")
+                            .font(.system(size: 11)).foregroundStyle(Color.muted)
+                        Spacer()
+                        Text(etaText).font(.system(size: 11, weight: .medium)).foregroundStyle(Color.nCyan)
+                    }
+                }
+                .frame(maxWidth: 260)
+                .transition(.opacity)
+            }
         }
+        .padding(.horizontal, 40)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .animation(.easeInOut(duration: 0.25), value: service.scanDone)
+    }
+
+    /// 预计剩余时间文案：>60s 用分钟，临近完成提示「即将完成」。
+    private var etaText: String {
+        let s = service.etaSeconds
+        if s <= 0 { return String(localized: "即将完成…") }
+        if s >= 60 {
+            return String(format: String(localized: "预计还需约 %lld 分钟"), (s + 59) / 60)
+        }
+        return String(format: String(localized: "预计还需约 %lld 秒"), s)
     }
 
     // MARK: - 无权限

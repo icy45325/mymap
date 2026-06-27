@@ -29,6 +29,15 @@ final class PhotoImportService: ObservableObject {
     @Published private(set) var resolving = false
     @Published private(set) var granularity: ImportGranularity = .city
 
+    // 扫描进度（用于 UI 进度条 + 预计剩余时间）
+    @Published private(set) var scanTotal: Int = 0     // 需反向地理编码的聚类数
+    @Published private(set) var scanDone: Int = 0      // 已完成数
+    @Published private(set) var etaSeconds: Int = 0    // 预计剩余秒数
+    var scanProgress: Double { scanTotal == 0 ? 0 : Double(scanDone) / Double(scanTotal) }
+
+    /// 单步平均耗时估计（反向地理编码 + 限速 sleep），用于 ETA。
+    private let perStepSeconds = 0.32
+
     private let geocodeCap = 120
 
     // 扫描/解析缓存
@@ -106,6 +115,13 @@ final class PhotoImportService: ObservableObject {
         let geocoder = CLGeocoder()
         var named: [ImportCandidate] = []
 
+        // 预估需要联网反向地理编码的步数（未缓存且在配额内），用于进度条与 ETA
+        scanTotal = clusters.enumerated().filter { i, c in
+            i < geocodeCap && nameCache[Self.cellKey(country: c.country, lat: c.latitude, lon: c.longitude)] == nil
+        }.count
+        scanDone = 0
+        etaSeconds = Int((Double(scanTotal) * perStepSeconds).rounded(.up))
+
         for (i, c) in clusters.enumerated() {
             if Task.isCancelled { return }
             let key = Self.cellKey(country: c.country, lat: c.latitude, lon: c.longitude)
@@ -128,9 +144,12 @@ final class PhotoImportService: ObservableObject {
                     nameCache[key] = ResolvedName(place: place, city: city)
                 }
                 try? await Task.sleep(for: .milliseconds(110))
+                scanDone += 1
+                etaSeconds = Int((Double(max(0, scanTotal - scanDone)) * perStepSeconds).rounded(.up))
             }
             named.append(cand)
         }
+        scanDone = scanTotal; etaSeconds = 0
 
         // 城市去重（国家+城市，最早）
         cityResult = collapse(named) { "\($0.countryCode ?? "")|\($0.cityName ?? $0.placeName)" }
