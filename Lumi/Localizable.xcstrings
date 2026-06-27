@@ -4592,6 +4592,38 @@
           }
         }
       }
+    },
+    "推荐": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spots"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أماكن"
+          }
+        }
+      }
+    },
+    "最佳季节": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Best season"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أفضل موسم"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

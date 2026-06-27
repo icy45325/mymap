@@ -50,31 +50,55 @@ struct WishlistView: View {
 
     private var list: some View {
         ScrollView {
-            LazyVStack(spacing: 10) {
-                ForEach(wishes) { wish in
-                    HStack(spacing: 12) {
-                        Text(wish.flag).font(.system(size: 24))
-                        VStack(alignment: .leading, spacing: 3) {
-                            Text(wish.title).font(.system(size: 15, weight: .medium))
-                                .foregroundStyle(Color.text).lineLimit(1)
-                            if let country = wish.countryName, country != wish.title {
-                                Text(country).font(.system(size: 11)).foregroundStyle(Color.muted)
-                            }
-                        }
-                        Spacer()
-                        Button {
-                            context.delete(wish)
-                            try? context.save()
-                        } label: {
-                            Image(systemName: "xmark.circle.fill").foregroundStyle(Color.textMuted)
-                        }
-                    }
-                    .padding(12)
-                    .background(Color.panel, in: RoundedRectangle(cornerRadius: 14))
-                    .overlay(RoundedRectangle(cornerRadius: 14).stroke(Color.line, lineWidth: 1))
-                }
+            LazyVStack(spacing: 14) {
+                ForEach(wishes) { wish in wishCard(wish) }
             }
             .padding(16)
+        }
+    }
+
+    /// 大卡片：放大国旗 + 国家/城市 + 推荐地点 / 最佳季节 / 游玩简述。
+    private func wishCard(_ wish: Wish) -> some View {
+        let guide = DestinationGuide.of(wish.countryCode)
+        return VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 14) {
+                Text(wish.flag).font(.system(size: 44))
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(wish.title).font(Typo.serif(20)).foregroundStyle(Color.text).lineLimit(1)
+                    if let country = wish.countryName, country != wish.title {
+                        Text(country).font(.system(size: 12)).foregroundStyle(Color.muted)
+                    }
+                }
+                Spacer()
+                Button {
+                    context.delete(wish)
+                    try? context.save()
+                } label: {
+                    Image(systemName: "xmark.circle.fill").font(.system(size: 20)).foregroundStyle(Color.textMuted)
+                }
+            }
+            if let g = guide {
+                Divider().overlay(Color.line)
+                guideRow("mappin.and.ellipse", "推荐", g.spots, Color.nPink)
+                guideRow("sun.max.fill", "最佳季节", g.season, Color.nOrange)
+                Text(g.blurb).font(.system(size: 12.5)).lineSpacing(3)
+                    .foregroundStyle(Color(hex: 0xC8C8DC))
+            }
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color.panel, in: RoundedRectangle(cornerRadius: 18))
+        .overlay(RoundedRectangle(cornerRadius: 18).stroke(Color.line, lineWidth: 1))
+    }
+
+    private func guideRow(_ icon: String, _ label: LocalizedStringKey, _ value: String, _ tint: Color) -> some View {
+        HStack(alignment: .top, spacing: 8) {
+            Image(systemName: icon).font(.system(size: 12)).foregroundStyle(tint).frame(width: 16)
+            Text(label).font(.system(size: 12, weight: .semibold)).foregroundStyle(Color.muted)
+                .frame(width: 56, alignment: .leading)
+            Text(value).font(.system(size: 12.5)).foregroundStyle(Color.text)
+                .fixedSize(horizontal: false, vertical: true)
+            Spacer(minLength: 0)
         }
     }
 }
