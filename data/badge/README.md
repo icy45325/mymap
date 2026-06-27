@@ -35,6 +35,22 @@ App 会**按系统语言**自动挑对应语言版本；缺某个语言就回退
 可选另一种方式：单枚单语言文件 `<大洲>_<语言>.png`，例如
 `asia_en.png`、`africa_ar.png`、`europe_zh.png`（大洲键见上表英文）。
 
+## 全部徽章 key（命名参照）
+
+大洲（已落地，含双语底图 `badge_<key>` + 英文版 `badge_<key>_en`）：
+`asia` · `africa` · `europe` · `oceania` · `americas` · `antarctica`
+
+里程碑 / 其它（已落地英文版，存为基名 `badge_<key>`，作为各语言默认）：
+`first`（First Light）· `five`（Five Countries）· `cities`（Hundred Cities）·
+`continents`（All Continents）· `desert`（Desert Pioneer）· `jungle`（Jungle Explorer）·
+`island`（Island Hopper）· `antarcticaPro`（Antarctica Pioneer）
+
+**尚缺**：`world`（Globetrotter 环球旅行家）——还没有插画，暂用水晶徽章。
+
+> 当前这些都是**英文**版：里程碑存为基名 `badge_<key>`（英文即默认，其它语言暂回退到它）；
+> 大洲英文存为 `badge_<key>_en`（中/阿回退到双语底图）。
+> 以后给中文 / 阿语，放 `<key>_zh.png` / `<key>_ar.png`（或整张 `zh.png`/`ar.png` 拼图），我生成 `badge_<key>_<lang>` 覆盖。
+
 ## 生成
 
 放好后告诉我，我会运行抠图脚本生成：
