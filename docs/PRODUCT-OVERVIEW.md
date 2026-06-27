@@ -71,6 +71,7 @@ Lumi 不做后台 GPS 自动记录——**点亮是手动的、是有意识的�
 | [`Lumi_v0_PRD.md`](Lumi_v0_PRD.md) | v0 产品需求规格 |
 | [`APPSTORE-LISTING.md`](APPSTORE-LISTING.md) | App Store 上架文案（三语）+ 截图清单 |
 | [`APP-PRIVACY-AND-SUBMISSION.md`](APP-PRIVACY-AND-SUBMISSION.md) | App 隐私标签 + 提审清单 |
+| [`QA-REGRESSION.md`](QA-REGRESSION.md) | 提审前真机回归测试脚本（三语 × 全路径）|
 | [`legal/`](legal/) | 隐私政策 / 使用条款 / 支持页（可托管 HTML，三语）|
 | [`ARCHITECTURE.md`](ARCHITECTURE.md) | 工程架构 |
 | [`DESIGN-accounts-and-exchange.md`](DESIGN-accounts-and-exchange.md) | 账号体系 / 数据迁移 / 交换日记·明信片 / IM 分享 |
