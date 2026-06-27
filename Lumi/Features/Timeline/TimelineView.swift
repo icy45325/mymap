@@ -13,7 +13,6 @@ struct TimelineView: View {
     @State private var regionFilter: RegionFilter = .all
     @State private var pendingDelete: Footprint?
     @State private var showImport = false
-    @State private var showScanner = false
 
     private enum RegionFilter: Hashable { case all, region(Region) }
 
@@ -37,7 +36,6 @@ struct TimelineView: View {
         .sheet(isPresented: $showImport) {
             PhotoImportView(existing: footprints)
         }
-        .sheet(isPresented: $showScanner) { ScannerSheet() }
     }
 
     /// 从相册同步历史足迹的入口按钮（顶部用）。
@@ -77,13 +75,6 @@ struct TimelineView: View {
                 Text(statLine).font(.system(size: 11)).tracking(1.2).foregroundStyle(Color.faint)
             }
             Spacer()
-            Button { showScanner = true } label: {
-                Image(systemName: "qrcode.viewfinder").font(.system(size: 18, weight: .semibold))
-                    .foregroundStyle(Color.nCyan)
-                    .frame(width: 36, height: 32)
-                    .background(Color.panel, in: Capsule())
-                    .overlay(Capsule().stroke(Color.nCyan.opacity(0.4), lineWidth: 1))
-            }
             importButton
         }
         .padding(.horizontal, 26).padding(.top, 16)

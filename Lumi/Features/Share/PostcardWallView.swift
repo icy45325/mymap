@@ -7,6 +7,7 @@ struct PostcardWallView: View {
     @Query(sort: \Footprint.createdAt, order: .reverse) private var footprints: [Footprint]
     @ObservedObject private var contacts = PostcardContacts.shared
     @State private var selected: Footprint?
+    @State private var showScanner = false
 
     private var items: [Footprint] { footprints.filter { $0.isReceived } }
 
@@ -39,10 +40,19 @@ struct PostcardWallView: View {
         .background(Color.bg.ignoresSafeArea())
         .navigationTitle("明信片墙")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Button { showScanner = true } label: {
+                    Label("扫码收明信片", systemImage: "qrcode.viewfinder")
+                }
+                .tint(Color.nCyan)
+            }
+        }
         .toolbarBackground(Color.bg, for: .navigationBar)
         .toolbarColorScheme(.dark, for: .navigationBar)
         .preferredColorScheme(.dark)
         .sheet(item: $selected) { PostcardSheet(footprint: $0) }
+        .sheet(isPresented: $showScanner) { ScannerSheet() }
     }
 
     /// 往来的人（本地 social-lite）：收 / 发明信片攒下的昵称头像横条。

@@ -18,6 +18,7 @@ struct MapHomeView: View {
 
     @State private var showCapture = false
     @State private var showImmersive = false
+    @State private var showScanner = false
     @State private var counterPulse = false
     @State private var barFraction: Double = 0
 
@@ -44,11 +45,18 @@ struct MapHomeView: View {
                 bottomPanel
             }
         }
-        .overlay(alignment: .topTrailing) { immersiveButton }
+        .overlay(alignment: .topTrailing) {
+            HStack(spacing: 10) {
+                scanButton
+                immersiveButton
+            }
+            .padding(.trailing, 22).padding(.top, 8)
+        }
         .preferredColorScheme(.dark)
         .sheet(isPresented: $showCapture) {
             CaptureView(source: "fab", prefilledCoordinate: nil)
         }
+        .sheet(isPresented: $showScanner) { ScannerSheet() }
         .fullScreenCover(isPresented: $showImmersive) {
             RealMapScreen(provider: mapProvider) { showImmersive = false }
         }
@@ -102,8 +110,18 @@ struct MapHomeView: View {
                 .background(Color.panel.opacity(0.62), in: RoundedRectangle(cornerRadius: 12))
                 .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.line, lineWidth: 1))
         }
-        .padding(.trailing, 22)
-        .padding(.top, 8)
+    }
+
+    /// 右上角：扫码收明信片。
+    private var scanButton: some View {
+        Button { showScanner = true } label: {
+            Image(systemName: "qrcode.viewfinder")
+                .font(.system(size: 16, weight: .semibold))
+                .foregroundStyle(Color.nCyan)
+                .frame(width: 38, height: 38)
+                .background(Color.panel.opacity(0.62), in: RoundedRectangle(cornerRadius: 12))
+                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.nCyan.opacity(0.4), lineWidth: 1))
+        }
     }
 
     // MARK: - 底部面板（进度条 + 精彩瞬间 + FAB）
