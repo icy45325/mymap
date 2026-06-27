@@ -83,9 +83,14 @@
 
 ## 7. 社交 / 好友 / 共享
 
+> **MVP 边界（ICY 06-27 评估）**：当前**纯本地、无后端**。**真好友体系（好友列表 / 加好友 / 资料 / 动态 / 在线状态）
+> 必须有账号 + 服务端存储，纯本地做不到 → 留 v1（账号+BaaS）/ v2（好友+IM）**，不卡 MVP 上架。
+> MVP 可做的是**无后端的 social-lite**（明信片点对点分享已落地；下一步可加「明信片联系人 / 往来」本地名单）。
+
 | 需求 | 说明 | 状态 | 来源 / 关联 |
 |------|------|------|-------------|
-| 好友分享 | 增加好友分享功能；「我的」支持好友共享 | 💡 | ICY 06-24；设计见 [DESIGN-accounts-and-exchange](DESIGN-accounts-and-exchange.md) |
+| 明信片联系人 / 往来（本地 social-lite） | 从收 / 发明信片本地攒「往来的人」名单（昵称），寄信可直接选；**无后端，MVP 可做**；为日后接账号先攒本地数据 | 💡 | ICY 06-27（MVP 社交味候选；真好友体系仍依赖账号+BaaS） |
+| 好友分享（真好友体系） | 好友列表 / 加好友 / 好友共享；**依赖账号 + BaaS**，留 v1/v2 | 💡 | ICY 06-24；设计见 [DESIGN-accounts-and-exchange](DESIGN-accounts-and-exchange.md) |
 | 通讯录邀请好友 | 获取通讯录权限，通过通讯录邀请好友加入 App | 💡 | ICY 06-24 |
 | App 内分享地点/店铺（IM） | 用户间分享旅行地点 / 好店铺；并能从谷歌地图把店铺分享进 Lumi，形成闭环 | 💡 | ICY 06-25；设计见 [DESIGN-accounts-and-exchange §5](DESIGN-accounts-and-exchange.md#5-im-即时通讯--内容分享icy-说的接-im) |
 | 明信片口令/二维码分享 | 发送方成图 / 复制链接 / 二维码 / 隔空投送，对方扫码、点链接、AirDrop 或读剪贴板即在 App 内自动收下；纯本地、幂等去重，后并入 IM 闭环 | ✅ | ICY 06-25；`25c3266`、`8fd104f`；设计见 [DESIGN-accounts-and-exchange §4](DESIGN-accounts-and-exchange.md#4-交换日记--明信片exchange--postcard) |
