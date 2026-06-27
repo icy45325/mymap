@@ -4624,6 +4624,22 @@
           }
         }
       }
+    },
+    "中文显示中文、阿拉伯语显示阿语，其余默认英文；如需单独指定，可在「系统设置 › Lumi」里调整。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chinese shows Chinese, Arabic shows Arabic, everything else defaults to English. To override, use Settings › Lumi."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الصينية بالصينية، والعربية بالعربية، وما عداهما الإنجليزية افتراضيًا. للتخصيص استخدم الإعدادات › Lumi."
+          }
+        }
+      }
     }
   },
   "version": "1.0"

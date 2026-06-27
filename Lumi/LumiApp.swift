@@ -10,6 +10,15 @@ struct LumiApp: App {
 
     @Environment(\.scenePhase) private var scenePhase
 
+    init() {
+        // 只跟随系统语言：清除历史「应用内语言」覆盖（曾被钉死在某语言）。一次性，避免与系统设置反复打架。
+        let d = UserDefaults.standard
+        if !d.bool(forKey: "lumi.langOverrideCleared.v1") {
+            d.removeObject(forKey: "AppleLanguages")
+            d.set(true, forKey: "lumi.langOverrideCleared.v1")
+        }
+    }
+
     var body: some Scene {
         WindowGroup {
             RootTabView()
