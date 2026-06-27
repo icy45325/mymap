@@ -263,76 +263,90 @@ private struct BadgeSheet: View {
     private static let dateFormat: Date.FormatStyle = .dateTime.year().month().day()
 
     var body: some View {
-        VStack(spacing: 0) {
-            Capsule().fill(Color.line).frame(width: 40, height: 4).padding(.top, 11).padding(.bottom, 18)
-            HolographicBadge(badge: badge, size: 104)
-            Text(badge.name.localized).font(Typo.serif(24)).foregroundStyle(Color.text).padding(.top, 16)
-            Text("\(badge.rarity.tierName.localized) · \(badge.rarity.rawValue.uppercased())")
-                .font(.system(size: 10.5, weight: .heavy)).tracking(1.6)
-                .foregroundStyle(badge.rarity.color).padding(.top, 7)
+        ScrollView {
+            VStack(spacing: 0) {
+                Capsule().fill(Color.line).frame(width: 40, height: 4).padding(.top, 11)
 
-            // 怎么得到：解锁条件文案（+ 进行中进度）
-            VStack(spacing: 8) {
-                Text((badge.state == .lit ? "已解锁" : "解锁条件").localized)
-                    .font(.system(size: 10, weight: .bold)).tracking(1.5)
-                    .foregroundStyle(badge.state == .lit ? Color.grn : Color.nCyan)
-                Text(badge.desc.localized).font(.system(size: 13)).foregroundStyle(Color(hex: 0xC9C2D6))
-                    .multilineTextAlignment(.center)
-                if badge.state == .prog, let p = badge.progress {
-                    NeonBar(fraction: p, height: 8).frame(height: 8)
-                    Text(badge.progressText ?? "").font(.system(size: 11)).foregroundStyle(Color.muted)
+                // ——— 主角：放大的徽章 + 光晕基座，突出收集感 ———
+                ZStack {
+                    Circle()
+                        .fill(RadialGradient(colors: [badge.color.opacity(badge.state == .lit ? 0.55 : 0.22), .clear],
+                                             center: .center, startRadius: 4, endRadius: 160))
+                        .frame(width: 320, height: 320)
+                        .blur(radius: 6)
+                    HolographicBadge(badge: badge, size: 200)
                 }
-            }
-            .padding(.top, 13).padding(.horizontal, 26)
+                .frame(height: 290)
+                .padding(.top, 2)
 
-            HStack(spacing: 10) {
-                statBox(badge.ownership, "全球持有率")
-                statBox(stateValue, stateLabel)
-            }
-            .padding(.top, 18).padding(.horizontal, 26)
+                Text(badge.name.localized).font(Typo.serif(30)).foregroundStyle(Color.text)
+                    .multilineTextAlignment(.center).padding(.horizontal, 24)
+                Text("\(badge.rarity.tierName.localized) · \(badge.rarity.rawValue.uppercased())")
+                    .font(.system(size: 11, weight: .heavy)).tracking(1.8)
+                    .foregroundStyle(badge.rarity.color).padding(.top, 6)
 
-            // 置顶控制：仅已解锁可钉选；可随时取消
-            if badge.state == .lit {
-                Button { pinnedID = isPinned ? "none" : badge.id } label: {
-                    Label((isPinned ? "取消置顶" : "设为置顶展示").localized,
-                          systemImage: isPinned ? "pin.slash.fill" : "pin.fill")
-                        .font(.system(size: 13, weight: .semibold))
-                        .foregroundStyle(isPinned ? Color.nOrange : .white)
-                        .frame(maxWidth: .infinity).padding(.vertical, 12)
-                        .background(isPinned
-                            ? AnyShapeStyle(Color.panel)
-                            : AnyShapeStyle(LinearGradient.neonH), in: Capsule())
-                        .overlay(Capsule().stroke(isPinned ? Color.nOrange.opacity(0.5) : .clear, lineWidth: 1))
-                }
-                .buttonStyle(.plain)
-                .padding(.top, 16).padding(.horizontal, 26)
+                // ——— 操作：pin + 分享，小按钮一排（仅已解锁）———
+                if badge.state == .lit {
+                    HStack(spacing: 10) {
+                        Button { pinnedID = isPinned ? "none" : badge.id } label: {
+                            compactAction(isPinned ? "取消置顶" : "置顶",
+                                          systemImage: isPinned ? "pin.slash.fill" : "pin.fill",
+                                          tint: Color.nOrange, filled: !isPinned)
+                        }
+                        .buttonStyle(.plain)
 
-                // 分享：渲染成图分享（逻辑同明信片，§验收 #10）
-                if let shareImage {
-                    ShareLink(item: shareImage,
-                              preview: SharePreview(badge.name.localized, image: shareImage)) {
-                        Label("分享徽章", systemImage: "square.and.arrow.up")
-                            .font(.system(size: 13, weight: .semibold)).foregroundStyle(Color.nCyan)
-                            .frame(maxWidth: .infinity).padding(.vertical, 12)
-                            .background(Color.panel, in: Capsule())
-                            .overlay(Capsule().stroke(Color.nCyan.opacity(0.5), lineWidth: 1))
+                        if let shareImage {
+                            ShareLink(item: shareImage,
+                                      preview: SharePreview(badge.name.localized, image: shareImage)) {
+                                compactAction("分享", systemImage: "square.and.arrow.up",
+                                              tint: Color.nCyan, filled: false)
+                            }
+                        }
                     }
-                    .padding(.top, 10).padding(.horizontal, 26)
+                    .padding(.top, 16)
                 }
-            }
 
-            Spacer()
+                // ——— 次要内容：解锁条件 + 数据（更安静）———
+                VStack(spacing: 10) {
+                    Text((badge.state == .lit ? "已解锁" : "解锁条件").localized)
+                        .font(.system(size: 10, weight: .bold)).tracking(1.5)
+                        .foregroundStyle(badge.state == .lit ? Color.grn : Color.nCyan)
+                    Text(badge.desc.localized).font(.system(size: 12.5)).foregroundStyle(Color.muted)
+                        .multilineTextAlignment(.center)
+                    if badge.state == .prog, let p = badge.progress {
+                        NeonBar(fraction: p, height: 7).frame(height: 7)
+                        Text(badge.progressText ?? "").font(.system(size: 11)).foregroundStyle(Color.muted)
+                    }
+                    HStack(spacing: 10) {
+                        statBox(badge.ownership, "全球持有率")
+                        statBox(stateValue, stateLabel)
+                    }
+                    .padding(.top, 4)
+                }
+                .padding(.top, 22).padding(.horizontal, 26).padding(.bottom, 30)
+            }
+            .frame(maxWidth: .infinity)
         }
-        .frame(maxWidth: .infinity)
         .background(Color(hex: 0x0F0F1B).ignoresSafeArea())
         .onAppear {
             if badge.state == .lit, shareImage == nil {
                 shareImage = ShareRender.image(BadgeShareCard(badge: badge))
             }
         }
-        .presentationDetents([.medium, .large])
+        .presentationDetents([.large])
         .presentationDragIndicator(.hidden)
         .preferredColorScheme(.dark)
+    }
+
+    /// 小号操作按钮（按内容自适应宽度，pin/share 并排用）。
+    private func compactAction(_ title: LocalizedStringKey, systemImage: String,
+                               tint: Color, filled: Bool) -> some View {
+        Label(title, systemImage: systemImage)
+            .font(.system(size: 12.5, weight: .semibold))
+            .foregroundStyle(filled ? .white : tint)
+            .padding(.vertical, 9).padding(.horizontal, 18)
+            .background(filled ? AnyShapeStyle(LinearGradient.neonH) : AnyShapeStyle(Color.panel), in: Capsule())
+            .overlay(Capsule().stroke(filled ? Color.clear : tint.opacity(0.5), lineWidth: 1))
     }
 
     private var stateValue: String {
