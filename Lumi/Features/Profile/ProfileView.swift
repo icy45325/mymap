@@ -9,6 +9,9 @@ struct ProfileView: View {
     @Query(sort: \Footprint.visitedAt, order: .reverse)
     private var footprints: [Footprint]
 
+    @AppStorage("lumi.profile.name") private var holderName: String = "旅行者"
+    @AppStorage("lumi.profile.avatarID") private var avatarID: String = ""
+
     private var stats: LumiStats { LumiStats(footprints: footprints) }
 
     var body: some View {
@@ -18,6 +21,7 @@ struct ProfileView: View {
                     profileTop
                     statsRow
                     levelBar
+                    passportEntry
                     recentSection
                     Color.clear.frame(height: 24)
                 }
@@ -32,14 +36,21 @@ struct ProfileView: View {
 
     private var profileTop: some View {
         HStack(spacing: 14) {
-            ZStack {
-                Circle().fill(LinearGradient.neon).frame(width: 60, height: 60)
-                Image(systemName: "sparkles").font(.system(size: 24)).foregroundStyle(.white)
+            NavigationLink { ProfileEditView() } label: {
+                ZStack {
+                    if avatarID.isEmpty {
+                        Circle().fill(LinearGradient.neon).frame(width: 60, height: 60)
+                        Image(systemName: "sparkles").font(.system(size: 24)).foregroundStyle(.white)
+                    } else {
+                        AssetImage(assetID: avatarID, targetSize: CGSize(width: 200, height: 200))
+                            .frame(width: 60, height: 60).clipShape(Circle())
+                    }
+                }
+                .overlay(Circle().stroke(Color.nPurple, lineWidth: 2))
+                .shadow(color: Color.nPurple.opacity(0.6), radius: 12)
             }
-            .overlay(Circle().stroke(Color.nPurple, lineWidth: 2))
-            .shadow(color: Color.nPurple.opacity(0.6), radius: 12)
             VStack(alignment: .leading, spacing: 2) {
-                Text("我的世界").font(Typo.serif(22)).foregroundStyle(Color.text)
+                Text(holderName.isEmpty ? "我的世界" : holderName).font(Typo.serif(22)).foregroundStyle(Color.text)
                 Text("Lv.\(stats.level) 探索者").font(.system(size: 12)).foregroundStyle(Color.muted)
             }
             Spacer()
@@ -48,6 +59,30 @@ struct ProfileView: View {
             NavigationLink { SettingsView() } label: { topIcon("gearshape") }
         }
         .padding(.horizontal, 26)
+    }
+
+    private var passportEntry: some View {
+        NavigationLink { PassportView() } label: {
+            HStack(spacing: 14) {
+                Image(systemName: "book.closed.fill").font(.system(size: 22))
+                    .foregroundStyle(Color(hex: 0xC9A24B))
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("我的护照本").font(Typo.serif(17)).foregroundStyle(Color(hex: 0xEDE6D6))
+                    Text("去过 \(stats.countries) 国 · 翻开看看出入境章")
+                        .font(.system(size: 11)).foregroundStyle(Color(hex: 0xC9A24B).opacity(0.8))
+                }
+                Spacer()
+                Image(systemName: "chevron.right").font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(Color(hex: 0xC9A24B).opacity(0.7))
+            }
+            .padding(16)
+            .background(
+                LinearGradient(colors: [Color(hex: 0x16284A), Color(hex: 0x0E1B36)],
+                               startPoint: .topLeading, endPoint: .bottomTrailing),
+                in: RoundedRectangle(cornerRadius: 16))
+            .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color(hex: 0xC9A24B).opacity(0.45), lineWidth: 1))
+        }
+        .padding(.horizontal, 26).padding(.top, 18)
     }
 
     private func topIcon(_ systemName: String) -> some View {
