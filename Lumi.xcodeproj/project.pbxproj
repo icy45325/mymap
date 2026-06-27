@@ -40,10 +40,27 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		AA0000000000000000000010 /* Lumi */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Lumi; sourceTree = "<group>"; };
-		BB0000000000000000000010 /* LumiWidgets */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = LumiWidgets; sourceTree = "<group>"; };
+		AA0000000000000000000010 /* Lumi */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (AA0000000000000000000091 /* Exceptions for "Lumi" folder in "Lumi" target */, ); explicitFileTypes = {}; explicitFolders = (); path = Lumi; sourceTree = "<group>"; };
+		BB0000000000000000000010 /* LumiWidgets */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (BB0000000000000000000091 /* Exceptions for "LumiWidgets" folder in "LumiWidgets" target */, ); explicitFileTypes = {}; explicitFolders = (); path = LumiWidgets; sourceTree = "<group>"; };
 		BB0000000000000000000011 /* LumiShared */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = LumiShared; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		AA0000000000000000000091 /* Exceptions for "Lumi" folder in "Lumi" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = AA0000000000000000000040 /* Lumi */;
+		};
+		BB0000000000000000000091 /* Exceptions for "LumiWidgets" folder in "LumiWidgets" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = BB0000000000000000000040 /* LumiWidgets */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		AA0000000000000000000020 /* Frameworks */ = {
