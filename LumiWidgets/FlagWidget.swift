@@ -48,9 +48,9 @@ struct FlagWidgetView: View {
         .padding(WidgetChrome.pad)
     }
 
-    // 中尺寸(长条)：铺满国旗 + 计数 + 一句话
-    private let perRow = 11
-    private let maxShown = 33
+    // 中尺寸(长条)：尽量铺满去过国家国旗 + 计数 + 一句话
+    private let perRow = 13
+    private let maxShown = 52
     private var shown: [String] { Array(allFlags.prefix(maxShown)) }
     private var rows: [[String]] {
         stride(from: 0, to: shown.count, by: perRow).map { Array(shown[$0..<min($0 + perRow, shown.count)]) }
@@ -58,7 +58,7 @@ struct FlagWidgetView: View {
     private var overflow: Int { max(0, snapshot.countries - shown.count) }
 
     private var medium: some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: 5) {
             HStack(alignment: .firstTextBaseline) {
                 WidgetHeader(section: "去过的国旗")
                 Spacer()
@@ -66,11 +66,11 @@ struct FlagWidgetView: View {
                     .font(.system(size: 10.5, weight: .semibold)).foregroundStyle(WidgetTheme.muted)
             }
             Spacer(minLength: 0)
-            VStack(alignment: .leading, spacing: 3) {
+            VStack(alignment: .leading, spacing: 2) {
                 ForEach(Array(rows.enumerated()), id: \.offset) { _, row in
-                    HStack(spacing: 2) {
+                    HStack(spacing: 1.5) {
                         ForEach(Array(row.enumerated()), id: \.offset) { _, f in
-                            Text(f).font(.system(size: 19))
+                            Text(f).font(.system(size: 16))
                         }
                     }
                 }

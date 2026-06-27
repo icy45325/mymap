@@ -913,6 +913,38 @@
         }
       }
     },
+    "还没去过的热门目的地": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Popular spots you haven't been"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "وجهات شهيرة لم تزرها بعد"
+          }
+        }
+      }
+    },
+    "热门目的地都在你的清单里了 ✦": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All popular spots are on your list ✦"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "كل الوجهات الشهيرة في قائمتك ✦"
+          }
+        }
+      }
+    },
     "同步历史足迹": {
       "localizations": {
         "en": {

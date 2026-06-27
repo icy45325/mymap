@@ -5,22 +5,20 @@ import SwiftData
 
 /// 聚类粒度：决定相册照片如何归并成「去过的地方」。
 enum ImportGranularity: String, CaseIterable, Identifiable {
-    case city      // 城市级：国家 + 约 0.1°(≈11km) 网格，一城约一条
+    case city      // 城市级：同国家 + 城市归一条
     case country   // 国家级：每个国家归一条（取最早一次）
 
     var id: String { rawValue }
     var label: String { self == .city ? "按城市" : "按国家" }
 }
 
-/// 从相册照片的位置元数据，自动归纳出「去过的地方」候选足迹（快速同步历史足迹）。
+/// 从相册照片位置，自动归纳「去过的地方」。
 ///
-/// 思路（纯本地优先，§5.1 口径一致）：
-/// 1. 取相册里带 GPS 的照片；用离线 point-in-polygon 定国家码（不联网、不耗流量）。
-/// 2. 按所选粒度把照片聚成地点，取最早日期作行程日、收集照片 id。
-/// 3. 跳过已有足迹覆盖处，避免重复导入。
-/// 4. 仅对聚类代表点做反向地理编码补地名（数量可控、带缓存；失败退回国名，不阻断）。
-///
-/// 切换粒度只在内存里重新聚类，不重扫相册、不重复地理编码（命中地名缓存）。
+/// 流程（一次性，结果只在 loading 结束后展示，不显示中间过程）：
+/// 1. 扫描带 GPS 的照片 → 离线 point-in-polygon 定国家码。
+/// 2. 城市网格聚类 + 反向地理编码补**城市级**地名（带缓存）。
+/// 3. 同步产出**两套去重结果**：按城市（国家+城市去重）/ 按国家（去重）。
+/// 切换粒度只是即时换已算好的结果，不重扫、不重新过滤。
 @MainActor
 final class PhotoImportService: ObservableObject {
 
@@ -31,58 +29,50 @@ final class PhotoImportService: ObservableObject {
     @Published private(set) var resolving = false
     @Published private(set) var granularity: ImportGranularity = .city
 
-    /// 反向地理编码上限，避免地点过多时长时间等待 / 触发系统限流。
-    private let geocodeCap = 80
+    private let geocodeCap = 120
 
-    // 扫描后缓存：原始定位照片 + 已有足迹覆盖信息 + 地名缓存。切粒度时复用，不重扫。
+    // 扫描/解析缓存
     private var points: [LocatedPhoto] = []
-    private var existingCells: Set<String> = []
-    private var existingCountries: Set<String> = []
+    private var existingCountrySet: Set<String> = []
+    private var existingCityKeySet: Set<String> = []
     private var nameCache: [String: ResolvedName] = [:]
-    private var resolveTask: Task<Void, Never>?
+    private var cityResult: [ImportCandidate] = []
+    private var countryResult: [ImportCandidate] = []
 
     // MARK: - 入口
 
-    /// 申请权限 → 扫描定位照片 → 按当前粒度聚类 → 补地名。
     func start(existing: [Footprint]) async {
+        guard phase == .idle else { return }   // 只跑一次
         phase = .requesting
         let status = await requestAuthorization()
-        guard status == .authorized || status == .limited else {
-            phase = .denied
-            return
-        }
+        guard status == .authorized || status == .limited else { phase = .denied; return }
 
         phase = .scanning
-        existingCells = Self.cells(of: existing)
-        existingCountries = Set(existing.compactMap(\.countryCode))
+        existingCountrySet = Set(existing.compactMap(\.countryCode))
+        existingCityKeySet = Set(existing.compactMap { fp in
+            fp.cityName.map { "\(fp.countryCode ?? "")|\($0)" }
+        })
         points = await Task.detached(priority: .userInitiated) { Self.scanPoints() }.value
-
         guard !points.isEmpty else { phase = .empty; return }
-        rebuild()
-        guard !candidates.isEmpty else { phase = .empty; return }
-        phase = .ready
-        startResolve()
+
+        await buildResults()    // loading 期间一次性算好两套去重结果
+        candidates = (granularity == .city) ? cityResult : countryResult
+        phase = (cityResult.isEmpty && countryResult.isEmpty) ? .empty : .ready
     }
 
-    /// 切换聚类粒度：仅内存重聚类 + 复用地名缓存，必要时补解析缺的名字。
+    /// 切换粒度：即时换已算好的结果，不重新扫描/过滤。
     func setGranularity(_ new: ImportGranularity) {
         guard new != granularity else { return }
         granularity = new
-        rebuild()
-        startResolve()
+        candidates = (new == .city) ? cityResult : countryResult
     }
 
-    /// 把选中的候选落库为 Footprint(+Card)。返回导入条数。
+    /// 落库（默认只记地点 + 最早时间，不带照片）；跳过已导入项，幂等。
     func importSelected(into context: ModelContext) -> Int {
-        let chosen = candidates.filter(\.selected)
+        let chosen = candidates.filter { $0.selected && !$0.alreadyImported }
         for c in chosen {
-            // §验收 #3：默认只记「地点 + 最早到访时间」，不导入照片/视频；照片由用户在编辑里按需添加。
-            let fp = Footprint(
-                placeName: c.placeName,
-                coordinate: c.coordinate,
-                cityName: c.cityName,
-                visitedAt: c.date,
-                photoAssetIDs: [])
+            let fp = Footprint(placeName: c.placeName, coordinate: c.coordinate,
+                               cityName: c.cityName, visitedAt: c.date, photoAssetIDs: [])
             fp.countryCode = c.countryCode
             fp.subRegionCode = c.subRegionCode
             context.insert(fp)
@@ -92,10 +82,10 @@ final class PhotoImportService: ObservableObject {
         return chosen.count
     }
 
-    var selectedCount: Int { candidates.filter(\.selected).count }
+    var selectedCount: Int { candidates.filter { $0.selected && !$0.alreadyImported }.count }
 
     func toggleAll(_ on: Bool) {
-        for i in candidates.indices { candidates[i].selected = on }
+        for i in candidates.indices where !candidates[i].alreadyImported { candidates[i].selected = on }
     }
 
     // MARK: - 权限
@@ -106,73 +96,83 @@ final class PhotoImportService: ObservableObject {
         }
     }
 
-    // MARK: - 聚类（内存内，按粒度）
+    // MARK: - 构建去重结果（geocode 一次，产出两套）
 
-    private func rebuild() {
-        candidates = Self.cluster(points, granularity: granularity,
-                                  existingCells: existingCells,
-                                  existingCountries: existingCountries)
-        // 复用已解析地名，切粒度不闪空名
-        for i in candidates.indices {
-            if let cached = nameCache[Self.nameKey(candidates[i])] {
-                candidates[i].placeName = cached.place
-                candidates[i].cityName = cached.city
-            }
-        }
-    }
+    private func buildResults() async {
+        resolving = true
+        defer { resolving = false }
 
-    nonisolated private static func cluster(_ points: [LocatedPhoto],
-                                            granularity: ImportGranularity,
-                                            existingCells: Set<String>,
-                                            existingCountries: Set<String>) -> [ImportCandidate] {
-        var groups: [String: Cluster] = [:]
-        var order: [String] = []
+        let clusters = Self.cityClusters(points)
+        let geocoder = CLGeocoder()
+        var named: [ImportCandidate] = []
 
-        for p in points {
-            switch granularity {
-            case .city where existingCells.contains(cellKey(country: p.countryCode, lat: p.latitude, lon: p.longitude)):
-                continue
-            case .country where existingCountries.contains(p.countryCode):
-                continue
-            default:
-                break
-            }
-
-            let key = granularity == .city
-                ? cellKey(country: p.countryCode, lat: p.latitude, lon: p.longitude)
-                : p.countryCode
-
-            if var cluster = groups[key] {
-                if p.date < cluster.earliest {
-                    cluster.earliest = p.date
-                    cluster.latitude = p.latitude
-                    cluster.longitude = p.longitude
-                }
-                if cluster.ids.count < 20 { cluster.ids.append(p.assetID) }
-                groups[key] = cluster
-            } else {
-                groups[key] = Cluster(earliest: p.date, latitude: p.latitude, longitude: p.longitude,
-                                      country: p.countryCode, subRegion: p.subRegion, ids: [p.assetID])
-                order.append(key)
-            }
-        }
-
-        return order.compactMap { key -> ImportCandidate? in
-            guard let c = groups[key] else { return nil }
-            return ImportCandidate(
-                countryCode: c.country,
-                latitude: c.latitude,
-                longitude: c.longitude,
+        for (i, c) in clusters.enumerated() {
+            if Task.isCancelled { return }
+            let key = Self.cellKey(country: c.country, lat: c.latitude, lon: c.longitude)
+            var cand = ImportCandidate(
+                countryCode: c.country, latitude: c.latitude, longitude: c.longitude,
                 date: c.earliest,
                 placeName: CountryInfo.localizedName(for: c.country) ?? String(localized: "未知地点"),
-                cityName: nil,
-                subRegionCode: c.subRegion,
-                assetIDs: c.ids)
+                cityName: nil, subRegionCode: c.subRegion, assetIDs: c.ids)
+
+            if let cached = nameCache[key] {
+                cand.cityName = cached.city; cand.placeName = cached.place
+            } else if i < geocodeCap {
+                let pm = try? await geocoder.reverseGeocodeLocation(
+                    CLLocation(latitude: c.latitude, longitude: c.longitude)).first
+                if let pm {
+                    // 只到城市级（locality）；不要 POI/街道（name）
+                    let city = pm.locality ?? pm.subAdministrativeArea
+                    let place = pm.locality ?? pm.administrativeArea ?? cand.placeName
+                    cand.cityName = city; cand.placeName = place
+                    nameCache[key] = ResolvedName(place: place, city: city)
+                }
+                try? await Task.sleep(for: .milliseconds(110))
+            }
+            named.append(cand)
         }
-        .sorted { $0.date < $1.date }
+
+        // 城市去重（国家+城市，最早）
+        cityResult = collapse(named) { "\($0.countryCode ?? "")|\($0.cityName ?? $0.placeName)" }
+            .map { mark($0, cityLevel: true) }
+        // 国家去重（最早；名字=国名）
+        countryResult = collapse(named) { $0.countryCode ?? "" }
+            .map { c -> ImportCandidate in
+                var c = c
+                c.cityName = nil
+                c.placeName = CountryInfo.localizedName(for: c.countryCode) ?? c.placeName
+                return mark(c, cityLevel: false)
+            }
     }
 
-    // MARK: - 扫描定位照片（后台线程，纯离线）
+    private func collapse(_ list: [ImportCandidate], key: (ImportCandidate) -> String) -> [ImportCandidate] {
+        var byKey: [String: ImportCandidate] = [:]
+        var order: [String] = []
+        for c in list {
+            let k = key(c)
+            if var e = byKey[k] {
+                if c.date < e.date { e.date = c.date; e.latitude = c.latitude; e.longitude = c.longitude }
+                e.assetIDs = Array((e.assetIDs + c.assetIDs).prefix(40))
+                byKey[k] = e
+            } else {
+                byKey[k] = c; order.append(k)
+            }
+        }
+        return order.compactMap { byKey[$0] }.sorted { $0.date < $1.date }
+    }
+
+    /// 标记是否已导入（默认不勾选已导入项）。
+    private func mark(_ c: ImportCandidate, cityLevel: Bool) -> ImportCandidate {
+        var c = c
+        let already = cityLevel
+            ? existingCityKeySet.contains("\(c.countryCode ?? "")|\(c.cityName ?? c.placeName)")
+            : existingCountrySet.contains(c.countryCode ?? "")
+        c.alreadyImported = already
+        c.selected = !already
+        return c
+    }
+
+    // MARK: - 扫描 / 聚类（后台、离线）
 
     private struct Cluster {
         var earliest: Date
@@ -181,6 +181,24 @@ final class PhotoImportService: ObservableObject {
         var country: String
         var subRegion: String?
         var ids: [String]
+    }
+
+    nonisolated private static func cityClusters(_ points: [LocatedPhoto]) -> [Cluster] {
+        var groups: [String: Cluster] = [:]
+        var order: [String] = []
+        for p in points {
+            let key = cellKey(country: p.countryCode, lat: p.latitude, lon: p.longitude)
+            if var c = groups[key] {
+                if p.date < c.earliest { c.earliest = p.date; c.latitude = p.latitude; c.longitude = p.longitude }
+                if c.ids.count < 40 { c.ids.append(p.assetID) }
+                groups[key] = c
+            } else {
+                groups[key] = Cluster(earliest: p.date, latitude: p.latitude, longitude: p.longitude,
+                                      country: p.countryCode, subRegion: p.subRegion, ids: [p.assetID])
+                order.append(key)
+            }
+        }
+        return order.compactMap { groups[$0] }
     }
 
     nonisolated private static func scanPoints() -> [LocatedPhoto] {
@@ -208,86 +226,10 @@ final class PhotoImportService: ObservableObject {
         return "\(country)|\(latR)|\(lonR)"
     }
 
-    nonisolated private static func cells(of footprints: [Footprint]) -> Set<String> {
-        Set(footprints.compactMap { fp in
-            guard let code = fp.countryCode else { return nil }
-            return cellKey(country: code, lat: fp.latitude, lon: fp.longitude)
-        })
-    }
-
-    /// 地名缓存键：按代表点 0.1° 网格（名字随位置稳定，与粒度无关）。
-    nonisolated private static func nameKey(_ c: ImportCandidate) -> String {
-        cellKey(country: c.countryCode ?? "", lat: c.latitude, lon: c.longitude)
-    }
-
-    // MARK: - 反向地理编码补地名（在线 best-effort，带缓存）
-
-    private func startResolve() {
-        resolveTask?.cancel()
-        resolveTask = Task { await resolveNames() }
-    }
-
-    private func resolveNames() async {
-        resolving = true
-        defer { resolving = false }
-
-        let geocoder = CLGeocoder()
-        for index in candidates.indices.prefix(geocodeCap) {
-            if Task.isCancelled { return }
-            let key = Self.nameKey(candidates[index])
-            if let cached = nameCache[key] {
-                candidates[index].placeName = cached.place
-                candidates[index].cityName = cached.city
-                continue
-            }
-            let coord = candidates[index].coordinate
-            let placemark = try? await geocoder.reverseGeocodeLocation(
-                CLLocation(latitude: coord.latitude, longitude: coord.longitude)).first
-            if Task.isCancelled { return }
-            if let placemark {
-                // 只取到城市级（locality）；不要 placemark.name（POI/街道）细化到区/街道
-                let city = placemark.locality ?? placemark.subAdministrativeArea
-                let place = placemark.locality
-                    ?? placemark.administrativeArea
-                    ?? candidates[index].placeName
-                candidates[index].cityName = city
-                candidates[index].placeName = place
-                nameCache[key] = ResolvedName(place: place, city: city)
-            }
-            try? await Task.sleep(for: .milliseconds(120))   // 顺序请求 + 轻微间隔，避免限流
-        }
-        if Task.isCancelled { return }
-        collapseByCity()
-    }
-
-    /// 按城市粒度去重：同一国家+城市只留一条（取最早时间、合并照片 id）。城市级展示。
-    private func collapseByCity() {
-        guard granularity == .city else { return }
-        var byKey: [String: ImportCandidate] = [:]
-        var order: [String] = []
-        for c in candidates {
-            let key = "\(c.countryCode ?? "")|\(c.cityName ?? c.placeName)"
-            if var existing = byKey[key] {
-                if c.date < existing.date {
-                    existing.date = c.date
-                    existing.latitude = c.latitude
-                    existing.longitude = c.longitude
-                }
-                existing.assetIDs = Array((existing.assetIDs + c.assetIDs).prefix(40))
-                existing.selected = existing.selected || c.selected
-                byKey[key] = existing
-            } else {
-                byKey[key] = c
-                order.append(key)
-            }
-        }
-        candidates = order.compactMap { byKey[$0] }.sorted { $0.date < $1.date }
-    }
-
     private struct ResolvedName { let place: String; let city: String? }
 }
 
-/// 一张带定位的照片（扫描中间产物，Sendable 便于跨线程传递）。
+/// 一张带定位的照片（扫描中间产物）。
 struct LocatedPhoto: Sendable {
     var countryCode: String
     var latitude: Double
@@ -297,7 +239,7 @@ struct LocatedPhoto: Sendable {
     var assetID: String
 }
 
-/// 一条导入候选：一处「去过的地方」。坐标存 lat/lon 便于跨线程传递。
+/// 一条导入候选：一处「去过的地方」。
 struct ImportCandidate: Identifiable, Sendable {
     let id = UUID()
     var countryCode: String?
@@ -309,6 +251,7 @@ struct ImportCandidate: Identifiable, Sendable {
     var subRegionCode: String?
     var assetIDs: [String]
     var selected: Bool = true
+    var alreadyImported: Bool = false
 
     var coordinate: CLLocationCoordinate2D { .init(latitude: latitude, longitude: longitude) }
     var photoCount: Int { assetIDs.count }

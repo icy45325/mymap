@@ -8,8 +8,11 @@ struct FootprintDetailView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var showEdit = false
     @State private var showPostcard = false
+    @State private var heroPage = 0
 
     private static let dateFormat: Date.FormatStyle = .dateTime.year().month(.wide).day()
+    /// 多图自动翻页节拍。
+    private let autoFlip = Timer.publish(every: 3.5, on: .main, in: .common).autoconnect()
 
     var body: some View {
         ScrollView {
@@ -38,6 +41,7 @@ struct FootprintDetailView: View {
                 .offset(y: -46)
             }
         }
+        .ignoresSafeArea(edges: .top)          // 顶部照片墙通栏，盖住 status bar 黑边
         .background(Color.bg.ignoresSafeArea())
         .toolbar(.hidden, for: .navigationBar)
         .overlay(alignment: .topLeading) { backButton }
@@ -59,26 +63,34 @@ struct FootprintDetailView: View {
                 .background(.black.opacity(0.4), in: Circle())
                 .overlay(Circle().stroke(.white.opacity(0.15), lineWidth: 1))
         }
-        .padding(.trailing, 18).padding(.top, 50)
+        .padding(.trailing, 18).padding(.top, 58)
     }
+
+    private var heroHeight: CGFloat { 320 }   // 含 status bar 区域的通栏高度
 
     private var hero: some View {
         ZStack(alignment: .bottom) {
             Group {
                 if footprint.photoAssetIDs.count > 1 {
-                    // 多图：左右滑动切换 + 页码圆点（§验收 #4）
-                    TabView {
-                        ForEach(footprint.photoAssetIDs, id: \.self) { id in
+                    // 多图：左右滑动 + 自动翻页 + 页码圆点
+                    TabView(selection: $heroPage) {
+                        ForEach(Array(footprint.photoAssetIDs.enumerated()), id: \.offset) { idx, id in
                             AssetImage(assetID: id, targetSize: CGSize(width: 1200, height: 900))
-                                .frame(maxWidth: .infinity).frame(height: 260).clipped()
+                                .frame(maxWidth: .infinity).frame(height: heroHeight).clipped()
+                                .tag(idx)
                         }
                     }
                     .tabViewStyle(.page(indexDisplayMode: .always))
                     .indexViewStyle(.page(backgroundDisplayMode: .interactive))
+                    .onReceive(autoFlip) { _ in
+                        let count = footprint.photoAssetIDs.count
+                        guard count > 1 else { return }
+                        withAnimation(.easeInOut(duration: 0.6)) { heroPage = (heroPage + 1) % count }
+                    }
                 } else {
                     AssetImage(assetID: footprint.photoAssetIDs.first,
                                targetSize: CGSize(width: 1200, height: 900))
-                        .frame(maxWidth: .infinity).frame(height: 260).clipped()
+                        .frame(maxWidth: .infinity).frame(height: heroHeight).clipped()
                 }
             }
             LinearGradient(colors: [.clear, Color.bg.opacity(0.6), Color.bg],
@@ -86,7 +98,24 @@ struct FootprintDetailView: View {
                 .frame(height: 160)
                 .allowsHitTesting(false)
         }
-        .frame(height: 260)
+        .frame(height: heroHeight)
+        .overlay(alignment: .bottomTrailing) { multiPhotoHint }
+    }
+
+    /// 多图样式提示：右下角「张数」胶囊，暗示可左右滑动 / 自动播放中。
+    @ViewBuilder private var multiPhotoHint: some View {
+        if footprint.photoAssetIDs.count > 1 {
+            HStack(spacing: 5) {
+                Image(systemName: "rectangle.stack.fill").font(.system(size: 10, weight: .bold))
+                Text("\(heroPage + 1)/\(footprint.photoAssetIDs.count)")
+                    .font(.system(size: 11, weight: .semibold))
+            }
+            .foregroundStyle(.white)
+            .padding(.vertical, 5).padding(.horizontal, 10)
+            .background(.black.opacity(0.42), in: Capsule())
+            .overlay(Capsule().stroke(.white.opacity(0.18), lineWidth: 1))
+            .padding(.trailing, 16).padding(.bottom, 64)
+        }
     }
 
     private var backButton: some View {
@@ -97,7 +126,7 @@ struct FootprintDetailView: View {
                 .background(.black.opacity(0.4), in: Circle())
                 .overlay(Circle().stroke(.white.opacity(0.15), lineWidth: 1))
         }
-        .padding(.leading, 18).padding(.top, 50)
+        .padding(.leading, 18).padding(.top, 58)
     }
 
     private var title: some View {

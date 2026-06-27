@@ -49,7 +49,8 @@ struct PhotoImportView: View {
     }
 
     private var allSelected: Bool {
-        !service.candidates.isEmpty && service.candidates.allSatisfy(\.selected)
+        let selectable = service.candidates.filter { !$0.alreadyImported }
+        return !selectable.isEmpty && selectable.allSatisfy(\.selected)
     }
 
     // MARK: - 扫描中
