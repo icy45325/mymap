@@ -1,60 +1,33 @@
-# 徽章源图（按语言分）
+# 徽章源图（按语言分文件夹）
 
-把你的徽章图放这里，我会抠图（去灰底→透明）并按语言生成进 `Lumi/Assets.xcassets`。
-App 会**按系统语言**自动挑对应语言版本；缺某个语言就回退到现有那张，不会空白或崩溃。
+把徽章图按语言放进 **`en/` `zh/` `ar/`** 三个子文件夹。App 会**按系统语言**挑对应语言版本；
+缺某语言就回退到现有底图，不会空白或崩溃。
 
-## 放图方式（推荐：每种语言一张拼图）
+## 放图方式
 
-每种语言放**一张 3×2 的六连拼图**，文件名用语言代码：
-
-| 文件 | 语言 |
-|------|------|
-| `zh.png` | 中文 |
-| `en.png` | 英文 |
-| `ar.png` | 阿拉伯语 |
-
-**布局必须一致**（和最初那张一样），顺序为：
+每个语言文件夹里，按 **key** 命名单张图（已抠好或浅灰底/透明底均可）：
 
 ```
-┌──────────┬──────────┬──────────┐
-│  亚洲     │  非洲     │  欧洲     │   ← 第 1 排
-│  asia     │  africa   │  europe   │
-├──────────┼──────────┼──────────┤
-│  大洋洲   │  美洲     │  南极洲   │   ← 第 2 排
-│  oceania  │  americas │antarctica │
-└──────────┴──────────┴──────────┘
+data/badge/
+  en/asia.png  en/first.png  …   ← 英文版（当前已就位，可作模板参照）
+  zh/asia.png  zh/first.png  …   ← 中文版（待你放）
+  ar/asia.png  ar/first.png  …   ← 阿语版（待你放）
 ```
 
-要点：
-- **浅灰纯色背景**（方便干净抠图），每枚徽章在各自格子里居中。
-- 三种语言只是**徽章上的文字**不同，图案/构图尽量保持一致。
-- 不必三种都给——先给哪种我就生成哪种，其余语言自动回退。
+放好后告诉我，我会抠图（去底→透明、autocrop）并生成 `badge_<key>_<lang>` 进 `Lumi/Assets.xcassets`。
 
-## 命名（若你想单枚单语言地给，也支持）
+## 全部 key
 
-可选另一种方式：单枚单语言文件 `<大洲>_<语言>.png`，例如
-`asia_en.png`、`africa_ar.png`、`europe_zh.png`（大洲键见上表英文）。
+大洲（6）：`asia` `africa` `europe` `oceania` `americas` `antarctica`
+里程碑 / 其它（9）：`first`（First Light）`five`（Five Countries）`cities`（Hundred Cities）
+`continents`（All Continents）`desert`（Desert Pioneer）`jungle`（Jungle Explorer）
+`island`（Island Hopper）`antarcticaPro`（Antarctica Pioneer）`world`（Globetrotter，**尚缺图**）
 
-## 全部徽章 key（命名参照）
+> 也支持整张拼图：把一张 6 连 / 9 连图命名 `<lang>/_sheet.png` 放进对应语言夹，告诉我布局即可。
+> 当前 `en/` 里的 15 张是上轮抠好的英文版（透明底），可作命名/构图参照。
 
-大洲（已落地，含双语底图 `badge_<key>` + 英文版 `badge_<key>_en`）：
-`asia` · `africa` · `europe` · `oceania` · `americas` · `antarctica`
+## 解析规则（代码侧）
 
-里程碑 / 其它（已落地英文版，存为基名 `badge_<key>`，作为各语言默认）：
-`first`（First Light）· `five`（Five Countries）· `cities`（Hundred Cities）·
-`continents`（All Continents）· `desert`（Desert Pioneer）· `jungle`（Jungle Explorer）·
-`island`（Island Hopper）· `antarcticaPro`（Antarctica Pioneer）
-
-**尚缺**：`world`（Globetrotter 环球旅行家）——还没有插画，暂用水晶徽章。
-
-> 当前这些都是**英文**版：里程碑存为基名 `badge_<key>`（英文即默认，其它语言暂回退到它）；
-> 大洲英文存为 `badge_<key>_en`（中/阿回退到双语底图）。
-> 以后给中文 / 阿语，放 `<key>_zh.png` / `<key>_ar.png`（或整张 `zh.png`/`ar.png` 拼图），我生成 `badge_<key>_<lang>` 覆盖。
-
-## 生成
-
-放好后告诉我，我会运行抠图脚本生成：
-`badge_<大洲>_<语言>` 共最多 18 个 imageset（如 `badge_asia_en`、`badge_asia_ar`…），
-并确认 app 三语下显示正确。
-
-> 当前的 `data/badge.png`（中英双语那张）已抠成 `badge_<大洲>` 作为**回退底图**。
+`Badge.resolvedImageName`：`badge_<key>` → 优先 `badge_<key>_<zh|en|ar>`，缺失回退基名。
+- 大洲：基名 `badge_<key>` 是早期中英双语底图；英文版 `badge_<key>_en` 已就位。
+- 里程碑：基名 `badge_<key>` 当前就是英文（各语言默认）；放了 zh/ar 后会以 `badge_<key>_<lang>` 覆盖。
