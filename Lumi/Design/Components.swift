@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 // ─────────────────────────────────────────────────────────────
 //  暗夜霓虹 v2 可复用组件。
@@ -29,6 +30,22 @@ struct Hexagon: Shape {
     }
 }
 
+extension Badge {
+    /// 按系统语言解析插画资源名：`badge_asia` → `badge_asia_<lang>`（zh/en/ar）。
+    /// 该语言版本不存在时回退到基名（现有双语底图），不会空白或崩溃。
+    var resolvedImageName: String? {
+        guard let base = imageName else { return nil }
+        let lang: String
+        switch Locale.current.language.languageCode?.identifier {
+        case "zh": lang = "zh"
+        case "ar": lang = "ar"
+        default:   lang = "en"
+        }
+        let candidate = "\(base)_\(lang)"
+        return UIImage(named: candidate) != nil ? candidate : base
+    }
+}
+
 /// 蜂巢徽章六边形：rim 描边 + 底 + 进度填充 + 图标 + 进度百分比。
 struct HexBadge: View {
     let badge: Badge
@@ -39,7 +56,7 @@ struct HexBadge: View {
 
     var body: some View {
         Group {
-            if let img = badge.imageName {
+            if let img = badge.resolvedImageName {
                 illustrated(img)
             } else {
                 hexBody

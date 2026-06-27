@@ -33,7 +33,7 @@ struct HolographicBadge: View {
 
     /// 流光遮罩：插画徽章按图形轮廓，否则六边形。
     @ViewBuilder private var foilMask: some View {
-        if let img = badge.imageName {
+        if let img = badge.resolvedImageName {
             Image(img).resizable().scaledToFit().frame(width: size, height: size * 1.15)
         } else {
             Hexagon().padding(2).frame(width: size, height: size * 1.15)
