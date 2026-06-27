@@ -27,6 +27,8 @@ struct PostcardView: View {
     let footprint: Footprint
     var cover: UIImage? = nil
     var message: String = ""
+    /// 免费版导出时盖 Lumi 水印；Plus 去水印（见 PostcardSheet 的 `store.isPlus`）。
+    var watermark: Bool = false
 
     private static let df: Date.FormatStyle = .dateTime.year().month(.wide).day()
 
@@ -76,6 +78,18 @@ struct PostcardView: View {
             .frame(width: 360, height: 480, alignment: .bottomLeading)
         }
         .frame(width: 360, height: 480)
+        .overlay(alignment: .bottomTrailing) {
+            if watermark {
+                HStack(spacing: 4) {
+                    Text("✦").font(.system(size: 11))
+                    Text("Lumi").font(.system(size: 12, weight: .heavy)).tracking(1)
+                }
+                .foregroundStyle(.white.opacity(0.85))
+                .padding(.vertical, 5).padding(.horizontal, 9)
+                .background(.black.opacity(0.28), in: Capsule())
+                .padding(14)
+            }
+        }
         .background(Color.bg)
     }
 }

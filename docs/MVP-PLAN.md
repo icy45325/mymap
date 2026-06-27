@@ -58,13 +58,19 @@
 
 **文件**：`Features/Share/*`、`LumiApp`（onOpenURL）、`Lumi/Info.plist`。**主体已交付**。
 
-### B4 · 变现 —— 🔲 MVP 即带「轻 paywall」（未开工，关键缺口）
-- [ ] StoreKit 2 接入 + 商店产品配置（Lumi Plus 月/年 + 终身买断）
-- [ ] **RevenueCat 接入**（跨平台 entitlement，为 Android 打底）
-- [ ] Plus 门控：高清导出 / 全部明信片样式·邮票 / 额外小组件 / 地图皮肤
-- [ ] Paywall UI + **恢复购买** + 自动续订条款
+### B4 · 变现 —— 🚧 代码已落地，待 ASC 配置 + 真机验证
+- [x] StoreKit 2 接入：`PlusStore`（拉产品 / 购买 / 恢复 / `Transaction` 监听 / entitlement），
+      **业务层只读 `isPlus`**，RevenueCat 可替换的抽象边界（见各「RC 迁移点」注释）
+- [x] `Lumi.storekit` 本地测试配置（月 `com.lumi.plus.monthly` / 年 `…yearly` / 终身 `…lifetime`）
+- [x] Paywall UI（`PaywallView`）：价值点 + 计划选择（月/年/终身，年付算「省 %」）+ 恢复购买 + 自动续订条款 + 隐私/条款链接
+- [x] Plus 门控（首版「轻」）：**明信片导出免费带 Lumi 水印 + 标清(2x)，Plus 去水印 + 高清(3x)**；
+      升级入口在 设置页 + 明信片面板水印提示条
+- [ ] **RevenueCat 接入** —— 抽象层已留接口；上 Android 时替换 `PlusStore` 内部即可。**暂缓**
+- [ ] **需 ICY 在 Xcode / ASC 侧做**：① Target 加 In-App Purchase 能力；② Scheme→Run→Options 选 `Lumi.storekit` 本地测试；
+      ③ App Store Connect 建三个产品 + 价格分层（中东/全球）；④ 付费开发者账号；⑤ 沙盒/真机购买 + 恢复验证
+- [ ] 后续门控：全部样式·邮票（待 B3.5）/ 地图皮肤
 
-**文件**：新 `Features/Paywall/`、purchase 服务层。**工作量 L**。**依赖**：付费开发者账号。
+**文件**：`Features/Paywall/PlusStore.swift`、`PaywallView.swift`、`Lumi.storekit`；改 `PostcardSheet`/`PostcardView`/`SettingsView`/`LumiApp`。**工作量 L**（编码部分已完成）。
 
 ### B5 · 上架准备 —— 🔲 未开工，最后收尾
 - [ ] 付费 Apple Developer Program + App Store Connect 建 App
@@ -94,7 +100,7 @@
 
 - [ ] 真机三语（中/英/阿）全流程无崩溃；阿语 RTL 正确。
 - [x] 明信片可导出图 + 生成二维码/链接，**另一台设备打开能自动收卡**（B3 闭环已跑通）。
-- [ ] （带 paywall）购买 / 恢复购买 / 条款合规可用。
+- [ ] （带 paywall）购买 / 恢复购买 / 条款合规可用（代码就绪，待 ASC 产品配置 + 沙盒验证）。
 - [ ] App Store 元数据、隐私标签、隐私政策/支持页、定价齐备；TestFlight 通过。
 
 ---

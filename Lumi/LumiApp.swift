@@ -14,6 +14,7 @@ struct LumiApp: App {
         WindowGroup {
             RootTabView()
                 .onOpenURL { url in PostcardInbox.shared.handle(url: url) }  // lumi:// 链接 / AirDrop .lumicard 文件
+                .task { await PlusStore.shared.start() }                      // 拉产品 + 对齐 Plus 权益
         }
         .modelContainer(LumiStore.shared)
         .onChange(of: scenePhase) { _, phase in

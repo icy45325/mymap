@@ -4,9 +4,13 @@ import UIKit
 /// 设置页。语言跟随系统——可在 iOS 系统设置里为 Lumi 单独选语言。
 struct SettingsView: View {
 
+    @ObservedObject private var store = PlusStore.shared
+    @State private var showPaywall = false
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 18) {
+                section("Lumi Plus") { plusRow }
                 section("小组件 Widgets") {
                     VStack(alignment: .leading, spacing: 12) {
                         widgetPreviewStrip
@@ -57,6 +61,36 @@ struct SettingsView: View {
         .toolbarBackground(Color.bg, for: .navigationBar)
         .toolbarColorScheme(.dark, for: .navigationBar)
         .preferredColorScheme(.dark)
+        .sheet(isPresented: $showPaywall) { PaywallView() }
+        .task { await store.start() }
+    }
+
+    // MARK: - Lumi Plus 入口
+
+    private var plusRow: some View {
+        Button { if !store.isPlus { showPaywall = true } } label: {
+            HStack(spacing: 12) {
+                Image(systemName: store.isPlus ? "checkmark.seal.fill" : "sparkles")
+                    .font(.system(size: 20)).foregroundStyle(store.isPlus ? Color.nCyan : Color.nPink)
+                    .frame(width: 28)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(store.isPlus ? "Lumi Plus 已解锁" : "升级 Lumi Plus")
+                        .font(.system(size: 15, weight: .semibold)).foregroundStyle(Color.text)
+                    Text(store.isPlus ? "感谢支持——全部权益已开启 ✦" : "明信片去水印高清导出，更多增益陆续解锁")
+                        .font(.system(size: 11)).foregroundStyle(Color.muted)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                Spacer()
+                if !store.isPlus {
+                    Image(systemName: "chevron.right").font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(Color.faint).flipsForRightToLeftLayoutDirection(true)
+                }
+            }
+            .padding(.vertical, 13).padding(.horizontal, 14)
+        }
+        .buttonStyle(.plain)
+        .background(Color.panel, in: RoundedRectangle(cornerRadius: 14))
+        .overlay(RoundedRectangle(cornerRadius: 14).stroke(store.isPlus ? Color.nCyan.opacity(0.4) : Color.line, lineWidth: 1))
     }
 
     // MARK: - 小组件样式预览（App 内近似 mock，非真实小组件渲染）

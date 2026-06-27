@@ -7,12 +7,14 @@ struct PostcardSheet: View {
 
     @Environment(\.dismiss) private var dismiss
     @AppStorage("lumi.receivedTokens") private var receivedTokensRaw: String = ""
+    @ObservedObject private var store = PlusStore.shared
     @State private var message: String
     @State private var cover: UIImage?
     @State private var shareImage: Image?
     @State private var qr: Image?
     @State private var cardFile: URL?                // AirDrop 用的 .lumicard 文件
     @State private var copied = false
+    @State private var showPaywall = false
     @State private var token = UUID().uuidString    // 本张分享卡的幂等标识（稳定）
 
     init(footprint: Footprint) {
@@ -28,7 +30,7 @@ struct PostcardSheet: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 18) {
-                    PostcardView(footprint: footprint, cover: cover, message: message)
+                    PostcardView(footprint: footprint, cover: cover, message: message, watermark: !store.isPlus)
                         .clipShape(RoundedRectangle(cornerRadius: 18))
                         .overlay(RoundedRectangle(cornerRadius: 18).stroke(Color.line, lineWidth: 1))
                         .shadow(color: .black.opacity(0.4), radius: 14, y: 6)
@@ -50,7 +52,7 @@ struct PostcardSheet: View {
                     if let shareImage {
                         ShareLink(item: shareImage,
                                   preview: SharePreview(footprint.title, image: shareImage)) {
-                            Label("分享明信片", systemImage: "square.and.arrow.up")
+                            Label("邮寄明信片", systemImage: "paperplane.fill")
                                 .font(.headline).frame(maxWidth: .infinity).padding(.vertical, 14)
                                 .background(LinearGradient.neonH, in: Capsule())
                                 .foregroundStyle(.white)
@@ -58,6 +60,8 @@ struct PostcardSheet: View {
                     } else {
                         ProgressView().tint(Color.nPink).frame(maxWidth: .infinity).padding(.vertical, 14)
                     }
+
+                    if !store.isPlus { plusUpsell }
 
                     // 链接 / 二维码 / 隔空投送：对方扫码或点开即在 Lumi 自动收下
                     VStack(spacing: 10) {
@@ -94,8 +98,31 @@ struct PostcardSheet: View {
             .toolbarColorScheme(.dark, for: .navigationBar)
         }
         .preferredColorScheme(.dark)
+        .sheet(isPresented: $showPaywall) { PaywallView() }
         .task { cover = await loadAssetUIImage(footprint.photoAssetIDs.first); rerender() }
         .onChange(of: message) { _, _ in rerender() }
+        .onChange(of: store.isPlus) { _, _ in rerender() }   // 升级后即时去水印 / 提清
+    }
+
+    /// 免费版水印提示 + 升级入口。
+    private var plusUpsell: some View {
+        Button { showPaywall = true } label: {
+            HStack(spacing: 10) {
+                Image(systemName: "sparkles").font(.system(size: 15)).foregroundStyle(Color.nCyan)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("明信片带 Lumi 水印").font(.system(size: 13, weight: .semibold)).foregroundStyle(Color.text)
+                    Text("升级 Plus 去水印 · 高清导出").font(.system(size: 11)).foregroundStyle(Color.muted)
+                }
+                Spacer()
+                Text("升级").font(.system(size: 12, weight: .bold)).foregroundStyle(.white)
+                    .padding(.vertical, 6).padding(.horizontal, 14)
+                    .background(LinearGradient.neonH, in: Capsule())
+            }
+            .padding(12)
+            .background(Color.panel, in: RoundedRectangle(cornerRadius: 14))
+            .overlay(RoundedRectangle(cornerRadius: 14).stroke(Color.nCyan.opacity(0.3), lineWidth: 1))
+        }
+        .buttonStyle(.plain)
     }
 
     private func miniLabel(_ title: LocalizedStringKey, _ icon: String, _ tint: Color) -> some View {
@@ -111,7 +138,9 @@ struct PostcardSheet: View {
     }
 
     @MainActor private func rerender() {
-        shareImage = ShareRender.image(PostcardView(footprint: footprint, cover: cover, message: message))
+        // Plus：无水印 + 高清(3x)；免费：盖水印 + 标清(2x)
+        let card = PostcardView(footprint: footprint, cover: cover, message: message, watermark: !store.isPlus)
+        shareImage = ShareRender.image(card, scale: store.isPlus ? 3 : 2)
         qr = PostcardToken.qrImage(shareLinkString).map { Image(uiImage: $0) }
         cardFile = PostcardToken.writeCardFile(tokenString)
         copied = false
