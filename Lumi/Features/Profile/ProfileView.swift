@@ -21,7 +21,8 @@ struct ProfileView: View {
                     profileTop
                     statsRow
                     levelBar
-                    passportEntry
+                    entryCard("book.closed.fill", "我的护照本",
+                              "去过 \(stats.countries) 国 · 翻开看看出入境章", Color(hex: 0xC9A24B)) { PassportView() }
                     entryCard("rectangle.stack", "明信片墙", "收到的明信片都在这", Color.nPink) { PostcardWallView() }
                     entryCard("heart.fill", "心愿单", "想去的地方", Color.nCyan) { WishlistView() }
                     Color.clear.frame(height: 24)
@@ -58,30 +59,6 @@ struct ProfileView: View {
             NavigationLink { SettingsView() } label: { topIcon("gearshape") }
         }
         .padding(.horizontal, 26)
-    }
-
-    private var passportEntry: some View {
-        NavigationLink { PassportView() } label: {
-            HStack(spacing: 14) {
-                Image(systemName: "book.closed.fill").font(.system(size: 22))
-                    .foregroundStyle(Color(hex: 0xC9A24B))
-                VStack(alignment: .leading, spacing: 3) {
-                    Text("我的护照本").font(Typo.serif(17)).foregroundStyle(Color(hex: 0xEDE6D6))
-                    Text("去过 \(stats.countries) 国 · 翻开看看出入境章")
-                        .font(.system(size: 11)).foregroundStyle(Color(hex: 0xC9A24B).opacity(0.8))
-                }
-                Spacer()
-                Image(systemName: "chevron.right").font(.system(size: 13, weight: .semibold))
-                    .foregroundStyle(Color(hex: 0xC9A24B).opacity(0.7))
-            }
-            .padding(16)
-            .background(
-                LinearGradient(colors: [Color(hex: 0x16284A), Color(hex: 0x0E1B36)],
-                               startPoint: .topLeading, endPoint: .bottomTrailing),
-                in: RoundedRectangle(cornerRadius: 16))
-            .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color(hex: 0xC9A24B).opacity(0.45), lineWidth: 1))
-        }
-        .padding(.horizontal, 26).padding(.top, 18)
     }
 
     private func entryCard<D: View>(_ icon: String, _ title: LocalizedStringKey, _ subtitle: LocalizedStringKey,
