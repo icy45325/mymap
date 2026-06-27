@@ -167,20 +167,19 @@ struct PostcardSheet: View {
         }
     }
 
-    /// 邮票选择（航空 / 城市）。
+    /// 邮票选择（空运 / 陆运 / 海运）。
     private var stampPicker: some View {
         editorBlock("邮票") {
-            HStack(spacing: 10) {
+            HStack(spacing: 8) {
                 ForEach(PostcardStamp.allCases) { p in
                     let active = p == stamp
                     Button { stamp = p } label: {
-                        HStack(spacing: 8) {
+                        VStack(spacing: 5) {
                             PostcardStampView(stamp: p, mini: true).frame(width: 30, height: 36)
-                            Text(p.label).font(.system(size: 12, weight: .semibold))
+                            Text(p.label).font(.system(size: 11, weight: .semibold))
                                 .foregroundStyle(active ? Color.text : Color.muted)
-                            Spacer()
                         }
-                        .padding(.vertical, 9).padding(.horizontal, 12)
+                        .frame(maxWidth: .infinity).padding(.vertical, 9)
                         .background(active ? Color.white.opacity(0.07) : .clear, in: RoundedRectangle(cornerRadius: 12))
                         .overlay(RoundedRectangle(cornerRadius: 12)
                             .stroke(active ? Color.white.opacity(0.18) : Color.white.opacity(0.06), lineWidth: 1))

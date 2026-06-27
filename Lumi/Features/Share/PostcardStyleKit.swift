@@ -18,15 +18,25 @@ enum PostcardStyle: String, CaseIterable, Identifiable {
     }
 }
 
-/// 邮票（复刻设计稿）：航空 / 城市。
+/// 邮票：按运输方式分三类——空运 / 陆运 / 海运。
 enum PostcardStamp: String, CaseIterable, Identifiable {
-    case air, city
+    case air, land, sea
     var id: String { rawValue }
-    var label: LocalizedStringKey { self == .air ? "航空" : "城市" }
-    var inner: Color { self == .air ? Color(hex: 0x22468F) : Color(hex: 0xD2622F) }
-    var motif: String { self == .air ? "airplane" : "crown.fill" }
-    var caption: String { self == .air ? "PAR AVION" : "CITY POST" }
-    var sub: String { self == .air ? "LUMI · ¥1.50" : "LUMI · ¥1.20" }
+    var label: LocalizedStringKey {
+        switch self { case .air: return "空运"; case .land: return "陆运"; case .sea: return "海运" }
+    }
+    var inner: Color {
+        switch self { case .air: return Color(hex: 0x22468F); case .land: return Color(hex: 0x3F7A3A); case .sea: return Color(hex: 0x1F6B7A) }
+    }
+    var motif: String {
+        switch self { case .air: return "airplane"; case .land: return "truck.box.fill"; case .sea: return "ferry.fill" }
+    }
+    var caption: String {
+        switch self { case .air: return "AIR FREIGHT"; case .land: return "LAND FREIGHT"; case .sea: return "SEA FREIGHT" }
+    }
+    var sub: String {
+        switch self { case .air: return "LUMI · ¥1.50"; case .land: return "LUMI · ¥1.00"; case .sea: return "LUMI · ¥0.80" }
+    }
     var stripes: Bool { self == .air }
 }
 
@@ -158,43 +168,39 @@ struct PostcardFlipCard: View {
         .shadow(color: .black.opacity(0.45), radius: 16, y: 8)
     }
 
+    /// 正面：只展示上传的照片（横向裁切填满固定尺寸）；无照片用样式渐变兜底。
     private var front: some View {
-        ZStack(alignment: .bottomLeading) {
-            Group {
-                if let cover {
-                    Image(uiImage: cover).resizable().scaledToFill()
-                } else {
-                    LinearGradient(colors: theme.photo, startPoint: .topLeading, endPoint: .bottomTrailing)
-                        .overlay(Text(footprint.flag).font(.system(size: 90)).opacity(0.22))
-                }
+        Group {
+            if let cover {
+                Image(uiImage: cover).resizable().scaledToFill()
+            } else {
+                LinearGradient(colors: theme.photo, startPoint: .topLeading, endPoint: .bottomTrailing)
+                    .overlay(Text(footprint.flag).font(.system(size: 90)).opacity(0.22))
             }
-            theme.overlay
-            VStack(alignment: .leading, spacing: 2) {
-                Text(locEn)
-                    .font(theme.locSerif ? Typo.serif(16) : .system(size: 13, weight: .semibold))
-                    .tracking(theme.locSerif ? 1 : 2)
-                    .foregroundStyle(theme.locColor)
-                    .shadow(color: .black.opacity(0.4), radius: 3, y: 1)
-                Text(locZh)
-                    .font(theme.locSerif ? Typo.serif(10).italic() : .system(size: 9))
-                    .foregroundStyle(theme.locColor.opacity(0.85))
-            }
-            .padding(.horizontal, 15).padding(.bottom, 14)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .clipped()
         .clipShape(RoundedRectangle(cornerRadius: 9))
     }
 
     private var back: some View {
         HStack(spacing: 0) {
-            // 左：寄语
-            VStack(alignment: .leading, spacing: 0) {
+            // 左：地点（国家 / 地名）+ 寄语
+            VStack(alignment: .leading, spacing: 6) {
+                HStack(spacing: 5) {
+                    Text(footprint.flag).font(.system(size: 13))
+                    Text(locEn)
+                        .font(theme.msgSerif ? Typo.serif(13, weight: .semibold) : .system(size: 12, weight: .bold))
+                        .foregroundStyle(theme.ink).lineLimit(1).minimumScaleFactor(0.6)
+                }
+                Text(locZh).font(.system(size: 8)).foregroundStyle(theme.addr).lineLimit(1)
+                Rectangle().fill(theme.line).frame(height: 1).padding(.trailing, 6)
                 Text(message)
                     .font(theme.msgSerif ? Typo.serif(12, weight: .regular).italic() : .system(size: 12, weight: .light))
                     .lineSpacing(3).foregroundStyle(theme.msgColor)
                 Spacer(minLength: 0)
             }
-            .padding(.init(top: 15, leading: 15, bottom: 14, trailing: 11))
+            .padding(.init(top: 14, leading: 15, bottom: 14, trailing: 11))
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
 
             Rectangle().fill(theme.line).frame(width: 1).padding(.vertical, 16)

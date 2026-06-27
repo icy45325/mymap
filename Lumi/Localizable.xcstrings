@@ -4544,6 +4544,54 @@
           }
         }
       }
+    },
+    "空运": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Air"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "شحن جوي"
+          }
+        }
+      }
+    },
+    "陆运": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Land"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "شحن بري"
+          }
+        }
+      }
+    },
+    "海运": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sea"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "شحن بحري"
+          }
+        }
+      }
     }
   },
   "version": "1.0"
