@@ -38,6 +38,51 @@ struct HexBadge: View {
     private var h: CGFloat { size * 1.15 }
 
     var body: some View {
+        Group {
+            if let img = badge.imageName {
+                illustrated(img)
+            } else {
+                hexBody
+            }
+        }
+        // 锁定标记：底部小锁，标明未解锁但不挡住图标
+        .overlay(alignment: .bottom) {
+            if badge.state == .locked {
+                Image(systemName: "lock.fill")
+                    .font(.system(size: size * 0.15, weight: .bold))
+                    .foregroundStyle(.white.opacity(0.92))
+                    .padding(size * 0.07)
+                    .background(Circle().fill(Color.black.opacity(0.6)))
+                    .offset(y: -size * 0.14)
+            }
+        }
+        .shadow(color: badge.state == .lit ? badge.color.opacity(0.55) : .black.opacity(0.4),
+                radius: badge.state == .lit ? 9 : 4, y: 3)
+        .opacity(dimmed ? 0.13 : 1)
+        .animation(.easeInOut(duration: 0.25), value: dimmed)
+    }
+
+    /// 插画徽章：直接渲染美术图（自带形状/文字）；未解锁去色变暗，进行中显示进度。
+    private func illustrated(_ name: String) -> some View {
+        Image(name)
+            .resizable()
+            .scaledToFit()
+            .frame(width: size, height: h)
+            .saturation(badge.state == .lit ? 1 : 0.12)
+            .opacity(badge.state == .lit ? 1 : (badge.state == .prog ? 0.62 : 0.42))
+            .overlay(alignment: .bottom) {
+                if badge.state == .prog, let p = badge.progress {
+                    Text("\(Int(p * 100))%")
+                        .font(.system(size: size * 0.13, weight: .bold))
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, size * 0.08).padding(.vertical, size * 0.03)
+                        .background(Capsule().fill(Color.black.opacity(0.55)))
+                        .offset(y: -size * 0.04)
+                }
+            }
+    }
+
+    private var hexBody: some View {
         ZStack {
             // rim
             Hexagon().fill(rimColor)
@@ -72,21 +117,6 @@ struct HexBadge: View {
             }
         }
         .frame(width: size, height: h)
-        // 锁定标记：底部小锁，标明未解锁但不挡住图标
-        .overlay(alignment: .bottom) {
-            if badge.state == .locked {
-                Image(systemName: "lock.fill")
-                    .font(.system(size: size * 0.15, weight: .bold))
-                    .foregroundStyle(.white.opacity(0.92))
-                    .padding(size * 0.07)
-                    .background(Circle().fill(Color.black.opacity(0.6)))
-                    .offset(y: -size * 0.14)
-            }
-        }
-        .shadow(color: badge.state == .lit ? badge.color.opacity(0.55) : .black.opacity(0.4),
-                radius: badge.state == .lit ? 9 : 4, y: 3)
-        .opacity(dimmed ? 0.13 : 1)
-        .animation(.easeInOut(duration: 0.25), value: dimmed)
     }
 
     private var rimColor: Color {

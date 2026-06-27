@@ -152,54 +152,32 @@ struct StatsView: View {
         }
     }
 
-    // MARK: - 蜂巢
+    // MARK: - 徽章墙（3 列网格，给插画徽章更大展示空间）
 
     private var honeycomb: some View {
-        let rows = honeycombRows
-        let stagger: CGFloat = 30                     // 交替行错位量（仅左右错，绝不上下叠）
-        return VStack(spacing: 16) {                  // 正间距：行与行不再遮挡
-            ForEach(Array(rows.enumerated()), id: \.offset) { idx, row in
-                HStack(spacing: 12) {
-                    ForEach(row) { b in honeyCell(b) }
-                }
-                .offset(x: idx.isMultiple(of: 2) ? -stagger / 2 : stagger / 2)
-            }
+        let cols = Array(repeating: GridItem(.flexible(), spacing: 14), count: 3)
+        return LazyVGrid(columns: cols, spacing: 18) {
+            ForEach(board.badges) { b in badgeCell(b) }
         }
         .frame(maxWidth: .infinity)
+        .padding(.horizontal, 22)
         .padding(.vertical, 12)
     }
 
-    /// 蜂巢单元：徽章 + 名称。点击任意处看「是什么 / 怎么得到」。
-    private func honeyCell(_ b: Badge) -> some View {
-        VStack(spacing: 5) {
-            HexBadge(badge: b, size: 58, dimmed: !matches(b))
-            Text(b.name.localized)
-                .font(.system(size: 9, weight: .medium))
-                .foregroundStyle(matches(b) ? Color.muted : Color.faint)
-                .lineLimit(1).minimumScaleFactor(0.8)
-                .frame(maxWidth: 66)
+    /// 单元：徽章 + 名称。点击看「是什么 / 怎么得到」。插画徽章自带名字，不再重复文字。
+    private func badgeCell(_ b: Badge) -> some View {
+        VStack(spacing: 6) {
+            HexBadge(badge: b, size: 96, dimmed: !matches(b))
+            if b.imageName == nil {
+                Text(b.name.localized)
+                    .font(.system(size: 10, weight: .medium))
+                    .foregroundStyle(matches(b) ? Color.muted : Color.faint)
+                    .lineLimit(1).minimumScaleFactor(0.75)
+            }
         }
-        .frame(width: 66)
+        .frame(maxWidth: .infinity)
         .contentShape(Rectangle())
         .onTapGesture { selectedBadge = b }
-    }
-
-    /// 蜂巢行：每行最多 4 个，且各行尽量均分（差不超过 1），避免出现孤零零一两个、留大片空白。
-    private var honeycombRows: [[Badge]] {
-        let all = board.badges
-        guard !all.isEmpty else { return [] }
-        let perRowMax = 4
-        let rowCount = (all.count + perRowMax - 1) / perRowMax   // 向上取整
-        let base = all.count / rowCount
-        let extra = all.count % rowCount                          // 前 extra 行各多放 1 个
-        var rows: [[Badge]] = []
-        var i = 0
-        for r in 0..<rowCount {
-            let n = base + (r < extra ? 1 : 0)
-            rows.append(Array(all[i..<i + n]))
-            i += n
-        }
-        return rows
     }
 
     private func matches(_ b: Badge) -> Bool {
@@ -213,7 +191,7 @@ struct StatsView: View {
     /// 只列出实际有徽章的分类，避免出现空筛选。
     private var segmentItems: [(value: CatFilter, label: String)] {
         var items: [(value: CatFilter, label: String)] = [(.all, "全部")]
-        for cat in [BadgeCategory.continent, .milestone, .streak]
+        for cat in [BadgeCategory.master, .continent, .milestone, .streak]
         where board.badges.contains(where: { $0.category == cat }) {
             items.append((.category(cat), cat.displayName))
         }

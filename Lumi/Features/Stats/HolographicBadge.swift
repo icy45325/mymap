@@ -17,7 +17,7 @@ struct HolographicBadge: View {
                 if badge.state == .lit {
                     foil(t: t, shift: shift)
                         .frame(width: size, height: size * 1.15)
-                        .mask(Hexagon().padding(2).frame(width: size, height: size * 1.15))
+                        .mask(foilMask)
                         .blendMode(.screen)
                         .allowsHitTesting(false)
                 }
@@ -29,6 +29,15 @@ struct HolographicBadge: View {
         }
         .onAppear { motion.start() }
         .onDisappear { motion.stop() }
+    }
+
+    /// 流光遮罩：插画徽章按图形轮廓，否则六边形。
+    @ViewBuilder private var foilMask: some View {
+        if let img = badge.imageName {
+            Image(img).resizable().scaledToFit().frame(width: size, height: size * 1.15)
+        } else {
+            Hexagon().padding(2).frame(width: size, height: size * 1.15)
+        }
     }
 
     private func foil(t: Double, shift: Double) -> some View {

@@ -4848,6 +4848,118 @@
           }
         }
       }
+    },
+    "大洲大师": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continent Master"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "سيد القارة"
+          }
+        }
+      }
+    },
+    "点亮亚洲 5 个国家，成就亚洲之星。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Light up 5 countries in Asia to become the Star of Asia."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أضئ 5 دول في آسيا لتصبح نجم آسيا."
+          }
+        }
+      }
+    },
+    "点亮非洲 3 个国家，开拓广袤非洲。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Light up 3 countries in Africa to pioneer the continent."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أضئ 3 دول في إفريقيا لتكون رائد القارة."
+          }
+        }
+      }
+    },
+    "点亮欧洲 5 个国家，漫游全欧。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Light up 5 countries in Europe to roam the continent."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أضئ 5 دول في أوروبا لتجوب القارة."
+          }
+        }
+      }
+    },
+    "点亮大洋洲 2 个国家，纵横大洋洲。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Light up 2 countries in Oceania to roam the Pacific."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أضئ دولتين في أوقيانوسيا لتجوب المحيط."
+          }
+        }
+      }
+    },
+    "点亮美洲 4 个国家，征服新大陆。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Light up 4 countries in the Americas to conquer the New World."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أضئ 4 دول في الأمريكتين لتغزو العالم الجديد."
+          }
+        }
+      }
+    },
+    "在南极洲（南纬 60° 以下）成功打卡，抵达世界尽头。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check in within Antarctica (below 60°S) — the end of the world."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "سجّل وصولًا في القطب الجنوبي (تحت 60° جنوبًا) — نهاية العالم."
+          }
+        }
+      }
     }
   },
   "version": "1.0"

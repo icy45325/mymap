@@ -47,7 +47,7 @@ enum Rarity: String, CaseIterable {
 }
 
 enum BadgeCategory: String, CaseIterable {
-    case explore, continent, milestone, streak
+    case explore, continent, milestone, streak, master
 
     var displayName: String {
         switch self {
@@ -55,6 +55,7 @@ enum BadgeCategory: String, CaseIterable {
         case .continent: return "大洲"
         case .milestone: return "里程碑"
         case .streak:    return "连续"
+        case .master:    return "大洲大师"
         }
     }
 }
@@ -68,10 +69,11 @@ struct Badge: Identifiable {
     let name: String
     let rarity: Rarity
     let category: BadgeCategory
-    let icon: String          // SF Symbol
+    let icon: String          // SF Symbol（无插画时的兜底图标）
     let desc: String
     let ownership: String     // 全球持有率文案，如 "8%"
     var tint: Color? = nil    // 逐徽章霓虹色（覆盖 rarity 默认色）
+    var imageName: String? = nil  // 有则渲染插画徽章（asset catalog），否则用 SF Symbol
 
     var state: BadgeState
     var unlockedAt: Date?     // 仅 lit
@@ -170,6 +172,11 @@ struct LumiStats {
         footprints.contains { $0.region == region }
     }
 
+    /// 某大洲已点亮的**不同国家**数（大洲大师徽章门槛用）。
+    func litCountries(in region: Region) -> Int {
+        Set(footprints.filter { $0.region == region }.compactMap { $0.countryCode }).count
+    }
+
     // —— 新检测（参考徽章表） ——
 
     /// 南极洲：落点在南纬 60° 以下即算（坐标判定，无需边界数据）。
@@ -219,23 +226,24 @@ enum BadgeCatalog {
 
         func milestone(_ id: String, _ name: String, _ rarity: Rarity, _ cat: BadgeCategory,
                        _ icon: String, _ desc: String, _ pct: String, _ tint: Color,
-                       target: Int, current: Int, unit: String) -> Badge {
+                       target: Int, current: Int, unit: String, image: String? = nil) -> Badge {
             if current >= target {
                 return Badge(id: id, name: name, rarity: rarity, category: cat, icon: icon,
-                             desc: desc, ownership: pct, tint: tint, state: .lit,
+                             desc: desc, ownership: pct, tint: tint, imageName: image, state: .lit,
                              unlockedAt: s.unlockDate(atCountryCount: min(target, c)))
             }
             return Badge(id: id, name: name, rarity: rarity, category: cat, icon: icon,
-                         desc: desc, ownership: pct, tint: tint, state: .prog,
+                         desc: desc, ownership: pct, tint: tint, imageName: image, state: .prog,
                          progressText: "\(current) / \(target) \(unit.localized)",
                          progress: Double(current) / Double(target))
         }
 
         func flag(_ id: String, _ name: String, _ rarity: Rarity, _ cat: BadgeCategory,
                   _ icon: String, _ desc: String, _ pct: String, _ tint: Color,
-                  unlocked: Bool, at: Date?) -> Badge {
+                  unlocked: Bool, at: Date?, image: String? = nil) -> Badge {
             Badge(id: id, name: name, rarity: rarity, category: cat, icon: icon,
-                  desc: desc, ownership: pct, tint: tint, state: unlocked ? .lit : .locked,
+                  desc: desc, ownership: pct, tint: tint, imageName: image,
+                  state: unlocked ? .lit : .locked,
                   unlockedAt: unlocked ? at : nil)
         }
 
@@ -304,6 +312,31 @@ enum BadgeCatalog {
             flag("island", "跳岛狂人", .rare, .streak, "sailboat.fill",
                  "点亮 3 个不相连的岛屿国家 / 地区。", "7%", Color(hex: 0x00BFA5),
                  unlocked: s.islandCountryCount >= 3, at: nil),
+
+            // —— 大洲大师（插画徽章）：在各大洲点亮多国的进阶成就 ——
+            milestone("asiaMaster", "亚洲之星", .epic, .master, "star.fill",
+                      "点亮亚洲 5 个国家，成就亚洲之星。", "6%", Color(hex: 0xFF8A3D),
+                      target: 5, current: s.litCountries(in: .asia), unit: "国", image: "badge_asia"),
+
+            milestone("africaMaster", "非洲开拓者", .epic, .master, "tree.fill",
+                      "点亮非洲 3 个国家，开拓广袤非洲。", "4%", Color(hex: 0xE0852F),
+                      target: 3, current: s.litCountries(in: .africa), unit: "国", image: "badge_africa"),
+
+            milestone("europeMaster", "欧洲漫游者", .epic, .master, "building.columns.fill",
+                      "点亮欧洲 5 个国家，漫游全欧。", "8%", Color(hex: 0x8C2B3A),
+                      target: 5, current: s.litCountries(in: .europe), unit: "国", image: "badge_europe"),
+
+            milestone("oceaniaMaster", "大洋洲游牧民", .epic, .master, "figure.surfing",
+                      "点亮大洋洲 2 个国家，纵横大洋洲。", "4%", Color(hex: 0x2E8B8B),
+                      target: 2, current: s.litCountries(in: .oceania), unit: "国", image: "badge_oceania"),
+
+            milestone("americasMaster", "美洲征服者", .epic, .master, "mountain.2.fill",
+                      "点亮美洲 4 个国家，征服新大陆。", "3%", Color(hex: 0x9C6B2F),
+                      target: 4, current: s.litCountries(in: .americas), unit: "国", image: "badge_americas"),
+
+            flag("antarcticaMaster", "南极洲探险家", .legendary, .master, "snowflake",
+                 "在南极洲（南纬 60° 以下）成功打卡，抵达世界尽头。", "0.5%", Color(hex: 0x6FB7E0),
+                 unlocked: s.litAntarctica, at: firstVisit { $0.latitude < -60 }, image: "badge_antarctica"),
         ]
 
         return list
