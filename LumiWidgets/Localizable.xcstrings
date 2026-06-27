@@ -384,6 +384,22 @@
           }
         }
       }
+    },
+    "已点亮 %lld 国 · +%lld": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld lit · +%2$lld"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld مضاءة · +%2$lld"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

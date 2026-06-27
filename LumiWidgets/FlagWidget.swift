@@ -56,23 +56,29 @@ struct FlagWidgetView: View {
         }
     }
 
-    // 小尺寸：4 面国旗 + 计数
+    // 小尺寸：最多 8 面国旗（2 排）+ 计数
+    private let smallMax = 8
+    private let smallPerRow = 4
+    private var smallRows: [[String]] {
+        let s = Array(allFlags.prefix(smallMax))
+        return stride(from: 0, to: s.count, by: smallPerRow).map { Array(s[$0..<min($0 + smallPerRow, s.count)]) }
+    }
     private var small: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 8) {
             WidgetHeader(section: "去过的国旗")
             Spacer(minLength: 0)
-            HStack(spacing: 4) {
-                ForEach(Array(allFlags.prefix(4).enumerated()), id: \.offset) { _, f in
-                    Text(f).font(.system(size: 30))
-                }
-                if snapshot.countries > 4 {
-                    Text("+\(snapshot.countries - 4)").font(.system(size: 14, weight: .bold))
-                        .foregroundStyle(WidgetTheme.orange)
+            VStack(alignment: .leading, spacing: 4) {
+                ForEach(Array(smallRows.enumerated()), id: \.offset) { _, row in
+                    HStack(spacing: 4) {
+                        ForEach(Array(row.enumerated()), id: \.offset) { _, f in
+                            Text(f).font(.system(size: 24))
+                        }
+                    }
                 }
             }
             Spacer(minLength: 0)
-            Text("已点亮 \(snapshot.countries) 国")
-                .font(.system(size: 12, weight: .semibold)).foregroundStyle(WidgetTheme.text)
+            Text(snapshot.countries > smallMax ? "已点亮 \(snapshot.countries) 国 · +\(snapshot.countries - smallMax)" : "已点亮 \(snapshot.countries) 国")
+                .font(.system(size: 11, weight: .semibold)).foregroundStyle(WidgetTheme.text)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
         .padding(WidgetChrome.pad)
