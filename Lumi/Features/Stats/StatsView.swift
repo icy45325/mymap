@@ -184,17 +184,20 @@ struct StatsView: View {
         .onTapGesture { selectedBadge = b }
     }
 
-    /// 把徽章按 4 / 3 交替切成蜂巢行。
+    /// 蜂巢行：每行最多 4 个，且各行尽量均分（差不超过 1），避免出现孤零零一两个、留大片空白。
     private var honeycombRows: [[Badge]] {
+        let all = board.badges
+        guard !all.isEmpty else { return [] }
+        let perRowMax = 4
+        let rowCount = (all.count + perRowMax - 1) / perRowMax   // 向上取整
+        let base = all.count / rowCount
+        let extra = all.count % rowCount                          // 前 extra 行各多放 1 个
         var rows: [[Badge]] = []
         var i = 0
-        let all = board.badges
-        let pattern = [4, 3]
-        var p = 0
-        while i < all.count {
-            let n = pattern[p % pattern.count]
-            rows.append(Array(all[i..<min(i + n, all.count)]))
-            i += n; p += 1
+        for r in 0..<rowCount {
+            let n = base + (r < extra ? 1 : 0)
+            rows.append(Array(all[i..<i + n]))
+            i += n
         }
         return rows
     }
