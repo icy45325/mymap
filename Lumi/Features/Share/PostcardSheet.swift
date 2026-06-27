@@ -16,38 +16,58 @@ struct PostcardSheet: View {
     @State private var copied = false
     @State private var showPaywall = false
     @State private var token = UUID().uuidString    // 本张分享卡的幂等标识（稳定）
+    @State private var style: PostcardStyle
+    @State private var stamp: PostcardStamp
+    @State private var flipped = false
+    @State private var recipient = ""
 
     init(footprint: Footprint) {
         self.footprint = footprint
         _message = State(initialValue: defaultPostcardMessage(footprint))
+        _style = State(initialValue: PostcardStyle(rawValue: footprint.postcardStyle) ?? .vintage)
+        _stamp = State(initialValue: PostcardStamp(rawValue: footprint.stampStyle) ?? .air)
     }
 
     private var tokenString: String {
-        PostcardToken.encode(footprint: footprint, message: message, token: token)
+        PostcardToken.encode(footprint: footprint, message: message, token: token,
+                             style: style.rawValue, stamp: stamp.rawValue)
     }
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 18) {
-                    PostcardView(footprint: footprint, cover: cover, message: message, watermark: !store.isPlus)
-                        .clipShape(RoundedRectangle(cornerRadius: 18))
-                        .overlay(RoundedRectangle(cornerRadius: 18).stroke(Color.line, lineWidth: 1))
-                        .shadow(color: .black.opacity(0.4), radius: 14, y: 6)
-                        .scaleEffect(0.92)
-                        .frame(height: 480 * 0.92)
+                    // 翻面预览卡（正面照片 / 背面书写）
+                    PostcardFlipCard(footprint: footprint, cover: cover, message: message,
+                                     recipient: recipient, style: style, stamp: stamp, flipped: flipped)
+                        .onTapGesture { withAnimation { flipped.toggle() } }
 
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("明信片寄语").font(.system(size: 12, weight: .semibold)).foregroundStyle(Color.muted)
+                    Button { withAnimation { flipped.toggle() } } label: {
+                        Label("翻面", systemImage: "arrow.triangle.2.circlepath")
+                            .font(.system(size: 13, weight: .semibold)).foregroundStyle(Color.text)
+                            .padding(.vertical, 9).padding(.horizontal, 18)
+                            .background(Color.panel, in: Capsule())
+                            .overlay(Capsule().stroke(Color.line, lineWidth: 1))
+                    }
+
+                    editorBlock("明信片寄语") {
                         TextField("在明信片上写点什么…", text: $message, axis: .vertical)
-                            .font(.handwriting(20))
-                            .foregroundStyle(Color.text)
-                            .lineLimit(2...5)
+                            .font(.handwriting(20)).foregroundStyle(Color.text).lineLimit(2...5)
                             .padding(12)
                             .background(Color.panel, in: RoundedRectangle(cornerRadius: 12))
                             .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.line, lineWidth: 1))
                     }
-                    .padding(.horizontal, 4)
+
+                    editorBlock("寄给") {
+                        TextField("远方的你", text: $recipient)
+                            .foregroundStyle(Color.text)
+                            .padding(12)
+                            .background(Color.panel, in: RoundedRectangle(cornerRadius: 12))
+                            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.line, lineWidth: 1))
+                    }
+
+                    stylePicker
+                    stampPicker
 
                     if let shareImage {
                         ShareLink(item: shareImage,
@@ -102,6 +122,66 @@ struct PostcardSheet: View {
         .task { cover = await loadAssetUIImage(footprint.photoAssetIDs.first); rerender() }
         .onChange(of: message) { _, _ in rerender() }
         .onChange(of: store.isPlus) { _, _ in rerender() }   // 升级后即时去水印 / 提清
+        .onChange(of: style) { _, _ in rerender() }
+        .onChange(of: stamp) { _, _ in rerender() }
+    }
+
+    private func editorBlock<C: View>(_ title: LocalizedStringKey, @ViewBuilder _ content: () -> C) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title).font(.system(size: 12, weight: .semibold)).foregroundStyle(Color.muted)
+            content()
+        }
+        .padding(.horizontal, 4)
+    }
+
+    /// 样式选择（复古 / 现代 / 插画）。
+    private var stylePicker: some View {
+        editorBlock("样式") {
+            HStack(spacing: 10) {
+                ForEach(PostcardStyle.allCases) { s in
+                    let active = s == style
+                    Button { style = s } label: {
+                        VStack(spacing: 5) {
+                            RoundedRectangle(cornerRadius: 6)
+                                .fill(LinearGradient(colors: s.thumb, startPoint: .topLeading, endPoint: .bottomTrailing))
+                                .frame(height: 40)
+                                .overlay(RoundedRectangle(cornerRadius: 6)
+                                    .stroke(active ? Color.nPink : Color.white.opacity(0.1), lineWidth: active ? 2 : 1))
+                            Text(s.label).font(.system(size: 11, weight: .semibold))
+                                .foregroundStyle(active ? Color.text : Color.muted)
+                        }
+                        .padding(8)
+                        .background(active ? Color.white.opacity(0.07) : .clear, in: RoundedRectangle(cornerRadius: 12))
+                        .overlay(RoundedRectangle(cornerRadius: 12).stroke(active ? Color.white.opacity(0.18) : .clear, lineWidth: 1))
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+    }
+
+    /// 邮票选择（航空 / 城市）。
+    private var stampPicker: some View {
+        editorBlock("邮票") {
+            HStack(spacing: 10) {
+                ForEach(PostcardStamp.allCases) { p in
+                    let active = p == stamp
+                    Button { stamp = p } label: {
+                        HStack(spacing: 8) {
+                            PostcardStampView(stamp: p, mini: true).frame(width: 30, height: 36)
+                            Text(p.label).font(.system(size: 12, weight: .semibold))
+                                .foregroundStyle(active ? Color.text : Color.muted)
+                            Spacer()
+                        }
+                        .padding(.vertical, 9).padding(.horizontal, 12)
+                        .background(active ? Color.white.opacity(0.07) : .clear, in: RoundedRectangle(cornerRadius: 12))
+                        .overlay(RoundedRectangle(cornerRadius: 12)
+                            .stroke(active ? Color.white.opacity(0.18) : Color.white.opacity(0.06), lineWidth: 1))
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
     }
 
     /// 免费版水印提示 + 升级入口。
@@ -139,7 +219,8 @@ struct PostcardSheet: View {
 
     @MainActor private func rerender() {
         // Plus：无水印 + 高清(3x)；免费：盖水印 + 标清(2x)
-        let card = PostcardView(footprint: footprint, cover: cover, message: message, watermark: !store.isPlus)
+        let card = PostcardView(footprint: footprint, cover: cover, message: message,
+                                style: style, stamp: stamp, watermark: !store.isPlus)
         shareImage = ShareRender.image(card, scale: store.isPlus ? 3 : 2)
         qr = PostcardToken.qrImage(shareLinkString).map { Image(uiImage: $0) }
         cardFile = PostcardToken.writeCardFile(tokenString)

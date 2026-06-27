@@ -27,10 +27,13 @@ struct PostcardView: View {
     let footprint: Footprint
     var cover: UIImage? = nil
     var message: String = ""
+    var style: PostcardStyle = .vintage
+    var stamp: PostcardStamp = .air
     /// 免费版导出时盖 Lumi 水印；Plus 去水印（见 PostcardSheet 的 `store.isPlus`）。
     var watermark: Bool = false
 
     private static let df: Date.FormatStyle = .dateTime.year().month(.wide).day()
+    private var theme: PostcardTheme { PostcardTheme.make(style) }
 
     var body: some View {
         ZStack(alignment: .bottomLeading) {
@@ -38,9 +41,7 @@ struct PostcardView: View {
                 if let cover {
                     Image(uiImage: cover).resizable().scaledToFill()
                 } else {
-                    LinearGradient(colors: [Color.nOrange.opacity(0.55), Color.nPink.opacity(0.5),
-                                            Color.nPurple.opacity(0.6)],
-                                   startPoint: .topLeading, endPoint: .bottomTrailing)
+                    LinearGradient(colors: theme.photo, startPoint: .topLeading, endPoint: .bottomTrailing)
                     .overlay(Text(footprint.flag).font(.system(size: 150)).opacity(0.22))
                 }
             }
@@ -78,6 +79,11 @@ struct PostcardView: View {
             .frame(width: 360, height: 480, alignment: .bottomLeading)
         }
         .frame(width: 360, height: 480)
+        .overlay(alignment: .topTrailing) {
+            PostcardStampView(stamp: stamp)
+                .frame(width: 54, height: 64).rotationEffect(.degrees(5))
+                .padding(18)
+        }
         .overlay(alignment: .bottomTrailing) {
             if watermark {
                 HStack(spacing: 4) {

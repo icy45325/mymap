@@ -42,6 +42,10 @@ final class Footprint {
     var isReceived: Bool = false
     var senderName: String? = nil
 
+    /// 明信片外观（样式 + 邮票）；收到的卡保存寄件方所选，明信片墙按样式呈现。
+    var postcardStyle: String = "vintage"
+    var stampStyle: String = "air"
+
     /// 是否为多天行程。
     var isMultiDay: Bool { endedAt != nil }
 

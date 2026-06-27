@@ -76,6 +76,8 @@ struct RootTabView: View {
         fp.countryCode = p.countryCode
         fp.isReceived = true
         fp.senderName = p.sender
+        fp.postcardStyle = p.style ?? "vintage"
+        fp.stampStyle = p.stamp ?? "air"
         if p.countryCode == "AE" {
             fp.subRegionCode = Boundaries.shared.emirateCode(at: fp.coordinate)
         }

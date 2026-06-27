@@ -51,14 +51,16 @@ struct PostcardWallView: View {
 private struct PostcardCell: View {
     let footprint: Footprint
 
+    private var style: PostcardStyle { PostcardStyle(rawValue: footprint.postcardStyle) ?? .vintage }
+    private var stamp: PostcardStamp { PostcardStamp(rawValue: footprint.stampStyle) ?? .air }
+
     var body: some View {
         ZStack(alignment: .bottomLeading) {
             Group {
                 if let id = footprint.photoAssetIDs.first {
                     AssetImage(assetID: id, targetSize: CGSize(width: 600, height: 800))
                 } else {
-                    LinearGradient(colors: [Color.nOrange.opacity(0.5), Color.nPink.opacity(0.45),
-                                            Color.nPurple.opacity(0.55)],
+                    LinearGradient(colors: PostcardTheme.make(style).photo,
                                    startPoint: .topLeading, endPoint: .bottomTrailing)
                     .overlay(Text(footprint.flag).font(.system(size: 64)).opacity(0.25))
                 }
@@ -85,6 +87,9 @@ private struct PostcardCell: View {
         .aspectRatio(3.0/4.0, contentMode: .fit)
         .clipShape(RoundedRectangle(cornerRadius: 16))
         .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.line, lineWidth: 1))
+        .overlay(alignment: .topLeading) {
+            PostcardStampView(stamp: stamp, mini: true).frame(width: 26, height: 31).padding(8)
+        }
         .overlay(alignment: .topTrailing) {
             if footprint.isReceived {
                 Text("✦ 收到").font(.system(size: 9, weight: .bold))

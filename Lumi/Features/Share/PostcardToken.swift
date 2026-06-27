@@ -13,16 +13,20 @@ struct PostcardPayload: Codable {
     let visitedAt: Date
     let message: String
     let sender: String?
+    var style: String? = nil  // 明信片样式（vintage/modern/vivid），旧口令可空
+    var stamp: String? = nil  // 邮票（air/city），旧口令可空
 }
 
 /// 明信片口令编解码（纯本地带外传输：复制口令 / 二维码 → 对方在 App 内自动收下）。
 enum PostcardToken {
     static let prefix = "LUMI1:"
 
-    static func encode(footprint fp: Footprint, message: String, token: String, sender: String? = nil) -> String {
+    static func encode(footprint fp: Footprint, message: String, token: String,
+                       sender: String? = nil, style: String? = nil, stamp: String? = nil) -> String {
         let p = PostcardPayload(token: token, place: fp.placeName, city: fp.cityName,
                                 countryCode: fp.countryCode, lat: fp.latitude, lon: fp.longitude,
-                                visitedAt: fp.visitedAt, message: message, sender: sender)
+                                visitedAt: fp.visitedAt, message: message, sender: sender,
+                                style: style, stamp: stamp)
         guard let data = try? JSONEncoder().encode(p) else { return "" }
         return prefix + data.base64EncodedString()
     }
