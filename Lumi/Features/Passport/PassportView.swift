@@ -116,28 +116,15 @@ struct PassportView: View {
 
     private var passport: some View {
         VStack(spacing: 0) {
-            header
-            Spacer(minLength: 10)
+            Spacer(minLength: 8)
             book
-            pageIndicator
-            Spacer(minLength: 14)
+            pageDots
+            Spacer(minLength: 16)
         }
-        .padding(.top, 52)
+        .padding(.top, 56)   // 给左上返回按钮留出空间
     }
 
-    private var header: some View {
-        HStack(alignment: .bottom) {
-            VStack(alignment: .leading, spacing: 5) {
-                Text("护照本").font(Typo.serif(32)).foregroundStyle(.white)
-                Text("我的旅行护照").font(.system(size: 12, weight: .semibold))
-                    .foregroundStyle(.white.opacity(0.55)).tracking(0.5)
-            }
-            Spacer()
-        }
-        .padding(.horizontal, 22)
-    }
-
-    // MARK: - 翻页书
+    // MARK: - 翻页书（左右滑动）
 
     private var book: some View {
         TabView(selection: $page) {
@@ -148,32 +135,25 @@ struct PassportView: View {
             }
         }
         .tabViewStyle(.page(indexDisplayMode: .never))
-        .frame(maxWidth: 300)
+        .frame(maxWidth: 330)
         .aspectRatio(0.7, contentMode: .fit)
         .clipShape(RoundedRectangle(cornerRadius: 14))
         .overlay(RoundedRectangle(cornerRadius: 14).stroke(.white.opacity(0.05), lineWidth: 1))
         .shadow(color: .black.opacity(0.6), radius: 26, x: 0, y: 22)
-        .padding(.horizontal, 24)
+        .padding(.horizontal, 22)
     }
 
-    /// 左右滑动翻页，仅显示页标题 + 进度点（无占高度的箭头）。
-    private var pageIndicator: some View {
-        VStack(spacing: 8) {
-            Text(caption).font(Typo.serif(14)).foregroundStyle(.white).tracking(1)
-            HStack(spacing: 5) {
-                ForEach(Array(0..<pageCount), id: \.self) { i in
-                    Capsule()
-                        .fill(i == page ? AnyShapeStyle(LinearGradient.neonH) : AnyShapeStyle(Color.white.opacity(0.22)))
-                        .frame(width: i == page ? 18 : 6, height: 6)
-                        .animation(.easeInOut(duration: 0.3), value: page)
-                }
+    /// 仅进度点（无说明文字、无箭头）；左右滑动翻页。
+    private var pageDots: some View {
+        HStack(spacing: 5) {
+            ForEach(Array(0..<pageCount), id: \.self) { i in
+                Capsule()
+                    .fill(i == page ? AnyShapeStyle(LinearGradient.neonH) : AnyShapeStyle(Color.white.opacity(0.22)))
+                    .frame(width: i == page ? 18 : 6, height: 6)
+                    .animation(.easeInOut(duration: 0.3), value: page)
             }
         }
-        .padding(.top, 16)
-    }
-
-    private var caption: LocalizedStringKey {
-        switch page { case 0: return "封面"; case 1: return "资料页"; default: return "入境章" }
+        .padding(.top, 18)
     }
 
     // MARK: - 页 0：封面
@@ -244,24 +224,24 @@ struct PassportView: View {
             patternOverlay
             VStack(alignment: .leading, spacing: 0) {
                 HStack(alignment: .firstTextBaseline) {
-                    Text("个人资料").font(Typo.serif(11)).tracking(1.5).foregroundStyle(theme.soft)
+                    Text("个人资料").font(Typo.serif(14)).tracking(1.5).foregroundStyle(theme.soft)
                     Spacer()
-                    Text(nation.code3).font(.system(size: 10, design: .monospaced)).foregroundStyle(theme.soft)
+                    Text(nation.code3).font(.system(size: 12, design: .monospaced)).foregroundStyle(theme.soft)
                 }
-                .padding(.bottom, 7)
+                .padding(.bottom, 9)
                 .overlay(alignment: .bottom) { Rectangle().fill(theme.line).frame(height: 1) }
 
-                HStack(alignment: .top, spacing: 13) {
+                HStack(alignment: .top, spacing: 16) {
                     photoBox
-                    VStack(alignment: .leading, spacing: 9) {
+                    VStack(alignment: .leading, spacing: 13) {
                         bioField("姓名", holderName.isEmpty ? String(localized: "旅行者") : holderName)
                         bioField("国籍", "\(CountryInfo.localizedName(for: nationality) ?? nationality)  \(nation.code3)")
                         bioField("签发", "LUMI")
                     }
                 }
-                .padding(.top, 13)
+                .padding(.top, 16)
 
-                summaryBox.padding(.top, 14)
+                summaryBox.padding(.top, 16)
 
                 VStack(alignment: .leading, spacing: 8) {
                     Rectangle().fill(theme.line).frame(height: 1)
@@ -287,50 +267,50 @@ struct PassportView: View {
                     LinearGradient(colors: [Color(hex: 0x6B4D8A), Color(hex: 0x3A2B52)],
                                    startPoint: .top, endPoint: .bottom)
                     VStack {
-                        Text(String(holderName.prefix(1))).font(Typo.serif(40))
+                        Text(String(holderName.prefix(1))).font(Typo.serif(50))
                             .foregroundStyle(.white.opacity(0.9))
                         Spacer()
-                        Text("LUMI ID").font(.system(size: 7, weight: .semibold)).tracking(1)
-                            .foregroundStyle(.white.opacity(0.55)).padding(.bottom, 5)
+                        Text("LUMI ID").font(.system(size: 8, weight: .semibold)).tracking(1)
+                            .foregroundStyle(.white.opacity(0.55)).padding(.bottom, 6)
                     }
-                    .padding(.top, 8)
+                    .padding(.top, 10)
                 }
             } else {
-                AssetImage(assetID: avatarID, targetSize: CGSize(width: 240, height: 300))
+                AssetImage(assetID: avatarID, targetSize: CGSize(width: 280, height: 350))
             }
         }
-        .frame(width: 78, height: 98)
-        .clipShape(RoundedRectangle(cornerRadius: 3))
-        .overlay(RoundedRectangle(cornerRadius: 3).stroke(theme.line, lineWidth: 1))
+        .frame(width: 94, height: 118)
+        .clipShape(RoundedRectangle(cornerRadius: 4))
+        .overlay(RoundedRectangle(cornerRadius: 4).stroke(theme.line, lineWidth: 1))
     }
 
     private func bioField(_ label: LocalizedStringKey, _ value: String) -> some View {
-        VStack(alignment: .leading, spacing: 1) {
-            Text(label).font(.system(size: 8, weight: .semibold)).tracking(0.6)
+        VStack(alignment: .leading, spacing: 2) {
+            Text(label).font(.system(size: 9.5, weight: .semibold)).tracking(0.6)
                 .foregroundStyle(theme.soft).textCase(.uppercase)
-            Text(value).font(.system(size: 12, weight: .bold, design: .monospaced))
-                .foregroundStyle(theme.ink).lineLimit(1).minimumScaleFactor(0.7)
+            Text(value).font(.system(size: 15, weight: .bold, design: .monospaced))
+                .foregroundStyle(theme.ink).lineLimit(1).minimumScaleFactor(0.6)
         }
     }
 
     private var summaryBox: some View {
         let s = LumiStats(footprints: footprints)
-        return VStack(alignment: .leading, spacing: 10) {
+        return VStack(alignment: .leading, spacing: 11) {
             HStack(alignment: .firstTextBaseline, spacing: 8) {
-                Text("\(s.countries)").font(Typo.serif(26)).fontWeight(.semibold).foregroundStyle(nation.accent(style))
-                Text("个国家已点亮").font(.system(size: 11)).foregroundStyle(theme.soft)
+                Text("\(s.countries)").font(Typo.serif(34)).fontWeight(.semibold).foregroundStyle(nation.accent(style))
+                Text("个国家已点亮").font(.system(size: 13)).foregroundStyle(theme.soft)
             }
             FlowRow(spacing: 5) {
                 ForEach(stamps.prefix(12)) { st in
                     Text(st.code3)
-                        .font(.system(size: 9, weight: .bold, design: .monospaced)).tracking(0.5)
+                        .font(.system(size: 10.5, weight: .bold, design: .monospaced)).tracking(0.5)
                         .foregroundStyle(nation.accent(style))
-                        .padding(.vertical, 2).padding(.horizontal, 5)
+                        .padding(.vertical, 3).padding(.horizontal, 6)
                         .overlay(RoundedRectangle(cornerRadius: 3).stroke(nation.accent(style).opacity(0.4), lineWidth: 1))
                 }
             }
         }
-        .padding(11)
+        .padding(13)
         .background(theme.summaryBg, in: RoundedRectangle(cornerRadius: 8))
         .overlay(RoundedRectangle(cornerRadius: 8).stroke(theme.line, lineWidth: 1))
     }
