@@ -292,7 +292,8 @@ private struct BadgeSheet: View {
                         .frame(width: 250, height: 100)
                         .blur(radius: 24)
                         .offset(y: -6)
-                    HolographicBadge(badge: badge, size: 200)
+                    // 用 HexBadge（无全息流光）展示大图，去掉徽章上层炫光，只保留底部光晕
+                    HexBadge(badge: badge, size: 200)
                 }
                 .frame(height: 290)
                 .padding(.top, 2)

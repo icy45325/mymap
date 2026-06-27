@@ -228,6 +228,9 @@ struct PassportView: View {
 
                 summaryBox.padding(.top, 16)
 
+                Spacer(minLength: 12)
+
+                // MRZ 机读码：置于资料页最底部
                 VStack(alignment: .leading, spacing: 8) {
                     Rectangle().fill(theme.line).frame(height: 1)
                     VStack(alignment: .leading, spacing: 2) {
@@ -237,9 +240,6 @@ struct PassportView: View {
                     .font(.system(size: 9.5, design: .monospaced)).tracking(1)
                     .foregroundStyle(theme.ink.opacity(0.78))
                 }
-                .padding(.top, 11)
-
-                Spacer(minLength: 0)
             }
             .padding(16)
         }
@@ -264,9 +264,9 @@ struct PassportView: View {
                 AssetImage(assetID: avatarID, targetSize: CGSize(width: 280, height: 350))
             }
         }
-        .frame(width: 94, height: 118)
-        .clipShape(RoundedRectangle(cornerRadius: 4))
-        .overlay(RoundedRectangle(cornerRadius: 4).stroke(theme.line, lineWidth: 1))
+        .frame(width: 150, height: 188)   // 放大约占资料页 1/4
+        .clipShape(RoundedRectangle(cornerRadius: 5))
+        .overlay(RoundedRectangle(cornerRadius: 5).stroke(theme.line, lineWidth: 1))
     }
 
     private func bioField(_ label: LocalizedStringKey, _ value: String) -> some View {
@@ -295,6 +295,7 @@ struct PassportView: View {
                 }
             }
         }
+        .frame(maxWidth: .infinity, alignment: .leading)   // 国家计数横向拉通
         .padding(13)
         .background(theme.summaryBg, in: RoundedRectangle(cornerRadius: 8))
         .overlay(RoundedRectangle(cornerRadius: 8).stroke(theme.line, lineWidth: 1))

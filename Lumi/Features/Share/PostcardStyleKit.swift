@@ -177,8 +177,26 @@ struct PostcardFlipCard: View {
         .shadow(color: .black.opacity(0.45), radius: 16, y: 8)
     }
 
-    /// 正面：只展示上传的照片（横向裁切填满固定尺寸）；无照片用样式渐变兜底。
     private var front: some View {
+        PostcardFrontPanel(footprint: footprint, cover: cover, style: style)
+            .clipShape(RoundedRectangle(cornerRadius: 9))
+    }
+
+    private var back: some View {
+        PostcardBackPanel(footprint: footprint, message: message, recipient: recipient,
+                          style: style, stamp: stamp, portrait: isPortrait)
+    }
+}
+
+// MARK: - 正面 / 背面 面板（预览卡与导出图共用）
+
+/// 正面：只展示上传的照片（裁切填满）；无照片用样式渐变兜底。
+struct PostcardFrontPanel: View {
+    let footprint: Footprint
+    var cover: UIImage?
+    let style: PostcardStyle
+    private var theme: PostcardTheme { PostcardTheme.make(style) }
+    var body: some View {
         Group {
             if let cover {
                 Image(uiImage: cover).resizable().scaledToFill()
@@ -189,15 +207,31 @@ struct PostcardFlipCard: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .clipped()
-        .clipShape(RoundedRectangle(cornerRadius: 9))
+    }
+}
+
+/// 背面书写面：地点 + 寄语 + 邮票/邮戳 + 寄给。横版左右分栏，竖版上下分区。
+struct PostcardBackPanel: View {
+    let footprint: Footprint
+    var message: String
+    var recipient: String
+    let style: PostcardStyle
+    let stamp: PostcardStamp
+    var portrait: Bool = false
+
+    private var theme: PostcardTheme { PostcardTheme.make(style) }
+    private var locEn: String { (footprint.cityName ?? footprint.title).uppercased() }
+    private var locZh: String { footprint.locationSubtitle.isEmpty ? footprint.title : footprint.locationSubtitle }
+
+    var body: some View {
+        Group { if portrait { vertical } else { horizontal } }
+            .background(theme.paper)
+            .overlay { if theme.paperPattern { DiagonalPaper().stroke(Color(hex: 0x785F3C).opacity(0.06), lineWidth: 1) } }
+            .clipShape(RoundedRectangle(cornerRadius: 9))
     }
 
-    @ViewBuilder private var back: some View {
-        if isPortrait { backPortrait } else { backLandscape }
-    }
-
-    /// 竖版背面：上＝国家/地名 + 寄语，下＝邮票/邮戳 + 寄给。
-    private var backPortrait: some View {
+    /// 竖版：上＝国家/地名 + 寄语，下＝邮票/邮戳 + 寄给。
+    private var vertical: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 5) {
                 Text(footprint.flag).font(.system(size: 15))
@@ -229,12 +263,9 @@ struct PostcardFlipCard: View {
         }
         .padding(18)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .background(theme.paper)
-        .overlay { if theme.paperPattern { DiagonalPaper().stroke(Color(hex: 0x785F3C).opacity(0.06), lineWidth: 1) } }
-        .clipShape(RoundedRectangle(cornerRadius: 9))
     }
 
-    private var backLandscape: some View {
+    private var horizontal: some View {
         HStack(spacing: 0) {
             // 左：地点（国家 / 地名）+ 寄语
             VStack(alignment: .leading, spacing: 6) {
@@ -277,9 +308,6 @@ struct PostcardFlipCard: View {
             .frame(width: 124)
             .frame(maxHeight: .infinity)
         }
-        .background(theme.paper)
-        .overlay { if theme.paperPattern { DiagonalPaper().stroke(Color(hex: 0x785F3C).opacity(0.06), lineWidth: 1) } }
-        .clipShape(RoundedRectangle(cornerRadius: 9))
     }
 
     private var postmark: some View {
@@ -301,5 +329,59 @@ struct PostcardFlipCard: View {
     }
     private var pmYear: String {
         "'" + String(Calendar.current.component(.year, from: footprint.visitedAt) % 100)
+    }
+}
+
+/// 导出 / 分享用的成品图：**照片 + 背面信息（寄语 / 邮票 / 邮戳 / 寄给）一起**。
+/// 朝向随上传照片：宽图 → 横版，竖图 → 竖版。供 `ShareRender.image(_:)` 渲染。
+struct PostcardExportCard: View {
+    let footprint: Footprint
+    var cover: UIImage?
+    var message: String
+    var recipient: String
+    let style: PostcardStyle
+    let stamp: PostcardStamp
+    var watermark: Bool = false
+
+    /// 与预览卡同口径：明显竖图才走竖版，其余横版。
+    private var isLandscape: Bool {
+        guard let c = cover else { return true }
+        return !(c.size.height > c.size.width * 1.05)
+    }
+
+    var body: some View {
+        let cardW: CGFloat = isLandscape ? 380 : 300
+        let frontH: CGFloat = isLandscape ? cardW / 1.55 : cardW / 0.66
+        let backH: CGFloat = isLandscape ? 170 : 226
+        VStack(spacing: 14) {
+            PostcardFrontPanel(footprint: footprint, cover: cover, style: style)
+                .frame(width: cardW, height: frontH)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .overlay(RoundedRectangle(cornerRadius: 12).stroke(.white.opacity(0.08), lineWidth: 1))
+                .overlay(alignment: .topLeading) {
+                    Text("LUMI").font(.system(size: 10, weight: .heavy)).tracking(3)
+                        .foregroundStyle(.white.opacity(0.9))
+                        .padding(10)
+                        .shadow(color: .black.opacity(0.4), radius: 3)
+                }
+            PostcardBackPanel(footprint: footprint, message: message, recipient: recipient,
+                              style: style, stamp: stamp, portrait: !isLandscape)
+                .frame(width: cardW, height: backH)
+                .overlay(RoundedRectangle(cornerRadius: 9).stroke(.white.opacity(0.06), lineWidth: 1))
+        }
+        .padding(18)
+        .background(Color(hex: 0x0F0F17))
+        .overlay(alignment: .bottomTrailing) {
+            if watermark {
+                HStack(spacing: 4) {
+                    Text("✦").font(.system(size: 11))
+                    Text("Lumi").font(.system(size: 12, weight: .heavy)).tracking(1)
+                }
+                .foregroundStyle(.white.opacity(0.85))
+                .padding(.vertical, 5).padding(.horizontal, 9)
+                .background(.black.opacity(0.3), in: Capsule())
+                .padding(26)
+            }
+        }
     }
 }

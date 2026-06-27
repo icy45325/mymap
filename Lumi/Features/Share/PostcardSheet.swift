@@ -128,6 +128,7 @@ struct PostcardSheet: View {
         .sheet(isPresented: $showPaywall) { PaywallView() }
         .task { cover = await loadAssetUIImage(footprint.photoAssetIDs.first); rerender() }
         .onChange(of: message) { _, _ in rerender() }
+        .onChange(of: recipient) { _, _ in rerender() }      // 导出图含「寄给」，改收件人即时重渲
         .onChange(of: store.isPlus) { _, _ in rerender() }   // 升级后即时去水印 / 提清
         .onChange(of: style) { _, _ in rerender() }
         .onChange(of: stamp) { _, _ in rerender() }
@@ -246,8 +247,9 @@ struct PostcardSheet: View {
 
     @MainActor private func rerender() {
         // Plus：无水印 + 高清(3x)；免费：盖水印 + 标清(2x)
-        let card = PostcardView(footprint: footprint, cover: cover, message: message,
-                                style: style, stamp: stamp, watermark: !store.isPlus)
+        let card = PostcardExportCard(footprint: footprint, cover: cover, message: message,
+                                      recipient: recipient, style: style, stamp: stamp,
+                                      watermark: !store.isPlus)
         shareImage = ShareRender.image(card, scale: store.isPlus ? 3 : 2)
         qr = PostcardToken.qrImage(shareLinkString).map { Image(uiImage: $0) }
         cardFile = PostcardToken.writeCardFile(tokenString)
