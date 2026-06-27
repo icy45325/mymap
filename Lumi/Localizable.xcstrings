@@ -2913,6 +2913,102 @@
         }
       }
     },
+    "明信片墙": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Postcards"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "البطاقات"
+          }
+        }
+      }
+    },
+    "还没有明信片": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No postcards yet"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "لا بطاقات بعد"
+          }
+        }
+      }
+    },
+    "点亮足迹会生成明信片；收到的明信片也会收进这里": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lighting footprints creates postcards; received ones land here too"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "إضاءة البصمات تنشئ بطاقات؛ والمستلمة تظهر هنا أيضًا"
+          }
+        }
+      }
+    },
+    "我的": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mine"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "لي"
+          }
+        }
+      }
+    },
+    "收到的": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Received"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "المستلمة"
+          }
+        }
+      }
+    },
+    "✦ 收到": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ Received"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ مستلمة"
+          }
+        }
+      }
+    },
     "分享徽章": {
       "localizations": {
         "en": {

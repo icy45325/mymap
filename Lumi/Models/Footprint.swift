@@ -38,6 +38,10 @@ final class Footprint {
     var companions: [String]    // 同行人（v0 先存名字字符串）
     var photoAssetIDs: [String] // PhotoKit 本地标识符（v0 不拷贝原图，只引用相册）
 
+    /// 是否为「收到的明信片」（区别于自己点亮）；及寄件人昵称（可空）。
+    var isReceived: Bool = false
+    var senderName: String? = nil
+
     /// 是否为多天行程。
     var isMultiDay: Bool { endedAt != nil }
 

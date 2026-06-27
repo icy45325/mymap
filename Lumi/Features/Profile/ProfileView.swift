@@ -43,6 +43,7 @@ struct ProfileView: View {
                 Text("Lv.\(stats.level) 探索者").font(.system(size: 12)).foregroundStyle(Color.muted)
             }
             Spacer()
+            NavigationLink { PostcardWallView() } label: { topIcon("rectangle.stack") }
             NavigationLink { WishlistView() } label: { topIcon("heart") }
             NavigationLink { SettingsView() } label: { topIcon("gearshape") }
         }

@@ -67,6 +67,8 @@ struct RootTabView: View {
             visitedAt: p.visitedAt,
             mood: p.message)
         fp.countryCode = p.countryCode
+        fp.isReceived = true
+        fp.senderName = p.sender
         if p.countryCode == "AE" {
             fp.subRegionCode = Boundaries.shared.emirateCode(at: fp.coordinate)
         }
