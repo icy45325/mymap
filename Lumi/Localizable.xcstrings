@@ -4640,6 +4640,150 @@
           }
         }
       }
+    },
+    "点亮战绩": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lit Stats"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الإحصاءات"
+          }
+        }
+      }
+    },
+    "个国家 · 全球 5%": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "countries · 5% of world"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "دولة · 5% من العالم"
+          }
+        }
+      }
+    },
+    "已点亮 12 国": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "12 countries lit"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "12 دولة مضاءة"
+          }
+        }
+      }
+    },
+    "去年此刻你在 东京 ✦": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A year ago: Tokyo ✦"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "قبل عام: طوكيو ✦"
+          }
+        }
+      }
+    },
+    "最新": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Latest"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الأحدث"
+          }
+        }
+      }
+    },
+    "反馈与建议": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Feedback"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ملاحظات"
+          }
+        }
+      }
+    },
+    "有想法或遇到问题？写信告诉我们": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Got ideas or issues? Drop us a line"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "لديك أفكار أو مشكلات؟ راسلنا"
+          }
+        }
+      }
+    },
+    "发送反馈邮件": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send feedback email"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أرسل بريد الملاحظات"
+          }
+        }
+      }
+    },
+    "Lumi 反馈": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lumi Feedback"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ملاحظات Lumi"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

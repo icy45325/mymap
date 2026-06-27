@@ -9,7 +9,7 @@ struct ProfileView: View {
     @Query(sort: \Footprint.visitedAt, order: .reverse)
     private var footprints: [Footprint]
 
-    @AppStorage("lumi.profile.name") private var holderName: String = "旅行者"
+    @AppStorage("lumi.profile.name") private var holderName: String = ""
     @AppStorage("lumi.profile.avatarID") private var avatarID: String = ""
 
     private var stats: LumiStats { LumiStats(footprints: footprints) }

@@ -4,7 +4,7 @@ import PhotosUI
 /// 个人资料：上传头像 + 昵称 + 国籍。驱动护照持有人页与封面颜色。
 struct ProfileEditView: View {
     @Environment(\.dismiss) private var dismiss
-    @AppStorage("lumi.profile.name") private var name: String = "旅行者"
+    @AppStorage("lumi.profile.name") private var name: String = ""
     @AppStorage("lumi.profile.nationality") private var nationality: String = ""
     @AppStorage("lumi.profile.avatarID") private var avatarID: String = ""
     @AppStorage("lumi.passport.style") private var passportStyle: String = PassportStyle.classic.rawValue

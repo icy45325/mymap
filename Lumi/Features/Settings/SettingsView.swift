@@ -55,6 +55,7 @@ struct SettingsView: View {
                     .background(Color.panel, in: RoundedRectangle(cornerRadius: 14))
                     .overlay(RoundedRectangle(cornerRadius: 14).stroke(Color.line, lineWidth: 1))
                 }
+                section("反馈与建议") { feedbackRow }
             }
             .padding(20)
         }
@@ -95,6 +96,38 @@ struct SettingsView: View {
         .buttonStyle(.plain)
         .background(Color.panel, in: RoundedRectangle(cornerRadius: 14))
         .overlay(RoundedRectangle(cornerRadius: 14).stroke(store.isPlus ? Color.nCyan.opacity(0.4) : Color.line, lineWidth: 1))
+    }
+
+    // MARK: - 反馈与建议（邮件）
+
+    private var feedbackRow: some View {
+        Button {
+            let subject = String(localized: "Lumi 反馈")
+            let encoded = subject.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? subject
+            if let url = URL(string: "mailto:icy45325@hotmail.com?subject=\(encoded)") {
+                UIApplication.shared.open(url)
+            }
+        } label: {
+            HStack(spacing: 12) {
+                Image(systemName: "envelope.fill")
+                    .font(.system(size: 18)).foregroundStyle(Color.nCyan).frame(width: 28)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("有想法或遇到问题？写信告诉我们")
+                        .font(.system(size: 14, weight: .medium)).foregroundStyle(Color.text)
+                        .fixedSize(horizontal: false, vertical: true)
+                    Text("icy45325@hotmail.com")
+                        .font(.system(size: 11)).foregroundStyle(Color.muted)
+                }
+                Spacer()
+                Image(systemName: "chevron.right").font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(Color.faint).flipsForRightToLeftLayoutDirection(true)
+            }
+            .padding(.vertical, 13).padding(.horizontal, 14)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .background(Color.panel, in: RoundedRectangle(cornerRadius: 14))
+        .overlay(RoundedRectangle(cornerRadius: 14).stroke(Color.line, lineWidth: 1))
     }
 
     // MARK: - 护照风格切换

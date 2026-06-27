@@ -9,7 +9,7 @@ struct PassportView: View {
 
     @Query(sort: \Footprint.visitedAt, order: .forward) private var footprints: [Footprint]
 
-    @AppStorage("lumi.profile.name") private var holderName: String = "旅行者"
+    @AppStorage("lumi.profile.name") private var holderName: String = ""
     @AppStorage("lumi.profile.nationality") private var nationality: String = ""
     @AppStorage("lumi.profile.avatarID") private var avatarID: String = ""
     @AppStorage("lumi.passport.style") private var styleRaw: String = PassportStyle.classic.rawValue
