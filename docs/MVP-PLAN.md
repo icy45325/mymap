@@ -72,14 +72,17 @@
 
 **文件**：`Features/Paywall/PlusStore.swift`、`PaywallView.swift`、`Lumi.storekit`；改 `PostcardSheet`/`PostcardView`/`SettingsView`/`LumiApp`。**工作量 L**（编码部分已完成）。
 
-### B5 · 上架准备 —— 🔲 未开工，最后收尾
-- [ ] 付费 Apple Developer Program + App Store Connect 建 App
-- [ ] 截图（中/英/阿 × 机型）+ 预览；本地化元数据（标题/关键词/描述 三语）
-- [ ] 隐私营养标签（纯本地 + 相册权限）+ **隐私政策页 / 支持页 URL**
-- [ ] 定价分层（中东 / 全球）
+### B5 · 上架准备 —— 🚧 文案 / 法务页已起草，待 ICY 走 ASC 流程
+- [x] 三语元数据（名称/副标题/关键词/描述/宣传文本/更新说明）+ 截图清单 → [`APPSTORE-LISTING.md`](APPSTORE-LISTING.md)
+- [x] 隐私政策 / 使用条款 / 支持页（可托管 HTML，三语）→ [`legal/`](legal/)（paywall 链接已指向 GitHub Pages）
+- [x] App 隐私标签答案（Data Not Collected）+ 出口合规 + 年龄分级 4+ + 审核备注 + 提审清单 → [`APP-PRIVACY-AND-SUBMISSION.md`](APP-PRIVACY-AND-SUBMISSION.md)
+- [ ] **ICY**：开 GitHub Pages（Settings → Pages → /docs）让三个法务页可访问
+- [ ] **ICY**：付费开发者账号 + App Store Connect 建 App + 三产品 + 价格分层（中东/全球）
+- [ ] **ICY**：实拍截图（6.7" + 6.1" 各套，三语 caption）+ 可选预览视频
+- [ ] Info.plist 加 `ITSAppUsesNonExemptEncryption = NO`
 - [ ] TestFlight 外测 → 提审
 
-**工作量 M**（以非编码为主）。
+**工作量 M**（以非编码为主；文案 / 法务页已就绪）。
 
 ---
 

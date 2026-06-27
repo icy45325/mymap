@@ -67,7 +67,11 @@ Lumi 不做后台 GPS 自动记录——**点亮是手动的、是有意识的�
 | [`PRODUCT-OVERVIEW.md`](PRODUCT-OVERVIEW.md) | 本文：产品概览 + 核心功能 |
 | [`REQUIREMENTS.md`](REQUIREMENTS.md) | 逐条需求台账 + 进度（单一事实源）|
 | [`ROADMAP.md`](ROADMAP.md) | 阶段级蓝图 + MVP 范围 |
+| [`MVP-PLAN.md`](MVP-PLAN.md) | MVP 执行批次与进度 |
 | [`Lumi_v0_PRD.md`](Lumi_v0_PRD.md) | v0 产品需求规格 |
+| [`APPSTORE-LISTING.md`](APPSTORE-LISTING.md) | App Store 上架文案（三语）+ 截图清单 |
+| [`APP-PRIVACY-AND-SUBMISSION.md`](APP-PRIVACY-AND-SUBMISSION.md) | App 隐私标签 + 提审清单 |
+| [`legal/`](legal/) | 隐私政策 / 使用条款 / 支持页（可托管 HTML，三语）|
 | [`ARCHITECTURE.md`](ARCHITECTURE.md) | 工程架构 |
 | [`DESIGN-accounts-and-exchange.md`](DESIGN-accounts-and-exchange.md) | 账号体系 / 数据迁移 / 交换日记·明信片 / IM 分享 |
 | [`DESIGN-monetization.md`](DESIGN-monetization.md) | 变现设计（Plus / 装饰内购）|

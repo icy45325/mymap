@@ -173,8 +173,8 @@ struct PaywallView: View {
                 .font(.system(size: 10)).foregroundStyle(Color.faint)
                 .multilineTextAlignment(.center)
             HStack(spacing: 16) {
-                Link("隐私政策", destination: URL(string: "https://lumi.app/privacy")!)
-                Link("使用条款", destination: URL(string: "https://lumi.app/terms")!)
+                Link("隐私政策", destination: URL(string: "https://icy45325.github.io/mymap/legal/privacy.html")!)
+                Link("使用条款", destination: URL(string: "https://icy45325.github.io/mymap/legal/terms.html")!)
             }
             .font(.system(size: 11)).foregroundStyle(Color.nCyan)
         }
