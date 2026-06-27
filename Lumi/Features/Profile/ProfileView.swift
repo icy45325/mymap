@@ -22,7 +22,8 @@ struct ProfileView: View {
                     statsRow
                     levelBar
                     passportEntry
-                    recentSection
+                    entryCard("rectangle.stack", "明信片墙", "收到的明信片都在这", Color.nPink) { PostcardWallView() }
+                    entryCard("heart.fill", "心愿单", "想去的地方", Color.nCyan) { WishlistView() }
                     Color.clear.frame(height: 24)
                 }
                 .padding(.top, 16)
@@ -54,8 +55,6 @@ struct ProfileView: View {
                 Text("Lv.\(stats.level) 探索者").font(.system(size: 12)).foregroundStyle(Color.muted)
             }
             Spacer()
-            NavigationLink { PostcardWallView() } label: { topIcon("rectangle.stack") }
-            NavigationLink { WishlistView() } label: { topIcon("heart") }
             NavigationLink { SettingsView() } label: { topIcon("gearshape") }
         }
         .padding(.horizontal, 26)
@@ -83,6 +82,25 @@ struct ProfileView: View {
             .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color(hex: 0xC9A24B).opacity(0.45), lineWidth: 1))
         }
         .padding(.horizontal, 26).padding(.top, 18)
+    }
+
+    private func entryCard<D: View>(_ icon: String, _ title: LocalizedStringKey, _ subtitle: LocalizedStringKey,
+                                    _ tint: Color, @ViewBuilder _ destination: @escaping () -> D) -> some View {
+        NavigationLink { destination() } label: {
+            HStack(spacing: 14) {
+                Image(systemName: icon).font(.system(size: 20)).foregroundStyle(tint).frame(width: 26)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(title).font(.system(size: 15, weight: .semibold)).foregroundStyle(Color.text)
+                    Text(subtitle).font(.system(size: 11)).foregroundStyle(Color.muted)
+                }
+                Spacer()
+                Image(systemName: "chevron.right").font(.system(size: 13, weight: .semibold)).foregroundStyle(Color.faint)
+            }
+            .padding(16)
+            .background(Color.panel, in: RoundedRectangle(cornerRadius: 16))
+            .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.line, lineWidth: 1))
+        }
+        .padding(.horizontal, 26).padding(.top, 12)
     }
 
     private func topIcon(_ systemName: String) -> some View {

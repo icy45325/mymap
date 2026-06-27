@@ -8,8 +8,13 @@ struct RootTabView: View {
 
     @Environment(\.modelContext) private var context
     @Environment(\.scenePhase) private var scenePhase
+    @Query private var footprints: [Footprint]
     /// 已接收 / 已发送过的明信片口令（逗号分隔），用于幂等去重。
     @AppStorage("lumi.receivedTokens") private var receivedTokensRaw: String = ""
+    /// 已「见过」的解锁徽章 id；用于在**添加足迹时**检测新解锁并弹庆祝（全 App 级）。
+    @AppStorage("lumi.seenBadges") private var seenBadgesRaw: String = ""
+    @AppStorage("lumi.badgesInit") private var badgesInit: Bool = false
+    @State private var celebrateBadge: Badge?
     /// 接收枢纽：剪贴板 / 扫码 / lumi:// / AirDrop 四入口统一到这里。
     @ObservedObject private var inbox = PostcardInbox.shared
 
@@ -39,10 +44,12 @@ struct RootTabView: View {
         }
         .tint(Color.nPink)
         .preferredColorScheme(.dark)
-        .onAppear { checkClipboardForPostcard() }
+        .onAppear { checkClipboardForPostcard(); detectNewUnlocks() }
         .onChange(of: scenePhase) { _, phase in
             if phase == .active { checkClipboardForPostcard() }
         }
+        .onChange(of: footprints.count) { _, _ in detectNewUnlocks() }   // 添加足迹即判断是否点亮新徽章
+        .overlay { if let b = celebrateBadge { UnlockCelebration(badge: b) { celebrateBadge = nil } } }
         .alert("收到一张明信片 ✦",
                isPresented: Binding(get: { inbox.pending != nil }, set: { if !$0 { inbox.pending = nil } }),
                presenting: inbox.pending) { payload in
@@ -78,6 +85,26 @@ struct RootTabView: View {
         markSeen(p.token)
         WidgetSync.refresh(context)
         inbox.pending = nil
+    }
+
+    // MARK: - 徽章点亮检测（添加足迹时，全 App 级弹庆祝）
+
+    private func detectNewUnlocks() {
+        let board = LumiStats(footprints: footprints).badgeBoard
+        let litIDs = Set(board.badges.filter { $0.state == .lit }.map(\.id))
+        var seen = Set(seenBadgesRaw.split(separator: ",").map(String.init))
+        guard badgesInit else {                       // 首次/升级：静默播种，不一次弹一堆
+            seen = litIDs; badgesInit = true
+            seenBadgesRaw = seen.sorted().joined(separator: ",")
+            return
+        }
+        let fresh = litIDs.subtracting(seen)
+        guard !fresh.isEmpty else { return }
+        if celebrateBadge == nil, let first = board.badges.first(where: { fresh.contains($0.id) }) {
+            celebrateBadge = first
+        }
+        seen.formUnion(litIDs)
+        seenBadgesRaw = seen.sorted().joined(separator: ",")
     }
 
     private var seenTokens: Set<String> {

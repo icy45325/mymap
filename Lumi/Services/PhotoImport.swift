@@ -245,9 +245,9 @@ final class PhotoImportService: ObservableObject {
                 CLLocation(latitude: coord.latitude, longitude: coord.longitude)).first
             if Task.isCancelled { return }
             if let placemark {
+                // 只取到城市级（locality）；不要 placemark.name（POI/街道）细化到区/街道
                 let city = placemark.locality ?? placemark.subAdministrativeArea
                 let place = placemark.locality
-                    ?? placemark.name
                     ?? placemark.administrativeArea
                     ?? candidates[index].placeName
                 candidates[index].cityName = city
@@ -256,6 +256,32 @@ final class PhotoImportService: ObservableObject {
             }
             try? await Task.sleep(for: .milliseconds(120))   // 顺序请求 + 轻微间隔，避免限流
         }
+        if Task.isCancelled { return }
+        collapseByCity()
+    }
+
+    /// 按城市粒度去重：同一国家+城市只留一条（取最早时间、合并照片 id）。城市级展示。
+    private func collapseByCity() {
+        guard granularity == .city else { return }
+        var byKey: [String: ImportCandidate] = [:]
+        var order: [String] = []
+        for c in candidates {
+            let key = "\(c.countryCode ?? "")|\(c.cityName ?? c.placeName)"
+            if var existing = byKey[key] {
+                if c.date < existing.date {
+                    existing.date = c.date
+                    existing.latitude = c.latitude
+                    existing.longitude = c.longitude
+                }
+                existing.assetIDs = Array((existing.assetIDs + c.assetIDs).prefix(40))
+                existing.selected = existing.selected || c.selected
+                byKey[key] = existing
+            } else {
+                byKey[key] = c
+                order.append(key)
+            }
+        }
+        candidates = order.compactMap { byKey[$0] }.sorted { $0.date < $1.date }
     }
 
     private struct ResolvedName { let place: String; let city: String? }

@@ -3201,6 +3201,86 @@
         }
       }
     },
+    "还没有收到明信片": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No postcards received yet"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "لم تصلك بطاقات بعد"
+          }
+        }
+      }
+    },
+    "朋友用扫码 / 链接 / 隔空投送寄来的明信片，会收进这里": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Postcards friends send via QR / link / AirDrop land here"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "البطاقات التي يرسلها الأصدقاء عبر QR / رابط / AirDrop تظهر هنا"
+          }
+        }
+      }
+    },
+    "收到的明信片都在这": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Postcards you've received"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "البطاقات التي استلمتها"
+          }
+        }
+      }
+    },
+    "想去的地方": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Places you want to go"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أماكن تريد زيارتها"
+          }
+        }
+      }
+    },
+    "今年的足迹": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This year"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "هذا العام"
+          }
+        }
+      }
+    },
     "分享徽章": {
       "localizations": {
         "en": {

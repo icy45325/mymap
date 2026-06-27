@@ -13,9 +13,6 @@ struct StatsView: View {
     @State private var celebrate: Badge?
     /// 用户手动钉选的置顶徽章 id（持久化；空 = 用默认「最高荣耀」）。
     @AppStorage("lumi.featuredBadgeID") private var pinnedID: String = ""
-    /// 已「见过」的解锁徽章 id（逗号分隔），用于检测新解锁并弹庆祝。
-    @AppStorage("lumi.seenBadges") private var seenBadgesRaw: String = ""
-    @AppStorage("lumi.badgesInit") private var badgesInit: Bool = false
 
     private enum CatFilter: Hashable { case all, category(BadgeCategory), rare }
 
@@ -36,23 +33,6 @@ struct StatsView: View {
         !pinnedID.isEmpty && board.badges.contains { $0.id == pinnedID && $0.state == .lit }
     }
 
-    /// 检测新解锁徽章并弹庆祝。首次（升级到本版本）静默播种已有解锁，避免一次性弹一堆。
-    private func detectNewUnlocks() {
-        let litIDs = Set(board.badges.filter { $0.state == .lit }.map(\.id))
-        var seen = Set(seenBadgesRaw.split(separator: ",").map(String.init))
-        guard badgesInit else {
-            seen = litIDs; badgesInit = true
-            seenBadgesRaw = seen.sorted().joined(separator: ",")
-            return
-        }
-        let fresh = litIDs.subtracting(seen)
-        guard !fresh.isEmpty else { return }
-        if celebrate == nil, let first = board.badges.first(where: { fresh.contains($0.id) }) {
-            celebrate = first                      // 一次弹一个；其余并入已见
-        }
-        seen.formUnion(litIDs)
-        seenBadgesRaw = seen.sorted().joined(separator: ",")
-    }
 
     var body: some View {
         NavigationStack {
@@ -76,9 +56,7 @@ struct StatsView: View {
         .tint(Color.nPink)
         .onAppear {
             Analytics.log(.statsViewed(totalLit: stats.countries, percent: Int(stats.worldPercent.rounded())))
-            detectNewUnlocks()
         }
-        .onChange(of: board.unlockedCount) { _, _ in detectNewUnlocks() }
         .sheet(item: $selectedBadge) { BadgeSheet(badge: $0) }
         .overlay { if let c = celebrate { UnlockCelebration(badge: c) { celebrate = nil } } }
     }
@@ -248,7 +226,7 @@ struct StatsView: View {
         VStack(alignment: .leading, spacing: 8) {
             Text("即将解锁 Next up").font(.system(size: 13, weight: .semibold)).foregroundStyle(Color.muted)
                 .padding(.horizontal, 26)
-            Button { celebrate = b } label: {
+            Button { selectedBadge = b } label: {     // 进行中：开详情看条件，不弹点亮效果
                 HStack(spacing: 13) {
                     HexBadge(badge: b, size: 46)
                     VStack(alignment: .leading, spacing: 6) {
@@ -398,7 +376,7 @@ private struct BadgeSheet: View {
 
 // MARK: - 解锁庆祝
 
-private struct UnlockCelebration: View {
+struct UnlockCelebration: View {
     let badge: Badge
     let onDismiss: () -> Void
 

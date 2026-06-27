@@ -1,34 +1,21 @@
 import SwiftUI
 import SwiftData
 
-/// 明信片墙：收藏所有明信片（自己点亮的 + 收到的），可筛选；点开可再分享。
+/// 明信片墙：只收藏**收到的**明信片（扫码 / 链接 / 隔空投送收到的）。
+/// 自己点亮的足迹不是明信片；自己寄出的（按明信片逻辑）自己也看不到。
 struct PostcardWallView: View {
     @Query(sort: \Footprint.createdAt, order: .reverse) private var footprints: [Footprint]
-    @State private var filter: Filter = .all
     @State private var selected: Footprint?
 
-    private enum Filter: Hashable { case all, mine, received }
-
-    private var items: [Footprint] {
-        switch filter {
-        case .all:      return footprints
-        case .mine:     return footprints.filter { !$0.isReceived }
-        case .received: return footprints.filter { $0.isReceived }
-        }
-    }
-    private var segmentItems: [(value: Filter, label: String)] {
-        [(.all, "全部"), (.mine, "我的"), (.received, "收到的")]
-    }
+    private var items: [Footprint] { footprints.filter { $0.isReceived } }
 
     private let cols = [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)]
 
     var body: some View {
         Group {
-            if footprints.isEmpty { empty }
+            if items.isEmpty { empty }
             else {
                 ScrollView {
-                    SegmentBar(items: segmentItems, selection: $filter)
-                        .padding(.top, 12).padding(.bottom, 4)
                     LazyVGrid(columns: cols, spacing: 12) {
                         ForEach(items) { fp in
                             Button { selected = fp } label: { PostcardCell(footprint: fp) }
@@ -51,8 +38,8 @@ struct PostcardWallView: View {
     private var empty: some View {
         VStack(spacing: 14) {
             Image(systemName: "rectangle.stack").font(.system(size: 44)).foregroundStyle(Color.nPink)
-            Text("还没有明信片").font(.headline).foregroundStyle(Color.text)
-            Text("点亮足迹会生成明信片；收到的明信片也会收进这里")
+            Text("还没有收到明信片").font(.headline).foregroundStyle(Color.text)
+            Text("朋友用扫码 / 链接 / 隔空投送寄来的明信片，会收进这里")
                 .font(.subheadline).foregroundStyle(Color.muted)
                 .multilineTextAlignment(.center).padding(.horizontal, 40)
         }

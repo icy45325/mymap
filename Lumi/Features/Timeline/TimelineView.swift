@@ -61,6 +61,7 @@ struct TimelineView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
                 header
+                yearStatCard
                 SegmentBar(items: segmentItems, selection: $regionFilter)
                     .padding(.top, 14).padding(.bottom, 6)
                 timeline
@@ -86,6 +87,37 @@ struct TimelineView: View {
             importButton
         }
         .padding(.horizontal, 26).padding(.top, 16)
+    }
+
+    /// 今年的足迹统计（国家 & 城市）。
+    private var yearStatCard: some View {
+        let cal = Calendar.current
+        let yr = cal.component(.year, from: .now)
+        let fps = footprints.filter { cal.component(.year, from: $0.visitedAt) == yr }
+        let countries = Set(fps.compactMap { $0.countryCode }).count
+        let cities = Set(fps.compactMap { $0.cityName }).count
+        return HStack(spacing: 14) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text("\(yr) 年").font(Typo.serif(20)).foregroundStyle(Color.text)
+                Text("今年的足迹").font(.system(size: 10)).foregroundStyle(Color.muted)
+            }
+            Spacer()
+            yearStatBox("\(countries)", "国")
+            yearStatBox("\(cities)", "城")
+        }
+        .padding(.vertical, 12).padding(.horizontal, 16)
+        .background(LinearGradient(colors: [Color.nPurple.opacity(0.18), Color.nPink.opacity(0.1)],
+                                   startPoint: .leading, endPoint: .trailing),
+                    in: RoundedRectangle(cornerRadius: 16))
+        .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.line, lineWidth: 1))
+        .padding(.horizontal, 22).padding(.top, 14)
+    }
+
+    private func yearStatBox(_ value: String, _ unit: LocalizedStringKey) -> some View {
+        HStack(alignment: .firstTextBaseline, spacing: 3) {
+            Text(value).font(Typo.serif(24)).foregroundStyle(Color.nPink)
+            Text(unit).font(.system(size: 11)).foregroundStyle(Color.muted)
+        }
     }
 
     /// 时间线主体：按年份分组，每条带发光节点。
