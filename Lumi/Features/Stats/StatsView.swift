@@ -57,7 +57,7 @@ struct StatsView: View {
         .onAppear {
             Analytics.log(.statsViewed(totalLit: stats.countries, percent: Int(stats.worldPercent.rounded())))
         }
-        .sheet(item: $selectedBadge) { BadgeSheet(badge: $0) }
+        .sheet(item: $selectedBadge) { BadgeSheet(badge: $0, isFeatured: $0.id == featuredBadge?.id) }
         .overlay { if let c = celebrate { UnlockCelebration(badge: c) { celebrate = nil } } }
     }
 
@@ -272,10 +272,12 @@ struct StatsView: View {
 
 private struct BadgeSheet: View {
     let badge: Badge
+    /// 是否为成就页当前「置顶展示」的徽章（含自动「最高荣耀」）；决定按钮显示置顶 / 取消置顶，保持与展示一致。
+    let isFeatured: Bool
 
     @State private var shareImage: Image?
     @AppStorage("lumi.featuredBadgeID") private var pinnedID: String = ""
-    private var isPinned: Bool { pinnedID == badge.id }
+    private var isPinned: Bool { isFeatured }
 
     private static let dateFormat: Date.FormatStyle = .dateTime.year().month().day()
 

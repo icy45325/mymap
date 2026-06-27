@@ -368,6 +368,22 @@
           }
         }
       }
+    },
+    "展示去过国家的国旗集合。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flags of the countries you've visited."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أعلام الدول التي زرتها."
+          }
+        }
+      }
     }
   },
   "version": "1.0"

@@ -1,8 +1,38 @@
 import WidgetKit
 import SwiftUI
 
+/// 独立「去过的国旗」小组件：可直接从小组件库添加，无需进「编辑小组件」切模式。
+/// 与 `LumiWidget` 的「国旗」模式共用同一视图与快照。
+struct FlagWidget: Widget {
+    var body: some WidgetConfiguration {
+        StaticConfiguration(kind: LumiAppGroup.flagWidgetKind, provider: FlagProvider()) { entry in
+            FlagWidgetView(snapshot: entry.snapshot)
+                .containerBackground(for: .widget) { WidgetTheme.bgGradient }
+        }
+        .configurationDisplayName("去过的国旗")
+        .description("展示去过国家的国旗集合。")
+        .supportedFamilies([.systemSmall, .systemMedium])
+    }
+}
+
+struct FlagEntry: TimelineEntry {
+    let date: Date
+    let snapshot: LumiSnapshot
+}
+
+struct FlagProvider: TimelineProvider {
+    func placeholder(in context: Context) -> FlagEntry { FlagEntry(date: Date(), snapshot: .sample) }
+    func getSnapshot(in context: Context, completion: @escaping (FlagEntry) -> Void) {
+        completion(FlagEntry(date: Date(), snapshot: context.isPreview ? .sample : LumiSnapshotStore.load()))
+    }
+    func getTimeline(in context: Context, completion: @escaping (Timeline<FlagEntry>) -> Void) {
+        // 由主 App 在数据变更时主动 reloadAllTimelines；这里给单点时间线。
+        completion(Timeline(entries: [FlagEntry(date: Date(), snapshot: LumiSnapshotStore.load())], policy: .never))
+    }
+}
+
 /// 国旗集合视图：小尺寸＝精简几面 + 计数；中尺寸(长条)＝铺满去过国家国旗 + 一句话。
-/// （作为 `LumiWidget` 的「国旗」模式使用。）
+/// （作为 `LumiWidget` 的「国旗」模式，及独立 `FlagWidget` 共用。）
 struct FlagWidgetView: View {
     let snapshot: LumiSnapshot
     @Environment(\.widgetFamily) private var family

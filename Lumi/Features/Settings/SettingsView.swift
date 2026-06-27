@@ -6,7 +6,14 @@ struct SettingsView: View {
 
     @ObservedObject private var store = PlusStore.shared
     @AppStorage("lumi.passport.style") private var passportStyle: String = PassportStyle.classic.rawValue
+    @AppStorage("lumi.appLanguage") private var appLanguage: String = "system"
     @State private var showPaywall = false
+    @State private var showLangRestart = false
+
+    /// 可选语言：跟随系统 + 三语显式覆盖（写 AppleLanguages，重启生效）。
+    private let languages: [(code: String, label: String)] = [
+        ("system", "跟随系统 / System"), ("zh-Hans", "简体中文"), ("en", "English"), ("ar", "العربية"),
+    ]
 
     var body: some View {
         ScrollView {
@@ -31,29 +38,7 @@ struct SettingsView: View {
                     .background(Color.panel, in: RoundedRectangle(cornerRadius: 14))
                     .overlay(RoundedRectangle(cornerRadius: 14).stroke(Color.line, lineWidth: 1))
                 }
-                section("语言 Language") {
-                    Button {
-                        if let url = URL(string: UIApplication.openSettingsURLString) {
-                            UIApplication.shared.open(url)
-                        }
-                    } label: {
-                        HStack {
-                            VStack(alignment: .leading, spacing: 3) {
-                                Text("语言跟随系统").foregroundStyle(Color.text)
-                                Text("在「系统设置 › Lumi」里可单独为本应用选择语言")
-                                    .font(.system(size: 11)).foregroundStyle(Color.muted)
-                                    .fixedSize(horizontal: false, vertical: true)
-                            }
-                            Spacer()
-                            Image(systemName: "arrow.up.forward.app")
-                                .flipsForRightToLeftLayoutDirection(true)
-                                .foregroundStyle(Color.nPink)
-                        }
-                        .padding(.vertical, 13).padding(.horizontal, 14)
-                    }
-                    .background(Color.panel, in: RoundedRectangle(cornerRadius: 14))
-                    .overlay(RoundedRectangle(cornerRadius: 14).stroke(Color.line, lineWidth: 1))
-                }
+                section("语言 Language") { languagePicker }
             }
             .padding(20)
         }
@@ -65,6 +50,53 @@ struct SettingsView: View {
         .preferredColorScheme(.dark)
         .sheet(isPresented: $showPaywall) { PaywallView() }
         .task { await store.start() }
+        .alert("语言已切换", isPresented: $showLangRestart) {
+            Button("好") {}
+        } message: {
+            Text("请关闭并重新打开 Lumi 以应用新语言。")
+        }
+    }
+
+    // MARK: - 语言（应用内覆盖，重启生效）
+
+    private var languagePicker: some View {
+        VStack(spacing: 0) {
+            ForEach(Array(languages.enumerated()), id: \.element.code) { idx, lang in
+                Button { selectLanguage(lang.code) } label: {
+                    HStack {
+                        Text(lang.label).foregroundStyle(Color.text)
+                        Spacer()
+                        if appLanguage == lang.code {
+                            Image(systemName: "checkmark").font(.system(size: 13, weight: .bold))
+                                .foregroundStyle(Color.nPink)
+                        }
+                    }
+                    .padding(.vertical, 13).padding(.horizontal, 14)
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                if idx < languages.count - 1 { Divider().overlay(Color.line).padding(.leading, 14) }
+            }
+            Divider().overlay(Color.line)
+            Text("切换后需重启 App 生效。也可在「系统设置 › Lumi › 语言」中调整。")
+                .font(.system(size: 11)).foregroundStyle(Color.muted)
+                .fixedSize(horizontal: false, vertical: true)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.vertical, 11).padding(.horizontal, 14)
+        }
+        .background(Color.panel, in: RoundedRectangle(cornerRadius: 14))
+        .overlay(RoundedRectangle(cornerRadius: 14).stroke(Color.line, lineWidth: 1))
+    }
+
+    private func selectLanguage(_ code: String) {
+        guard code != appLanguage else { return }
+        appLanguage = code
+        if code == "system" {
+            UserDefaults.standard.removeObject(forKey: "AppleLanguages")
+        } else {
+            UserDefaults.standard.set([code], forKey: "AppleLanguages")
+        }
+        showLangRestart = true
     }
 
     // MARK: - Lumi Plus 入口

@@ -4448,6 +4448,86 @@
           }
         }
       }
+    },
+    "语言已切换": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Language changed"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تم تغيير اللغة"
+          }
+        }
+      }
+    },
+    "请关闭并重新打开 Lumi 以应用新语言。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Please quit and reopen Lumi to apply the new language."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "يرجى إغلاق Lumi وإعادة فتحه لتطبيق اللغة الجديدة."
+          }
+        }
+      }
+    },
+    "切换后需重启 App 生效。也可在「系统设置 › Lumi › 语言」中调整。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restart the app to apply. You can also change it in Settings › Lumi › Language."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أعد تشغيل التطبيق للتطبيق. يمكنك أيضًا تغييرها من الإعدادات › Lumi › اللغة."
+          }
+        }
+      }
+    },
+    "搜索真实地点，重新定位": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search a real place to relocate"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ابحث عن مكان حقيقي لإعادة التحديد"
+          }
+        }
+      }
+    },
+    "已定位：%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Located: %@"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تم التحديد: %@"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

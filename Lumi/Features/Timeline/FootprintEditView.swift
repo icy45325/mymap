@@ -1,9 +1,10 @@
 import SwiftUI
 import SwiftData
 import PhotosUI
+import MapKit
+import CoreLocation
 
-/// 足迹编辑：改 地点名 / 日期（开始 + 可选结束）/ 心情 / 同行人。
-/// 位置与国家码不在此改（改坐标要重判定，超出编辑范围）。
+/// 足迹编辑：改 地点名 / 真实定位（国家城市随之关联）/ 日期 / 心情 / 同行人。
 struct FootprintEditView: View {
 
     let footprint: Footprint
@@ -20,6 +21,20 @@ struct FootprintEditView: View {
     @State private var companionDraft = ""
     @State private var photoIDs: [String]
     @State private var pickerItems: [PhotosPickerItem] = []
+
+    // 真实地点重新定位（与创建时同口径：搜索 → 离线 Boundaries 定国家/酋长国）
+    @StateObject private var search = PlaceSearchService()
+    @State private var query = ""
+    @State private var picked: PickedPlace?
+
+    /// 选定的真实地点（保存时一并写回坐标 / 城市 / 国家码）。
+    private struct PickedPlace {
+        var name: String
+        var cityName: String?
+        var countryCode: String?
+        var subRegionCode: String?
+        var coordinate: CLLocationCoordinate2D
+    }
 
     init(footprint: Footprint) {
         self.footprint = footprint
@@ -77,7 +92,67 @@ struct FootprintEditView: View {
                 .foregroundStyle(Color.textPrimary)
                 .padding(12)
                 .background(Color.panel, in: RoundedRectangle(cornerRadius: Metrics.radius))
+
+            // 重新定位真实地点（关联国家 / 城市）
+            HStack(spacing: 8) {
+                Image(systemName: "magnifyingglass").foregroundStyle(Color.textMuted)
+                TextField("搜索真实地点，重新定位", text: $query)
+                    .foregroundStyle(Color.textPrimary)
+                    .onChange(of: query) { _, q in search.search(q, near: currentRegion) }
+                if search.isSearching { ProgressView().tint(Color.litGlow).scaleEffect(0.7) }
+            }
+            .padding(12)
+            .background(Color.panel, in: RoundedRectangle(cornerRadius: Metrics.radius))
+
+            if !search.results.isEmpty {
+                VStack(spacing: 0) {
+                    ForEach(search.results.prefix(5)) { r in
+                        Button { choose(r) } label: {
+                            HStack {
+                                Image(systemName: "mappin.circle").foregroundStyle(Color.textMuted)
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(r.name).foregroundStyle(Color.textPrimary).lineLimit(1)
+                                    if !r.subtitle.isEmpty {
+                                        Text(r.subtitle).font(.caption).foregroundStyle(Color.textSecondary).lineLimit(1)
+                                    }
+                                }
+                                Spacer()
+                            }
+                            .padding(.vertical, 9).padding(.horizontal, 12)
+                            .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                        Divider().overlay(Color.lineSoft)
+                    }
+                }
+                .background(Color.panel, in: RoundedRectangle(cornerRadius: Metrics.radius))
+            }
+
+            if let p = picked {
+                Label("已定位：\(locText(p))", systemImage: "checkmark.circle.fill")
+                    .font(.system(size: 11.5)).foregroundStyle(Color.litGlow)
+            }
         }
+    }
+
+    private var currentRegion: MKCoordinateRegion {
+        MKCoordinateRegion(center: footprint.coordinate,
+                           span: MKCoordinateSpan(latitudeDelta: 6, longitudeDelta: 6))
+    }
+
+    private func locText(_ p: PickedPlace) -> String {
+        [p.cityName, CountryInfo.localizedName(for: p.countryCode)].compactMap { $0 }.joined(separator: " · ")
+    }
+
+    /// 选定真实地点：国家 / 酋长国以离线 Boundaries 为准，退回搜索结果自带码。
+    private func choose(_ r: PlaceResult) {
+        let cc = Boundaries.shared.countryCode(at: r.coordinate) ?? r.countryCode
+        picked = PickedPlace(name: r.name, cityName: r.cityName, countryCode: cc,
+                             subRegionCode: cc == "AE" ? Boundaries.shared.emirateCode(at: r.coordinate) : nil,
+                             coordinate: r.coordinate)
+        place = r.name
+        query = ""
+        search.clear()
     }
 
     // MARK: - 照片（增加 / 删除 / 替换，最多 21 张）
@@ -247,6 +322,15 @@ struct FootprintEditView: View {
         footprint.endedAt = (multiDay && endedAt > visitedAt) ? endedAt : nil
         footprint.companions = finalCompanions
         footprint.photoAssetIDs = Array(photoIDs.prefix(Footprint.maxPhotos))
+
+        // 若重新定位了真实地点：一并写回坐标 / 城市 / 国家码（与创建同口径）
+        if let p = picked {
+            footprint.latitude = p.coordinate.latitude
+            footprint.longitude = p.coordinate.longitude
+            footprint.cityName = p.cityName
+            footprint.countryCode = p.countryCode
+            footprint.subRegionCode = p.subRegionCode
+        }
         try? context.save()
 
         WidgetSync.refresh(context)   // 日期改动可能影响「去年今日」/ 最近一次
