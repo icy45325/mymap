@@ -410,6 +410,9 @@ struct CaptureView: View {
         try? context.save()
 
         WidgetSync.refresh(context)                     // 点亮后对齐主屏小组件计数
+        if (footprint.countryCode ?? "").isEmpty {      // 离线缝隙没判定到国家 → 在线兜底补全
+            Task { await FootprintRepair.backfillMissingCountries(context) }
+        }
 
         saved = true
         Analytics.log(.footprintCreated(countryCode: footprint.countryCode,
