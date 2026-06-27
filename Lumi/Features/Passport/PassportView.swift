@@ -117,11 +117,10 @@ struct PassportView: View {
     private var passport: some View {
         VStack(spacing: 0) {
             header
-            styleChips
-            Spacer(minLength: 6)
-            book
-            nav
             Spacer(minLength: 10)
+            book
+            pageIndicator
+            Spacer(minLength: 14)
         }
         .padding(.top, 52)
     }
@@ -136,26 +135,6 @@ struct PassportView: View {
             Spacer()
         }
         .padding(.horizontal, 22)
-    }
-
-    private var styleChips: some View {
-        HStack(spacing: 8) {
-            ForEach(PassportStyle.allCases) { s in
-                let active = s == style
-                Button { withAnimation(.easeInOut) { styleRaw = s.rawValue } } label: {
-                    Text(s.label)
-                        .font(.system(size: 13, weight: .semibold))
-                        .frame(maxWidth: .infinity).padding(.vertical, 10)
-                        .background(active ? AnyShapeStyle(LinearGradient.neonH) : AnyShapeStyle(Color.white.opacity(0.05)),
-                                    in: RoundedRectangle(cornerRadius: 13))
-                        .overlay(RoundedRectangle(cornerRadius: 13)
-                            .stroke(active ? Color.clear : Color.white.opacity(0.08), lineWidth: 1))
-                        .foregroundStyle(active ? .white : Color.white.opacity(0.55))
-                }
-                .buttonStyle(.plain)
-            }
-        }
-        .padding(.horizontal, 22).padding(.top, 12)
     }
 
     // MARK: - 翻页书
@@ -177,41 +156,20 @@ struct PassportView: View {
         .padding(.horizontal, 24)
     }
 
-    private var nav: some View {
-        HStack {
-            navButton(system: "chevron.left", disabled: page == 0) {
-                withAnimation { page = max(0, page - 1) }
-            }
-            Spacer()
-            VStack(spacing: 7) {
-                Text(caption).font(Typo.serif(14)).foregroundStyle(.white).tracking(1)
-                HStack(spacing: 5) {
-                    ForEach(Array(0..<pageCount), id: \.self) { i in
-                        Capsule()
-                            .fill(i == page ? AnyShapeStyle(LinearGradient.neonH) : AnyShapeStyle(Color.white.opacity(0.22)))
-                            .frame(width: i == page ? 18 : 6, height: 6)
-                            .animation(.easeInOut(duration: 0.3), value: page)
-                    }
+    /// 左右滑动翻页，仅显示页标题 + 进度点（无占高度的箭头）。
+    private var pageIndicator: some View {
+        VStack(spacing: 8) {
+            Text(caption).font(Typo.serif(14)).foregroundStyle(.white).tracking(1)
+            HStack(spacing: 5) {
+                ForEach(Array(0..<pageCount), id: \.self) { i in
+                    Capsule()
+                        .fill(i == page ? AnyShapeStyle(LinearGradient.neonH) : AnyShapeStyle(Color.white.opacity(0.22)))
+                        .frame(width: i == page ? 18 : 6, height: 6)
+                        .animation(.easeInOut(duration: 0.3), value: page)
                 }
             }
-            Spacer()
-            navButton(system: "chevron.right", disabled: page == pageCount - 1) {
-                withAnimation { page = min(pageCount - 1, page + 1) }
-            }
         }
-        .frame(maxWidth: 300)
-        .padding(.horizontal, 24).padding(.top, 14)
-    }
-
-    private func navButton(system: String, disabled: Bool, _ action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            Image(systemName: system).font(.system(size: 15, weight: .bold))
-                .foregroundStyle(disabled ? Color.white.opacity(0.2) : .white)
-                .frame(width: 40, height: 40)
-                .background(Color.white.opacity(0.05), in: Circle())
-                .overlay(Circle().stroke(.white.opacity(0.1), lineWidth: 1))
-        }
-        .disabled(disabled)
+        .padding(.top, 16)
     }
 
     private var caption: LocalizedStringKey {

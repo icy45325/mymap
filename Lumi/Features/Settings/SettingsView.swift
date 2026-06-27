@@ -5,12 +5,14 @@ import UIKit
 struct SettingsView: View {
 
     @ObservedObject private var store = PlusStore.shared
+    @AppStorage("lumi.passport.style") private var passportStyle: String = PassportStyle.classic.rawValue
     @State private var showPaywall = false
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 18) {
                 section("Lumi Plus") { plusRow }
+                section("护照风格") { passportStyleRow }
                 section("小组件 Widgets") {
                     VStack(alignment: .leading, spacing: 12) {
                         widgetPreviewStrip
@@ -91,6 +93,26 @@ struct SettingsView: View {
         .buttonStyle(.plain)
         .background(Color.panel, in: RoundedRectangle(cornerRadius: 14))
         .overlay(RoundedRectangle(cornerRadius: 14).stroke(store.isPlus ? Color.nCyan.opacity(0.4) : Color.line, lineWidth: 1))
+    }
+
+    // MARK: - 护照风格切换
+
+    private var passportStyleRow: some View {
+        HStack(spacing: 8) {
+            ForEach(PassportStyle.allCases) { s in
+                let active = passportStyle == s.rawValue
+                Button { passportStyle = s.rawValue } label: {
+                    Text(s.label)
+                        .font(.system(size: 13, weight: .semibold))
+                        .frame(maxWidth: .infinity).padding(.vertical, 11)
+                        .background(active ? AnyShapeStyle(LinearGradient.neonH) : AnyShapeStyle(Color.panel),
+                                    in: RoundedRectangle(cornerRadius: 12))
+                        .overlay(RoundedRectangle(cornerRadius: 12).stroke(active ? Color.clear : Color.line, lineWidth: 1))
+                        .foregroundStyle(active ? .white : Color.muted)
+                }
+                .buttonStyle(.plain)
+            }
+        }
     }
 
     // MARK: - 小组件样式预览（App 内近似 mock，非真实小组件渲染）

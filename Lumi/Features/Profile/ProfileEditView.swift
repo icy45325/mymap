@@ -7,6 +7,7 @@ struct ProfileEditView: View {
     @AppStorage("lumi.profile.name") private var name: String = "旅行者"
     @AppStorage("lumi.profile.nationality") private var nationality: String = ""
     @AppStorage("lumi.profile.avatarID") private var avatarID: String = ""
+    @AppStorage("lumi.passport.style") private var passportStyle: String = PassportStyle.classic.rawValue
     @State private var pickerItem: PhotosPickerItem?
 
     private let nationalities = ["CN", "HK", "TW", "JP", "KR", "SG", "MY", "TH", "VN", "ID", "IN",
@@ -61,6 +62,25 @@ struct ProfileEditView: View {
                             .padding(12)
                             .background(Color.panel, in: RoundedRectangle(cornerRadius: 12))
                             .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.line, lineWidth: 1))
+                        }
+                    }
+
+                    section("护照风格") {
+                        HStack(spacing: 8) {
+                            ForEach(PassportStyle.allCases) { s in
+                                let active = passportStyle == s.rawValue
+                                Button { passportStyle = s.rawValue } label: {
+                                    Text(s.label)
+                                        .font(.system(size: 13, weight: .semibold))
+                                        .frame(maxWidth: .infinity).padding(.vertical, 11)
+                                        .background(active ? AnyShapeStyle(LinearGradient.neonH) : AnyShapeStyle(Color.panel),
+                                                    in: RoundedRectangle(cornerRadius: 12))
+                                        .overlay(RoundedRectangle(cornerRadius: 12)
+                                            .stroke(active ? Color.clear : Color.line, lineWidth: 1))
+                                        .foregroundStyle(active ? .white : Color.muted)
+                                }
+                                .buttonStyle(.plain)
+                            }
                         }
                     }
                 }

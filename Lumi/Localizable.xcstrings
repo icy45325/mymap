@@ -4288,6 +4288,22 @@
           }
         }
       }
+    },
+    "护照风格": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Passport Style"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "نمط الجواز"
+          }
+        }
+      }
     }
   },
   "version": "1.0"
