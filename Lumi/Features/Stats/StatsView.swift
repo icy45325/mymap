@@ -191,7 +191,7 @@ struct StatsView: View {
     /// 只列出实际有徽章的分类，避免出现空筛选。
     private var segmentItems: [(value: CatFilter, label: String)] {
         var items: [(value: CatFilter, label: String)] = [(.all, "全部")]
-        for cat in [BadgeCategory.master, .continent, .milestone, .streak]
+        for cat in [BadgeCategory.continent, .milestone, .streak]
         where board.badges.contains(where: { $0.category == cat }) {
             items.append((.category(cat), cat.displayName))
         }
