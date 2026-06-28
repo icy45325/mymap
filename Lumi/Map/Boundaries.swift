@@ -84,6 +84,14 @@ final class Boundaries {
         return result
     }
 
+    /// 全部国家的外环（世界地图底图用：画全部国家、再把已点亮的着色）。
+    /// 缓存一次，避免重复展开多边形。
+    private(set) lazy var allCountryRings: [LitRegion] =
+        countries.map { LitRegion(id: $0.id, rings: outerRings(of: $0)) }
+
+    /// UN 会员国数（汇总「X / 193」用）。territory/属地不计入，故与 totalCountryCount 不同。
+    let unMemberCount = 193
+
     /// 取每个多边形的外环用于着色（v0 不挖洞，飞地洞口忽略，集邮够用）。
     private func outerRings(of region: Region) -> [[CLLocationCoordinate2D]] {
         region.polygons.compactMap { $0.first }
