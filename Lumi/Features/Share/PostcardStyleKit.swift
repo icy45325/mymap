@@ -29,7 +29,7 @@ enum PostcardStamp: String, CaseIterable, Identifiable {
         switch self { case .air: return Color(hex: 0x22468F); case .land: return Color(hex: 0x3F7A3A); case .sea: return Color(hex: 0x1F6B7A) }
     }
     var motif: String {
-        switch self { case .air: return "airplane"; case .land: return "truck.box.fill"; case .sea: return "ferry.fill" }
+        switch self { case .air: return "airplane"; case .land: return "train.side.front.car"; case .sea: return "ferry.fill" }
     }
     var caption: String {
         switch self { case .air: return "AIR FREIGHT"; case .land: return "LAND FREIGHT"; case .sea: return "SEA FREIGHT" }
