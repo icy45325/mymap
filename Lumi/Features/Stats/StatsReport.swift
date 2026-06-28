@@ -58,19 +58,20 @@ struct StatsReportCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
-                Text("LUMI").font(.system(size: 13, weight: .heavy)).tracking(3)
-                    .foregroundStyle(Color.nCyan)
+                Text("LUMI").font(.system(size: 14, weight: .heavy)).tracking(3)
+                    .foregroundStyle(LinearGradient.neonH)
                 Spacer()
                 Text("我的旅行护照").font(.system(size: 10, weight: .semibold)).tracking(1.5)
-                    .foregroundStyle(Color.muted).textCase(.uppercase)
+                    .foregroundStyle(Color.nPurple).textCase(.uppercase)
             }
 
             VStack(alignment: .leading, spacing: 2) {
-                Text("\(stats.countries)").font(Typo.serif(58)).foregroundStyle(Color.text)
-                Text("个国家已点亮").font(.system(size: 15)).foregroundStyle(Color(hex: 0xC9C2D6))
+                Text("\(stats.countries)").font(Typo.serif(60))
+                    .foregroundStyle(LinearGradient.neonH)
+                Text("个国家已点亮").font(.system(size: 15)).foregroundStyle(Color(hex: 0xCBBEE6))
             }
 
-            WorldHighlightMap(lit: lit)
+            WorldHighlightMap(lit: lit, litColor: .nPink, baseColor: Color.nPurple.opacity(0.16))
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 4)
 
@@ -78,9 +79,9 @@ struct StatsReportCard: View {
             VStack(spacing: 6) {
                 HStack {
                     Text("\(stats.countries) / \(stats.worldTotal)")
-                        .font(.system(size: 11)).foregroundStyle(Color.muted)
+                        .font(.system(size: 11)).foregroundStyle(Color(hex: 0xCBBEE6).opacity(0.7))
                     Spacer()
-                    Text(percentText).font(.system(size: 11, weight: .bold)).foregroundStyle(Color.text)
+                    Text(percentText).font(.system(size: 11, weight: .bold)).foregroundStyle(Color.nPink)
                 }
                 NeonBar(fraction: min(1, stats.worldPercent / 100), height: 6)
             }
@@ -93,15 +94,19 @@ struct StatsReportCard: View {
 
             Text("点亮你的旅行足迹 · Lumi")
                 .font(.system(size: 10, weight: .semibold)).tracking(1)
-                .foregroundStyle(Color.faint)
+                .foregroundStyle(Color.nPink.opacity(0.85))
                 .frame(maxWidth: .infinity, alignment: .center)
                 .padding(.top, 2)
         }
         .padding(22)
         .frame(width: 360)
         .background(
-            LinearGradient(colors: [Color(hex: 0x14101F), Color(hex: 0x0A0A14)],
-                           startPoint: .top, endPoint: .bottom)
+            ZStack {
+                LinearGradient(colors: [Color(hex: 0x140A22), Color(hex: 0x06060E)],
+                               startPoint: .top, endPoint: .bottom)
+                RadialGradient(colors: [Color.nPurple.opacity(0.35), .clear],
+                               center: .topLeading, startRadius: 8, endRadius: 320)
+            }
         )
     }
 
@@ -110,11 +115,11 @@ struct StatsReportCard: View {
             Text(value).font(Typo.serif(19)).foregroundStyle(Color.text)
                 .lineLimit(1).minimumScaleFactor(0.6)
             Text(label.localized).font(.system(size: 9, weight: .semibold))
-                .foregroundStyle(Color.muted).textCase(.uppercase)
+                .foregroundStyle(Color.nPurple).textCase(.uppercase)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.vertical, 11).padding(.horizontal, 11)
-        .background(Color.white.opacity(0.05), in: RoundedRectangle(cornerRadius: 12))
-        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.white.opacity(0.08), lineWidth: 1))
+        .background(Color.nPurple.opacity(0.10), in: RoundedRectangle(cornerRadius: 12))
+        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.nPurple.opacity(0.35), lineWidth: 1))
     }
 }
