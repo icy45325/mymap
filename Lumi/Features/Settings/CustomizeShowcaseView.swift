@@ -200,31 +200,88 @@ struct CustomizeShowcaseView: View {
             .foregroundStyle(Color.muted)
     }
 
-    // MARK: 护照风格画廊
+    // MARK: 护照风格画廊（迷你护照封面占位图）
 
     private var passportSection: some View {
         VStack(alignment: .leading, spacing: 10) {
             sectionHeader("护照风格", "护照本封面与内页风格")
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 12) {
-                    ForEach(PassportStyle.allCases) { s in
-                        let active = passportStyle == s.rawValue
-                        Button { passportStyle = s.rawValue } label: {
-                            swatchCard(active: active, label: s.label) {
-                                RoundedRectangle(cornerRadius: 10).fill(passportThumb(s))
-                            }
-                        }.buttonStyle(.plain)
-                    }
+            HStack(spacing: 16) {
+                ForEach(PassportStyle.allCases) { s in
+                    passportCard(s, active: passportStyle == s.rawValue)
                 }
-                .padding(.horizontal, 2)
+                Spacer(minLength: 0)
             }
         }
     }
 
-    private func passportThumb(_ s: PassportStyle) -> LinearGradient {
-        s == .classic
-            ? LinearGradient(colors: [Color(hex: 0x1B3A2E), Color(hex: 0x0E1F18)], startPoint: .top, endPoint: .bottom)
-            : LinearGradient(colors: [Color(hex: 0x241349), Color(hex: 0x0C0A1E)], startPoint: .top, endPoint: .bottom)
+    private func passportCard(_ style: PassportStyle, active: Bool) -> some View {
+        Button { passportStyle = style.rawValue } label: {
+            VStack(spacing: 8) {
+                ZStack(alignment: .topTrailing) {
+                    passportCoverThumb(style)
+                        .frame(width: 96, height: 128)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .overlay(RoundedRectangle(cornerRadius: 12)
+                            .stroke(active ? Color.nPink : Color.white.opacity(0.1), lineWidth: active ? 2 : 1))
+                        .shadow(color: .black.opacity(0.45), radius: 10, y: 6)
+                    if active {
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.system(size: 18)).foregroundStyle(Color.nPink)
+                            .background(Circle().fill(Color.bg).padding(2))
+                            .padding(5)
+                    }
+                }
+                Text(style.label).font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(active ? Color.text : Color.muted)
+            }
+            .padding(8)
+            .background(active ? Color.white.opacity(0.06) : .clear, in: RoundedRectangle(cornerRadius: 16))
+            .overlay(RoundedRectangle(cornerRadius: 16).stroke(active ? Color.white.opacity(0.16) : .clear, lineWidth: 1))
+        }
+        .buttonStyle(.plain)
+    }
+
+    /// 迷你护照封面（与真实 coverPage 同调，不依赖私有 NationTheme）。
+    @ViewBuilder
+    private func passportCoverThumb(_ style: PassportStyle) -> some View {
+        let starlit = style == .starlit
+        let ink: Color = starlit ? .white : Color(hex: 0xC9A24B)        // 星夜白 / 拟真金箔
+        let emblemStroke: Color = starlit ? Color(hex: 0xFFC9E0).opacity(0.85) : Color(hex: 0xC9A24B)
+        ZStack {
+            LinearGradient(colors: starlit ? [Color(hex: 0x241349), Color(hex: 0x0C0A1E)]
+                                           : [Color(hex: 0x1E4D34), Color(hex: 0x0E1F18)],
+                           startPoint: .top, endPoint: .bottom)
+            if starlit {
+                RadialGradient(colors: [Color(hex: 0xC77DFF).opacity(0.28), .clear],
+                               center: .top, startRadius: 0, endRadius: 90)
+            }
+            VStack(spacing: 0) {
+                Text(verbatim: "LUMI").font(Typo.serif(7)).tracking(2).foregroundStyle(ink.opacity(0.85))
+                Spacer(minLength: 0)
+                ZStack {
+                    Circle().stroke(emblemStroke, lineWidth: 1.2).frame(width: 44, height: 44)
+                    Image(systemName: "globe.asia.australia.fill")
+                        .font(.system(size: 20)).foregroundStyle(ink)
+                }
+                .shadow(color: starlit ? Color(hex: 0xFF6EAA).opacity(0.45) : .clear, radius: 8)
+                Spacer(minLength: 0)
+                VStack(spacing: 3) {
+                    Group {
+                        if starlit {
+                            Text(verbatim: "PASSPORT").foregroundStyle(LinearGradient.neonH)
+                        } else {
+                            Text(verbatim: "PASSPORT").foregroundStyle(ink)
+                        }
+                    }
+                    .font(Typo.serif(10)).fontWeight(.semibold).tracking(2)
+                    Text(verbatim: "LUMI").font(.system(size: 6, weight: .semibold))
+                        .foregroundStyle(ink.opacity(0.9))
+                        .frame(width: 26, height: 14)
+                        .overlay(RoundedRectangle(cornerRadius: 3).stroke(ink.opacity(0.5), lineWidth: 0.8))
+                }
+            }
+            .padding(.vertical, 14).padding(.horizontal, 10)
+        }
     }
 
     // MARK: 通用
@@ -234,30 +291,6 @@ struct CustomizeShowcaseView: View {
             Text(title).font(.system(size: 16, weight: .bold)).foregroundStyle(Color.text)
             Text(sub).font(.system(size: 12)).foregroundStyle(Color.muted)
         }
-    }
-
-    /// 选择型样式卡：缩略图 + 名称 + 选中描边 / 勾。
-    private func swatchCard<C: View>(active: Bool, label: LocalizedStringKey,
-                                     @ViewBuilder _ thumb: () -> C) -> some View {
-        VStack(spacing: 8) {
-            ZStack(alignment: .topTrailing) {
-                thumb()
-                    .frame(width: 104, height: 72)
-                    .overlay(RoundedRectangle(cornerRadius: 10)
-                        .stroke(active ? Color.nPink : Color.white.opacity(0.1), lineWidth: active ? 2 : 1))
-                if active {
-                    Image(systemName: "checkmark.circle.fill")
-                        .font(.system(size: 18)).foregroundStyle(Color.nPink)
-                        .background(Circle().fill(Color.bg).padding(2))
-                        .padding(5)
-                }
-            }
-            Text(label).font(.system(size: 12, weight: .semibold))
-                .foregroundStyle(active ? Color.text : Color.muted)
-        }
-        .padding(8)
-        .background(active ? Color.white.opacity(0.06) : .clear, in: RoundedRectangle(cornerRadius: 14))
-        .overlay(RoundedRectangle(cornerRadius: 14).stroke(active ? Color.white.opacity(0.16) : .clear, lineWidth: 1))
     }
 }
 
