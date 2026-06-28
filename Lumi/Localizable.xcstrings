@@ -6776,6 +6776,72 @@
           }
         }
       }
+    },
+    "UN 成员国": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "UN 成员国"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "UN members"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أعضاء الأمم المتحدة"
+          }
+        }
+      }
+    },
+    "分享成就报告": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "分享成就报告"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Share stats report"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "مشاركة تقرير الإحصاءات"
+          }
+        }
+      }
+    },
+    "点亮你的旅行足迹 · Lumi": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "点亮你的旅行足迹 · Lumi"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Light up your journey · Lumi"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أضئ رحلتك · Lumi"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

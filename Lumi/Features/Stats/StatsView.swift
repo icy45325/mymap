@@ -11,6 +11,8 @@ struct StatsView: View {
     @State private var categoryFilter: CatFilter = .all
     @State private var selectedBadge: Badge?
     @State private var celebrate: Badge?
+    @State private var reportImage: Image?
+    @State private var showReport = false
     /// 用户手动钉选的置顶徽章 id（持久化；空 = 用默认「最高荣耀」）。
     @AppStorage("lumi.featuredBadgeID") private var pinnedID: String = ""
 
@@ -62,7 +64,40 @@ struct StatsView: View {
             Analytics.log(.statsViewed(totalLit: stats.countries, percent: Int(stats.worldPercent.rounded())))
         }
         .sheet(item: $selectedBadge) { BadgeSheet(badge: $0, isFeatured: $0.id == featuredBadge?.id) }
+        .sheet(isPresented: $showReport) { reportShareSheet }
         .overlay { if let c = celebrate { UnlockCelebration(badge: c) { celebrate = nil } } }
+    }
+
+    /// 成就数据报告分享：预览 + 分享/保存。
+    private var reportShareSheet: some View {
+        VStack(spacing: 18) {
+            Capsule().fill(Color.line).frame(width: 40, height: 4).padding(.top, 11)
+            Text("分享成就报告").font(Typo.serif(20)).foregroundStyle(Color.text)
+            ScrollView {
+                if let reportImage {
+                    reportImage.resizable().scaledToFit()
+                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                        .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.line, lineWidth: 1))
+                        .padding(.horizontal, 26)
+                } else {
+                    ProgressView().tint(Color.nPink).padding(40)
+                }
+            }
+            if let reportImage {
+                ShareLink(item: reportImage,
+                          preview: SharePreview("Lumi", image: reportImage)) {
+                    Label("分享", systemImage: "square.and.arrow.up")
+                        .font(.headline).foregroundStyle(.white)
+                        .frame(maxWidth: .infinity).padding(.vertical, 15)
+                        .background(LinearGradient.neonH, in: Capsule())
+                }
+                .padding(.horizontal, 26).padding(.bottom, 20)
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .background(Color(hex: 0x0F0F1B).ignoresSafeArea())
+        .presentationDetents([.large])
+        .preferredColorScheme(.dark)
     }
 
     // MARK: - 头部 / 环形概览
@@ -96,13 +131,28 @@ struct StatsView: View {
 
     private var statsSummary: some View {
         VStack(alignment: .leading, spacing: 12) {
-            HStack(alignment: .firstTextBaseline, spacing: 8) {
-                Text("\(stats.countries)").font(Typo.serif(40)).foregroundStyle(Color.text)
-                Text("/ \(Boundaries.shared.unMemberCount)")
-                    .font(Typo.serif(20)).foregroundStyle(Color.muted)
+            HStack(alignment: .bottom) {
+                VStack(alignment: .leading, spacing: 2) {
+                    HStack(alignment: .firstTextBaseline, spacing: 8) {
+                        Text("\(stats.countries)").font(Typo.serif(40)).foregroundStyle(Color.text)
+                        Text("/ \(Boundaries.shared.unMemberCount)")
+                            .font(Typo.serif(20)).foregroundStyle(Color.muted)
+                    }
+                    Text("已访问 UN 成员国").font(.system(size: 12)).foregroundStyle(Color.muted)
+                }
                 Spacer()
+                Button {
+                    reportImage = ShareRender.image(StatsReportCard(stats: stats), scale: 3)
+                    showReport = true
+                } label: {
+                    Label("分享", systemImage: "square.and.arrow.up")
+                        .font(.system(size: 12, weight: .semibold)).foregroundStyle(Color.nCyan)
+                        .padding(.vertical, 7).padding(.horizontal, 14)
+                        .background(Color.panel, in: Capsule())
+                        .overlay(Capsule().stroke(Color.nCyan.opacity(0.4), lineWidth: 1))
+                }
+                .buttonStyle(.plain)
             }
-            Text("已访问 UN 成员国").font(.system(size: 12)).foregroundStyle(Color.muted)
             HStack(spacing: 10) {
                 summaryCard("\(stats.countries)", "国家", "/ \(stats.worldTotal)")
                 summaryCard("\(stats.cities)", "城市", nil)
