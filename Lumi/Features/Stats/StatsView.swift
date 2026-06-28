@@ -12,6 +12,7 @@ struct StatsView: View {
     @State private var selectedBadge: Badge?
     @State private var celebrate: Badge?
     @State private var reportImage: Image?
+    @State private var reportUIImage: UIImage?     // Instagram 快拍分享用
     @State private var showReport = false
     /// 用户手动钉选的置顶徽章 id（持久化；空 = 用默认「最高荣耀」）。
     @AppStorage("lumi.featuredBadgeID") private var pinnedID: String = ""
@@ -84,12 +85,15 @@ struct StatsView: View {
                 }
             }
             if let reportImage {
-                ShareLink(item: reportImage,
-                          preview: SharePreview("Lumi", image: reportImage)) {
-                    Label("分享", systemImage: "square.and.arrow.up")
-                        .font(.headline).foregroundStyle(.white)
-                        .frame(maxWidth: .infinity).padding(.vertical, 15)
-                        .background(LinearGradient.neonH, in: Capsule())
+                VStack(spacing: 10) {
+                    ShareLink(item: reportImage,
+                              preview: SharePreview("Lumi", image: reportImage)) {
+                        Label("分享", systemImage: "square.and.arrow.up")
+                            .font(.headline).foregroundStyle(.white)
+                            .frame(maxWidth: .infinity).padding(.vertical, 15)
+                            .background(LinearGradient.neonH, in: Capsule())
+                    }
+                    InstagramStoryButton { reportUIImage }
                 }
                 .padding(.horizontal, 26).padding(.bottom, 20)
             }
@@ -142,7 +146,9 @@ struct StatsView: View {
                 }
                 Spacer()
                 Button {
-                    reportImage = ShareRender.image(StatsReportCard(stats: stats), scale: 3)
+                    let ui = ShareRender.uiImage(StatsReportCard(stats: stats), scale: 3)
+                    reportUIImage = ui
+                    reportImage = ui.map(Image.init(uiImage:))
                     showReport = true
                 } label: {
                     Label("分享", systemImage: "square.and.arrow.up")
@@ -356,6 +362,7 @@ private struct BadgeSheet: View {
     let isFeatured: Bool
 
     @State private var shareImage: Image?
+    @State private var shareUIImage: UIImage?
     @AppStorage("lumi.featuredBadgeID") private var pinnedID: String = ""
     private var isPinned: Bool { isFeatured }
 
@@ -403,6 +410,13 @@ private struct BadgeSheet: View {
                                               tint: Color.nCyan, filled: false)
                             }
                         }
+                        if InstagramShare.isAvailable, shareUIImage != nil {
+                            Button { if let ui = shareUIImage { InstagramShare.shareToStories(ui) } } label: {
+                                compactAction("Instagram", systemImage: "camera.circle.fill",
+                                              tint: Color.nPink, filled: false)
+                            }
+                            .buttonStyle(.plain)
+                        }
                     }
                     .padding(.top, 16)
                 }
@@ -431,7 +445,9 @@ private struct BadgeSheet: View {
         .background(Color(hex: 0x0F0F1B).ignoresSafeArea())
         .onAppear {
             if badge.state == .lit, shareImage == nil {
-                shareImage = ShareRender.image(BadgeShareCard(badge: badge))
+                let ui = ShareRender.uiImage(BadgeShareCard(badge: badge))
+                shareUIImage = ui
+                shareImage = ui.map(Image.init(uiImage:))
             }
         }
         .presentationDetents([.large])

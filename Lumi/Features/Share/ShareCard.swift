@@ -6,10 +6,14 @@ import SwiftUI
 @MainActor
 enum ShareRender {
     static func image<V: View>(_ view: V, scale: CGFloat = 3) -> Image? {
+        uiImage(view, scale: scale).map(Image.init(uiImage:))
+    }
+
+    /// 同上但返回 `UIImage`（Instagram Stories 等需要原始位图）。
+    static func uiImage<V: View>(_ view: V, scale: CGFloat = 3) -> UIImage? {
         let renderer = ImageRenderer(content: view)
         renderer.scale = scale
-        guard let ui = renderer.uiImage else { return nil }
-        return Image(uiImage: ui)
+        return renderer.uiImage
     }
 }
 

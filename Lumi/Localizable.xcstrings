@@ -7657,6 +7657,270 @@
         }
       }
     },
+    "分享到 Instagram": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "分享到 Instagram"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Share to Instagram"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "شارك على إنستغرام"
+          }
+        }
+      }
+    },
+    "个性化": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "个性化"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Customize"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تخصيص"
+          }
+        }
+      }
+    },
+    "小组件 & 样式": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "小组件 & 样式"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Widgets & styles"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الودجات والأنماط"
+          }
+        }
+      }
+    },
+    "浏览小组件、明信片样式、邮票与护照风格，点一下即应用": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "浏览小组件、明信片样式、邮票与护照风格，点一下即应用"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Browse widgets, postcard styles, stamps and passport looks — tap to apply"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تصفّح الودجات وأنماط البطاقات والطوابع وأشكال الجواز — انقر للتطبيق"
+          }
+        }
+      }
+    },
+    "把旅行进度放上主屏 / 锁屏": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "把旅行进度放上主屏 / 锁屏"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Put your travel progress on the Home / Lock Screen"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ضع تقدّم رحلتك على الشاشة الرئيسية / المقفلة"
+          }
+        }
+      }
+    },
+    "主屏显示已点亮国家数与全球占比": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "主屏显示已点亮国家数与全球占比"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lit countries and world percent on your Home Screen"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الدول المضاءة ونسبة العالم على شاشتك الرئيسية"
+          }
+        }
+      }
+    },
+    "去过国家的国旗集合，一眼看遍": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "去过国家的国旗集合，一眼看遍"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All the flags of countries you've visited, at a glance"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "كل أعلام الدول التي زرتها، بلمحة"
+          }
+        }
+      }
+    },
+    "回看往年此刻你在的地方": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "回看往年此刻你在的地方"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Revisit where you were on this day in past years"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تذكّر أين كنت في مثل هذا اليوم سابقًا"
+          }
+        }
+      }
+    },
+    "明信片样式": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "明信片样式"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Postcard styles"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أنماط البطاقات"
+          }
+        }
+      }
+    },
+    "选一个默认卡面，分享时即用": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "选一个默认卡面，分享时即用"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pick a default card face, used when you share"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "اختر واجهة افتراضية تُستخدم عند المشاركة"
+          }
+        }
+      }
+    },
+    "默认邮票贴图": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "默认邮票贴图"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Default stamp"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الطابع الافتراضي"
+          }
+        }
+      }
+    },
+    "护照本封面与内页风格": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "护照本封面与内页风格"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Passport cover and page style"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "نمط غلاف وصفحات الجواز"
+          }
+        }
+      }
+    },
     "账户": {
       "localizations": {
         "zh-Hans": {

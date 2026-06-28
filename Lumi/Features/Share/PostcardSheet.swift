@@ -12,6 +12,7 @@ struct PostcardSheet: View {
     @State private var message: String
     @State private var cover: UIImage?
     @State private var shareImage: Image?
+    @State private var shareUIImage: UIImage?      // Instagram 快拍分享用原始位图
     @State private var qr: Image?
     @State private var cardFile: URL?                // AirDrop 用的 .lumicard 文件
     @State private var copied = false
@@ -25,8 +26,14 @@ struct PostcardSheet: View {
     init(footprint: Footprint) {
         self.footprint = footprint
         _message = State(initialValue: defaultPostcardMessage(footprint))
-        _style = State(initialValue: PostcardStyle(rawValue: footprint.postcardStyle) ?? .vintage)
-        _stamp = State(initialValue: PostcardStamp(rawValue: footprint.stampStyle) ?? .air)
+        // 收到的卡保留寄件人样式；自己分享则用「个性化」里设的默认样式。
+        let d = UserDefaults.standard
+        let styleRaw = footprint.isReceived ? footprint.postcardStyle
+            : (d.string(forKey: "lumi.postcard.style") ?? footprint.postcardStyle)
+        let stampRaw = footprint.isReceived ? footprint.stampStyle
+            : (d.string(forKey: "lumi.postcard.stamp") ?? footprint.stampStyle)
+        _style = State(initialValue: PostcardStyle(rawValue: styleRaw) ?? .vintage)
+        _stamp = State(initialValue: PostcardStamp(rawValue: stampRaw) ?? .air)
     }
 
     private var tokenString: String {
@@ -84,6 +91,7 @@ struct PostcardSheet: View {
                         .simultaneousGesture(TapGesture().onEnded {
                             contacts.record(recipient, sent: true)   // 寄出即攒往来
                         })
+                        InstagramStoryButton { shareUIImage }        // 装了 IG 才出现
                     } else {
                         ProgressView().tint(Color.nPink).frame(maxWidth: .infinity).padding(.vertical, 14)
                     }
@@ -251,7 +259,9 @@ struct PostcardSheet: View {
         let card = PostcardExportCard(footprint: footprint, cover: cover, message: message,
                                       recipient: recipient, style: style, stamp: stamp,
                                       watermark: !store.isPlus)
-        shareImage = ShareRender.image(card, scale: store.isPlus ? 3 : 2)
+        let ui = ShareRender.uiImage(card, scale: store.isPlus ? 3 : 2)
+        shareUIImage = ui
+        shareImage = ui.map(Image.init(uiImage:))
         qr = PostcardToken.qrImage(shareLinkString).map { Image(uiImage: $0) }
         cardFile = PostcardToken.writeCardFile(tokenString)
         copied = false
