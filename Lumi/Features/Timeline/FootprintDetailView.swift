@@ -11,8 +11,6 @@ struct FootprintDetailView: View {
     @State private var heroPage = 0
 
     private static let dateFormat: Date.FormatStyle = .dateTime.year().month(.wide).day()
-    /// 多图自动翻页节拍。
-    private let autoFlip = Timer.publish(every: 3.5, on: .main, in: .common).autoconnect()
 
     var body: some View {
         ScrollView {
@@ -83,10 +81,18 @@ struct FootprintDetailView: View {
                     }
                     .tabViewStyle(.page(indexDisplayMode: .always))
                     .indexViewStyle(.page(backgroundDisplayMode: .interactive))
-                    .onReceive(autoFlip) { _ in
+                    // 单一生命周期内的自动翻页：每 3.5s 只前进一页（睡眠在前进之后，
+                    // 不会出现多个定时器叠加导致「跳页 / 停在两页之间」）。
+                    .task(id: footprint.photoAssetIDs.count) {
                         let count = footprint.photoAssetIDs.count
                         guard count > 1 else { return }
-                        withAnimation(.easeInOut(duration: 0.6)) { heroPage = (heroPage + 1) % count }
+                        while !Task.isCancelled {
+                            try? await Task.sleep(for: .seconds(3.5))
+                            if Task.isCancelled { break }
+                            withAnimation(.easeInOut(duration: 0.6)) {
+                                heroPage = (heroPage + 1) % count
+                            }
+                        }
                     }
                 } else {
                     AssetImage(assetID: footprint.photoAssetIDs.first,
