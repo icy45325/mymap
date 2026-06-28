@@ -1,15 +1,15 @@
 import SwiftUI
 
-/// 「分享到 Instagram」按钮——仅在装了 IG 时出现；点按把渲染好的图发到快拍。
-/// `render` 惰性出图（点按时才渲染），避免常驻持有大位图。
-struct InstagramStoryButton: View {
-    /// 点按时产出要分享的位图（nil 则忽略）。
+/// 「分享到 Instagram」按钮——仅在装了 IG 时出现；点按把图以 Feed 帖子形式发到 Instagram。
+/// `render` 在点按时按高倍率现出图（保证清晰），避免常驻持有大位图。
+struct InstagramShareButton: View {
+    /// 点按时产出要分享的高清位图（nil 则忽略）。
     let render: () -> UIImage?
 
     var body: some View {
         if InstagramShare.isAvailable {
             Button {
-                if let ui = render() { InstagramShare.shareToStories(ui) }
+                if let ui = render() { InstagramShare.shareToFeed(ui) }
             } label: {
                 Label("分享到 Instagram", systemImage: "camera.circle.fill")
                     .font(.system(size: 14, weight: .semibold))

@@ -7921,6 +7921,160 @@
         }
       }
     },
+    "添加到桌面": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "添加到桌面"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add to Home Screen"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أضف إلى الشاشة الرئيسية"
+          }
+        }
+      }
+    },
+    "长按主屏空白处，进入编辑状态": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "长按主屏空白处，进入编辑状态"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Touch and hold an empty area of the Home Screen"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "المس مطوّلًا منطقة فارغة بالشاشة الرئيسية"
+          }
+        }
+      }
+    },
+    "点左上角的「+」号": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "点左上角的「+」号"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tap the “+” in the top-left corner"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "انقر «+» في الزاوية العلوية اليسرى"
+          }
+        }
+      }
+    },
+    "搜索「Lumi」": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "搜索「Lumi」"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search for “Lumi”"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ابحث عن «Lumi»"
+          }
+        }
+      }
+    },
+    "选择小组件与尺寸（小 / 中），点「添加小组件」": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "选择小组件与尺寸（小 / 中），点「添加小组件」"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pick a widget and size (small / medium), then Add Widget"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "اختر ودجت وحجمًا (صغير / متوسط) ثم أضف الودجت"
+          }
+        }
+      }
+    },
+    "小组件会跟随系统语言显示": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "小组件会跟随系统语言显示"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Widgets follow your system language"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تتبع الودجات لغة نظامك"
+          }
+        }
+      }
+    },
+    "东京": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "东京"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tokyo"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "طوكيو"
+          }
+        }
+      }
+    },
     "账户": {
       "localizations": {
         "zh-Hans": {
