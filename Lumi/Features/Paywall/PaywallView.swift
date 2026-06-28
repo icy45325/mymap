@@ -116,16 +116,8 @@ struct PaywallView: View {
                 Image(systemName: isSel ? "largecircle.fill.circle" : "circle")
                     .font(.system(size: 20)).foregroundStyle(isSel ? Color.nPink : Color.line)
                 VStack(alignment: .leading, spacing: 2) {
-                    HStack(spacing: 6) {
-                        Text(kind?.title ?? product.displayName)
-                            .font(.system(size: 15, weight: .semibold)).foregroundStyle(Color.text)
-                        if product.id == PlusProduct.yearly.rawValue, let save = yearlySavings {
-                            Text(verbatim: "\(String(localized: "省")) \(save)%").font(.system(size: 9, weight: .bold))
-                                .foregroundStyle(.white)
-                                .padding(.vertical, 2).padding(.horizontal, 6)
-                                .background(LinearGradient.neonH, in: Capsule())
-                        }
-                    }
+                    Text(kind?.title ?? product.displayName)
+                        .font(.system(size: 15, weight: .semibold)).foregroundStyle(Color.text)
                     Text(priceSubtitle(product, kind: kind))
                         .font(.system(size: 11)).foregroundStyle(Color.muted)
                 }
@@ -160,10 +152,7 @@ struct PaywallView: View {
         .opacity(selected == nil ? 0.5 : 1)
     }
 
-    private var ctaTitle: LocalizedStringKey {
-        if selected?.id == PlusProduct.lifetime.rawValue { return "解锁终身 Plus" }
-        return "开始订阅"
-    }
+    private var ctaTitle: LocalizedStringKey { "开始订阅" }
 
     // MARK: - 条款
 
@@ -183,30 +172,12 @@ struct PaywallView: View {
 
     // MARK: - 派生
 
-    private func product(_ kind: PlusProduct) -> Product? {
-        store.products.first { $0.id == kind.rawValue }
-    }
-
     private func syncSelection() {
         guard selected == nil else { return }
-        selected = product(.yearly) ?? store.products.first
+        selected = store.products.first
     }
 
     private func priceSubtitle(_ product: Product, kind: PlusProduct?) -> LocalizedStringKey {
-        switch kind {
-        case .monthly:  return "每月 · 随时取消"
-        case .yearly:   return "每年 · 折合更省"
-        case .lifetime: return "一次性买断 · 永久"
-        default:        return ""
-        }
-    }
-
-    private var yearlySavings: Int? {
-        guard let monthly = product(.monthly)?.price,
-              let yearly = product(.yearly)?.price, monthly > 0 else { return nil }
-        let full = monthly * 12
-        guard full > yearly else { return nil }
-        let ratio = (full - yearly) / full * 100
-        return Int(truncating: ratio as NSDecimalNumber)
+        kind == .monthly ? "每月 · 随时取消" : ""
     }
 }

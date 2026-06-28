@@ -1,78 +1,42 @@
 {
-  "identifier" : "A1B2C3D4-LUMI-PLUS-0001-STOREKITCFG01",
-  "nonRenewingSubscriptions" : [],
-  "products" : [
-    {
-      "displayPrice" : "198.00",
-      "familyShareable" : false,
-      "internalID" : "LUMI-LIFETIME-0001",
-      "localizations" : [
-        {
-          "description" : "永久解锁 Lumi Plus 全部权益",
-          "displayName" : "Lumi Plus 终身",
-          "locale" : "zh_CN"
-        }
-      ],
-      "productID" : "com.lumi.plus.lifetime",
-      "referenceName" : "Lumi Plus Lifetime",
-      "type" : "NonConsumable"
-    }
-  ],
-  "settings" : {
-    "_failTransactionsEnabled" : false,
-    "_storeKitErrors" : []
+  "identifier": "A1B2C3D4-LUMI-PLUS-0001-STOREKITCFG01",
+  "nonRenewingSubscriptions": [],
+  "products": [],
+  "settings": {
+    "_failTransactionsEnabled": false,
+    "_storeKitErrors": []
   },
-  "subscriptionGroups" : [
+  "subscriptionGroups": [
     {
-      "id" : "LUMI-PLUS-GROUP-0001",
-      "localizations" : [],
-      "name" : "Lumi Plus",
-      "subscriptions" : [
+      "id": "LUMI-PLUS-GROUP-0001",
+      "localizations": [],
+      "name": "Lumi Plus",
+      "subscriptions": [
         {
-          "adHocOffers" : [],
-          "displayPrice" : "12.00",
-          "familyShareable" : false,
-          "groupNumber" : 1,
-          "internalID" : "LUMI-MONTHLY-0001",
-          "introductoryOffer" : null,
-          "localizations" : [
+          "adHocOffers": [],
+          "displayPrice": "9.90",
+          "familyShareable": false,
+          "groupNumber": 1,
+          "internalID": "LUMI-MONTHLY-0001",
+          "introductoryOffer": null,
+          "localizations": [
             {
-              "description" : "按月解锁 Lumi Plus",
-              "displayName" : "Lumi Plus 月订",
-              "locale" : "zh_CN"
+              "description": "按月解锁 Lumi Plus",
+              "displayName": "Lumi Plus 月订",
+              "locale": "zh_CN"
             }
           ],
-          "productID" : "com.lumi.plus.monthly",
-          "recurringSubscriptionPeriod" : "P1M",
-          "referenceName" : "Lumi Plus Monthly",
-          "subscriptionGroupID" : "LUMI-PLUS-GROUP-0001",
-          "type" : "RecurringSubscription"
-        },
-        {
-          "adHocOffers" : [],
-          "displayPrice" : "88.00",
-          "familyShareable" : false,
-          "groupNumber" : 1,
-          "internalID" : "LUMI-YEARLY-0001",
-          "introductoryOffer" : null,
-          "localizations" : [
-            {
-              "description" : "按年解锁 Lumi Plus（更超值）",
-              "displayName" : "Lumi Plus 年订",
-              "locale" : "zh_CN"
-            }
-          ],
-          "productID" : "com.lumi.plus.yearly",
-          "recurringSubscriptionPeriod" : "P1Y",
-          "referenceName" : "Lumi Plus Yearly",
-          "subscriptionGroupID" : "LUMI-PLUS-GROUP-0001",
-          "type" : "RecurringSubscription"
+          "productID": "com.lumi.plus.monthly",
+          "recurringSubscriptionPeriod": "P1M",
+          "referenceName": "Lumi Plus Monthly",
+          "subscriptionGroupID": "LUMI-PLUS-GROUP-0001",
+          "type": "RecurringSubscription"
         }
       ]
     }
   ],
-  "version" : {
-    "major" : 2,
-    "minor" : 0
+  "version": {
+    "major": 2,
+    "minor": 0
   }
 }

@@ -1,23 +1,16 @@
 import Foundation
 import StoreKit
 
-/// Lumi Plus 的三个内购产品（ID 与 App Store Connect / `Lumi.storekit` 一致）。
+/// Lumi Plus 内购产品（ID 与 App Store Connect / `Lumi.storekit` 一致）。
+/// 当前仅**月订阅**一档。
 enum PlusProduct: String, CaseIterable {
-    case monthly  = "com.lumi.plus.monthly"
-    case yearly   = "com.lumi.plus.yearly"
-    case lifetime = "com.lumi.plus.lifetime"
+    case monthly = "com.lumi.plus.monthly"
 
-    var sortOrder: Int { switch self { case .monthly: 0; case .yearly: 1; case .lifetime: 2 } }
-    var isSubscription: Bool { self != .lifetime }
+    var sortOrder: Int { 0 }
+    var isSubscription: Bool { true }
 
     /// 计划名（本地化键，源中文）。
-    var title: String {
-        switch self {
-        case .monthly:  return String(localized: "按月")
-        case .yearly:   return String(localized: "按年")
-        case .lifetime: return String(localized: "终身")
-        }
-    }
+    var title: String { String(localized: "按月") }
 }
 
 /// Plus 权益 + 内购。**当前用 StoreKit 2 原生实现**；业务层只读 `isPlus` / `products`，

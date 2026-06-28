@@ -14,7 +14,7 @@
 1. Xcode 顶部 **Product → Scheme → Edit Scheme…**
 2. 左侧选 **Run** → 右侧 **Options** 标签
 3. **StoreKit Configuration** 下拉 → 选 **`Lumi.storekit`**（在 `Lumi/Lumi.storekit`）
-4. 关闭，重跑 → paywall 就能看到月 ¥12 / 年 ¥88 / 终身 ¥198 三档，可走沙盒购买/恢复。
+4. 关闭，重跑 → paywall 就能看到**月订 9.9** 一档，可走沙盒购买/恢复。
 
 > 这个设置存在 scheme 里（属 xcuserdata，不随仓库走），所以每台机 / 每次重建 scheme 都要设一次。
 > **上架的真包不靠它**——真机/审核用的是 App Store Connect 里建的真产品（见 ③）。
@@ -56,14 +56,13 @@
 ### 建 App
 - [ ] 新建 App，Bundle ID 选你的 `LUMI_APP_ID`，主语言、分类（旅游/生活）、年龄分级 **4+**
 
-### 内购产品（**ID 必须与代码完全一致**）
-- [ ] 订阅组（Subscription Group，例如「Lumi Plus」）下建两档**自动续订订阅**：
-  - `com.lumi.plus.monthly` —— 月，¥12（或你的定价）
-  - `com.lumi.plus.yearly` —— 年，¥88
-- [ ] 一个**非消耗型**内购：
-  - `com.lumi.plus.lifetime` —— 终身，¥198
-- [ ] 各产品填本地化显示名/描述、价格分层（中东 + 全球可分层）、订阅本地化、审核截图
+### 内购产品（**ID 必须与代码完全一致**；当前仅月订一档）
+- [ ] 订阅组（Subscription Group「Lumi Plus」）下建**一档自动续订订阅**：
+  - `com.lumi.plus.monthly` —— **月订**
+- [ ] **定价（按地区自定，目标显示 9.9）**：美国 **$9.9/月**、中国 **¥9.9/月**、阿联酋 **AED 9.9/月**（其余地区可用 Apple 自动换算或自定）
+- [ ] 填本地化显示名/描述（中/英/阿）、订阅本地化、审核截图
 - [ ] 真机/沙盒账号验证：购买 → 去水印高清生效 → 杀进程重开仍 Plus → 「恢复购买」可用
+> 年订 / 终身已**移除**（只留月订）；以后想加回来在这里加产品 + 代码 `PlusProduct` 加 case 即可。
 
 ### 法务页（paywall 里已链接，必须可访问）
 - [ ] 开 **GitHub Pages**（仓库 Settings → Pages → 源选 `main`/分支的 `/docs`），让 `docs/legal/{privacy,terms,support}.html` 能打开
@@ -86,9 +85,7 @@
 | App Bundle ID | `$(LUMI_APP_ID)`（默认 `com.lumi.v0`） | Build Settings `LUMI_APP_ID` |
 | Widget Bundle ID | `$(LUMI_APP_ID).widgets` | 自动 |
 | App Group | `group.com.lumi.v0` | 两个 target entitlements（**别改**） |
-| 月订阅 | `com.lumi.plus.monthly` | 代码 + .storekit + ASC |
-| 年订阅 | `com.lumi.plus.yearly` | 同上 |
-| 终身 | `com.lumi.plus.lifetime`（非消耗） | 同上 |
+| 月订阅（唯一一档） | `com.lumi.plus.monthly` · 9.9/月 | 代码 + .storekit + ASC |
 | URL scheme | `lumi://`（明信片回跳） | Info.plist（已配） |
 | 文件类型 | `.lumicard`（AirDrop 明信片） | Info.plist（已配） |
 
