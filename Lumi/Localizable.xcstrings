@@ -6732,6 +6732,50 @@
           }
         }
       }
+    },
+    "徽章墙": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "徽章墙"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Badge Wall"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "جدار الأوسمة"
+          }
+        }
+      }
+    },
+    "已访问 UN 成员国": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已访问 UN 成员国"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "UN member states visited"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "دول أعضاء بالأمم المتحدة"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

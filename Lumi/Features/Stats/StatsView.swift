@@ -39,12 +39,16 @@ struct StatsView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 18) {
                     header
+                    // —— 统计在上 ——
+                    statsSummary
+                    conquestSection
+                    // —— 徽章墙在下 ——
+                    badgesHeader
                     ringSummary
                     if let f = featuredBadge { showcase(f) }
                     SegmentBar(items: segmentItems, selection: $categoryFilter)
                     honeycomb
                     if let n = board.nextUp { nextUpSection(n) }
-                    conquestSection
                     Color.clear.frame(height: 20)
                 }
                 .padding(.top, 16)
@@ -78,26 +82,54 @@ struct StatsView: View {
                         .font(.system(size: 9)).foregroundStyle(Color.muted)
                 }
             }
-            VStack(alignment: .leading, spacing: 9) {
+            VStack(alignment: .leading, spacing: 6) {
                 Text("徽章收藏").font(Typo.serif(21))
-                HStack(spacing: 8) {
-                    kv("\(stats.countries)", "已点亮国")
-                    kv("\(stats.cities)", "城市")
-                }
+                Text("\(board.unlockedCount) / \(board.total)")
+                    .font(.system(size: 12)).foregroundStyle(Color.muted)
             }
             Spacer()
         }
         .padding(.horizontal, 26)
     }
 
-    private func kv(_ v: String, _ l: String) -> some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text(v).font(.system(size: 13, weight: .bold)).foregroundStyle(Color.text)
-            Text(l.localized).font(.system(size: 9)).foregroundStyle(Color.muted)
+    // MARK: - 统计汇总（页面顶部）
+
+    private var statsSummary: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(alignment: .firstTextBaseline, spacing: 8) {
+                Text("\(stats.countries)").font(Typo.serif(40)).foregroundStyle(Color.text)
+                Text("/ \(Boundaries.shared.unMemberCount)")
+                    .font(Typo.serif(20)).foregroundStyle(Color.muted)
+                Spacer()
+            }
+            Text("已访问 UN 成员国").font(.system(size: 12)).foregroundStyle(Color.muted)
+            HStack(spacing: 10) {
+                summaryCard("\(stats.countries)", "国家", "/ \(stats.worldTotal)")
+                summaryCard("\(stats.cities)", "城市", nil)
+                summaryCard("\(stats.continentsCovered)", "大洲", "/ 7")
+            }
         }
-        .padding(.vertical, 8).padding(.horizontal, 10)
+        .padding(.horizontal, 26)
+    }
+
+    private func summaryCard(_ value: String, _ label: String, _ sub: String?) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(label.localized).font(.system(size: 10, weight: .semibold)).tracking(0.5)
+                .foregroundStyle(Color.muted).textCase(.uppercase)
+            HStack(alignment: .firstTextBaseline, spacing: 3) {
+                Text(value).font(Typo.serif(24)).foregroundStyle(Color.text)
+                if let sub { Text(sub).font(.system(size: 11)).foregroundStyle(Color.faint) }
+            }
+        }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .panelCard(12)
+        .padding(.vertical, 13).padding(.horizontal, 13)
+        .panelCard(14)
+    }
+
+    private var badgesHeader: some View {
+        Text("徽章墙").font(.system(size: 13, weight: .semibold)).tracking(1)
+            .foregroundStyle(Color.muted)
+            .padding(.horizontal, 26).padding(.top, 4)
     }
 
     // MARK: - 置顶展示
