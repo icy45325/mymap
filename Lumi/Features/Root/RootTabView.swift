@@ -17,6 +17,13 @@ struct RootTabView: View {
     @State private var celebrateBadges: [Badge] = []
     /// 接收枢纽：剪贴板 / 扫码 / lumi:// / AirDrop 四入口统一到这里。
     @ObservedObject private var inbox = PostcardInbox.shared
+    /// 新版本检测（A）。
+    @ObservedObject private var updater = AppUpdateCheck.shared
+    /// 当前选中 Tab（用于切换触觉反馈 D）。
+    @State private var selectedTab = 0
+    /// 「本次更新」弹窗（B）：记上次展示过的版本，升级后首开弹一次。
+    @AppStorage("lumi.lastWhatsNewVersion") private var lastWhatsNew: String = ""
+    @State private var showWhatsNew = false
 
     init() {
         // 暗夜霓虹半透明 Tab 栏
@@ -29,22 +36,25 @@ struct RootTabView: View {
     }
 
     var body: some View {
-        TabView {
+        TabView(selection: $selectedTab) {
             MapHomeView()
-                .tabItem { Label("地图", systemImage: "map.fill") }
+                .tabItem { Label("地图", systemImage: "map.fill") }.tag(0)
 
             TimelineView()
-                .tabItem { Label("星迹", systemImage: "sparkles") }
+                .tabItem { Label("星迹", systemImage: "sparkles") }.tag(1)
 
             StatsView()
-                .tabItem { Label("成就", systemImage: "rosette") }
+                .tabItem { Label("成就", systemImage: "rosette") }.tag(2)
 
             ProfileView()
-                .tabItem { Label("我", systemImage: "person.fill") }
+                .tabItem { Label("我", systemImage: "person.fill") }.tag(3)
         }
         .tint(Color.nPink)
         .preferredColorScheme(.dark)
-        .onAppear { checkClipboardForPostcard(); detectNewUnlocks() }
+        .sensoryFeedback(.selection, trigger: selectedTab)            // D 切 Tab 震动
+        .sensoryFeedback(.success, trigger: celebrateBadges.count)    // D 徽章庆祝弹出即震
+        .onAppear { checkClipboardForPostcard(); detectNewUnlocks(); checkWhatsNew() }
+        .task { await updater.check() }                              // A 启动查新版本
         .onChange(of: scenePhase) { _, phase in
             if phase == .active { checkClipboardForPostcard() }
         }
@@ -58,6 +68,23 @@ struct RootTabView: View {
         } message: { payload in
             Text(payload.sender.map { "\($0) 寄来 · \(payload.place)" } ?? payload.place)
         }
+        .alert("发现新版本 \(updater.available?.version ?? "")",      // A 非阻断更新提示
+               isPresented: Binding(get: { updater.available != nil }, set: { if !$0 { updater.dismiss() } }),
+               presenting: updater.available) { update in
+            Button("去更新") { UIApplication.shared.open(update.url) }
+            Button("跳过此版本") { updater.skip(update.version) }
+            Button("稍后", role: .cancel) { updater.dismiss() }
+        } message: { _ in
+            Text("更新后可获得更多徽章 / 样式等新内容")
+        }
+        .sheet(isPresented: $showWhatsNew) { WhatsNewSheet() }       // B 本次更新弹窗
+    }
+
+    /// B：升级后首开弹一次；全新安装静默播种、不弹。
+    private func checkWhatsNew() {
+        let cur = Bundle.main.shortVersion
+        if lastWhatsNew.isEmpty { lastWhatsNew = cur }              // 新装播种，不打扰
+        else if lastWhatsNew != cur { showWhatsNew = true; lastWhatsNew = cur }
     }
 
     // MARK: - 明信片接收（统一走 PostcardInbox）
@@ -87,6 +114,7 @@ struct RootTabView: View {
         markSeen(p.token)
         PostcardContacts.shared.record(p.sender, sent: false)   // 攒「往来的人」(本地)
         WidgetSync.refresh(context)
+        Haptics.success()                                       // D 收下明信片震动
         inbox.pending = nil
     }
 

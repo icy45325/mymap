@@ -306,6 +306,7 @@ private struct CountryActionSheet: View {
         for t in targets { insertFootprint(name: t.name, coord: t.coord, city: t.city, date: date) }
         try? context.save()
         if !prior { Analytics.log(.countryLit(countryCode: countryCode, totalLit: distinctLitCount())) }
+        Haptics.success()
         WidgetSync.refresh(context)
     }
 
@@ -317,6 +318,7 @@ private struct CountryActionSheet: View {
         removeCityWish(city)
         try? context.save()
         if !prior { Analytics.log(.countryLit(countryCode: countryCode, totalLit: distinctLitCount())) }
+        Haptics.success()
         WidgetSync.refresh(context)
     }
 

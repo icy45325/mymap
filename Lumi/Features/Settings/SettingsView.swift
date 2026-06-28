@@ -7,8 +7,10 @@ struct SettingsView: View {
 
     @ObservedObject private var store = PlusStore.shared
     @ObservedObject private var auth = AuthStore.shared
+    @ObservedObject private var updater = AppUpdateCheck.shared
     @AppStorage("lumi.passport.style") private var passportStyle: String = PassportStyle.classic.rawValue
     @State private var showPaywall = false
+    @State private var showWhatsNew = false
 
     var body: some View {
         ScrollView {
@@ -59,6 +61,7 @@ struct SettingsView: View {
                     .overlay(RoundedRectangle(cornerRadius: 14).stroke(Color.line, lineWidth: 1))
                 }
                 section("反馈与建议") { feedbackRow }
+                section("关于") { aboutRows }
             }
             .padding(20)
         }
@@ -70,7 +73,9 @@ struct SettingsView: View {
         .toolbarColorScheme(.dark, for: .navigationBar)
         .preferredColorScheme(.dark)
         .sheet(isPresented: $showPaywall) { PaywallView() }
+        .sheet(isPresented: $showWhatsNew) { WhatsNewSheet() }
         .task { await store.start() }
+        .task { await updater.check(force: true) }
         .onAppear { auth.refreshCredentialState() }
     }
 
@@ -167,6 +172,58 @@ struct SettingsView: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .background(Color.panel, in: RoundedRectangle(cornerRadius: 14))
+        .overlay(RoundedRectangle(cornerRadius: 14).stroke(Color.line, lineWidth: 1))
+    }
+
+    // MARK: - 关于（版本 / 本次更新）
+
+    private var aboutRows: some View {
+        VStack(spacing: 0) {
+            // 版本行：有新版本 → 可点去更新；否则显示已是最新版本
+            Button {
+                if let url = updater.available?.url { UIApplication.shared.open(url) }
+            } label: {
+                HStack(spacing: 12) {
+                    Image(systemName: "app.badge").font(.system(size: 18))
+                        .foregroundStyle(Color.nPink).frame(width: 28)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("当前版本 \(updater.currentVersion)")
+                            .font(.system(size: 14, weight: .medium)).foregroundStyle(Color.text)
+                        Text(updater.available == nil ? "已是最新版本" : "有新版本可更新")
+                            .font(.system(size: 11))
+                            .foregroundStyle(updater.available == nil ? Color.muted : Color.nCyan)
+                    }
+                    Spacer()
+                    if updater.available != nil {
+                        Image(systemName: "chevron.right").font(.system(size: 13, weight: .semibold))
+                            .foregroundStyle(Color.faint).flipsForRightToLeftLayoutDirection(true)
+                    }
+                }
+                .padding(.vertical, 13).padding(.horizontal, 14)
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .disabled(updater.available == nil)
+
+            Divider().overlay(Color.line).padding(.horizontal, 14)
+
+            // 查看本次更新
+            Button { showWhatsNew = true } label: {
+                HStack(spacing: 12) {
+                    Image(systemName: "sparkles").font(.system(size: 18))
+                        .foregroundStyle(Color.nCyan).frame(width: 28)
+                    Text("查看本次更新")
+                        .font(.system(size: 14, weight: .medium)).foregroundStyle(Color.text)
+                    Spacer()
+                    Image(systemName: "chevron.right").font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(Color.faint).flipsForRightToLeftLayoutDirection(true)
+                }
+                .padding(.vertical, 13).padding(.horizontal, 14)
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+        }
         .background(Color.panel, in: RoundedRectangle(cornerRadius: 14))
         .overlay(RoundedRectangle(cornerRadius: 14).stroke(Color.line, lineWidth: 1))
     }

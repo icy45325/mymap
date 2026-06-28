@@ -89,4 +89,15 @@
 | URL scheme | `lumi://`（明信片回跳） | Info.plist（已配） |
 | 文件类型 | `.lumicard`（AirDrop 明信片） | Info.plist（已配） |
 
-> 仅「上架前还差什么」的负责人分工见 [`MVP-REMAINING.md`](MVP-REMAINING.md)。
+---
+
+## ④ 每次发版必做（新版本提示 + 本次更新）
+
+App 内置「更新提示」与「本次更新」弹窗（零后端，详见 `AppUpdateCheck.swift` / `WhatsNewSheet.swift`）。每次发新版：
+- [ ] **bump 版本号**：Xcode Build Settings `MARKETING_VERSION`（如 0.2 → 0.3）；`CURRENT_PROJECT_VERSION` +1
+- [ ] **同步「本次更新」**：把 `Lumi/Features/Root/WhatsNewSheet.swift` 里 `WhatsNew.version` 改成同一版本号，并更新 `highlights`（本版亮点，三语经 `gen_xcstrings.py`）
+- [ ] **App Store「更新说明」**：在 ASC 填本版更新说明（与 highlights 对应，三语）
+- [ ] 说明：**首版上架前** iTunes Lookup 返回空 → App 内不弹「发现新版本」属正常；上架后旧版本用户才会收到提示
+- [ ] 隐私：更新检测是 App **首处联网**（GET Apple `itunes.apple.com/lookup`，不传用户数据）→ 隐私标签仍 **Data Not Collected**；HTTPS，无需改 ATS
+
+> 仅「上架前还差什么」的负责人分工见 [`MVP-REMAINING.md`](MVP-REMAINING.md)。完整产品路线图见 [`ROADMAP.md`](ROADMAP.md)。

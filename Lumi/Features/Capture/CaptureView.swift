@@ -409,6 +409,7 @@ struct CaptureView: View {
         context.insert(Card(footprint: footprint))     // §4.2：同步持久化一张明信片卡
         try? context.save()
 
+        Haptics.success()                               // 点亮震动反馈
         WidgetSync.refresh(context)                     // 点亮后对齐主屏小组件计数
         if (footprint.countryCode ?? "").isEmpty {      // 离线缝隙没判定到国家 → 在线兜底补全
             Task { await FootprintRepair.backfillMissingCountries(context) }
