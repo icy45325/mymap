@@ -2685,12 +2685,12 @@
         }
       }
     },
-    "初次点亮": {
+    "初见曙光": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "初次点亮"
+            "value": "初见曙光"
           }
         },
         "en": {
@@ -2702,17 +2702,17 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "الإضاءة الأولى"
+            "value": "أول ضوء"
           }
         }
       }
     },
-    "五国纵横": {
+    "五国足迹": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "五国纵横"
+            "value": "五国足迹"
           }
         },
         "en": {
@@ -2729,12 +2729,12 @@
         }
       }
     },
-    "环球旅行家": {
+    "环球旅人": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "环球旅行家"
+            "value": "环球旅人"
           }
         },
         "en": {
@@ -2746,17 +2746,17 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "جوّاب آفاق"
+            "value": "جوّال العالم"
           }
         }
       }
     },
-    "大漠先锋": {
+    "沙漠先锋": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "大漠先锋"
+            "value": "沙漠先锋"
           }
         },
         "en": {
@@ -2773,12 +2773,12 @@
         }
       }
     },
-    "百城斩": {
+    "百城达人": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "百城斩"
+            "value": "百城达人"
           }
         },
         "en": {
@@ -2795,12 +2795,12 @@
         }
       }
     },
-    "制霸七大洲": {
+    "七大洲全集": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "制霸七大洲"
+            "value": "七大洲全集"
           }
         },
         "en": {
@@ -2812,7 +2812,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "كل القارات السبع"
+            "value": "كل القارات"
           }
         }
       }
@@ -2861,12 +2861,12 @@
         }
       }
     },
-    "非洲开拓者": {
+    "非洲先锋": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "非洲开拓者"
+            "value": "非洲先锋"
           }
         },
         "en": {
@@ -2878,7 +2878,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "رائد إفريقيا"
+            "value": "رائد أفريقيا"
           }
         }
       }
@@ -2900,17 +2900,17 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "غازي الأمريكتين"
+            "value": "فاتح الأمريكتين"
           }
         }
       }
     },
-    "大洋洲游牧民": {
+    "大洋洲游牧者": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "大洋洲游牧民"
+            "value": "大洋洲游牧者"
           }
         },
         "en": {
@@ -2927,12 +2927,12 @@
         }
       }
     },
-    "南极洲探险家": {
+    "南极探险家": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "南极洲探险家"
+            "value": "南极探险家"
           }
         },
         "en": {
@@ -2949,12 +2949,12 @@
         }
       }
     },
-    "极寒先锋": {
+    "南极先锋": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "极寒先锋"
+            "value": "南极先锋"
           }
         },
         "en": {
@@ -2966,17 +2966,17 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "رائد الصقيع"
+            "value": "رائد القطب الجنوبي"
           }
         }
       }
     },
-    "丛林探索者": {
+    "丛林探险家": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "丛林探索者"
+            "value": "丛林探险家"
           }
         },
         "en": {
@@ -2993,12 +2993,12 @@
         }
       }
     },
-    "跳岛狂人": {
+    "跳岛旅人": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "跳岛狂人"
+            "value": "跳岛旅人"
           }
         },
         "en": {
@@ -3010,7 +3010,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "قافز الجزر"
+            "value": "متنقّل الجزر"
           }
         }
       }

@@ -246,28 +246,28 @@ enum BadgeCatalog {
         }
 
         let list: [Badge] = [
-            flag("first", "初次点亮", .common, .explore, "mappin",
+            flag("first", "初见曙光", .common, .explore, "mappin",
                  "点亮你的第一个足迹。旅程由此开始。", "88%", Color(hex: 0x9999FF),
                  unlocked: c >= 1, at: s.unlockDate(atCountryCount: 1), image: "badge_first"),
 
-            milestone("five", "五国纵横", .rare, .milestone, "globe.asia.australia.fill",
+            milestone("five", "五国足迹", .rare, .milestone, "globe.asia.australia.fill",
                       "全球累计点亮 5 个不同国家。", "31%", Color(hex: 0x4A90E2),
                       target: 5, current: c, unit: "国", image: "badge_five"),
 
-            milestone("world", "环球旅行家", .epic, .milestone, "safari.fill",
+            milestone("world", "环球旅人", .epic, .milestone, "safari.fill",
                       "点亮 30 个国家解锁这枚史诗徽章。", "5%", Color(hex: 0xFF0055),
                       target: 30, current: c, unit: "国", image: "badge_world"),
 
-            flag("desert", "大漠先锋", .epic, .milestone, "sun.max.fill",
+            flag("desert", "沙漠先锋", .epic, .milestone, "sun.max.fill",
                  "在干旱 / 沙漠气候城市（如阿布扎比、迪拜）打卡。", "8%", Color(hex: 0xE91E63),
                  unlocked: s.litRegion(.meast), at: firstVisit { $0.region == .meast },
                  image: "badge_desert"),
 
-            milestone("cities", "百城斩", .common, .milestone, "building.2.fill",
+            milestone("cities", "百城达人", .common, .milestone, "building.2.fill",
                       "全球累计打卡的不同城市总数达 100。", "4%", Color(hex: 0x607D8B),
                       target: 100, current: cities, unit: "城", image: "badge_cities"),
 
-            milestone("continents", "制霸七大洲", .legendary, .explore, "globe",
+            milestone("continents", "七大洲全集", .legendary, .explore, "globe",
                       "全球 7 个大洲均至少含 1 个点亮足迹。", "1%", Color(hex: 0xFF9900),
                       target: 7, current: continents, unit: "洲", image: "badge_continents"),
 
@@ -281,7 +281,7 @@ enum BadgeCatalog {
                  unlocked: s.litRegion(.europe), at: firstVisit { $0.region == .europe },
                  image: "badge_europe"),
 
-            flag("africa", "非洲开拓者", .rare, .continent, "tree.fill",
+            flag("africa", "非洲先锋", .rare, .continent, "tree.fill",
                  "在非洲点亮首个国家。", "14%", Color(hex: 0x00CC66),
                  unlocked: s.litRegion(.africa), at: firstVisit { $0.region == .africa },
                  image: "badge_africa"),
@@ -291,28 +291,28 @@ enum BadgeCatalog {
                  unlocked: s.litRegion(.americas), at: firstVisit { $0.region == .americas },
                  image: "badge_americas"),
 
-            flag("oceania", "大洋洲游牧民", .epic, .continent, "figure.surfing",
+            flag("oceania", "大洋洲游牧者", .epic, .continent, "figure.surfing",
                  "在大洋洲点亮首个国家。", "6%", Color(hex: 0x00F2FE),
                  unlocked: s.litRegion(.oceania), at: firstVisit { $0.region == .oceania },
                  image: "badge_oceania"),
 
-            flag("antarctica", "南极洲探险家", .legendary, .continent, "snowflake",
+            flag("antarctica", "南极探险家", .legendary, .continent, "snowflake",
                  "在南极洲（南纬 60° 以下）成功打卡。", "0.5%", Color(hex: 0xE0F7FA),
                  unlocked: s.litAntarctica, at: firstVisit { $0.latitude < -60 },
                  image: "badge_antarctica"),
 
-            flag("antarcticaPro", "极寒先锋", .legendary, .continent, "snowflake.circle.fill",
+            flag("antarcticaPro", "南极先锋", .legendary, .continent, "snowflake.circle.fill",
                  "多次造访南极极寒点（≥ 2 次）。", "0.2%", Color(hex: 0xB3E5FC),
                  unlocked: s.antarcticaVisits >= 2, at: firstVisit { $0.latitude < -60 },
                  image: "badge_antarcticaPro"),
 
-            flag("jungle", "丛林探索者", .epic, .continent, "leaf.fill",
+            flag("jungle", "丛林探险家", .epic, .continent, "leaf.fill",
                  "在雨林覆盖率极高国家（如巴西、印尼）打卡。", "2%", Color(hex: 0x2E7D32),
                  unlocked: s.litRainforest,
                  at: firstVisit { $0.countryCode.map { LumiStats.isRainforest($0) } ?? false },
                  image: "badge_jungle"),
 
-            flag("island", "跳岛狂人", .rare, .streak, "sailboat.fill",
+            flag("island", "跳岛旅人", .rare, .streak, "sailboat.fill",
                  "点亮 3 个不相连的岛屿国家 / 地区。", "7%", Color(hex: 0x00BFA5),
                  unlocked: s.islandCountryCount >= 3, at: nil, image: "badge_island"),
         ]
