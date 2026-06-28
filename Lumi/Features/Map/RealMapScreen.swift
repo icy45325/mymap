@@ -4,20 +4,18 @@ import CoreLocation
 
 /// 放大后的真实 MapKit 地图全屏页。
 ///
-/// 点一个国家 →「我去过这里（选年份点亮）」或「加入心愿单」。
-/// 国家判定走离线 point-in-polygon（§5.1）；只到国家级——城市可略过（按需求）。
+/// 点一个国家 → 弹出**国家操作半浮窗**（`CountryActionSheet`）：
+/// 点亮国家 / 加入心愿 / 看去过的城市 / 推荐城市一键心愿·点亮，集中在一处。
+/// 国家判定走离线 point-in-polygon（§5.1）；只到国家级。
 struct RealMapScreen: View {
 
     let provider: MapProvider
     let onClose: () -> Void
 
-    @Environment(\.modelContext) private var context
     @Query(sort: \Footprint.visitedAt, order: .reverse) private var footprints: [Footprint]
     @Query private var wishes: [Wish]
 
     @State private var tapped: TappedPlace?
-    @State private var yearPickFor: TappedPlace?
-    @State private var cityRecordFor: TappedPlace?
 
     fileprivate struct TappedPlace: Identifiable {
         let id = UUID()
@@ -52,30 +50,14 @@ struct RealMapScreen: View {
             legend.frame(maxHeight: .infinity, alignment: .bottom)
         }
         .preferredColorScheme(.dark)
-        .confirmationDialog(tapped?.countryName ?? "", isPresented: tappedDialog,
-                            titleVisibility: .visible, presenting: tapped) { place in
-            Button(litCountryCodes.contains(place.countryCode) ? "已点亮 · 再记一次" : "我去过这里 ✦") {
-                tapped = nil
-                yearPickFor = place
-            }
-            if litCountryCodes.contains(place.countryCode) {
-                Button("看看在这里去过的城市") { let p = place; tapped = nil; cityRecordFor = p }
-            }
-            Button("加入心愿单") { addWish(place); tapped = nil }
-            Button("取消", role: .cancel) { tapped = nil }
-        }
-        .sheet(item: $yearPickFor) { place in
-            VisitDetailsSheet(place: place) { year, month, cities in
-                lightCountry(place, year: year, month: month, cities: cities)
-            }
-        }
-        .sheet(item: $cityRecordFor) { place in
-            CountryCitiesSheet(countryCode: place.countryCode, countryName: place.countryName,
-                               footprints: footprints.filter { $0.countryCode == place.countryCode })
+        .sheet(item: $tapped) { place in
+            CountryActionSheet(countryCode: place.countryCode,
+                               countryName: place.countryName,
+                               tapCoordinate: place.coordinate)
         }
     }
 
-    // MARK: - 顶部提示 / 关闭
+    // MARK: - 顶部提示 / 关闭 / 图例
 
     private var hint: some View {
         Text("点一个国家：标记去过或加入心愿")
@@ -125,123 +107,323 @@ struct RealMapScreen: View {
     // MARK: - 动作
 
     private func handleTap(_ coordinate: CLLocationCoordinate2D) {
-        // 落在某个国家才弹选择；落公海忽略
+        // 落在某个国家才弹；落公海忽略
         guard let code = Boundaries.shared.countryCode(at: coordinate) else { return }
         tapped = TappedPlace(coordinate: coordinate, countryCode: code)
     }
+}
 
-    private func lightCountry(_ place: TappedPlace, year: Int, month: Int, cities: [PresetCity]) {
-        let prior = Set(footprints.compactMap { $0.countryCode })
-        let date = Calendar.current.date(from: DateComponents(year: year, month: month, day: 1)) ?? Date()
+// MARK: - 国家操作半浮窗（hub）
 
-        // 勾选了城市 → 每个城市各点亮一条；未选 → 以国家落点一条
-        let targets: [(name: String, coord: CLLocationCoordinate2D, city: String?)] = cities.isEmpty
-            ? [(place.countryName, place.coordinate, nil)]
-            : cities.map { ($0.name, $0.coordinate, $0.name) }
+/// 点一个国家后弹出的整合面板：点亮 / 心愿 / 去过城市入口 / 推荐城市一键操作。
+/// 自带 `@Query`，所有改动即时反映（点亮一城后列表立刻更新）。
+private struct CountryActionSheet: View {
+    let countryCode: String
+    let countryName: String
+    let tapCoordinate: CLLocationCoordinate2D
 
-        for t in targets {
-            let footprint = Footprint(placeName: t.name, coordinate: t.coord, cityName: t.city, visitedAt: date)
-            footprint.countryCode = place.countryCode
-            if place.countryCode == "AE" {
-                footprint.subRegionCode = Boundaries.shared.emirateCode(at: t.coord)
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var context
+    @Query(sort: \Footprint.visitedAt, order: .reverse) private var allFootprints: [Footprint]
+    @Query private var allWishes: [Wish]
+
+    // 派生
+    private var footprints: [Footprint] { allFootprints.filter { $0.countryCode == countryCode } }
+    private var isLit: Bool { !footprints.isEmpty }
+    private var presetCities: [PresetCity] { CityCatalog.cities(for: countryCode) }
+    private var visitedCityNames: Set<String> { Set(footprints.compactMap { $0.cityName }) }
+    private var countryWished: Bool {
+        allWishes.contains { $0.countryCode == countryCode && $0.cityName == nil }
+    }
+    private func cityWished(_ c: PresetCity) -> Bool {
+        allWishes.contains { $0.countryCode == countryCode && $0.cityName == c.name }
+    }
+
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 18) {
+                    header
+                    actionButtons
+                    if isLit { visitedEntry }
+                    if !presetCities.isEmpty { recommendedSection }
+                    Color.clear.frame(height: 12)
+                }
+                .padding(.horizontal, 20).padding(.top, 12)
             }
-            context.insert(footprint)
-            context.insert(Card(footprint: footprint))
-            Analytics.log(.footprintCreated(countryCode: place.countryCode, hasPhoto: false, companionsCount: 0))
+            .background(Color.bg.ignoresSafeArea())
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("关闭") { dismiss() }.foregroundStyle(Color.muted)
+                }
+            }
+            .toolbarBackground(Color.bg, for: .navigationBar)
+            .toolbarColorScheme(.dark, for: .navigationBar)
         }
-        try? context.save()
+        .presentationDetents([.medium, .large])
+        .presentationDragIndicator(.visible)
+        .preferredColorScheme(.dark)
+    }
 
-        if !prior.contains(place.countryCode) {
-            Analytics.log(.countryLit(countryCode: place.countryCode, totalLit: prior.count + 1))
+    // MARK: 头部
+
+    private var header: some View {
+        HStack(spacing: 12) {
+            Text(CountryInfo.flag(for: countryCode)).font(.system(size: 40))
+            VStack(alignment: .leading, spacing: 3) {
+                Text(countryName).font(Typo.serif(24)).foregroundStyle(Color.text)
+                Text(isLit ? "已点亮 · \(visitedCityNames.count) 城" : "还没点亮")
+                    .font(.system(size: 12))
+                    .foregroundStyle(isLit ? Color.nPink : Color.muted)
+            }
+            Spacer()
         }
+    }
+
+    // MARK: 主操作（点亮 + 心愿）
+
+    private var actionButtons: some View {
+        HStack(spacing: 10) {
+            NavigationLink {
+                VisitPickerScreen(countryCode: countryCode, countryName: countryName) { year, month, cities in
+                    lightCountry(year: year, month: month, cities: cities)
+                    dismiss()
+                }
+            } label: {
+                actionLabel(icon: "sparkles",
+                            title: isLit ? "再记一次" : "我去过这里",
+                            fill: true)
+            }
+
+            Button {
+                toggleCountryWish()
+            } label: {
+                actionLabel(icon: countryWished ? "heart.fill" : "heart",
+                            title: countryWished ? "已在心愿" : "加入心愿",
+                            fill: false, active: countryWished)
+            }
+            .buttonStyle(.plain)
+        }
+    }
+
+    private func actionLabel(icon: String, title: LocalizedStringKey, fill: Bool, active: Bool = false) -> some View {
+        HStack(spacing: 7) {
+            Image(systemName: icon).font(.system(size: 14, weight: .semibold))
+            Text(title).font(.system(size: 14, weight: .semibold))
+        }
+        .foregroundStyle(fill ? .white : (active ? Color.nCyan : Color.text))
+        .frame(maxWidth: .infinity).padding(.vertical, 13)
+        .background {
+            if fill {
+                Capsule().fill(LinearGradient.neonH)
+            } else {
+                Capsule().fill(Color.panel)
+                    .overlay(Capsule().stroke(active ? Color.nCyan.opacity(0.6) : Color.line, lineWidth: 1))
+            }
+        }
+    }
+
+    // MARK: 去过的城市入口
+
+    private var visitedEntry: some View {
+        NavigationLink {
+            CountryCitiesList(countryCode: countryCode, countryName: countryName, footprints: footprints)
+        } label: {
+            HStack(spacing: 12) {
+                Image(systemName: "mappin.and.ellipse").font(.system(size: 17)).foregroundStyle(Color.nPink)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("看看在这里去过的城市").font(.system(size: 14, weight: .semibold)).foregroundStyle(Color.text)
+                    Text("\(visitedCityNames.count) 城 · 共 \(footprints.count) 次记录")
+                        .font(.system(size: 11)).foregroundStyle(Color.muted)
+                }
+                Spacer()
+                Image(systemName: "chevron.right").font(.system(size: 12, weight: .semibold)).foregroundStyle(Color.faint)
+            }
+            .padding(14).panelCard(14)
+        }
+        .buttonStyle(.plain)
+    }
+
+    // MARK: 推荐城市（一键心愿 / 点亮）
+
+    private var recommendedSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("推荐城市").font(.system(size: 13, weight: .semibold)).foregroundStyle(Color.muted)
+                .padding(.horizontal, 4)
+            VStack(spacing: 8) {
+                ForEach(presetCities) { city in
+                    cityRow(city)
+                }
+            }
+        }
+    }
+
+    private func cityRow(_ city: PresetCity) -> some View {
+        let visited = visitedCityNames.contains(city.name)
+        let wished = cityWished(city)
+        return HStack(spacing: 10) {
+            Image(systemName: visited ? "checkmark.circle.fill" : "mappin.circle")
+                .font(.system(size: 18)).foregroundStyle(visited ? Color.nPink : Color.muted)
+            Text(city.name).font(.system(size: 14, weight: .medium))
+                .foregroundStyle(visited ? Color.text : Color(hex: 0xC8C8DC))
+            Spacer()
+            if visited {
+                Text("已点亮").font(.system(size: 11, weight: .semibold)).foregroundStyle(Color.nPink)
+            } else {
+                // 一键心愿
+                Button { toggleCityWish(city) } label: {
+                    Image(systemName: wished ? "heart.fill" : "heart")
+                        .font(.system(size: 15))
+                        .foregroundStyle(wished ? Color.nCyan : Color.muted)
+                        .frame(width: 34, height: 30)
+                        .background(Color.panel, in: RoundedRectangle(cornerRadius: 9))
+                }
+                .buttonStyle(.plain)
+                // 一键点亮（当月当年快速记录）
+                Button { quickLightCity(city) } label: {
+                    Text("点亮").font(.system(size: 12, weight: .bold)).foregroundStyle(.white)
+                        .padding(.vertical, 7).padding(.horizontal, 12)
+                        .background(LinearGradient.neonH, in: Capsule())
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .padding(.vertical, 9).padding(.horizontal, 12)
+        .background(Color.panel.opacity(0.5), in: RoundedRectangle(cornerRadius: 12))
+        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.line, lineWidth: 1))
+    }
+
+    // MARK: - 数据动作
+
+    /// 点亮国家（年/月 + 可选多城）；无城以国家落点一条。
+    private func lightCountry(year: Int, month: Int, cities: [PresetCity]) {
+        let prior = isLit
+        let date = Calendar.current.date(from: DateComponents(year: year, month: month, day: 1)) ?? Date()
+        let targets: [(name: String, coord: CLLocationCoordinate2D, city: String?)] = cities.isEmpty
+            ? [(countryName, tapCoordinate, nil)]
+            : cities.map { ($0.name, $0.coordinate, $0.name) }
+        for t in targets { insertFootprint(name: t.name, coord: t.coord, city: t.city, date: date) }
+        try? context.save()
+        if !prior { Analytics.log(.countryLit(countryCode: countryCode, totalLit: distinctLitCount())) }
         WidgetSync.refresh(context)
     }
 
-    private func addWish(_ place: TappedPlace) {
-        // 已在心愿单（同国家、未指定城市）则不重复添加
-        let existing = (try? context.fetch(FetchDescriptor<Wish>())) ?? []
-        guard !existing.contains(where: { $0.countryCode == place.countryCode && $0.cityName == nil }) else { return }
-
-        let wish = Wish(placeName: place.countryName,
-                        coordinate: place.coordinate,
-                        countryCode: place.countryCode)
-        context.insert(wish)
-        do { try context.save() } catch { assertionFailure("保存心愿失败: \(error)") }
+    /// 推荐城市一键点亮：以当前年月快速记录一条。
+    private func quickLightCity(_ city: PresetCity) {
+        let prior = isLit
+        insertFootprint(name: city.name, coord: city.coordinate, city: city.name, date: Date())
+        // 点亮后若该城在心愿里，移除对应心愿
+        removeCityWish(city)
+        try? context.save()
+        if !prior { Analytics.log(.countryLit(countryCode: countryCode, totalLit: distinctLitCount())) }
+        WidgetSync.refresh(context)
     }
 
-    private var tappedDialog: Binding<Bool> {
-        Binding(get: { tapped != nil }, set: { if !$0 { tapped = nil } })
+    private func distinctLitCount() -> Int {
+        Set(allFootprints.compactMap { $0.countryCode }).union([countryCode]).count
+    }
+
+    private func insertFootprint(name: String, coord: CLLocationCoordinate2D, city: String?, date: Date) {
+        let fp = Footprint(placeName: name, coordinate: coord, cityName: city, visitedAt: date)
+        fp.countryCode = countryCode
+        if countryCode == "AE" { fp.subRegionCode = Boundaries.shared.emirateCode(at: coord) }
+        context.insert(fp)
+        context.insert(Card(footprint: fp))
+        Analytics.log(.footprintCreated(countryCode: countryCode, hasPhoto: false, companionsCount: 0))
+    }
+
+    // MARK: 心愿
+
+    private func toggleCountryWish() {
+        if let existing = allWishes.first(where: { $0.countryCode == countryCode && $0.cityName == nil }) {
+            context.delete(existing)
+        } else {
+            context.insert(Wish(placeName: countryName, coordinate: tapCoordinate, countryCode: countryCode))
+        }
+        try? context.save()
+    }
+
+    private func toggleCityWish(_ city: PresetCity) {
+        if allWishes.contains(where: { $0.countryCode == countryCode && $0.cityName == city.name }) {
+            removeCityWish(city)
+        } else {
+            context.insert(Wish(placeName: city.name, coordinate: city.coordinate,
+                                cityName: city.name, countryCode: countryCode))
+        }
+        try? context.save()
+    }
+
+    private func removeCityWish(_ city: PresetCity) {
+        for w in allWishes where w.countryCode == countryCode && w.cityName == city.name {
+            context.delete(w)
+        }
     }
 }
 
-/// 选择「哪年/哪月去的」+ 打卡城市（默认展开、开关多选）——快速点亮用。
-private struct VisitDetailsSheet: View {
-    let place: RealMapScreen.TappedPlace
-    let onPick: (_ year: Int, _ month: Int, _ cities: [PresetCity]) -> Void
+// MARK: - 年份/城市选择（hub 内 push）
 
-    @Environment(\.dismiss) private var dismiss
+/// 选择「哪年/哪月去的」+ 打卡城市（默认展开、开关多选）——快速点亮用。
+/// 作为 `CountryActionSheet` 的下钻页（无独立 NavigationStack）。
+private struct VisitPickerScreen: View {
+    let countryCode: String
+    let countryName: String
+    let onConfirm: (_ year: Int, _ month: Int, _ cities: [PresetCity]) -> Void
+
     @State private var year: Int
     @State private var month: Int
     @State private var selectedCities: Set<PresetCity> = []
     private let years: [Int]
     private let cities: [PresetCity]
 
-    init(place: RealMapScreen.TappedPlace,
-         onPick: @escaping (Int, Int, [PresetCity]) -> Void) {
-        self.place = place
-        self.onPick = onPick
+    init(countryCode: String, countryName: String,
+         onConfirm: @escaping (Int, Int, [PresetCity]) -> Void) {
+        self.countryCode = countryCode
+        self.countryName = countryName
+        self.onConfirm = onConfirm
         let cal = Calendar.current
         let current = cal.component(.year, from: Date())
         self.years = Array(stride(from: current, through: current - 60, by: -1))
         _year = State(initialValue: current)
         _month = State(initialValue: cal.component(.month, from: Date()))
-        self.cities = CityCatalog.cities(for: place.countryCode)
+        self.cities = CityCatalog.cities(for: countryCode)
     }
 
     private var monthSymbols: [String] { Calendar.current.shortMonthSymbols }
 
     var body: some View {
-        NavigationStack {
-            VStack(spacing: 14) {
-                Text("你哪一年去的 \(place.countryName)？")
-                    .font(Typo.serif(20)).foregroundStyle(Color.text)
-                    .multilineTextAlignment(.center)
-                    .padding(.top, 8)
+        VStack(spacing: 14) {
+            Text("你哪一年去的 \(countryName)？")
+                .font(Typo.serif(20)).foregroundStyle(Color.text)
+                .multilineTextAlignment(.center).padding(.top, 8)
 
-                HStack(spacing: 0) {
-                    Picker("", selection: $year) {
-                        ForEach(years, id: \.self) { Text("\($0) 年").tag($0) }
-                    }
-                    .pickerStyle(.wheel).labelsHidden().frame(maxWidth: .infinity)
-                    Picker("", selection: $month) {
-                        ForEach(1...12, id: \.self) { m in Text(monthSymbols[m - 1]).tag(m) }
-                    }
-                    .pickerStyle(.wheel).labelsHidden().frame(maxWidth: .infinity)
+            HStack(spacing: 0) {
+                Picker("", selection: $year) {
+                    ForEach(years, id: \.self) { Text("\($0) 年").tag($0) }
                 }
-                .frame(height: 130)
-
-                if !cities.isEmpty { citySection }
-
-                Button { onPick(year, month, Array(selectedCities)); dismiss() } label: {
-                    Text(buttonTitle).font(.headline)
-                        .frame(maxWidth: .infinity).padding(.vertical, 15)
-                        .background(LinearGradient.neonH, in: Capsule())
-                        .foregroundStyle(.white)
+                .pickerStyle(.wheel).labelsHidden().frame(maxWidth: .infinity)
+                Picker("", selection: $month) {
+                    ForEach(1...12, id: \.self) { m in Text(monthSymbols[m - 1]).tag(m) }
                 }
-                .padding(.horizontal, 24).padding(.bottom, 8)
+                .pickerStyle(.wheel).labelsHidden().frame(maxWidth: .infinity)
             }
-            .padding(.horizontal, 16)
-            .background(Color.bg.ignoresSafeArea())
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("取消") { dismiss() }.foregroundStyle(Color.muted)
-                }
+            .frame(height: 130)
+
+            if !cities.isEmpty { citySection }
+
+            Button { onConfirm(year, month, Array(selectedCities)) } label: {
+                Text(buttonTitle).font(.headline)
+                    .frame(maxWidth: .infinity).padding(.vertical, 15)
+                    .background(LinearGradient.neonH, in: Capsule())
+                    .foregroundStyle(.white)
             }
-            .toolbarBackground(Color.bg, for: .navigationBar)
-            .toolbarColorScheme(.dark, for: .navigationBar)
+            .padding(.horizontal, 24).padding(.bottom, 8)
         }
-        .presentationDetents([.large])
-        .preferredColorScheme(.dark)
+        .padding(.horizontal, 16)
+        .background(Color.bg.ignoresSafeArea())
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbarBackground(Color.bg, for: .navigationBar)
+        .toolbarColorScheme(.dark, for: .navigationBar)
     }
 
     private var buttonTitle: LocalizedStringKey {
@@ -268,18 +450,19 @@ private struct VisitDetailsSheet: View {
                     }
                 }
             }
-            .frame(maxHeight: 220)
+            .frame(maxHeight: 200)
         }
     }
 }
 
+// MARK: - 去过的城市记录（hub 内 push）
+
 /// 看看在某个国家实际去过哪些城市的记录（来自已点亮足迹）。
-private struct CountryCitiesSheet: View {
+private struct CountryCitiesList: View {
     let countryCode: String
     let countryName: String
     let footprints: [Footprint]     // 已过滤到该国
 
-    @Environment(\.dismiss) private var dismiss
     private static let df: Date.FormatStyle = .dateTime.year().month(.abbreviated)
 
     /// 去过的城市：按城市名去重，取最近一次日期 + 次数；无城市名归「未指定城市」。
@@ -303,59 +486,50 @@ private struct CountryCitiesSheet: View {
     }
 
     var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 10) {
-                    ForEach(visited, id: \.name) { c in
-                        HStack(spacing: 12) {
-                            Image(systemName: "mappin.circle.fill").font(.system(size: 20))
-                                .foregroundStyle(Color.nPink)
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text(c.name).font(.system(size: 15, weight: .medium)).foregroundStyle(Color.text)
-                                Text(c.date.formatted(Self.df)).font(.system(size: 11)).foregroundStyle(Color.muted)
-                            }
-                            Spacer()
-                            if c.count > 1 {
-                                Text("×\(c.count)").font(.system(size: 11, weight: .bold))
-                                    .foregroundStyle(Color.nCyan)
-                                    .padding(.vertical, 3).padding(.horizontal, 8)
-                                    .background(Color.panel, in: Capsule())
-                            }
+        ScrollView {
+            VStack(alignment: .leading, spacing: 10) {
+                ForEach(visited, id: \.name) { c in
+                    HStack(spacing: 12) {
+                        Image(systemName: "mappin.circle.fill").font(.system(size: 20))
+                            .foregroundStyle(Color.nPink)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(c.name).font(.system(size: 15, weight: .medium)).foregroundStyle(Color.text)
+                            Text(c.date.formatted(Self.df)).font(.system(size: 11)).foregroundStyle(Color.muted)
                         }
-                        .padding(12).panelCard(14)
+                        Spacer()
+                        if c.count > 1 {
+                            Text("×\(c.count)").font(.system(size: 11, weight: .bold))
+                                .foregroundStyle(Color.nCyan)
+                                .padding(.vertical, 3).padding(.horizontal, 8)
+                                .background(Color.panel, in: Capsule())
+                        }
                     }
+                    .padding(12).panelCard(14)
+                }
 
-                    if !notVisited.isEmpty {
-                        Text("还没去过").font(.system(size: 12, weight: .semibold))
-                            .foregroundStyle(Color.muted).padding(.top, 12).padding(.horizontal, 4)
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 8) {
-                                ForEach(notVisited) { city in
-                                    Text(city.name).font(.system(size: 12)).foregroundStyle(Color.faint)
-                                        .padding(.vertical, 6).padding(.horizontal, 12)
-                                        .background(Color.panel.opacity(0.6), in: Capsule())
-                                        .overlay(Capsule().stroke(Color.line, lineWidth: 1))
-                                }
+                if !notVisited.isEmpty {
+                    Text("还没去过").font(.system(size: 12, weight: .semibold))
+                        .foregroundStyle(Color.muted).padding(.top, 12).padding(.horizontal, 4)
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 8) {
+                            ForEach(notVisited) { city in
+                                Text(city.name).font(.system(size: 12)).foregroundStyle(Color.faint)
+                                    .padding(.vertical, 6).padding(.horizontal, 12)
+                                    .background(Color.panel.opacity(0.6), in: Capsule())
+                                    .overlay(Capsule().stroke(Color.line, lineWidth: 1))
                             }
-                            .padding(.horizontal, 4)
                         }
+                        .padding(.horizontal, 4)
                     }
-                    Color.clear.frame(height: 20)
                 }
-                .padding(.horizontal, 20).padding(.top, 10)
+                Color.clear.frame(height: 20)
             }
-            .background(Color.bg.ignoresSafeArea())
-            .navigationTitle("\(CountryInfo.flag(for: countryCode)) \(countryName)")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("关闭") { dismiss() }.foregroundStyle(Color.muted)
-                }
-            }
-            .toolbarBackground(Color.bg, for: .navigationBar)
-            .toolbarColorScheme(.dark, for: .navigationBar)
+            .padding(.horizontal, 20).padding(.top, 10)
         }
-        .presentationDetents([.medium, .large])
-        .preferredColorScheme(.dark)
+        .background(Color.bg.ignoresSafeArea())
+        .navigationTitle("\(CountryInfo.flag(for: countryCode)) \(countryName)")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbarBackground(Color.bg, for: .navigationBar)
+        .toolbarColorScheme(.dark, for: .navigationBar)
     }
 }

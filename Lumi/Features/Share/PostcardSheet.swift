@@ -126,7 +126,8 @@ struct PostcardSheet: View {
         }
         .preferredColorScheme(.dark)
         .sheet(isPresented: $showPaywall) { PaywallView() }
-        .task { cover = await loadAssetUIImage(footprint.photoAssetIDs.first); rerender() }
+        .task { await store.refreshEntitlement()        // 打开即对齐 Plus 权益（订阅后无需再开订阅页）
+                cover = await loadAssetUIImage(footprint.photoAssetIDs.first); rerender() }
         .onChange(of: message) { _, _ in rerender() }
         .onChange(of: recipient) { _, _ in rerender() }      // 导出图含「寄给」，改收件人即时重渲
         .onChange(of: store.isPlus) { _, _ in rerender() }   // 升级后即时去水印 / 提清

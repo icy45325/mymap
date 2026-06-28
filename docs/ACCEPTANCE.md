@@ -45,6 +45,17 @@
 
 ---
 
+## 🔧 本批已修复 · 待复验（06-28 第二轮）
+
+- [ ] **订阅状态同步**：订阅成功后立即变 Plus；分享明信片页**打开即自动对齐权益**，无需再点订阅
+  - 改：`PlusStore.purchase` 兜底信任刚验签的交易；`refreshEntitlement` 抽出 `isEntitling`；`PostcardSheet` 打开时 `await refreshEntitlement()`
+- [ ] **国家操作整合**：全屏地图点国家 → **一个半浮窗**含：我去过这里（年/月+多城）、加入心愿、看去过的城市入口、**推荐城市列表（一键心愿 / 一键点亮）**
+  - 改：`RealMapScreen` 用 `CountryActionSheet`（自带 @Query 即时刷新）取代原 confirmationDialog + 多个 sheet
+- [ ] **多图自动翻页**：3 张（含竖图）按序 1→2→3，不再跳页
+  - 改：`FootprintDetailView` 加「代」标记 `flipGen` + 本地 page 计数，杜绝双计时器 / 回读旧值导致的 +2 跳页
+
+---
+
 ### 阻塞问题记录
 | # | 模块 | 现象 | 复现 |
 |---|------|------|------|

@@ -9,6 +9,7 @@ struct FootprintDetailView: View {
     @State private var showEdit = false
     @State private var showPostcard = false
     @State private var heroPage = 0
+    @State private var flipGen = 0      // 自动翻页「代」标记：只允许最新一代写入，杜绝双计时器跳页
 
     private static let dateFormat: Date.FormatStyle = .dateTime.year().month(.wide).day()
 
@@ -86,12 +87,14 @@ struct FootprintDetailView: View {
                     .task(id: footprint.photoAssetIDs.count) {
                         let count = footprint.photoAssetIDs.count
                         guard count > 1 else { return }
+                        flipGen += 1
+                        let myGen = flipGen          // 本代 token；若有第二个 task 启动会把 flipGen 推高，旧代自动退出
+                        var page = heroPage          // 本地推进，绝不回读 @State，避免读到旧值后 +1 造成 +2 跳页
                         while !Task.isCancelled {
                             try? await Task.sleep(for: .seconds(3.5))
-                            if Task.isCancelled { break }
-                            withAnimation(.easeInOut(duration: 0.6)) {
-                                heroPage = (heroPage + 1) % count
-                            }
+                            if Task.isCancelled || myGen != flipGen { break }
+                            page = (page + 1) % count
+                            withAnimation(.easeInOut(duration: 0.55)) { heroPage = page }
                         }
                     }
                 } else {

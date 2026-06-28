@@ -71,6 +71,9 @@ final class PlusStore: ObservableObject {
                 let transaction = try verify(verification)
                 await transaction.finish()
                 await refreshEntitlement()
+                // 兜底：本地 StoreKit 测试里 currentEntitlements 偶尔在购买刚成功的瞬间还没收录，
+                // 直接信任这笔刚验签通过的交易，避免「订阅成功但状态没切」。
+                if !isPlus, isEntitling(transaction) { isPlus = true }
                 return isPlus
             case .userCancelled, .pending:
                 return false
@@ -95,16 +98,18 @@ final class PlusStore: ObservableObject {
     func refreshEntitlement() async {
         var active = false
         for await result in Transaction.currentEntitlements {
-            guard let transaction = try? verify(result),
-                  PlusProduct(rawValue: transaction.productID) != nil,
-                  transaction.revocationDate == nil else { continue }
-            if let expiry = transaction.expirationDate {
-                if expiry > Date() { active = true }      // 订阅：未过期
-            } else {
-                active = true                              // 终身买断：永久
-            }
+            guard let transaction = try? verify(result) else { continue }
+            if isEntitling(transaction) { active = true }
         }
         isPlus = active
+    }
+
+    /// 这笔交易是否当前有效（我们的产品 · 未撤销 · 订阅未过期 / 买断永久）。
+    private func isEntitling(_ transaction: Transaction) -> Bool {
+        guard PlusProduct(rawValue: transaction.productID) != nil,
+              transaction.revocationDate == nil else { return false }
+        if let expiry = transaction.expirationDate { return expiry > Date() }
+        return true
     }
 
     // MARK: - 内部
