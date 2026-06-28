@@ -16,6 +16,7 @@ struct RealMapScreen: View {
 
     @State private var tapped: TappedPlace?
     @State private var yearPickFor: TappedPlace?
+    @State private var cityRecordFor: TappedPlace?
 
     fileprivate struct TappedPlace: Identifiable {
         let id = UUID()
@@ -49,6 +50,9 @@ struct RealMapScreen: View {
                 tapped = nil
                 yearPickFor = place
             }
+            if litCountryCodes.contains(place.countryCode) {
+                Button("看看在这里去过的城市") { let p = place; tapped = nil; cityRecordFor = p }
+            }
             Button("加入心愿单") { addWish(place); tapped = nil }
             Button("取消", role: .cancel) { tapped = nil }
         }
@@ -56,6 +60,10 @@ struct RealMapScreen: View {
             VisitDetailsSheet(place: place) { year, month, cities in
                 lightCountry(place, year: year, month: month, cities: cities)
             }
+        }
+        .sheet(item: $cityRecordFor) { place in
+            CountryCitiesSheet(countryCode: place.countryCode, countryName: place.countryName,
+                               footprints: footprints.filter { $0.countryCode == place.countryCode })
         }
     }
 
@@ -232,5 +240,92 @@ private struct VisitDetailsSheet: View {
             }
             .frame(maxHeight: 220)
         }
+    }
+}
+
+/// 看看在某个国家实际去过哪些城市的记录（来自已点亮足迹）。
+private struct CountryCitiesSheet: View {
+    let countryCode: String
+    let countryName: String
+    let footprints: [Footprint]     // 已过滤到该国
+
+    @Environment(\.dismiss) private var dismiss
+    private static let df: Date.FormatStyle = .dateTime.year().month(.abbreviated)
+
+    /// 去过的城市：按城市名去重，取最近一次日期 + 次数；无城市名归「未指定城市」。
+    private var visited: [(name: String, date: Date, count: Int)] {
+        var byCity: [String: (date: Date, count: Int)] = [:]
+        for fp in footprints {
+            let name = fp.cityName ?? String(localized: "未指定城市")
+            if let e = byCity[name] {
+                byCity[name] = (max(e.date, fp.visitedAt), e.count + 1)
+            } else {
+                byCity[name] = (fp.visitedAt, 1)
+            }
+        }
+        return byCity.map { ($0.key, $0.value.date, $0.value.count) }.sorted { $0.date > $1.date }
+    }
+
+    /// 预设里还没点亮的城市（轻提示）。
+    private var notVisited: [PresetCity] {
+        let v = Set(footprints.compactMap { $0.cityName })
+        return CityCatalog.cities(for: countryCode).filter { !v.contains($0.name) }
+    }
+
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 10) {
+                    ForEach(visited, id: \.name) { c in
+                        HStack(spacing: 12) {
+                            Image(systemName: "mappin.circle.fill").font(.system(size: 20))
+                                .foregroundStyle(Color.nPink)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(c.name).font(.system(size: 15, weight: .medium)).foregroundStyle(Color.text)
+                                Text(c.date.formatted(Self.df)).font(.system(size: 11)).foregroundStyle(Color.muted)
+                            }
+                            Spacer()
+                            if c.count > 1 {
+                                Text("×\(c.count)").font(.system(size: 11, weight: .bold))
+                                    .foregroundStyle(Color.nCyan)
+                                    .padding(.vertical, 3).padding(.horizontal, 8)
+                                    .background(Color.panel, in: Capsule())
+                            }
+                        }
+                        .padding(12).panelCard(14)
+                    }
+
+                    if !notVisited.isEmpty {
+                        Text("还没去过").font(.system(size: 12, weight: .semibold))
+                            .foregroundStyle(Color.muted).padding(.top, 12).padding(.horizontal, 4)
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 8) {
+                                ForEach(notVisited) { city in
+                                    Text(city.name).font(.system(size: 12)).foregroundStyle(Color.faint)
+                                        .padding(.vertical, 6).padding(.horizontal, 12)
+                                        .background(Color.panel.opacity(0.6), in: Capsule())
+                                        .overlay(Capsule().stroke(Color.line, lineWidth: 1))
+                                }
+                            }
+                            .padding(.horizontal, 4)
+                        }
+                    }
+                    Color.clear.frame(height: 20)
+                }
+                .padding(.horizontal, 20).padding(.top, 10)
+            }
+            .background(Color.bg.ignoresSafeArea())
+            .navigationTitle("\(CountryInfo.flag(for: countryCode)) \(countryName)")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("关闭") { dismiss() }.foregroundStyle(Color.muted)
+                }
+            }
+            .toolbarBackground(Color.bg, for: .navigationBar)
+            .toolbarColorScheme(.dark, for: .navigationBar)
+        }
+        .presentationDetents([.medium, .large])
+        .preferredColorScheme(.dark)
     }
 }
