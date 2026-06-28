@@ -25,7 +25,16 @@ private struct LumiMapView: View {
         // MapReader 提供 screen→coordinate 的换算能力，用于点屏落点。
         MapReader { proxy in
             Map(initialPosition: .region(Self.initialRegion)) {
-                // ① 已点亮区域着色（M3 起有数据；M1 为空）
+                // ① 心愿区域（想去未去）：霓虹青、虚线描边——先画，避免压住点亮区
+                ForEach(state.wishRegions) { region in
+                    ForEach(Array(region.rings.enumerated()), id: \.offset) { _, ring in
+                        MapPolygon(coordinates: ring)
+                            .foregroundStyle(Color.nCyan.opacity(0.18))
+                            .stroke(Color.nCyan.opacity(0.85),
+                                    style: StrokeStyle(lineWidth: 1, dash: [5, 4]))
+                    }
+                }
+                // ② 已点亮区域着色（去过）：霓虹粉/紫（M3 起有数据；M1 为空）
                 ForEach(state.litRegions) { region in
                     ForEach(Array(region.rings.enumerated()), id: \.offset) { _, ring in
                         MapPolygon(coordinates: ring)
@@ -33,7 +42,7 @@ private struct LumiMapView: View {
                             .stroke(Color.nPink.opacity(0.9), lineWidth: 1)
                     }
                 }
-                // ② 足迹点：发光琥珀圆点
+                // ③ 足迹点：发光琥珀圆点
                 ForEach(state.pins) { pin in
                     Annotation("", coordinate: pin.coordinate, anchor: .center) {
                         FootprintDot()

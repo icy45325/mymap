@@ -13,6 +13,7 @@ struct RealMapScreen: View {
 
     @Environment(\.modelContext) private var context
     @Query(sort: \Footprint.visitedAt, order: .reverse) private var footprints: [Footprint]
+    @Query private var wishes: [Wish]
 
     @State private var tapped: TappedPlace?
     @State private var yearPickFor: TappedPlace?
@@ -27,11 +28,17 @@ struct RealMapScreen: View {
 
     private var litCountryCodes: Set<String> { Set(footprints.compactMap { $0.countryCode }) }
     private var litEmirateCodes: Set<String> { Set(footprints.compactMap { $0.subRegionCode }) }
+    /// 心愿国家（已点亮的不再算心愿，避免与点亮区重叠抢色）。
+    private var wishCountryCodes: Set<String> {
+        Set(wishes.compactMap { $0.countryCode }).subtracting(litCountryCodes)
+    }
 
     private var renderState: MapRenderState {
         MapRenderState(
             litRegions: Boundaries.shared.regions(forCountryCodes: litCountryCodes,
                                                   emirateCodes: litEmirateCodes),
+            wishRegions: Boundaries.shared.regions(forCountryCodes: wishCountryCodes,
+                                                   emirateCodes: []),
             pins: footprints.map { MapPin(id: $0.id, coordinate: $0.coordinate) },
             onTapCoordinate: handleTap)
     }
@@ -42,6 +49,7 @@ struct RealMapScreen: View {
             provider.makeMapView(renderState).ignoresSafeArea()
             hint
             closeButton.frame(maxWidth: .infinity, alignment: .trailing)
+            legend.frame(maxHeight: .infinity, alignment: .bottom)
         }
         .preferredColorScheme(.dark)
         .confirmationDialog(tapped?.countryName ?? "", isPresented: tappedDialog,
@@ -79,6 +87,28 @@ struct RealMapScreen: View {
             .padding(.top, 54)
             .frame(maxWidth: .infinity, alignment: .center)
             .allowsHitTesting(false)
+    }
+
+    /// 颜色图例：点亮（粉）/ 心愿（青）。心愿为空时不显示心愿项。
+    private var legend: some View {
+        HStack(spacing: 14) {
+            legendItem(color: .nPink, label: "去过")
+            if !wishCountryCodes.isEmpty {
+                legendItem(color: .nCyan, label: "心愿")
+            }
+        }
+        .padding(.vertical, 8).padding(.horizontal, 16)
+        .background(Color.panel.opacity(0.85), in: Capsule())
+        .overlay(Capsule().stroke(Color.line, lineWidth: 1))
+        .padding(.bottom, 32)
+        .allowsHitTesting(false)
+    }
+
+    private func legendItem(color: Color, label: LocalizedStringKey) -> some View {
+        HStack(spacing: 6) {
+            Circle().fill(color.opacity(0.85)).frame(width: 9, height: 9)
+            Text(label).font(.system(size: 12, weight: .medium)).foregroundStyle(Color.text)
+        }
     }
 
     private var closeButton: some View {

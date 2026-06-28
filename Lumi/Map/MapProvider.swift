@@ -29,8 +29,10 @@ struct LitRegion: Identifiable {
 
 /// 一帧地图渲染所需的全部输入。View 只描述"要画什么"，怎么画交给 provider。
 struct MapRenderState {
-    /// 已点亮区域（着色）。
+    /// 已点亮区域（去过 · 霓虹粉/紫着色）。
     var litRegions: [LitRegion]
+    /// 心愿区域（想去未去 · 霓虹青着色，与点亮区分色）。
+    var wishRegions: [LitRegion] = []
     /// 足迹点（发光圆点）。
     var pins: [MapPin]
     /// 用户点屏回调，参数为该屏幕点对应的 WGS-84 坐标。
