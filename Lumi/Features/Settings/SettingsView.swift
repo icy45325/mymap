@@ -1,16 +1,19 @@
 import SwiftUI
 import UIKit
+import AuthenticationServices
 
 /// 设置页。语言跟随系统——可在 iOS 系统设置里为 Lumi 单独选语言。
 struct SettingsView: View {
 
     @ObservedObject private var store = PlusStore.shared
+    @ObservedObject private var auth = AuthStore.shared
     @AppStorage("lumi.passport.style") private var passportStyle: String = PassportStyle.classic.rawValue
     @State private var showPaywall = false
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 18) {
+                section("账户") { accountRow }
                 section("Lumi Plus") { plusRow }
                 section("护照风格") { passportStyleRow }
                 section("小组件 Widgets") {
@@ -68,6 +71,43 @@ struct SettingsView: View {
         .preferredColorScheme(.dark)
         .sheet(isPresented: $showPaywall) { PaywallView() }
         .task { await store.start() }
+        .onAppear { auth.refreshCredentialState() }
+    }
+
+    // MARK: - 账户（Sign in with Apple · 纯客户端）
+
+    @ViewBuilder private var accountRow: some View {
+        if auth.isLoggedIn {
+            HStack(spacing: 12) {
+                Image(systemName: "checkmark.seal.fill")
+                    .font(.system(size: 20)).foregroundStyle(Color.nCyan).frame(width: 28)
+                VStack(alignment: .leading, spacing: 2) {
+                    (auth.displayName.isEmpty ? Text("已登录") : Text(verbatim: auth.displayName))
+                        .font(.system(size: 15, weight: .semibold)).foregroundStyle(Color.text)
+                    Text("通过 Apple 登录").font(.system(size: 11)).foregroundStyle(Color.muted)
+                }
+                Spacer()
+                Button("退出登录") { auth.signOut() }
+                    .font(.system(size: 13, weight: .semibold)).foregroundStyle(Color.nPink)
+            }
+            .padding(.vertical, 13).padding(.horizontal, 14)
+            .background(Color.panel, in: RoundedRectangle(cornerRadius: 14))
+            .overlay(RoundedRectangle(cornerRadius: 14).stroke(Color.line, lineWidth: 1))
+        } else {
+            VStack(alignment: .leading, spacing: 8) {
+                Text("登录以同步与解锁会员权益（后续）").font(.system(size: 11))
+                    .foregroundStyle(Color.muted).fixedSize(horizontal: false, vertical: true)
+                SignInWithAppleButton(.signIn,
+                    onRequest: { $0.requestedScopes = [.fullName] },   // 不取邮箱，零数据收集
+                    onCompletion: { auth.handle($0) })
+                    .signInWithAppleButtonStyle(.white)
+                    .frame(height: 46)
+                    .clipShape(Capsule())
+            }
+            .padding(.vertical, 13).padding(.horizontal, 14)
+            .background(Color.panel, in: RoundedRectangle(cornerRadius: 14))
+            .overlay(RoundedRectangle(cornerRadius: 14).stroke(Color.line, lineWidth: 1))
+        }
     }
 
     // MARK: - Lumi Plus 入口
