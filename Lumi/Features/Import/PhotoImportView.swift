@@ -11,6 +11,7 @@ struct PhotoImportView: View {
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
     @StateObject private var service = PhotoImportService()
+    @State private var includePhotos = true   // 默认同时导入照片，丰富时间线
 
     private static let dateFormat: Date.FormatStyle = .dateTime.year().month(.abbreviated).day()
 
@@ -195,21 +196,33 @@ struct PhotoImportView: View {
     }
 
     private var importBar: some View {
-        Button(action: runImport) {
-            Text(service.selectedCount > 0 ? "导入 \(service.selectedCount) 个足迹 ✦" : "选择要导入的地点")
-                .font(.headline)
-                .frame(maxWidth: .infinity).padding(.vertical, 16)
-                .background(LinearGradient.neonH, in: Capsule())
-                .foregroundStyle(.white)
-                .opacity(service.selectedCount > 0 ? 1 : 0.4)
-                .shadow(color: Color.nPurple.opacity(0.5), radius: 12)
+        VStack(spacing: 10) {
+            Toggle(isOn: $includePhotos) {
+                VStack(alignment: .leading, spacing: 1) {
+                    Text("同时导入照片").font(.system(size: 13, weight: .medium)).foregroundStyle(Color.text)
+                    Text("把识别到的照片一并加入足迹，丰富时间线")
+                        .font(.system(size: 11)).foregroundStyle(Color.muted)
+                }
+            }
+            .tint(Color.nPink)
+            .padding(.horizontal, 4)
+
+            Button(action: runImport) {
+                Text(service.selectedCount > 0 ? "导入 \(service.selectedCount) 个足迹 ✦" : "选择要导入的地点")
+                    .font(.headline)
+                    .frame(maxWidth: .infinity).padding(.vertical, 16)
+                    .background(LinearGradient.neonH, in: Capsule())
+                    .foregroundStyle(.white)
+                    .opacity(service.selectedCount > 0 ? 1 : 0.4)
+                    .shadow(color: Color.nPurple.opacity(0.5), radius: 12)
+            }
+            .disabled(service.selectedCount == 0)
         }
-        .disabled(service.selectedCount == 0)
         .padding(.horizontal, 16).padding(.bottom, 8)
     }
 
     private func runImport() {
-        let count = service.importSelected(into: context)
+        let count = service.importSelected(into: context, includePhotos: includePhotos)
         guard count > 0 else { return }
         WidgetSync.refresh(context)
         Haptics.success()

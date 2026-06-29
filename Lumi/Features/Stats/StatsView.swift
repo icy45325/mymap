@@ -48,10 +48,8 @@ struct StatsView: View {
                     badgesHeader
                     ringSummary
                     if let f = featuredBadge { showcase(f) }
-                    SegmentBar(items: segmentItems, selection: $categoryFilter)
                     honeycomb
                     moreEntry
-                    if let n = board.nextUp { nextUpSection(n) }
                     Color.clear.frame(height: 20)
                 }
                 .padding(.top, 16)
@@ -521,8 +519,17 @@ private struct BadgeSheet: View {
                                     InstagramShare.share(ui)
                                 }
                             } label: {
-                                compactAction("Instagram", systemImage: "camera.circle.fill",
-                                              tint: Color.nPink, filled: false)
+                                HStack(spacing: 6) {
+                                    InstagramGlyph().stroke(.white, lineWidth: 1.8).frame(width: 15, height: 15)
+                                    Text(verbatim: "Instagram").font(.system(size: 12.5, weight: .semibold))
+                                        .foregroundStyle(.white)
+                                }
+                                .padding(.vertical, 9).padding(.horizontal, 16)
+                                .background(
+                                    LinearGradient(colors: [Color(hex: 0x515BD4), Color(hex: 0x8134AF),
+                                                            Color(hex: 0xDD2A7B), Color(hex: 0xF58529)],
+                                                   startPoint: .bottomLeading, endPoint: .topTrailing),
+                                    in: Capsule())
                             }
                             .buttonStyle(.plain)
                         }

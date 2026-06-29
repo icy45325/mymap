@@ -111,7 +111,7 @@ struct FlagWidgetView: View {
                     }
                 }
                 if overflow > 0 {
-                    Text("+\(overflow) 更多").font(.system(size: 10, weight: .bold)).foregroundStyle(WidgetTheme.orange)
+                    Text("+\(overflow) 更多").font(.system(size: 10, weight: .bold)).foregroundStyle(WidgetTheme.lit)
                 }
             }
             Spacer(minLength: 0)

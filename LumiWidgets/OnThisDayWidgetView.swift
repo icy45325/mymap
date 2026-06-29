@@ -34,7 +34,7 @@ struct OnThisDayWidgetView: View {
                     }
                     Text(recallLine(m))
                         .font(.system(size: 12, weight: .medium))
-                        .foregroundStyle(WidgetTheme.orange)
+                        .foregroundStyle(WidgetTheme.lit)
                     if let mood = m.mood {
                         Text("「\(mood)」")
                             .font(.system(size: 12))
@@ -67,7 +67,7 @@ struct OnThisDayWidgetView: View {
                         .lineLimit(1).minimumScaleFactor(0.6)
                     Text(recallLine(m))
                         .font(.system(size: 10.5, weight: .medium))
-                        .foregroundStyle(WidgetTheme.orange)
+                        .foregroundStyle(WidgetTheme.lit)
                         .lineLimit(1)
                 } else {
                     emptyState

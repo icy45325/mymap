@@ -24,7 +24,7 @@ enum WidgetTheme {
     static let text   = Color(hex: 0xF1F1FA)
     static let muted  = Color(hex: 0x8585A0)
     static let faint  = Color(hex: 0x52526A)
-    static let orange = Color(hex: 0xFF9A45)   // 点亮签名色（与示意图一致）
+    static let lit = Color(hex: 0xFF3D9A)   // 点亮签名色（霓虹粉，同 App nPink）
 
     /// 容器底：左深右更深的暗夜渐变。
     static var bgGradient: LinearGradient {

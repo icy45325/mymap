@@ -1,5 +1,6 @@
 import SwiftUI
 import UIKit
+import PhotosUI
 
 /// 明信片分享编辑器：实时预览 + 可改的手写寄语（自动生成默认）+ 分享成图 / 口令 / 二维码。
 struct PostcardSheet: View {
@@ -24,6 +25,9 @@ struct PostcardSheet: View {
     @State private var flipped = false
     @State private var recipient = ""
     @State private var sendDate: Date                // 发送日期，限定在行程范围内
+    @State private var fromName: String              // 寄自（默认个人资料名字，可改）
+    @State private var coverAssetID: String?         // 当前选作封面的相册资源 id（nil=新选/无）
+    @State private var pickedPhoto: PhotosPickerItem?
 
     init(footprint: Footprint) {
         self.footprint = footprint
@@ -31,10 +35,12 @@ struct PostcardSheet: View {
         _style = State(initialValue: PostcardStyle(rawValue: footprint.postcardStyle) ?? .vintage)
         _stamp = State(initialValue: PostcardStamp(rawValue: footprint.stampStyle) ?? .air)
         _sendDate = State(initialValue: footprint.visitedAt)
+        _fromName = State(initialValue: UserDefaults.standard.string(forKey: "lumi.profile.name") ?? "")
+        _coverAssetID = State(initialValue: footprint.photoAssetIDs.first)
     }
 
-    /// 发送方昵称（默认个人资料里的名字）。
-    private var senderName: String { holderName.trimmingCharacters(in: .whitespaces) }
+    /// 发送方昵称（来自可编辑的「寄自」，默认个人资料名字）。
+    private var senderName: String { fromName.trimmingCharacters(in: .whitespaces) }
     /// 发送日期可选范围 = 行程起止日。
     private var dateRange: ClosedRange<Date> {
         let end = footprint.endedAt ?? footprint.visitedAt
@@ -88,6 +94,15 @@ struct PostcardSheet: View {
                         }
                     }
 
+                    editorBlock("寄自") {
+                        TextField("你的名字", text: $fromName)
+                            .foregroundStyle(Color.text)
+                            .padding(12)
+                            .background(Color.panel, in: RoundedRectangle(cornerRadius: 12))
+                            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.line, lineWidth: 1))
+                    }
+
+                    photoPicker
                     stylePicker
                     stampPicker
                     if footprint.isMultiDay { sendDatePicker }
@@ -157,13 +172,52 @@ struct PostcardSheet: View {
         .preferredColorScheme(.dark)
         .sheet(isPresented: $showPaywall) { PaywallView() }
         .task { await store.refreshEntitlement()        // 打开即对齐 Plus 权益（订阅后无需再开订阅页）
-                cover = await loadAssetUIImage(footprint.photoAssetIDs.first); rerender() }
+                cover = await loadAssetUIImage(coverAssetID); rerender() }
         .onChange(of: message) { _, _ in rerender() }
         .onChange(of: recipient) { _, _ in rerender() }      // 导出图含「寄给」，改收件人即时重渲
+        .onChange(of: fromName) { _, _ in rerender() }       // 「寄自」即时重渲
         .onChange(of: store.isPlus) { _, _ in rerender() }   // 升级后即时去水印 / 提清
         .onChange(of: style) { _, _ in rerender() }
         .onChange(of: stamp) { _, _ in rerender() }
         .onChange(of: sendDate) { _, _ in rerender() }
+        .onChange(of: coverAssetID) { _, id in
+            Task { cover = await loadAssetUIImage(id); rerender() }   // 选了相册里某张
+        }
+        .onChange(of: pickedPhoto) { _, item in
+            Task {                                                   // 从相册新选一张
+                if let data = try? await item?.loadTransferable(type: Data.self),
+                   let ui = UIImage(data: data) { coverAssetID = nil; cover = ui; rerender() }
+            }
+        }
+    }
+
+    /// 选择明信片封面照片：足迹自带照片可点选，或从相册新增一张。
+    private var photoPicker: some View {
+        editorBlock("照片") {
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    ForEach(footprint.photoAssetIDs, id: \.self) { id in
+                        AssetImage(assetID: id, targetSize: CGSize(width: 160, height: 160))
+                            .frame(width: 60, height: 60).clipShape(RoundedRectangle(cornerRadius: 10))
+                            .overlay(RoundedRectangle(cornerRadius: 10)
+                                .stroke(coverAssetID == id ? Color.nPink : Color.line,
+                                        lineWidth: coverAssetID == id ? 2 : 1))
+                            .onTapGesture { coverAssetID = id }
+                    }
+                    PhotosPicker(selection: $pickedPhoto, matching: .images) {
+                        VStack(spacing: 3) {
+                            Image(systemName: "plus").font(.system(size: 18, weight: .semibold))
+                            Text("相册").font(.system(size: 9))
+                        }
+                        .foregroundStyle(Color.nCyan)
+                        .frame(width: 60, height: 60)
+                        .background(Color.panel, in: RoundedRectangle(cornerRadius: 10))
+                        .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.line, lineWidth: 1))
+                    }
+                }
+                .padding(.horizontal, 2)
+            }
+        }
     }
 
     /// 发送日期：限定在行程起止日之间，由发送方选定。

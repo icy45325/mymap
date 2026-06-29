@@ -33,9 +33,9 @@ struct DotField: View {
                 ForEach(lit, id: \.self) { idx in
                     let c = idx % cols, r = idx / cols
                     Circle()
-                        .fill(WidgetTheme.orange)
+                        .fill(WidgetTheme.lit)
                         .frame(width: litDot, height: litDot)
-                        .shadow(color: WidgetTheme.orange.opacity(0.9), radius: 5)
+                        .shadow(color: WidgetTheme.lit.opacity(0.9), radius: 5)
                         .position(x: cw * (CGFloat(c) + 0.5),
                                   y: ch * (CGFloat(r) + 0.5))
                 }

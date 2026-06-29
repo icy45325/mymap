@@ -30,7 +30,7 @@ struct InstagramShareButton: View {
 }
 
 /// Instagram 相机标志（圆角方框 + 中心圆 + 右上角小点）——线条版，描边渲染。
-private struct InstagramGlyph: Shape {
+struct InstagramGlyph: Shape {
     func path(in rect: CGRect) -> Path {
         var p = Path()
         let w = rect.width, h = rect.height

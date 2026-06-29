@@ -76,12 +76,13 @@ final class PhotoImportService: ObservableObject {
         candidates = (new == .city) ? cityResult : countryResult
     }
 
-    /// 落库（默认只记地点 + 最早时间，不带照片）；跳过已导入项，幂等。
-    func importSelected(into context: ModelContext) -> Int {
+    /// 落库；跳过已导入项，幂等。`includePhotos` 为真则把识别到的照片一并挂到足迹（丰富时间线）。
+    func importSelected(into context: ModelContext, includePhotos: Bool) -> Int {
         let chosen = candidates.filter { $0.selected && !$0.alreadyImported }
         for c in chosen {
+            let photos = includePhotos ? Array(c.assetIDs.prefix(Footprint.maxPhotos)) : []
             let fp = Footprint(placeName: c.placeName, coordinate: c.coordinate,
-                               cityName: c.cityName, visitedAt: c.date, photoAssetIDs: [])
+                               cityName: c.cityName, visitedAt: c.date, photoAssetIDs: photos)
             fp.countryCode = c.countryCode
             fp.subRegionCode = c.subRegionCode
             context.insert(fp)
