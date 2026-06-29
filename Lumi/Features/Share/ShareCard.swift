@@ -17,12 +17,12 @@ enum ShareRender {
     }
 }
 
-/// 分享图统一品牌水印：截取的「霓虹地球 + Lumi」贴图（已含文字）。所有分享贴图通用。
+/// 分享图统一品牌水印：截取的「Lumi 图标 + Lumi 文字」贴图（已含文字，竖版）。所有分享贴图通用。
+/// `size` 为高度，宽度按原图比例自适应（避免拉伸）。
 struct LumiBrandMark: View {
-    var size: CGFloat = 44
+    var size: CGFloat = 56
     var body: some View {
-        Image("LumiMark").resizable().frame(width: size, height: size)
-            .clipShape(RoundedRectangle(cornerRadius: size * 0.2))
+        Image("LumiMark").resizable().scaledToFit().frame(height: size)
     }
 }
 
