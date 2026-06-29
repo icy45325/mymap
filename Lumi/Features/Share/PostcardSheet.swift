@@ -74,24 +74,27 @@ struct PostcardSheet: View {
                     stampPicker
 
                     if let shareImage {
-                        ShareLink(item: shareImage,
-                                  preview: SharePreview(footprint.title, image: shareImage)) {
-                            Label("邮寄明信片", systemImage: "paperplane.fill")
-                                .font(.headline).frame(maxWidth: .infinity).padding(.vertical, 14)
-                                .background(LinearGradient.neonH, in: Capsule())
-                                .foregroundStyle(.white)
+                        HStack(spacing: 10) {
+                            ShareLink(item: shareImage,
+                                      preview: SharePreview(footprint.title, image: shareImage)) {
+                                Label("邮寄明信片", systemImage: "paperplane.fill")
+                                    .font(.headline).frame(maxWidth: .infinity, minHeight: 52)
+                                    .background(LinearGradient.neonH, in: Capsule())
+                                    .foregroundStyle(.white)
+                            }
+                            .simultaneousGesture(TapGesture().onEnded {
+                                contacts.record(recipient, sent: true)   // 寄出即攒往来
+                                Haptics.light()
+                            })
+                            InstagramShareButton {                        // 装了 IG 才出现，点按高清现渲染发 Feed
+                                ShareRender.uiImage(
+                                    PostcardExportCard(footprint: footprint, cover: cover, message: message,
+                                                       recipient: recipient, style: style, stamp: stamp,
+                                                       watermark: !store.isPlus),
+                                    scale: 4)
+                            }
                         }
-                        .simultaneousGesture(TapGesture().onEnded {
-                            contacts.record(recipient, sent: true)   // 寄出即攒往来
-                            Haptics.light()
-                        })
-                        InstagramShareButton {                        // 装了 IG 才出现，点按高清现渲染发 Feed
-                            ShareRender.uiImage(
-                                PostcardExportCard(footprint: footprint, cover: cover, message: message,
-                                                   recipient: recipient, style: style, stamp: stamp,
-                                                   watermark: !store.isPlus),
-                                scale: 4)
-                        }
+                        .fixedSize(horizontal: false, vertical: true)
                     } else {
                         ProgressView().tint(Color.nPink).frame(maxWidth: .infinity).padding(.vertical, 14)
                     }

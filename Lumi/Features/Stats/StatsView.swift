@@ -84,12 +84,12 @@ struct StatsView: View {
                 }
             }
             if let reportImage {
-                VStack(spacing: 10) {
+                HStack(spacing: 10) {
                     ShareLink(item: reportImage,
                               preview: SharePreview("Lumi", image: reportImage)) {
                         Label("分享", systemImage: "square.and.arrow.up")
                             .font(.headline).foregroundStyle(.white)
-                            .frame(maxWidth: .infinity).padding(.vertical, 15)
+                            .frame(maxWidth: .infinity, minHeight: 52)
                             .background(LinearGradient.neonH, in: Capsule())
                     }
                     InstagramShareButton { ShareRender.uiImage(StatsReportCard(stats: stats), scale: 4) }

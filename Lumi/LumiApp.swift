@@ -25,6 +25,9 @@ struct LumiApp: App {
                 .onOpenURL { url in PostcardInbox.shared.handle(url: url) }  // lumi:// 链接 / AirDrop .lumicard 文件
                 .task { await PlusStore.shared.start() }                      // 拉产品 + 对齐 Plus 权益
                 .task { await FootprintRepair.backfillMissingCountries(LumiStore.shared.mainContext) }  // 补全缺国家码的足迹
+                .task(priority: .utility) {                                   // 预热世界地图轮廓，避免首次「分享成就报告」冷加载卡顿
+                    await Task.detached(priority: .utility) { _ = Boundaries.shared.allCountryRings }.value
+                }
         }
         .modelContainer(LumiStore.shared)
         .onChange(of: scenePhase) { _, phase in
