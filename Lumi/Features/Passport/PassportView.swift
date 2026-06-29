@@ -485,7 +485,7 @@ struct PassportView: View {
     /// 详情里可调整入境方式：三枚 icon 选项，点选即改并持久化到该国最早一条足迹。
     @ViewBuilder private func meansEditRow(_ st: PassportStamp, ink: Color) -> some View {
         HStack {
-            Text("入境方式").font(.system(size: 13)).foregroundStyle(theme.soft)
+            Text("交通方式").font(.system(size: 13)).foregroundStyle(theme.soft)
             Spacer()
             HStack(spacing: 8) {
                 ForEach(PostcardStamp.allCases) { m in

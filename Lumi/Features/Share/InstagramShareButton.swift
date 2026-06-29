@@ -10,7 +10,7 @@ struct InstagramShareButton: View {
     var body: some View {
         if InstagramShare.isAvailable {
             Button {
-                if let ui = render() { InstagramShare.shareToFeed(ui) }
+                if let ui = render() { InstagramShare.share(ui) }
             } label: {
                 InstagramGlyph()
                     .stroke(.white, lineWidth: 2.2)

@@ -441,7 +441,7 @@ private struct VisitPickerScreen: View {
     /// 入境方式：三枚 icon 选项，默认空运。
     private var entryMeansPicker: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("入境方式").font(.subheadline).foregroundStyle(Color.muted).padding(.horizontal, 8)
+            Text("交通方式").font(.subheadline).foregroundStyle(Color.muted).padding(.horizontal, 8)
             HStack(spacing: 10) {
                 ForEach(PostcardStamp.allCases) { m in
                     let active = m == means

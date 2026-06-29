@@ -1,69 +1,30 @@
 import UIKit
 
-/// 分享到 Instagram —— 默认以 **Feed 帖子**形式（单图发帖编辑器），原分辨率、不裁切。
+/// 分享到 Instagram —— **直接拉起 Instagram 快拍**（不是系统通用分享面板）。
 ///
-/// 走多年通用的 `com.instagram.exclusivegram` 文档分享：把图写成 `.igo` 临时文件，
-/// 用 `UIDocumentInteractionController` 以该 UTI「Open in…」→ 仅 Instagram → 进发帖编辑器。
-/// 关键：必须从**当前最顶层已呈现的 VC**弹出（分享按钮在 sheet 里，根 VC 在 sheet 之下会弹不出来）。
-/// 若文档分享起不来（IG 版本变动等），**回退到系统分享面板**保证一定有弹窗。
+/// 走官方 `instagram-stories://share` + 剪贴板 `com.instagram.sharedSticker.*` 约定：
+/// 用 **stickerImage**（整图作为贴纸、不裁切 → 清晰）叠在渐变背景上，直接进 IG 快拍编辑器。
+/// 需 Info.plist `LSApplicationQueriesSchemes` 含 `instagram` / `instagram-stories`。
+/// 未装 IG → `isAvailable` false，按钮不显示。
 @MainActor
 enum InstagramShare {
     private static let appURL = URL(string: "instagram://app")!
-    private static var docController: UIDocumentInteractionController?   // 展示期间强引用保活
-    private static var docDelegate: DocDelegate?
+    private static let storiesURL =
+        URL(string: "instagram-stories://share?source_application=\(Bundle.main.bundleIdentifier ?? "")")!
 
     /// 本机是否装了 Instagram。
-    static var isAvailable: Bool {
-        UIApplication.shared.canOpenURL(appURL)
-    }
+    static var isAvailable: Bool { UIApplication.shared.canOpenURL(storiesURL) }
 
-    /// 以 Feed 帖子形式分享一张图。失败则回退系统分享面板。
-    static func shareToFeed(_ image: UIImage) {
-        guard let top = topViewController() else { return }
-        if let data = image.jpegData(compressionQuality: 1) {
-            let url = FileManager.default.temporaryDirectory.appendingPathComponent("lumi-ig.igo")
-            if (try? data.write(to: url, options: .atomic)) != nil {
-                let doc = UIDocumentInteractionController(url: url)
-                doc.uti = "com.instagram.exclusivegram"   // 独占 UTI → 候选项只有 Instagram → 进发帖
-                let delegate = DocDelegate()
-                docDelegate = delegate
-                doc.delegate = delegate
-                docController = doc
-                let anchor = CGRect(x: top.view.bounds.midX, y: top.view.bounds.maxY - 8, width: 0, height: 0)
-                if doc.presentOpenInMenu(from: anchor, in: top.view, animated: true) { return }
-            }
-        }
-        // 兜底：系统分享面板（一定会弹）
-        presentSystemShare(image, from: top)
-    }
-
-    private static func presentSystemShare(_ image: UIImage, from top: UIViewController) {
-        let av = UIActivityViewController(activityItems: [image], applicationActivities: nil)
-        if let pop = av.popoverPresentationController {          // iPad 需要锚点
-            pop.sourceView = top.view
-            pop.sourceRect = CGRect(x: top.view.bounds.midX, y: top.view.bounds.maxY - 8, width: 0, height: 0)
-        }
-        top.present(av, animated: true)
-    }
-
-    /// 当前最顶层已呈现的 VC（穿过 sheet / 导航 / Tab）。
-    private static func topViewController() -> UIViewController? {
-        let root = UIApplication.shared.connectedScenes
-            .compactMap { $0 as? UIWindowScene }
-            .flatMap { $0.windows }
-            .first { $0.isKeyWindow }?
-            .rootViewController
-        var top = root
-        while let presented = top?.presentedViewController { top = presented }
-        return top
-    }
-
-    private final class DocDelegate: NSObject, UIDocumentInteractionControllerDelegate {
-        func documentInteractionControllerDidDismissOpenInMenu(_ controller: UIDocumentInteractionController) {
-            Task { @MainActor in           // 委托回调是 nonisolated，跳回主 actor 再清理保活引用
-                InstagramShare.docController = nil
-                InstagramShare.docDelegate = nil
-            }
-        }
+    /// 把图作为快拍贴纸直接拉起 Instagram（整图不裁切 + 应用主题渐变底）。
+    static func share(_ image: UIImage) {
+        guard isAvailable, let data = image.pngData() else { return }
+        let items: [String: Any] = [
+            "com.instagram.sharedSticker.stickerImage": data,          // 整图贴纸，不裁切
+            "com.instagram.sharedSticker.backgroundTopColor": "#140A22",
+            "com.instagram.sharedSticker.backgroundBottomColor": "#06060E",
+        ]
+        UIPasteboard.general.setItems([items],
+                                      options: [.expirationDate: Date().addingTimeInterval(60 * 5)])
+        UIApplication.shared.open(storiesURL)
     }
 }

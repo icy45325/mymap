@@ -414,7 +414,7 @@ private struct BadgeSheet: View {
                         if InstagramShare.isAvailable {
                             Button {
                                 if let ui = ShareRender.uiImage(BadgeShareCard(badge: badge), scale: 4) {
-                                    InstagramShare.shareToFeed(ui)
+                                    InstagramShare.share(ui)
                                 }
                             } label: {
                                 compactAction("Instagram", systemImage: "camera.circle.fill",

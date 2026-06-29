@@ -20,6 +20,7 @@ struct FootprintEditView: View {
     @State private var companions: [String]
     @State private var companionDraft = ""
     @State private var photoIDs: [String]
+    @State private var means: PostcardStamp
     @State private var pickerItems: [PhotosPickerItem] = []
 
     // 真实地点重新定位（与创建时同口径：搜索 → 离线 Boundaries 定国家/酋长国）
@@ -45,6 +46,7 @@ struct FootprintEditView: View {
         _multiDay = State(initialValue: footprint.endedAt != nil)
         _companions = State(initialValue: footprint.companions)
         _photoIDs = State(initialValue: footprint.photoAssetIDs)
+        _means = State(initialValue: PostcardStamp(rawValue: footprint.entryMeans) ?? .air)
     }
 
     var body: some View {
@@ -54,6 +56,7 @@ struct FootprintEditView: View {
                     placeSection
                     photosSection
                     dateSection
+                    transportSection
                     moodSection
                     companionsSection
                     Color.clear.frame(height: 60)
@@ -249,6 +252,32 @@ struct FootprintEditView: View {
         }
     }
 
+    // MARK: - 交通方式（图标切换）
+
+    private var transportSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            sectionLabel("交通方式", systemImage: "stamp")
+            HStack(spacing: 10) {
+                ForEach(PostcardStamp.allCases) { m in
+                    let active = m == means
+                    Button { means = m; Haptics.selection() } label: {
+                        VStack(spacing: 5) {
+                            Image(systemName: m.motif).font(.system(size: 18, weight: .semibold))
+                            Text(m.label).font(.system(size: 11, weight: .semibold))
+                        }
+                        .foregroundStyle(active ? .white : Color.textSecondary)
+                        .frame(maxWidth: .infinity).padding(.vertical, 10)
+                        .background(active ? AnyShapeStyle(LinearGradient.neonH) : AnyShapeStyle(Color.panel),
+                                    in: RoundedRectangle(cornerRadius: Metrics.radius))
+                        .overlay(RoundedRectangle(cornerRadius: Metrics.radius)
+                            .stroke(active ? Color.clear : Color.line, lineWidth: 1))
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+    }
+
     // MARK: - 心情
 
     private var moodSection: some View {
@@ -322,6 +351,7 @@ struct FootprintEditView: View {
         footprint.endedAt = (multiDay && endedAt > visitedAt) ? endedAt : nil
         footprint.companions = finalCompanions
         footprint.photoAssetIDs = Array(photoIDs.prefix(Footprint.maxPhotos))
+        footprint.entryMeans = means.rawValue
 
         // 若重新定位了真实地点：一并写回坐标 / 城市 / 国家码（与创建同口径）
         if let p = picked {

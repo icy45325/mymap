@@ -5875,6 +5875,28 @@
         }
       }
     },
+    "交通方式": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "交通方式"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Transportation methods"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "طريقة النقل"
+          }
+        }
+      }
+    },
     "自动续订已开启": {
       "localizations": {
         "zh-Hans": {

@@ -236,7 +236,7 @@ struct CaptureView: View {
     // MARK: - 入境方式（图标选择，默认空运）
     private var entryMeansSection: some View {
         VStack(alignment: .leading, spacing: 10) {
-            sectionLabel("入境方式", systemImage: "stamp")
+            sectionLabel("交通方式", systemImage: "stamp")
             HStack(spacing: 10) {
                 ForEach(PostcardStamp.allCases) { m in
                     let active = m == entryMeans
