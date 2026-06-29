@@ -8,8 +8,23 @@ struct PostcardWallView: View {
     @ObservedObject private var contacts = PostcardContacts.shared
     @State private var selected: Footprint?
     @State private var showScanner = false
+    @State private var sort: WallSort = .received
 
-    private var items: [Footprint] { footprints.filter { $0.isReceived } }
+    enum WallSort: String, CaseIterable, Identifiable {
+        case received, place
+        var id: String { rawValue }
+        var label: LocalizedStringKey { self == .received ? "按接收时间" : "按来源地 A–Z" }
+    }
+
+    private var items: [Footprint] {
+        let received = footprints.filter { $0.isReceived }
+        switch sort {
+        case .received:   // 接收时间倒序（无 receivedAt 的旧数据用 createdAt 兜底）
+            return received.sorted { ($0.receivedAt ?? $0.createdAt) > ($1.receivedAt ?? $1.createdAt) }
+        case .place:      // 来源地 A→Z
+            return received.sorted { $0.title.localizedCaseInsensitiveCompare($1.title) == .orderedAscending }
+        }
+    }
 
     private let cols = [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)]
 
@@ -25,6 +40,12 @@ struct PostcardWallView: View {
                             Text("还没有收到明信片").font(.subheadline).foregroundStyle(Color.muted)
                                 .frame(maxWidth: .infinity).padding(.vertical, 28)
                         } else {
+                            if items.count > 1 {
+                                Picker("", selection: $sort) {
+                                    ForEach(WallSort.allCases) { Text($0.label).tag($0) }
+                                }
+                                .pickerStyle(.segmented)
+                            }
                             LazyVGrid(columns: cols, spacing: 12) {
                                 ForEach(items) { fp in
                                     Button { selected = fp } label: { PostcardCell(footprint: fp) }
@@ -52,7 +73,7 @@ struct PostcardWallView: View {
         .toolbarBackground(Color.bg, for: .navigationBar)
         .toolbarColorScheme(.dark, for: .navigationBar)
         .preferredColorScheme(.dark)
-        .sheet(item: $selected) { PostcardSheet(footprint: $0) }
+        .sheet(item: $selected) { ReceivedPostcardSheet(footprint: $0) }
         .sheet(isPresented: $showScanner) { ScannerSheet() }
     }
 
@@ -91,6 +112,78 @@ struct PostcardWallView: View {
     }
 }
 
+/// 查看收到的明信片：只翻转 + 分享（系统 / Instagram），无样式 / 邮票 / 编辑功能。
+private struct ReceivedPostcardSheet: View {
+    let footprint: Footprint
+    @Environment(\.dismiss) private var dismiss
+    @AppStorage("lumi.profile.name") private var holderName: String = ""
+    @State private var flipped = false
+    @State private var cover: UIImage?
+    @State private var shareImage: Image?
+
+    private var style: PostcardStyle { PostcardStyle(rawValue: footprint.postcardStyle) ?? .vintage }
+    private var stamp: PostcardStamp { PostcardStamp(rawValue: footprint.stampStyle) ?? .air }
+    private var dateText: String { footprint.visitSpanText() }
+    private var sender: String { footprint.senderName ?? "" }
+
+    private var exportCard: PostcardExportCard {
+        PostcardExportCard(footprint: footprint, cover: cover, message: footprint.mood,
+                           recipient: holderName, style: style, stamp: stamp,
+                           watermark: true, sender: sender, dateText: dateText)
+    }
+
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(spacing: 18) {
+                    PostcardFlipCard(footprint: footprint, cover: cover, message: footprint.mood,
+                                     recipient: holderName, style: style, stamp: stamp, flipped: flipped,
+                                     sender: sender, dateText: dateText)
+                        .onTapGesture { withAnimation { flipped.toggle() } }
+
+                    Button { withAnimation { flipped.toggle() } } label: {
+                        Label("翻面", systemImage: "arrow.triangle.2.circlepath")
+                            .font(.system(size: 13, weight: .semibold)).foregroundStyle(Color.text)
+                            .padding(.vertical, 9).padding(.horizontal, 18)
+                            .background(Color.panel, in: Capsule())
+                            .overlay(Capsule().stroke(Color.line, lineWidth: 1))
+                    }
+
+                    if let shareImage {
+                        HStack(spacing: 10) {
+                            ShareLink(item: shareImage, preview: SharePreview(footprint.title, image: shareImage)) {
+                                Label("分享", systemImage: "square.and.arrow.up")
+                                    .font(.headline).frame(maxWidth: .infinity, minHeight: 52)
+                                    .background(LinearGradient.neonH, in: Capsule()).foregroundStyle(.white)
+                            }
+                            InstagramShareButton { ShareRender.uiImage(exportCard, scale: 4) }
+                        }
+                        .fixedSize(horizontal: false, vertical: true)
+                        .padding(.horizontal, 4)
+                    } else {
+                        ProgressView().tint(Color.nPink).padding(.vertical, 14)
+                    }
+                }
+                .padding(20)
+            }
+            .background(Color.bg.ignoresSafeArea())
+            .navigationTitle("明信片").navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("关闭") { dismiss() }.foregroundStyle(Color.muted)
+                }
+            }
+            .toolbarBackground(Color.bg, for: .navigationBar)
+            .toolbarColorScheme(.dark, for: .navigationBar)
+        }
+        .preferredColorScheme(.dark)
+        .task {
+            if let d = footprint.receivedCoverData { cover = UIImage(data: d) }
+            shareImage = ShareRender.image(exportCard, scale: 3)
+        }
+    }
+}
+
 /// 明信片墙单元：封面（照片或霓虹渐变）+ 手写寄语片段 + 地点；收到的标「✦ 收到」。
 private struct PostcardCell: View {
     let footprint: Footprint
@@ -101,7 +194,9 @@ private struct PostcardCell: View {
     var body: some View {
         ZStack(alignment: .bottomLeading) {
             Group {
-                if let id = footprint.photoAssetIDs.first {
+                if let data = footprint.receivedCoverData, let ui = UIImage(data: data) {
+                    Image(uiImage: ui).resizable().scaledToFill()
+                } else if let id = footprint.photoAssetIDs.first {
                     AssetImage(assetID: id, targetSize: CGSize(width: 600, height: 800))
                 } else {
                     LinearGradient(colors: PostcardTheme.make(style).photo,

@@ -152,6 +152,8 @@ struct PostcardFlipCard: View {
     let style: PostcardStyle
     let stamp: PostcardStamp
     let flipped: Bool
+    var sender: String = ""
+    var dateText: String = ""
 
     private var theme: PostcardTheme { PostcardTheme.make(style) }
     private var locEn: String { (footprint.cityName ?? footprint.title).uppercased() }
@@ -184,7 +186,8 @@ struct PostcardFlipCard: View {
 
     private var back: some View {
         PostcardBackPanel(footprint: footprint, message: message, recipient: recipient,
-                          style: style, stamp: stamp, portrait: isPortrait)
+                          style: style, stamp: stamp, portrait: isPortrait,
+                          sender: sender, dateText: dateText)
     }
 }
 
@@ -218,6 +221,8 @@ struct PostcardBackPanel: View {
     let style: PostcardStyle
     let stamp: PostcardStamp
     var portrait: Bool = false
+    var sender: String = ""        // 寄自（默认发送方昵称）
+    var dateText: String = ""      // 发送日期（在行程范围内由发送方选定）
 
     private var theme: PostcardTheme { PostcardTheme.make(style) }
     private var locEn: String { (footprint.cityName ?? footprint.title).uppercased() }
@@ -239,7 +244,12 @@ struct PostcardBackPanel: View {
                     .font(theme.msgSerif ? Typo.serif(15, weight: .semibold) : .system(size: 14, weight: .bold))
                     .foregroundStyle(theme.ink).lineLimit(1).minimumScaleFactor(0.6)
             }
-            Text(locZh).font(.system(size: 9)).foregroundStyle(theme.addr).lineLimit(1)
+            HStack(spacing: 6) {
+                Text(locZh).font(.system(size: 9)).foregroundStyle(theme.addr).lineLimit(1)
+                if !dateText.isEmpty {
+                    Text(verbatim: "· \(dateText)").font(.system(size: 9)).foregroundStyle(theme.addr).lineLimit(1)
+                }
+            }
             Rectangle().fill(theme.line).frame(height: 1).padding(.vertical, 9)
             Text(message)
                 .font(theme.msgSerif ? Typo.serif(13, weight: .regular).italic() : .system(size: 13, weight: .light))
@@ -252,6 +262,9 @@ struct PostcardBackPanel: View {
                     Text(recipient.isEmpty ? " " : recipient)
                         .font(theme.msgSerif ? Typo.serif(14) : .system(size: 14, weight: .medium))
                         .foregroundStyle(theme.ink).lineLimit(1)
+                    if !sender.isEmpty {
+                        Text("寄自 \(sender)").font(.system(size: 9)).foregroundStyle(theme.addr).lineLimit(1)
+                    }
                 }
                 Spacer()
                 ZStack(alignment: .bottomLeading) {
@@ -275,7 +288,12 @@ struct PostcardBackPanel: View {
                         .font(theme.msgSerif ? Typo.serif(13, weight: .semibold) : .system(size: 12, weight: .bold))
                         .foregroundStyle(theme.ink).lineLimit(1).minimumScaleFactor(0.6)
                 }
-                Text(locZh).font(.system(size: 8)).foregroundStyle(theme.addr).lineLimit(1)
+                HStack(spacing: 5) {
+                    Text(locZh).font(.system(size: 8)).foregroundStyle(theme.addr).lineLimit(1)
+                    if !dateText.isEmpty {
+                        Text(verbatim: "· \(dateText)").font(.system(size: 8)).foregroundStyle(theme.addr).lineLimit(1)
+                    }
+                }
                 Rectangle().fill(theme.line).frame(height: 1).padding(.trailing, 6)
                 Text(message)
                     .font(theme.msgSerif ? Typo.serif(12, weight: .regular).italic() : .system(size: 12, weight: .light))
@@ -303,6 +321,9 @@ struct PostcardBackPanel: View {
                 Text(recipient.isEmpty ? " " : recipient)
                     .font(theme.msgSerif ? Typo.serif(12) : .system(size: 12, weight: .medium))
                     .foregroundStyle(theme.ink).lineLimit(1)
+                if !sender.isEmpty {
+                    Text("寄自 \(sender)").font(.system(size: 8)).foregroundStyle(theme.addr).lineLimit(1)
+                }
             }
             .padding(.init(top: 14, leading: 11, bottom: 14, trailing: 14))
             .frame(width: 124)
@@ -332,6 +353,33 @@ struct PostcardBackPanel: View {
     }
 }
 
+/// 传递明信片的二维码卡：白底 QR + 中心 Lumi logo + Lumi 文案。供分享/展示。
+struct PostcardQRCard: View {
+    let qr: UIImage
+    var body: some View {
+        VStack(spacing: 14) {
+            ZStack {
+                Image(uiImage: qr).interpolation(.none).resizable()
+                    .frame(width: 240, height: 240)
+                Image("LumiMark").resizable().frame(width: 52, height: 52)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .overlay(RoundedRectangle(cornerRadius: 12).stroke(.white, lineWidth: 4))
+            }
+            .padding(20)
+            .background(.white, in: RoundedRectangle(cornerRadius: 24))
+            VStack(spacing: 4) {
+                LumiBrandMark(size: 22, textColor: Color(hex: 0x1A1430))
+                Text("扫码用 Lumi 收下这张明信片")
+                    .font(.system(size: 12)).foregroundStyle(Color(hex: 0x6A6480))
+            }
+        }
+        .padding(26)
+        .frame(width: 320)
+        .background(LinearGradient(colors: [Color(hex: 0xF3EEFF), Color(hex: 0xE7DEFF)],
+                                   startPoint: .top, endPoint: .bottom))
+    }
+}
+
 /// 导出 / 分享用的成品图：**照片 + 背面信息（寄语 / 邮票 / 邮戳 / 寄给）一起**。
 /// 朝向随上传照片：宽图 → 横版，竖图 → 竖版。供 `ShareRender.image(_:)` 渲染。
 struct PostcardExportCard: View {
@@ -342,6 +390,8 @@ struct PostcardExportCard: View {
     let style: PostcardStyle
     let stamp: PostcardStamp
     var watermark: Bool = false
+    var sender: String = ""
+    var dateText: String = ""
 
     /// 与预览卡同口径：明显竖图才走竖版，其余横版。
     private var isLandscape: Bool {
@@ -365,7 +415,8 @@ struct PostcardExportCard: View {
                         .shadow(color: .black.opacity(0.4), radius: 3)
                 }
             PostcardBackPanel(footprint: footprint, message: message, recipient: recipient,
-                              style: style, stamp: stamp, portrait: !isLandscape)
+                              style: style, stamp: stamp, portrait: !isLandscape,
+                              sender: sender, dateText: dateText)
                 .frame(width: cardW, height: backH)
                 .overlay(RoundedRectangle(cornerRadius: 9).stroke(.white.opacity(0.06), lineWidth: 1))
         }

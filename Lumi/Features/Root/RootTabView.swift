@@ -103,6 +103,8 @@ struct RootTabView: View {
         fp.countryCode = p.countryCode
         fp.isReceived = true
         fp.senderName = p.sender
+        fp.receivedAt = .now
+        if let cover = p.cover, let data = Data(base64Encoded: cover) { fp.receivedCoverData = data }
         fp.postcardStyle = p.style ?? "vintage"
         fp.stampStyle = p.stamp ?? "air"
         if p.countryCode == "AE" {

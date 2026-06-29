@@ -41,6 +41,10 @@ final class Footprint {
     /// 是否为「收到的明信片」（区别于自己点亮）；及寄件人昵称（可空）。
     var isReceived: Bool = false
     var senderName: String? = nil
+    /// 收到明信片的时间（仅 isReceived；用于「按接收时间排序」）。
+    var receivedAt: Date? = nil
+    /// 收到的明信片附带的封面图（经 AirDrop / 链接传来，已压缩）；QR 因容量限制不带图。
+    @Attribute(.externalStorage) var receivedCoverData: Data? = nil
 
     /// 明信片外观（样式 + 邮票）；收到的卡保存寄件方所选，明信片墙按样式呈现。
     var postcardStyle: String = "vintage"

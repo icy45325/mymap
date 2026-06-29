@@ -15,6 +15,7 @@ struct PostcardPayload: Codable {
     let sender: String?
     var style: String? = nil  // 明信片样式（vintage/modern/vivid），旧口令可空
     var stamp: String? = nil  // 邮票（air/city），旧口令可空
+    var cover: String? = nil  // 压缩封面图 base64（AirDrop/链接带，QR 因容量不带）
 }
 
 /// 明信片口令编解码（纯本地带外传输：复制口令 / 二维码 → 对方在 App 内自动收下）。
@@ -22,13 +23,23 @@ enum PostcardToken {
     static let prefix = "LUMI1:"
 
     static func encode(footprint fp: Footprint, message: String, token: String,
-                       sender: String? = nil, style: String? = nil, stamp: String? = nil) -> String {
+                       sender: String? = nil, style: String? = nil, stamp: String? = nil,
+                       date: Date? = nil, cover: String? = nil) -> String {
         let p = PostcardPayload(token: token, place: fp.placeName, city: fp.cityName,
                                 countryCode: fp.countryCode, lat: fp.latitude, lon: fp.longitude,
-                                visitedAt: fp.visitedAt, message: message, sender: sender,
-                                style: style, stamp: stamp)
+                                visitedAt: date ?? fp.visitedAt, message: message, sender: sender,
+                                style: style, stamp: stamp, cover: cover)
         guard let data = try? JSONEncoder().encode(p) else { return "" }
         return prefix + data.base64EncodedString()
+    }
+
+    /// 把封面 UIImage 压成可放进口令的 base64（约 320px、JPEG）。供 AirDrop / 链接携带。
+    static func encodeCover(_ image: UIImage, maxDim: CGFloat = 320, quality: CGFloat = 0.5) -> String? {
+        let scale = min(1, maxDim / max(image.size.width, image.size.height))
+        let target = CGSize(width: image.size.width * scale, height: image.size.height * scale)
+        let r = UIGraphicsImageRenderer(size: target)
+        let small = r.image { _ in image.draw(in: CGRect(origin: .zero, size: target)) }
+        return small.jpegData(compressionQuality: quality)?.base64EncodedString()
     }
 
     static func decode(_ raw: String) -> PostcardPayload? {
@@ -85,11 +96,11 @@ enum PostcardToken {
         do { try Data(tokenString.utf8).write(to: url); return url } catch { return nil }
     }
 
-    /// 把口令生成二维码图。
-    static func qrImage(_ string: String, scale: CGFloat = 12) -> UIImage? {
+    /// 把口令生成二维码图。`correction` 高（H≈30%）时中心可叠 logo 不影响识别。
+    static func qrImage(_ string: String, scale: CGFloat = 12, correction: String = "M") -> UIImage? {
         let filter = CIFilter.qrCodeGenerator()
         filter.message = Data(string.utf8)
-        filter.correctionLevel = "M"
+        filter.correctionLevel = correction
         guard let out = filter.outputImage?.transformed(by: CGAffineTransform(scaleX: scale, y: scale)) else { return nil }
         guard let cg = CIContext().createCGImage(out, from: out.extent) else { return nil }
         return UIImage(cgImage: cg)

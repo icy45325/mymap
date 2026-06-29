@@ -7,10 +7,12 @@ struct PostcardSheet: View {
 
     @Environment(\.dismiss) private var dismiss
     @AppStorage("lumi.receivedTokens") private var receivedTokensRaw: String = ""
+    @AppStorage("lumi.profile.name") private var holderName: String = ""
     @ObservedObject private var store = PlusStore.shared
     @ObservedObject private var contacts = PostcardContacts.shared
     @State private var message: String
     @State private var cover: UIImage?
+    @State private var coverB64: String?             // 压缩封面 base64（随 AirDrop/链接传，QR 不带）
     @State private var shareImage: Image?
     @State private var qr: Image?
     @State private var cardFile: URL?                // AirDrop 用的 .lumicard 文件
@@ -21,18 +23,33 @@ struct PostcardSheet: View {
     @State private var stamp: PostcardStamp
     @State private var flipped = false
     @State private var recipient = ""
+    @State private var sendDate: Date                // 发送日期，限定在行程范围内
 
     init(footprint: Footprint) {
         self.footprint = footprint
         _message = State(initialValue: defaultPostcardMessage(footprint))
         _style = State(initialValue: PostcardStyle(rawValue: footprint.postcardStyle) ?? .vintage)
         _stamp = State(initialValue: PostcardStamp(rawValue: footprint.stampStyle) ?? .air)
+        _sendDate = State(initialValue: footprint.visitedAt)
     }
 
-    private var tokenString: String {
-        PostcardToken.encode(footprint: footprint, message: message, token: token,
-                             style: style.rawValue, stamp: stamp.rawValue)
+    /// 发送方昵称（默认个人资料里的名字）。
+    private var senderName: String { holderName.trimmingCharacters(in: .whitespaces) }
+    /// 发送日期可选范围 = 行程起止日。
+    private var dateRange: ClosedRange<Date> {
+        let end = footprint.endedAt ?? footprint.visitedAt
+        return min(footprint.visitedAt, end)...max(footprint.visitedAt, end)
     }
+    private var dateText: String { sendDate.formatted(.dateTime.year().month(.abbreviated).day()) }
+
+    /// `includeCover` 区分：true=AirDrop/链接（带压缩封面图）；false=二维码（容量有限不带图）。
+    private func makeToken(includeCover: Bool) -> String {
+        PostcardToken.encode(footprint: footprint, message: message, token: token,
+                             sender: senderName.isEmpty ? nil : senderName,
+                             style: style.rawValue, stamp: stamp.rawValue,
+                             date: sendDate, cover: includeCover ? coverB64 : nil)
+    }
+    private var tokenString: String { makeToken(includeCover: true) }
 
     var body: some View {
         NavigationStack {
@@ -40,7 +57,8 @@ struct PostcardSheet: View {
                 VStack(spacing: 18) {
                     // 翻面预览卡（正面照片 / 背面书写）
                     PostcardFlipCard(footprint: footprint, cover: cover, message: message,
-                                     recipient: recipient, style: style, stamp: stamp, flipped: flipped)
+                                     recipient: recipient, style: style, stamp: stamp, flipped: flipped,
+                                     sender: senderName, dateText: dateText)
                         .onTapGesture { withAnimation { flipped.toggle() } }
 
                     Button { withAnimation { flipped.toggle() } } label: {
@@ -72,6 +90,7 @@ struct PostcardSheet: View {
 
                     stylePicker
                     stampPicker
+                    if footprint.isMultiDay { sendDatePicker }
 
                     if let shareImage {
                         HStack(spacing: 10) {
@@ -86,11 +105,11 @@ struct PostcardSheet: View {
                                 contacts.record(recipient, sent: true)   // 寄出即攒往来
                                 Haptics.light()
                             })
-                            InstagramShareButton {                        // 装了 IG 才出现，点按高清现渲染发 Feed
+                            InstagramShareButton {                        // 装了 IG 才出现，点按高清现渲染
                                 ShareRender.uiImage(
                                     PostcardExportCard(footprint: footprint, cover: cover, message: message,
                                                        recipient: recipient, style: style, stamp: stamp,
-                                                       watermark: !store.isPlus),
+                                                       watermark: !store.isPlus, sender: senderName, dateText: dateText),
                                     scale: 4)
                             }
                         }
@@ -144,6 +163,19 @@ struct PostcardSheet: View {
         .onChange(of: store.isPlus) { _, _ in rerender() }   // 升级后即时去水印 / 提清
         .onChange(of: style) { _, _ in rerender() }
         .onChange(of: stamp) { _, _ in rerender() }
+        .onChange(of: sendDate) { _, _ in rerender() }
+    }
+
+    /// 发送日期：限定在行程起止日之间，由发送方选定。
+    private var sendDatePicker: some View {
+        editorBlock("发送日期") {
+            DatePicker("", selection: $sendDate, in: dateRange, displayedComponents: .date)
+                .labelsHidden().datePickerStyle(.compact).tint(Color.nPink)
+                .padding(12)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Color.panel, in: RoundedRectangle(cornerRadius: 12))
+                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.line, lineWidth: 1))
+        }
     }
 
     private func editorBlock<C: View>(_ title: LocalizedStringKey, @ViewBuilder _ content: () -> C) -> some View {
@@ -256,14 +288,23 @@ struct PostcardSheet: View {
     private var shareLinkString: String {
         PostcardToken.shareURL(tokenString)?.absoluteString ?? tokenString
     }
+    /// 二维码用 token：不带封面图（容量有限），保证可扫。
+    private var qrLinkString: String {
+        let t = makeToken(includeCover: false)
+        return PostcardToken.shareURL(t)?.absoluteString ?? t
+    }
 
     @MainActor private func rerender() {
+        coverB64 = cover.flatMap { PostcardToken.encodeCover($0) }   // 压缩封面（AirDrop/链接带图）
         // Plus：无水印 + 高清(3x)；免费：盖水印 + 标清(2x)
         let card = PostcardExportCard(footprint: footprint, cover: cover, message: message,
                                       recipient: recipient, style: style, stamp: stamp,
-                                      watermark: !store.isPlus)
+                                      watermark: !store.isPlus, sender: senderName, dateText: dateText)
         shareImage = ShareRender.image(card, scale: store.isPlus ? 3 : 2)
-        qr = PostcardToken.qrImage(shareLinkString).map { Image(uiImage: $0) }
+        // 二维码：高容错(H) + 中心 logo + Lumi 文案，渲染成带样式的卡片图
+        if let qrUI = PostcardToken.qrImage(qrLinkString, correction: "H") {
+            qr = ShareRender.image(PostcardQRCard(qr: qrUI), scale: 3)
+        }
         cardFile = PostcardToken.writeCardFile(tokenString)
         copied = false
     }
