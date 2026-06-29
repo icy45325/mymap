@@ -194,6 +194,54 @@ struct LumiStats {
         return set.intersection(Self.sevenContinents).count
     }
 
+    // —— 新增徽章检测 ——
+    /// 赤道穿越者：点亮过纬度 1° 内的地点。
+    var litEquator: Bool { footprints.contains { abs($0.latitude) < 1.0 } }
+    /// 对跖之旅：点亮过两个近乎对跖的点（纬度相反、经度差≈180°）。
+    var litAntipodes: Bool {
+        let pts = footprints.map { ($0.latitude, $0.longitude) }
+        guard pts.count >= 2 else { return false }
+        for i in 0..<pts.count {
+            for j in (i + 1)..<pts.count where abs(pts[i].0 + pts[j].0) < 3 {
+                if abs(abs(pts[i].1 - pts[j].1) - 180) < 3 { return true }
+            }
+        }
+        return false
+    }
+    /// 四象限：覆盖南北 × 东西四个半球象限。
+    var quadrantsCovered: Int {
+        Set(footprints.map { "\($0.latitude >= 0 ? "N" : "S")\($0.longitude >= 0 ? "E" : "W")" }).count
+    }
+    /// 环球一周：点亮地点的经度跨度。
+    var longitudeSpan: Double {
+        let lons = footprints.map { $0.longitude }
+        guard let mn = lons.min(), let mx = lons.max() else { return 0 }
+        return mx - mn
+    }
+    /// 四季：覆盖的季节数（按月份分 4 桶）。
+    var seasonsCovered: Int {
+        Set(footprints.map { (Calendar.current.component(.month, from: $0.visitedAt) % 12) / 3 }).count
+    }
+    /// 家庭旅行：是否有带同行人的足迹。
+    var hasCompanionTrip: Bool { footprints.contains { !$0.companions.isEmpty } }
+    /// 独行：无同行人的足迹数。
+    var soloTripCount: Int { footprints.filter { $0.companions.isEmpty }.count }
+    /// 奔月：足迹间累计大圆里程（km）。
+    var totalDistanceKm: Double {
+        let ordered = footprints.sorted { $0.visitedAt < $1.visitedAt }
+        guard ordered.count >= 2 else { return 0 }
+        return (1..<ordered.count).reduce(0.0) { sum, i in
+            sum + LumiStats.haversineKm(ordered[i - 1].latitude, ordered[i - 1].longitude,
+                                        ordered[i].latitude, ordered[i].longitude)
+        }
+    }
+    static func haversineKm(_ lat1: Double, _ lon1: Double, _ lat2: Double, _ lon2: Double) -> Double {
+        let r = 6371.0, dLat = (lat2 - lat1) * .pi / 180, dLon = (lon2 - lon1) * .pi / 180
+        let a = sin(dLat / 2) * sin(dLat / 2)
+            + cos(lat1 * .pi / 180) * cos(lat2 * .pi / 180) * sin(dLon / 2) * sin(dLon / 2)
+        return r * 2 * atan2(sqrt(a), sqrt(1 - a))
+    }
+
     private static let sevenContinents: Set<String> = [
         "Asia", "Europe", "Africa", "North America", "South America", "Oceania", "Antarctica",
     ]
@@ -315,6 +363,45 @@ enum BadgeCatalog {
             flag("island", "跳岛旅人", .rare, .streak, "sailboat.fill",
                  "点亮 3 个不相连的岛屿国家 / 地区。", "7%", Color(hex: 0x00BFA5),
                  unlocked: s.islandCountryCount >= 3, at: nil, image: "badge_island"),
+
+            // —— 新增徽章 ——
+            milestone("fiftycities", "五十城", .rare, .milestone, "building.2",
+                      "全球累计打卡 50 座不同城市。", "12%", Color(hex: 0x4DD9FF),
+                      target: 50, current: cities, unit: "城", image: "badge_hundred_cities"),
+
+            flag("equator", "赤道穿越者", .rare, .explore, "circle.dashed",
+                 "在赤道附近（纬度 1° 内）点亮足迹。", "9%", Color(hex: 0x4DD9FF),
+                 unlocked: s.litEquator, at: firstVisit { abs($0.latitude) < 1.0 },
+                 image: "badge_equator_crosser"),
+
+            flag("antipodes", "对跖之旅", .legendary, .explore, "circle.lefthalf.filled",
+                 "点亮两个近乎对跖的地点（地球两端）。", "0.6%", Color(hex: 0xB388FF),
+                 unlocked: s.litAntipodes, at: nil, image: "badge_antipodes"),
+
+            flag("quadrant", "四象限大师", .epic, .explore, "square.split.2x2",
+                 "足迹覆盖南北 × 东西四个半球象限。", "3%", Color(hex: 0x7C4DFF),
+                 unlocked: s.quadrantsCovered >= 4, at: nil, image: "badge_quadrant_master"),
+
+            flag("oncearound", "环球一周", .legendary, .milestone, "globe.americas.fill",
+                 "点亮地点的经度跨度超过 300°。", "1.5%", Color(hex: 0xFF9A45),
+                 unlocked: s.longitudeSpan >= 300, at: nil, image: "badge_once_around"),
+
+            flag("fourseasons", "四季旅人", .epic, .streak, "leaf.fill",
+                 "在春夏秋冬四个季节都有足迹。", "4%", Color(hex: 0x37E0A0),
+                 unlocked: s.seasonsCovered >= 4, at: nil, image: "badge_four_seasons"),
+
+            flag("family", "家庭旅行", .rare, .streak, "person.3.fill",
+                 "和同行人一起点亮足迹。", "22%", Color(hex: 0xFFB74D),
+                 unlocked: s.hasCompanionTrip, at: firstVisit { !$0.companions.isEmpty },
+                 image: "badge_family_caravan"),
+
+            flag("solo", "独行灵魂", .rare, .streak, "figure.walk",
+                 "独自完成 5 次以上的足迹点亮。", "16%", Color(hex: 0x9B5DE5),
+                 unlocked: s.soloTripCount >= 5, at: nil, image: "badge_solo_soul"),
+
+            flag("tomoon", "奔向月球", .legendary, .milestone, "moon.stars.fill",
+                 "旅行累计里程超过地月距离（384,400 公里）。", "0.8%", Color(hex: 0xCBBEE6),
+                 unlocked: s.totalDistanceKm >= 384_400, at: nil, image: "badge_to_the_moon"),
         ]
 
         return list

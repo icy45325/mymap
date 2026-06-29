@@ -5897,6 +5897,402 @@
         }
       }
     },
+    "五十城": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "五十城"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fifty Cities"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "خمسون مدينة"
+          }
+        }
+      }
+    },
+    "赤道穿越者": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "赤道穿越者"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Equator Crosser"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "عابر خط الاستواء"
+          }
+        }
+      }
+    },
+    "对跖之旅": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "对跖之旅"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Antipodes"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "النقاط المتقابلة"
+          }
+        }
+      }
+    },
+    "四象限大师": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "四象限大师"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quadrant Master"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "سيّد الأرباع"
+          }
+        }
+      }
+    },
+    "环球一周": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "环球一周"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Once Around"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "حول العالم"
+          }
+        }
+      }
+    },
+    "四季旅人": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "四季旅人"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Four Seasons"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الفصول الأربعة"
+          }
+        }
+      }
+    },
+    "家庭旅行": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "家庭旅行"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Family Caravan"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "قافلة العائلة"
+          }
+        }
+      }
+    },
+    "独行灵魂": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "独行灵魂"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Solo Soul"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "روح منفردة"
+          }
+        }
+      }
+    },
+    "奔向月球": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "奔向月球"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "To the Moon"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "إلى القمر"
+          }
+        }
+      }
+    },
+    "全球累计打卡 50 座不同城市。": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "全球累计打卡 50 座不同城市。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check in at 50 distinct cities worldwide."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "سجّل وصولًا في 50 مدينة مختلفة حول العالم."
+          }
+        }
+      }
+    },
+    "在赤道附近（纬度 1° 内）点亮足迹。": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在赤道附近（纬度 1° 内）点亮足迹。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Light a footprint within 1° of the equator."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أضئ بصمة ضمن 1° من خط الاستواء."
+          }
+        }
+      }
+    },
+    "点亮两个近乎对跖的地点（地球两端）。": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "点亮两个近乎对跖的地点（地球两端）。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Light two near-antipodal points (opposite sides of Earth)."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أضئ نقطتين متقابلتين تقريبًا على الأرض."
+          }
+        }
+      }
+    },
+    "足迹覆盖南北 × 东西四个半球象限。": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "足迹覆盖南北 × 东西四个半球象限。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cover all four hemispheres (N/S × E/W)."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "غطِّ الأنصاف الأربعة (شمال/جنوب × شرق/غرب)."
+          }
+        }
+      }
+    },
+    "点亮地点的经度跨度超过 300°。": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "点亮地点的经度跨度超过 300°。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Span over 300° of longitude across your footprints."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "امتد عبر أكثر من 300° من خطوط الطول."
+          }
+        }
+      }
+    },
+    "在春夏秋冬四个季节都有足迹。": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在春夏秋冬四个季节都有足迹。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Have footprints in all four seasons."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "سجّل بصمات في الفصول الأربعة."
+          }
+        }
+      }
+    },
+    "和同行人一起点亮足迹。": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "和同行人一起点亮足迹。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Light a footprint together with companions."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أضئ بصمة برفقة مرافقين."
+          }
+        }
+      }
+    },
+    "独自完成 5 次以上的足迹点亮。": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "独自完成 5 次以上的足迹点亮。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Light 5+ footprints traveling solo."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أضئ 5 بصمات أو أكثر بمفردك."
+          }
+        }
+      }
+    },
+    "旅行累计里程超过地月距离（384,400 公里）。": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "旅行累计里程超过地月距离（384,400 公里）。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Travel a cumulative distance past the Moon (384,400 km)."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "اقطع مسافة تراكمية تتجاوز بُعد القمر (384,400 كم)."
+          }
+        }
+      }
+    },
     "查看更多徽章": {
       "localizations": {
         "zh-Hans": {
