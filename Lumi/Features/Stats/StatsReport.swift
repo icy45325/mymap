@@ -58,7 +58,7 @@ struct StatsReportCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
-                LumiBrandMark(size: 22)
+                LumiBrandMark(size: 52)
                 Spacer()
                 Text("我的旅行护照").font(.system(size: 10, weight: .semibold)).tracking(1.5)
                     .foregroundStyle(Color.nPurple).textCase(.uppercase)

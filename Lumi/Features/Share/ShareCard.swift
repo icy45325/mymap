@@ -17,18 +17,12 @@ enum ShareRender {
     }
 }
 
-/// 分享图统一品牌水印：小 logo + Lumi 文字。所有分享贴图通用。
+/// 分享图统一品牌水印：截取的「霓虹地球 + Lumi」贴图（已含文字）。所有分享贴图通用。
 struct LumiBrandMark: View {
-    var size: CGFloat = 20
-    var textColor: Color = .white
+    var size: CGFloat = 44
     var body: some View {
-        HStack(spacing: 6) {
-            Image("LumiMark").resizable().frame(width: size, height: size)
-                .clipShape(RoundedRectangle(cornerRadius: size * 0.26))
-            Text(verbatim: "Lumi")
-                .font(.system(size: size * 0.7, weight: .heavy, design: .rounded)).tracking(0.5)
-                .foregroundStyle(textColor)
-        }
+        Image("LumiMark").resizable().frame(width: size, height: size)
+            .clipShape(RoundedRectangle(cornerRadius: size * 0.2))
     }
 }
 
@@ -38,7 +32,7 @@ struct BadgeShareCard: View {
 
     var body: some View {
         VStack(spacing: 14) {
-            LumiBrandMark(size: 22)
+            LumiBrandMark(size: 52)
             HexBadge(badge: badge, size: 128)
                 .padding(.top, 4)
             Text(badge.name.localized).font(Typo.serif(27))

@@ -368,7 +368,7 @@ struct PostcardQRCard: View {
             .padding(20)
             .background(.white, in: RoundedRectangle(cornerRadius: 24))
             VStack(spacing: 4) {
-                LumiBrandMark(size: 22, textColor: Color(hex: 0x1A1430))
+                LumiBrandMark(size: 44)
                 Text("扫码用 Lumi 收下这张明信片")
                     .font(.system(size: 12)).foregroundStyle(Color(hex: 0x6A6480))
             }
@@ -424,7 +424,7 @@ struct PostcardExportCard: View {
         .background(Color(hex: 0x0F0F17))
         .overlay(alignment: .bottomTrailing) {
             if watermark {
-                LumiBrandMark(size: 18, textColor: .white.opacity(0.9))
+                LumiBrandMark(size: 40)
                     .padding(.vertical, 5).padding(.horizontal, 9)
                     .background(.black.opacity(0.3), in: Capsule())
                     .padding(26)

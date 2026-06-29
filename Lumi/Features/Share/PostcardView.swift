@@ -86,7 +86,7 @@ struct PostcardView: View {
         }
         .overlay(alignment: .bottomTrailing) {
             if watermark {
-                LumiBrandMark(size: 18, textColor: .white.opacity(0.9))
+                LumiBrandMark(size: 40)
                     .padding(.vertical, 5).padding(.horizontal, 9)
                     .background(.black.opacity(0.28), in: Capsule())
                     .padding(14)
