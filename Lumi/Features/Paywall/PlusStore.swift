@@ -22,6 +22,10 @@ final class PlusStore: ObservableObject {
 
     /// 是否已解锁 Plus（订阅未过期 或 终身买断）。业务层唯一需要读的开关。
     @Published private(set) var isPlus = false
+    /// 当前订阅到期 / 下次续订日期（终身买断为 nil）。
+    @Published private(set) var expirationDate: Date?
+    /// 是否已开启自动续订。
+    @Published private(set) var autoRenewOn = false
     /// 三个可售产品（已按 月 → 年 → 终身 排序）。
     @Published private(set) var products: [Product] = []
     @Published private(set) var loadingProducts = false
@@ -97,11 +101,30 @@ final class PlusStore: ObservableObject {
 
     func refreshEntitlement() async {
         var active = false
+        var expiry: Date?
         for await result in Transaction.currentEntitlements {
-            guard let transaction = try? verify(result) else { continue }
-            if isEntitling(transaction) { active = true }
+            guard let transaction = try? verify(result), isEntitling(transaction) else { continue }
+            active = true
+            expiry = transaction.expirationDate          // 订阅有到期；终身为 nil
         }
         isPlus = active
+        expirationDate = expiry
+        await refreshRenewalState()
+    }
+
+    /// 读取自动续订状态（StoreKit 2 订阅状态流）。
+    private func refreshRenewalState() async {
+        guard isPlus,
+              let sub = products.first(where: { PlusProduct(rawValue: $0.id) != nil })?.subscription,
+              let statuses = try? await sub.status else { autoRenewOn = false; return }
+        for status in statuses {
+            guard case .verified(let renewal) = status.renewalInfo else { continue }
+            if status.state == .subscribed || status.state == .inGracePeriod {
+                autoRenewOn = renewal.willAutoRenew
+                return
+            }
+        }
+        autoRenewOn = false
     }
 
     /// 这笔交易是否当前有效（我们的产品 · 未撤销 · 订阅未过期 / 买断永久）。

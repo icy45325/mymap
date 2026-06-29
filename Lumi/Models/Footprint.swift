@@ -46,6 +46,9 @@ final class Footprint {
     var postcardStyle: String = "vintage"
     var stampStyle: String = "air"
 
+    /// 入境方式（air/land/sea）：护照入境章据此显示 空运✈️/陆运🚆/海运⛴️。点亮时可选，默认空运。
+    var entryMeans: String = "air"
+
     /// 是否为多天行程。
     var isMultiDay: Bool { endedAt != nil }
 

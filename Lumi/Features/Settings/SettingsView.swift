@@ -110,6 +110,9 @@ struct SettingsView: View {
                     Text(store.isPlus ? "感谢支持——全部权益已开启 ✦" : "明信片去水印高清导出，更多增益陆续解锁")
                         .font(.system(size: 11)).foregroundStyle(Color.muted)
                         .fixedSize(horizontal: false, vertical: true)
+                    if store.isPlus, let billing = plusBillingText {
+                        Text(billing).font(.system(size: 11, weight: .medium)).foregroundStyle(Color.nCyan.opacity(0.9))
+                    }
                 }
                 Spacer()
                 if !store.isPlus {
@@ -125,13 +128,24 @@ struct SettingsView: View {
         .overlay(RoundedRectangle(cornerRadius: 14).stroke(store.isPlus ? Color.nCyan.opacity(0.4) : Color.line, lineWidth: 1))
     }
 
+    /// Plus 账单状态：到期/下次续订日期 + 自动续订开关。
+    private var plusBillingText: String? {
+        guard store.isPlus else { return nil }
+        let renew = store.autoRenewOn ? String(localized: "自动续订已开启") : String(localized: "自动续订已关闭")
+        if let exp = store.expirationDate {
+            let label = store.autoRenewOn ? String(localized: "下次续订") : String(localized: "到期")
+            return "\(label) \(exp.formatted(date: .abbreviated, time: .omitted)) · \(renew)"
+        }
+        return renew
+    }
+
     // MARK: - 反馈与建议（邮件）
 
     private var feedbackRow: some View {
         Button {
             let subject = String(localized: "Lumi 反馈")
             let encoded = subject.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? subject
-            if let url = URL(string: "mailto:icy45325@hotmail.com?subject=\(encoded)") {
+            if let url = URL(string: "mailto:fengze676@gmail.com?subject=\(encoded)") {
                 UIApplication.shared.open(url)
             }
         } label: {

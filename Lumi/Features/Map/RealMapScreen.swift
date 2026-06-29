@@ -186,8 +186,8 @@ private struct CountryActionSheet: View {
     private var actionButtons: some View {
         HStack(spacing: 10) {
             NavigationLink {
-                VisitPickerScreen(countryCode: countryCode, countryName: countryName) { year, month, cities in
-                    lightCountry(year: year, month: month, cities: cities)
+                VisitPickerScreen(countryCode: countryCode, countryName: countryName) { year, month, cities, means in
+                    lightCountry(year: year, month: month, cities: cities, means: means)
                     dismiss()
                 }
             } label: {
@@ -297,23 +297,23 @@ private struct CountryActionSheet: View {
     // MARK: - 数据动作
 
     /// 点亮国家（年/月 + 可选多城）；无城以国家落点一条。
-    private func lightCountry(year: Int, month: Int, cities: [PresetCity]) {
+    private func lightCountry(year: Int, month: Int, cities: [PresetCity], means: PostcardStamp) {
         let prior = isLit
         let date = Calendar.current.date(from: DateComponents(year: year, month: month, day: 1)) ?? Date()
         let targets: [(name: String, coord: CLLocationCoordinate2D, city: String?)] = cities.isEmpty
             ? [(countryName, tapCoordinate, nil)]
             : cities.map { ($0.name, $0.coordinate, $0.name) }
-        for t in targets { insertFootprint(name: t.name, coord: t.coord, city: t.city, date: date) }
+        for t in targets { insertFootprint(name: t.name, coord: t.coord, city: t.city, date: date, means: means) }
         try? context.save()
         if !prior { Analytics.log(.countryLit(countryCode: countryCode, totalLit: distinctLitCount())) }
         Haptics.success()
         WidgetSync.refresh(context)
     }
 
-    /// 推荐城市一键点亮：以当前年月快速记录一条。
+    /// 推荐城市一键点亮：以当前年月快速记录一条（默认空运入境）。
     private func quickLightCity(_ city: PresetCity) {
         let prior = isLit
-        insertFootprint(name: city.name, coord: city.coordinate, city: city.name, date: Date())
+        insertFootprint(name: city.name, coord: city.coordinate, city: city.name, date: Date(), means: .air)
         // 点亮后若该城在心愿里，移除对应心愿
         removeCityWish(city)
         try? context.save()
@@ -326,9 +326,10 @@ private struct CountryActionSheet: View {
         Set(allFootprints.compactMap { $0.countryCode }).union([countryCode]).count
     }
 
-    private func insertFootprint(name: String, coord: CLLocationCoordinate2D, city: String?, date: Date) {
+    private func insertFootprint(name: String, coord: CLLocationCoordinate2D, city: String?, date: Date, means: PostcardStamp) {
         let fp = Footprint(placeName: name, coordinate: coord, cityName: city, visitedAt: date)
         fp.countryCode = countryCode
+        fp.entryMeans = means.rawValue
         if countryCode == "AE" { fp.subRegionCode = Boundaries.shared.emirateCode(at: coord) }
         context.insert(fp)
         context.insert(Card(footprint: fp))
@@ -372,16 +373,17 @@ private struct CountryActionSheet: View {
 private struct VisitPickerScreen: View {
     let countryCode: String
     let countryName: String
-    let onConfirm: (_ year: Int, _ month: Int, _ cities: [PresetCity]) -> Void
+    let onConfirm: (_ year: Int, _ month: Int, _ cities: [PresetCity], _ means: PostcardStamp) -> Void
 
     @State private var year: Int
     @State private var month: Int
     @State private var selectedCities: Set<PresetCity> = []
+    @State private var means: PostcardStamp = .air      // 入境方式，默认空运
     private let years: [Int]
     private let cities: [PresetCity]
 
     init(countryCode: String, countryName: String,
-         onConfirm: @escaping (Int, Int, [PresetCity]) -> Void) {
+         onConfirm: @escaping (Int, Int, [PresetCity], PostcardStamp) -> Void) {
         self.countryCode = countryCode
         self.countryName = countryName
         self.onConfirm = onConfirm
@@ -413,9 +415,11 @@ private struct VisitPickerScreen: View {
             }
             .frame(height: 130)
 
+            entryMeansPicker
+
             if !cities.isEmpty { citySection }
 
-            Button { onConfirm(year, month, Array(selectedCities)) } label: {
+            Button { onConfirm(year, month, Array(selectedCities), means) } label: {
                 Text(buttonTitle).font(.headline)
                     .frame(maxWidth: .infinity).padding(.vertical, 15)
                     .background(LinearGradient.neonH, in: Capsule())
@@ -432,6 +436,30 @@ private struct VisitPickerScreen: View {
 
     private var buttonTitle: LocalizedStringKey {
         selectedCities.isEmpty ? "点亮 ✦" : "点亮 \(selectedCities.count) 城 ✦"
+    }
+
+    /// 入境方式：三枚 icon 选项，默认空运。
+    private var entryMeansPicker: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("入境方式").font(.subheadline).foregroundStyle(Color.muted).padding(.horizontal, 8)
+            HStack(spacing: 10) {
+                ForEach(PostcardStamp.allCases) { m in
+                    let active = m == means
+                    Button { means = m; Haptics.selection() } label: {
+                        VStack(spacing: 5) {
+                            Image(systemName: m.motif).font(.system(size: 18, weight: .semibold))
+                            Text(m.label).font(.system(size: 11, weight: .semibold))
+                        }
+                        .foregroundStyle(active ? .white : Color.muted)
+                        .frame(maxWidth: .infinity).padding(.vertical, 10)
+                        .background(active ? AnyShapeStyle(LinearGradient.neonH) : AnyShapeStyle(Color.panel),
+                                    in: RoundedRectangle(cornerRadius: 12))
+                        .overlay(RoundedRectangle(cornerRadius: 12).stroke(active ? Color.clear : Color.line, lineWidth: 1))
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
     }
 
     /// 打卡城市：默认展开、开关多选；不选则以国家落点。

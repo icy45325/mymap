@@ -59,6 +59,7 @@ struct CaptureView: View {
     @State private var visitedAt: Date = .now
     @State private var endedAt: Date = .now
     @State private var mood: String = ""
+    @State private var entryMeans: PostcardStamp = .air      // 入境方式（默认空运）
     @State private var companions: [String] = []
     @State private var companionDraft: String = ""
 
@@ -77,6 +78,7 @@ struct CaptureView: View {
                     photoSection
                     placeSection
                     dateSection
+                    entryMeansSection
                     moodSection
                     companionsSection
                     Color.clear.frame(height: 80)   // 给底部主按钮留白
@@ -228,6 +230,31 @@ struct CaptureView: View {
                 .labelsHidden()
                 .datePickerStyle(.compact)
                 .tint(Color.litGlow)
+        }
+    }
+
+    // MARK: - 入境方式（图标选择，默认空运）
+    private var entryMeansSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            sectionLabel("入境方式", systemImage: "stamp")
+            HStack(spacing: 10) {
+                ForEach(PostcardStamp.allCases) { m in
+                    let active = m == entryMeans
+                    Button { entryMeans = m; Haptics.selection() } label: {
+                        VStack(spacing: 5) {
+                            Image(systemName: m.motif).font(.system(size: 18, weight: .semibold))
+                            Text(m.label).font(.system(size: 11, weight: .semibold))
+                        }
+                        .foregroundStyle(active ? .white : Color.textSecondary)
+                        .frame(maxWidth: .infinity).padding(.vertical, 10)
+                        .background(active ? AnyShapeStyle(LinearGradient.neonH) : AnyShapeStyle(Color.panel),
+                                    in: RoundedRectangle(cornerRadius: Metrics.radius))
+                        .overlay(RoundedRectangle(cornerRadius: Metrics.radius)
+                            .stroke(active ? Color.clear : Color.lineSoft, lineWidth: 1))
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
         }
     }
 
@@ -405,6 +432,7 @@ struct CaptureView: View {
         )
         footprint.countryCode = selected.countryCode
         footprint.subRegionCode = selected.subRegionCode
+        footprint.entryMeans = entryMeans.rawValue       // 入境方式（默认空运）
         context.insert(footprint)
         context.insert(Card(footprint: footprint))     // §4.2：同步持久化一张明信片卡
         try? context.save()

@@ -12,18 +12,37 @@ struct InstagramShareButton: View {
             Button {
                 if let ui = render() { InstagramShare.shareToFeed(ui) }
             } label: {
-                Image(systemName: "camera.circle.fill")
-                    .font(.system(size: 24, weight: .semibold))
-                    .foregroundStyle(.white)
-                    .frame(width: 58, height: 52)       // 与同排「分享」按钮等高
+                InstagramGlyph()
+                    .stroke(.white, lineWidth: 2.2)
+                    .frame(width: 26, height: 26)
+                    .frame(width: 58, height: 52)
                     .background(
-                        // IG 渐变意象（紫→粉→橙），与应用霓虹同源
-                        LinearGradient(colors: [Color(hex: 0x7A3FF0), Color(hex: 0xFF3D9A), Color(hex: 0xFF9A45)],
-                                       startPoint: .topLeading, endPoint: .bottomTrailing),
+                        // Instagram 官方渐变（紫蓝→粉→橙黄）
+                        LinearGradient(colors: [Color(hex: 0x515BD4), Color(hex: 0x8134AF),
+                                                Color(hex: 0xDD2A7B), Color(hex: 0xF58529), Color(hex: 0xFEDA77)],
+                                       startPoint: .bottomLeading, endPoint: .topTrailing),
                         in: Capsule())
             }
             .buttonStyle(.plain)
             .accessibilityLabel(Text("分享到 Instagram"))
         }
+    }
+}
+
+/// Instagram 相机标志（圆角方框 + 中心圆 + 右上角小点）——线条版，描边渲染。
+private struct InstagramGlyph: Shape {
+    func path(in rect: CGRect) -> Path {
+        var p = Path()
+        let w = rect.width, h = rect.height
+        // 外框圆角方
+        let corner = w * 0.28
+        p.addRoundedRect(in: rect, cornerSize: CGSize(width: corner, height: corner))
+        // 中心镜头圆
+        let lens = w * 0.46
+        p.addEllipse(in: CGRect(x: rect.midX - lens / 2, y: rect.midY - lens / 2, width: lens, height: lens))
+        // 右上角小点
+        let dot = w * 0.11
+        p.addEllipse(in: CGRect(x: rect.maxX - w * 0.26, y: rect.minY + h * 0.15, width: dot, height: dot))
+        return p
     }
 }

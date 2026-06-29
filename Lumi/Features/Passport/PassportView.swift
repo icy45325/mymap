@@ -15,6 +15,7 @@ struct PassportView: View {
     @AppStorage("lumi.passport.style") private var styleRaw: String = PassportStyle.classic.rawValue
 
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var context
     @State private var page = 0
     @State private var detail: PassportStamp?
     @State private var showProfileEdit = false
@@ -48,7 +49,7 @@ struct PassportView: View {
                 code3: NationTheme.iso3(cc),
                 inkHex: Self.inks[i % Self.inks.count],
                 shape: Self.shapes[i % Self.shapes.count],
-                means: PostcardStamp(rawValue: fp.stampStyle) ?? .air))
+                means: PostcardStamp(rawValue: fp.entryMeans) ?? .air))
         }
         return out
     }
@@ -472,7 +473,7 @@ struct PassportView: View {
             VStack(spacing: 8) {
                 detailRow("入境口岸", st.port)
                 detailRow("入境日期", st.date)
-                detailRow("入境方式", entryMeansText(st.means), icon: st.means.motif)
+                meansEditRow(st, ink: ink)
             }
         }
         .padding(.vertical, 16).padding(.horizontal, 18)
@@ -481,13 +482,38 @@ struct PassportView: View {
         .overlay(RoundedRectangle(cornerRadius: 14).stroke(theme.line, lineWidth: 1))
     }
 
-    /// 入境方式本地化文案：空运 / 陆运 / 海运入境。
-    private func entryMeansText(_ means: PostcardStamp) -> String {
-        switch means {
-        case .air:  return String(localized: "空运入境")
-        case .land: return String(localized: "陆运入境")
-        case .sea:  return String(localized: "海运入境")
+    /// 详情里可调整入境方式：三枚 icon 选项，点选即改并持久化到该国最早一条足迹。
+    @ViewBuilder private func meansEditRow(_ st: PassportStamp, ink: Color) -> some View {
+        HStack {
+            Text("入境方式").font(.system(size: 13)).foregroundStyle(theme.soft)
+            Spacer()
+            HStack(spacing: 8) {
+                ForEach(PostcardStamp.allCases) { m in
+                    let active = m == (detail?.means ?? st.means)
+                    Button { setMeans(m, for: st) } label: {
+                        Image(systemName: m.motif).font(.system(size: 13, weight: .semibold))
+                            .foregroundStyle(active ? theme.ink : theme.soft.opacity(0.7))
+                            .frame(width: 30, height: 26)
+                            .background(active ? ink.opacity(0.16) : .clear, in: RoundedRectangle(cornerRadius: 7))
+                            .overlay(RoundedRectangle(cornerRadius: 7)
+                                .stroke(active ? ink.opacity(0.7) : theme.line, lineWidth: 1))
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
         }
+    }
+
+    /// 持久化入境方式：写到该国**最早一条**足迹的 `entryMeans`，并即时刷新详情显示。
+    private func setMeans(_ means: PostcardStamp, for st: PassportStamp) {
+        guard let fp = footprints.first(where: { $0.countryCode == st.id }) else { return }
+        fp.entryMeans = means.rawValue
+        try? context.save()
+        Haptics.selection()
+        // 用新方式更新当前详情卡（stamps 会随 @Query 重算，但 detail 是快照，手动同步一份）
+        detail = PassportStamp(id: st.id, country: st.country, port: st.port, date: st.date,
+                               place: st.place, code3: st.code3, inkHex: st.inkHex,
+                               shape: st.shape, means: means)
     }
 
     private func detailRow(_ label: LocalizedStringKey, _ value: String, icon: String? = nil) -> some View {
