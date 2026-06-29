@@ -101,6 +101,11 @@ struct StatsView: View {
         .background(Color(hex: 0x0F0F1B).ignoresSafeArea())
         .presentationDetents([.large])
         .preferredColorScheme(.dark)
+        .task {
+            guard reportImage == nil else { return }
+            await Task.yield()      // 先让面板+spinner 出来，再渲染（世界地图 Canvas 较重）
+            reportImage = ShareRender.image(StatsReportCard(stats: stats), scale: 2)
+        }
     }
 
     // MARK: - 头部 / 环形概览
@@ -145,7 +150,7 @@ struct StatsView: View {
                 }
                 Spacer()
                 Button {
-                    reportImage = ShareRender.image(StatsReportCard(stats: stats), scale: 3)
+                    reportImage = nil          // 即刻开面板（显示 spinner），渲染异步进行，避免卡点击
                     showReport = true
                 } label: {
                     Label("分享", systemImage: "square.and.arrow.up")
