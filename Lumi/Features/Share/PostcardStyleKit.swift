@@ -373,14 +373,10 @@ struct PostcardExportCard: View {
         .background(Color(hex: 0x0F0F17))
         .overlay(alignment: .bottomTrailing) {
             if watermark {
-                HStack(spacing: 4) {
-                    Text("✦").font(.system(size: 11))
-                    Text("Lumi").font(.system(size: 12, weight: .heavy)).tracking(1)
-                }
-                .foregroundStyle(.white.opacity(0.85))
-                .padding(.vertical, 5).padding(.horizontal, 9)
-                .background(.black.opacity(0.3), in: Capsule())
-                .padding(26)
+                LumiBrandMark(size: 18, textColor: .white.opacity(0.9))
+                    .padding(.vertical, 5).padding(.horizontal, 9)
+                    .background(.black.opacity(0.3), in: Capsule())
+                    .padding(26)
             }
         }
     }

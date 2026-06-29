@@ -17,14 +17,28 @@ enum ShareRender {
     }
 }
 
+/// 分享图统一品牌水印：小 logo + Lumi 文字。所有分享贴图通用。
+struct LumiBrandMark: View {
+    var size: CGFloat = 20
+    var textColor: Color = .white
+    var body: some View {
+        HStack(spacing: 6) {
+            Image("LumiMark").resizable().frame(width: size, height: size)
+                .clipShape(RoundedRectangle(cornerRadius: size * 0.26))
+            Text(verbatim: "Lumi")
+                .font(.system(size: size * 0.7, weight: .heavy, design: .rounded)).tracking(0.5)
+                .foregroundStyle(textColor)
+        }
+    }
+}
+
 /// 徽章分享卡：暗夜霓虹风的成就卡，供 ImageRenderer 渲染分享。
 struct BadgeShareCard: View {
     let badge: Badge
 
     var body: some View {
         VStack(spacing: 14) {
-            Text("LUMI").font(.system(size: 13, weight: .heavy)).tracking(4)
-                .foregroundStyle(Color.nCyan)
+            LumiBrandMark(size: 22)
             HexBadge(badge: badge, size: 128)
                 .padding(.top, 4)
             Text(badge.name.localized).font(Typo.serif(27))

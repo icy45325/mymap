@@ -86,14 +86,10 @@ struct PostcardView: View {
         }
         .overlay(alignment: .bottomTrailing) {
             if watermark {
-                HStack(spacing: 4) {
-                    Text("✦").font(.system(size: 11))
-                    Text("Lumi").font(.system(size: 12, weight: .heavy)).tracking(1)
-                }
-                .foregroundStyle(.white.opacity(0.85))
-                .padding(.vertical, 5).padding(.horizontal, 9)
-                .background(.black.opacity(0.28), in: Capsule())
-                .padding(14)
+                LumiBrandMark(size: 18, textColor: .white.opacity(0.9))
+                    .padding(.vertical, 5).padding(.horizontal, 9)
+                    .background(.black.opacity(0.28), in: Capsule())
+                    .padding(14)
             }
         }
         .background(Color.bg)
