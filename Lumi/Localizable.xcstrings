@@ -5897,6 +5897,116 @@
         }
       }
     },
+    "查看更多徽章": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "查看更多徽章"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "See more badges"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "المزيد من الأوسمة"
+          }
+        }
+      }
+    },
+    "更多徽章": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更多徽章"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More badges"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "المزيد من الأوسمة"
+          }
+        }
+      }
+    },
+    "%lld 进行中 · %lld 未解锁": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld 进行中 · %lld 未解锁"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld in progress · %2$lld locked"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld قيد التقدم · %2$lld مقفل"
+          }
+        }
+      }
+    },
+    "还没点亮徽章 · 去点亮第一个地方": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "还没点亮徽章 · 去点亮第一个地方"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No badges yet · light your first place"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "لا أوسمة بعد · أضئ أول مكان"
+          }
+        }
+      }
+    },
+    "全部徽章已点亮 ✦": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "全部徽章已点亮 ✦"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All badges unlocked ✦"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "فُتحت كل الأوسمة ✦"
+          }
+        }
+      }
+    },
     "寄自 %@": {
       "localizations": {
         "zh-Hans": {

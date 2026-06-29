@@ -50,6 +50,7 @@ struct StatsView: View {
                     if let f = featuredBadge { showcase(f) }
                     SegmentBar(items: segmentItems, selection: $categoryFilter)
                     honeycomb
+                    moreEntry
                     if let n = board.nextUp { nextUpSection(n) }
                     Color.clear.frame(height: 20)
                 }
@@ -244,14 +245,54 @@ struct StatsView: View {
 
     // MARK: - 徽章墙（3 列网格，给插画徽章更大展示空间）
 
+    /// 主页徽章墙只放**已点亮**的；进行中 / 未解锁收进二级页（见 moreEntry）。
+    private var litBadges: [Badge] { sortedBadges.filter { $0.state == .lit } }
+
     private var honeycomb: some View {
         let cols = Array(repeating: GridItem(.flexible(), spacing: 14), count: 3)
-        return LazyVGrid(columns: cols, spacing: 18) {
-            ForEach(sortedBadges) { b in badgeCell(b) }
+        return Group {
+            if litBadges.isEmpty {
+                Text("还没点亮徽章 · 去点亮第一个地方")
+                    .font(.system(size: 12)).foregroundStyle(Color.muted)
+                    .frame(maxWidth: .infinity).padding(.vertical, 24)
+            } else {
+                LazyVGrid(columns: cols, spacing: 18) {
+                    ForEach(litBadges) { b in badgeCell(b) }
+                }
+            }
         }
         .frame(maxWidth: .infinity)
         .padding(.horizontal, 22)
         .padding(.vertical, 12)
+    }
+
+    /// 二级页入口：进行中 + 未解锁的数量，点进去分两类展示。
+    private var moreEntry: some View {
+        let prog = board.badges.filter { $0.state == .prog }.count
+        let locked = board.badges.filter { $0.state == .locked }.count
+        return Group {
+            if prog + locked > 0 {
+                NavigationLink {
+                    BadgeMoreView(board: board)
+                } label: {
+                    HStack(spacing: 12) {
+                        Image(systemName: "square.grid.2x2.fill").font(.system(size: 17))
+                            .foregroundStyle(Color.nPurple).frame(width: 28)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("查看更多徽章").font(.system(size: 14, weight: .semibold)).foregroundStyle(Color.text)
+                            Text("\(prog) 进行中 · \(locked) 未解锁")
+                                .font(.system(size: 11)).foregroundStyle(Color.muted)
+                        }
+                        Spacer()
+                        Image(systemName: "chevron.right").font(.system(size: 13, weight: .semibold))
+                            .foregroundStyle(Color.faint).flipsForRightToLeftLayoutDirection(true)
+                    }
+                    .padding(14).panelCard(14)
+                }
+                .buttonStyle(.plain)
+                .padding(.horizontal, 22)
+            }
+        }
     }
 
     /// 排序：已点亮在最前 → 进行中按点亮进度从高到低 → 完全未解锁在最后；同档保持原顺序。
@@ -295,14 +336,15 @@ struct StatsView: View {
         }
     }
 
-    /// 只列出实际有徽章的分类，避免出现空筛选。
+    /// 只列出**已点亮**徽章里实际存在的分类，避免主页空筛选。
     private var segmentItems: [(value: CatFilter, label: String)] {
+        let lit = litBadges
         var items: [(value: CatFilter, label: String)] = [(.all, "全部")]
         for cat in [BadgeCategory.continent, .milestone, .streak]
-        where board.badges.contains(where: { $0.category == cat }) {
+        where lit.contains(where: { $0.category == cat }) {
             items.append((.category(cat), cat.displayName))
         }
-        if board.badges.contains(where: { $0.rarity == .epic || $0.rarity == .legendary }) {
+        if lit.contains(where: { $0.rarity == .epic || $0.rarity == .legendary }) {
             items.append((.rare, "稀有"))
         }
         return items
@@ -352,6 +394,68 @@ struct StatsView: View {
                 }
             }
             .padding(.horizontal, 24)
+        }
+    }
+}
+
+// MARK: - 更多徽章（二级页：进行中 / 未解锁）
+
+private struct BadgeMoreView: View {
+    let board: BadgeBoard
+    @State private var selectedBadge: Badge?
+
+    private var inProgress: [Badge] {
+        board.badges.filter { $0.state == .prog }.sorted { ($0.progress ?? 0) > ($1.progress ?? 0) }
+    }
+    private var locked: [Badge] { board.badges.filter { $0.state == .locked } }
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 22) {
+                if !inProgress.isEmpty { section("进行中", inProgress, dimmed: false) }
+                if !locked.isEmpty { section("未解锁", locked, dimmed: true) }
+                if inProgress.isEmpty && locked.isEmpty {
+                    Text("全部徽章已点亮 ✦").font(.system(size: 13)).foregroundStyle(Color.muted)
+                        .frame(maxWidth: .infinity).padding(.vertical, 40)
+                }
+                Color.clear.frame(height: 20)
+            }
+            .padding(.top, 14)
+        }
+        .background(Color.bg.ignoresSafeArea())
+        .navigationTitle("更多徽章")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar(.hidden, for: .tabBar)
+        .toolbarBackground(Color.bg, for: .navigationBar)
+        .toolbarColorScheme(.dark, for: .navigationBar)
+        .preferredColorScheme(.dark)
+        .sheet(item: $selectedBadge) { BadgeSheet(badge: $0, isFeatured: false) }
+    }
+
+    private func section(_ title: LocalizedStringKey, _ badges: [Badge], dimmed: Bool) -> some View {
+        let cols = Array(repeating: GridItem(.flexible(), spacing: 14), count: 3)
+        return VStack(alignment: .leading, spacing: 10) {
+            Text(title).font(.system(size: 13, weight: .semibold)).tracking(1)
+                .foregroundStyle(Color.muted).padding(.horizontal, 22)
+            LazyVGrid(columns: cols, spacing: 18) {
+                ForEach(badges) { b in
+                    VStack(spacing: 6) {
+                        HexBadge(badge: b, size: 96, dimmed: dimmed)
+                        if b.imageName == nil {
+                            Text(b.name.localized).font(.system(size: 10, weight: .medium))
+                                .foregroundStyle(Color.faint).lineLimit(1).minimumScaleFactor(0.75)
+                        }
+                        if let p = b.progressText {
+                            Text(p).font(.system(size: 9, weight: .semibold)).foregroundStyle(Color.nCyan)
+                                .lineLimit(1).minimumScaleFactor(0.7)
+                        }
+                    }
+                    .frame(maxWidth: .infinity)
+                    .contentShape(Rectangle())
+                    .onTapGesture { selectedBadge = b }
+                }
+            }
+            .padding(.horizontal, 22)
         }
     }
 }
