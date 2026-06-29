@@ -7,7 +7,7 @@
 ## 一句话现状
 
 功能侧（点亮回路 / 时间线 / 成就+统计报告 / 心愿单 / 相册导入 / 小组件 / 明信片收发+样式邮票 / 护照 / 三语徽章 / Sign in with Apple 登录）**已就绪**。
-**关键路径只剩 3 件**：① 系统化回归（质量）→ ② **变现/能力配置**（StoreKit + ASC，见下「🔴」）→ ③ 上架材料 & 提审。
+付费开发者账号**已开通**（B1✅）。**关键路径只剩 3 件**：① 真机系统化回归 + 复验（见 [`ACCEPTANCE.md`](ACCEPTANCE.md)）→ ② **能力/变现配置**（Xcode 能力 + StoreKit + ASC 月订一档，见下「🔴」/`BUILD-CONFIG.md`）→ ③ 截图/元数据/法务页 + 提审。
 
 ---
 
@@ -36,7 +36,7 @@
 
 | # | 事项 | 状态 |
 |---|------|------|
-| B1 | 付费 Apple 开发者账号 | 🔲 |
+| B1 | 付费 Apple 开发者账号 | ✅ 已开通 |
 | B2 | Xcode 能力：App Groups(两 target) + **Sign in with Apple** + In-App Purchase | 🔲 |
 | B3 | scheme 设 StoreKit Configuration（本地看到套餐） | 🔲 |
 | B4 | App Store Connect 建 App + **仅月订**一档 `com.lumi.plus.monthly` @9.9（USD/CNY/AED）+ 价格分层 | 🔲 |
