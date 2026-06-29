@@ -104,7 +104,7 @@ struct CustomizeShowcaseView: View {
         VStack(alignment: .leading, spacing: 4) {
             widgetTileHeader("点亮战绩")
             Spacer(minLength: 0)
-            Text("12").font(Typo.serif(46)).foregroundStyle(Color.nOrange)
+            Text("12").font(Typo.serif(46)).foregroundStyle(Color.nPink)
             Text("个国家 · 全球 5%").font(.system(size: 11)).foregroundStyle(Color.text)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
@@ -141,7 +141,7 @@ struct CustomizeShowcaseView: View {
             dotMatrix
             VStack(alignment: .leading, spacing: 3) {
                 widgetTileHeader("点亮战绩")
-                Text("12").font(Typo.serif(40)).foregroundStyle(Color.nOrange)
+                Text("12").font(Typo.serif(40)).foregroundStyle(Color.nPink)
                 Text("个国家 · 全球 5%").font(.system(size: 11)).foregroundStyle(Color.text)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -158,7 +158,7 @@ struct CustomizeShowcaseView: View {
                 HStack(spacing: 4) {
                     ForEach(0..<6, id: \.self) { c in
                         Circle()
-                            .fill(lit.contains(r * 6 + c) ? Color.nOrange : Color.white.opacity(0.12))
+                            .fill(lit.contains(r * 6 + c) ? Color.nPink : Color.white.opacity(0.12))
                             .frame(width: 6, height: 6)
                     }
                 }
@@ -187,7 +187,7 @@ struct CustomizeShowcaseView: View {
                 Text("🗼").font(.system(size: 26))
                 Text("东京").font(Typo.serif(26)).foregroundStyle(Color.text)
             }
-            Text("去年此刻你在 东京 ✦").font(.system(size: 11, weight: .medium)).foregroundStyle(Color.nOrange)
+            Text("去年此刻你在 东京 ✦").font(.system(size: 11, weight: .medium)).foregroundStyle(Color.nPink)
             Spacer(minLength: 0)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)

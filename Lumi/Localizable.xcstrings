@@ -4027,6 +4027,116 @@
         }
       }
     },
+    "把二维码放进取景框，或从相册选二维码": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "把二维码放进取景框，或从相册选二维码"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Place the QR in the frame, or pick one from Photos"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ضع رمز QR في الإطار أو اختر صورة من المعرض"
+          }
+        }
+      }
+    },
+    "从相册选二维码": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "从相册选二维码"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pick QR from Photos"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "اختر QR من الصور"
+          }
+        }
+      }
+    },
+    "相机不可用时，也可从相册选一张含二维码的图收下明信片。": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "相机不可用时，也可从相册选一张含二维码的图收下明信片。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No camera? Pick a photo containing a QR to receive the postcard."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "بلا كاميرا؟ اختر صورة تحتوي على QR لاستلام البطاقة."
+          }
+        }
+      }
+    },
+    "相册": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "相册"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Photos"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الصور"
+          }
+        }
+      }
+    },
+    "没在这张图里找到二维码": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "没在这张图里找到二维码"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No QR code found in this image"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "لم يُعثر على رمز QR في هذه الصورة"
+          }
+        }
+      }
+    },
     "此设备无法扫码": {
       "localizations": {
         "zh-Hans": {
