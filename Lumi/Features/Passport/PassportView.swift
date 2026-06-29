@@ -47,7 +47,8 @@ struct PassportView: View {
                 place: fp.cityName.map { "\($0) · \(country)" } ?? country,
                 code3: NationTheme.iso3(cc),
                 inkHex: Self.inks[i % Self.inks.count],
-                shape: Self.shapes[i % Self.shapes.count]))
+                shape: Self.shapes[i % Self.shapes.count],
+                means: PostcardStamp(rawValue: fp.stampStyle) ?? .air))
         }
         return out
     }
@@ -356,7 +357,7 @@ struct PassportView: View {
         let content = VStack(spacing: 2) {
             Text(st.country).font(Typo.serif(big ? 12 : 8)).fontWeight(.semibold).tracking(1)
                 .lineLimit(1).minimumScaleFactor(0.6)
-            Image(systemName: "airplane").font(.system(size: big ? 18 : 13)).rotationEffect(.degrees(-8))
+            Image(systemName: st.means.motif).font(.system(size: big ? 18 : 13)).rotationEffect(.degrees(-8))
             Text("ADMITTED").font(Typo.serif(big ? 9 : 6.5)).fontWeight(.semibold).tracking(1.5)
             Rectangle().fill(ink.opacity(0.55)).frame(width: big ? 90 : 52, height: 1)
             Text(st.port).font(Typo.serif(big ? 16 : 10)).fontWeight(.bold).lineLimit(1).minimumScaleFactor(0.6)
@@ -471,13 +472,22 @@ struct PassportView: View {
             VStack(spacing: 8) {
                 detailRow("入境口岸", st.port)
                 detailRow("入境日期", st.date)
-                detailRow("入境方式", String(localized: "空运入境"), icon: "airplane")
+                detailRow("入境方式", entryMeansText(st.means), icon: st.means.motif)
             }
         }
         .padding(.vertical, 16).padding(.horizontal, 18)
         .frame(maxWidth: 300)
         .background(theme.detailCardBg, in: RoundedRectangle(cornerRadius: 14))
         .overlay(RoundedRectangle(cornerRadius: 14).stroke(theme.line, lineWidth: 1))
+    }
+
+    /// 入境方式本地化文案：空运 / 陆运 / 海运入境。
+    private func entryMeansText(_ means: PostcardStamp) -> String {
+        switch means {
+        case .air:  return String(localized: "空运入境")
+        case .land: return String(localized: "陆运入境")
+        case .sea:  return String(localized: "海运入境")
+        }
     }
 
     private func detailRow(_ label: LocalizedStringKey, _ value: String, icon: String? = nil) -> some View {
@@ -525,6 +535,7 @@ struct PassportStamp: Identifiable {
     let code3: String
     let inkHex: UInt32
     let shape: StampShape
+    let means: PostcardStamp    // 入境方式：空运 / 陆运 / 海运（来自足迹的邮票样式）
 }
 
 /// 内页主题（拟真米黄 / 星夜深紫）。

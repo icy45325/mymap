@@ -5831,6 +5831,50 @@
         }
       }
     },
+    "陆运入境": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "陆运入境"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "By Land"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "براً"
+          }
+        }
+      }
+    },
+    "海运入境": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "海运入境"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "By Sea"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "بحراً"
+          }
+        }
+      }
+    },
     "还没有个人信息": {
       "localizations": {
         "zh-Hans": {

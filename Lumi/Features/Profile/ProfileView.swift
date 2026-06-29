@@ -52,7 +52,8 @@ struct ProfileView: View {
                 .shadow(color: Color.nPurple.opacity(0.6), radius: 12)
             }
             VStack(alignment: .leading, spacing: 2) {
-                Text(holderName.isEmpty ? "我的世界" : holderName).font(Typo.serif(22)).foregroundStyle(Color.text)
+                (holderName.isEmpty ? Text("我的世界") : Text(verbatim: holderName))
+                    .font(Typo.serif(22)).foregroundStyle(Color.text)
                 Text("Lv.\(stats.level) 探索者").font(.system(size: 12)).foregroundStyle(Color.muted)
             }
             Spacer()
