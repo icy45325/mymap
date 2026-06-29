@@ -83,6 +83,7 @@ struct PostcardSheet: View {
                         }
                         .simultaneousGesture(TapGesture().onEnded {
                             contacts.record(recipient, sent: true)   // 寄出即攒往来
+                            Haptics.light()
                         })
                         InstagramShareButton {                        // 装了 IG 才出现，点按高清现渲染发 Feed
                             ShareRender.uiImage(
@@ -156,7 +157,7 @@ struct PostcardSheet: View {
             HStack(spacing: 10) {
                 ForEach(PostcardStyle.allCases) { s in
                     let active = s == style
-                    Button { style = s } label: {
+                    Button { style = s; Haptics.selection() } label: {
                         VStack(spacing: 5) {
                             RoundedRectangle(cornerRadius: 6)
                                 .fill(LinearGradient(colors: s.thumb, startPoint: .topLeading, endPoint: .bottomTrailing))
@@ -182,7 +183,7 @@ struct PostcardSheet: View {
             HStack(spacing: 8) {
                 ForEach(PostcardStamp.allCases) { p in
                     let active = p == stamp
-                    Button { stamp = p } label: {
+                    Button { stamp = p; Haptics.selection() } label: {
                         VStack(spacing: 5) {
                             PostcardStampView(stamp: p, mini: true).frame(width: 30, height: 36)
                             Text(p.label).font(.system(size: 11, weight: .semibold))
@@ -272,5 +273,6 @@ struct PostcardSheet: View {
         seen.insert(token)
         receivedTokensRaw = seen.joined(separator: ",")
         copied = true
+        Haptics.selection()
     }
 }

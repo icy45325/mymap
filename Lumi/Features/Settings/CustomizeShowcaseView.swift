@@ -215,7 +215,7 @@ struct CustomizeShowcaseView: View {
     }
 
     private func passportCard(_ style: PassportStyle, active: Bool) -> some View {
-        Button { passportStyle = style.rawValue } label: {
+        Button { passportStyle = style.rawValue; Haptics.selection() } label: {
             VStack(spacing: 8) {
                 ZStack(alignment: .topTrailing) {
                     passportCoverThumb(style)

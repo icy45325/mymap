@@ -344,6 +344,7 @@ private struct CountryActionSheet: View {
             context.insert(Wish(placeName: countryName, coordinate: tapCoordinate, countryCode: countryCode))
         }
         try? context.save()
+        Haptics.selection()
     }
 
     private func toggleCityWish(_ city: PresetCity) {
@@ -354,6 +355,7 @@ private struct CountryActionSheet: View {
                                 cityName: city.name, countryCode: countryCode))
         }
         try? context.save()
+        Haptics.selection()
     }
 
     private func removeCityWish(_ city: PresetCity) {

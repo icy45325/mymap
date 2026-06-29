@@ -73,7 +73,7 @@ struct SettingsView: View {
                     Text("通过 Apple 登录").font(.system(size: 11)).foregroundStyle(Color.muted)
                 }
                 Spacer()
-                Button("退出登录") { auth.signOut() }
+                Button("退出登录") { Haptics.light(); auth.signOut() }
                     .font(.system(size: 13, weight: .semibold)).foregroundStyle(Color.nPink)
             }
             .padding(.vertical, 13).padding(.horizontal, 14)

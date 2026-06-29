@@ -164,6 +164,7 @@ struct PhotoImportView: View {
         let c = candidate.wrappedValue
         return Button {
             candidate.wrappedValue.selected.toggle()
+            Haptics.selection()
         } label: {
             HStack(spacing: 12) {
                 Text(c.flag).font(.system(size: 24))
@@ -211,6 +212,7 @@ struct PhotoImportView: View {
         let count = service.importSelected(into: context)
         guard count > 0 else { return }
         WidgetSync.refresh(context)
+        Haptics.success()
         Analytics.log(.photoImportCompleted(imported: count))
         dismiss()
     }

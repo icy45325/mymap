@@ -218,7 +218,7 @@ struct StatsView: View {
     /// 置顶角标：手动钉选时给「取消置顶」；自动「最高荣耀」时也可选择「不展示」(全部不置顶)。
     @ViewBuilder private var pinControl: some View {
         if isManuallyPinned {
-            Button { pinnedID = "none" } label: {
+            Button { pinnedID = "none"; Haptics.selection() } label: {
                 Label("取消置顶", systemImage: "pin.slash.fill")
                     .font(.system(size: 9, weight: .bold)).tracking(0.5)
                     .foregroundStyle(Color.nOrange)
@@ -392,7 +392,7 @@ private struct BadgeSheet: View {
                 // ——— 操作：pin + 分享，小按钮一排（仅已解锁）———
                 if badge.state == .lit {
                     HStack(spacing: 10) {
-                        Button { pinnedID = isPinned ? "none" : badge.id } label: {
+                        Button { pinnedID = isPinned ? "none" : badge.id; Haptics.selection() } label: {
                             compactAction(isPinned ? "取消置顶" : "置顶",
                                           systemImage: isPinned ? "pin.slash.fill" : "pin.fill",
                                           tint: Color.nOrange, filled: !isPinned)

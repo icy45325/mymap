@@ -227,6 +227,7 @@ private struct AddWishView: View {
                         countryCode: dest.code)
         context.insert(wish)
         do { try context.save() } catch { assertionFailure("保存心愿失败: \(error)") }
+        Haptics.light()
     }
 
     private func add(_ result: PlaceResult) {
@@ -242,6 +243,7 @@ private struct AddWishView: View {
                         countryCode: code)
         context.insert(wish)
         do { try context.save() } catch { assertionFailure("保存心愿失败: \(error)") }
+        Haptics.light()
         dismiss()
     }
 }

@@ -34,6 +34,7 @@ final class AuthStore: ObservableObject {
             let full = [n.givenName, n.familyName].compactMap { $0 }.joined(separator: " ")
             if !full.isEmpty { displayName = full; store.set(full, forKey: kName) }
         }
+        Haptics.success()
     }
 
     func signOut() {
