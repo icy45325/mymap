@@ -60,8 +60,10 @@ enum InstagramShare {
 
     private final class DocDelegate: NSObject, UIDocumentInteractionControllerDelegate {
         func documentInteractionControllerDidDismissOpenInMenu(_ controller: UIDocumentInteractionController) {
-            InstagramShare.docController = nil
-            InstagramShare.docDelegate = nil
+            Task { @MainActor in           // 委托回调是 nonisolated，跳回主 actor 再清理保活引用
+                InstagramShare.docController = nil
+                InstagramShare.docDelegate = nil
+            }
         }
     }
 }
