@@ -21,7 +21,7 @@ struct StatsView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(alignment: .leading, spacing: 18) {
+                VStack(alignment: .leading, spacing: 24) {
                     header
                     // —— 统计在上 ——
                     statsSummary
@@ -90,7 +90,26 @@ struct StatsView: View {
     // MARK: - 头部 / 环形概览
 
     private var header: some View {
-        Text("Achievements").font(Typo.serif(27)).padding(.horizontal, 26)
+        HStack(alignment: .center) {
+            Text("Achievements").font(Typo.serif(27))
+            Spacer()
+            shareButton
+        }
+        .padding(.horizontal, 26)
+    }
+
+    private var shareButton: some View {
+        Button {
+            reportImage = nil          // 即刻开面板（显示 spinner），渲染异步进行，避免卡点击
+            showReport = true
+        } label: {
+            Label("分享", systemImage: "square.and.arrow.up")
+                .font(.system(size: 12, weight: .semibold)).foregroundStyle(Color.nCyan)
+                .padding(.vertical, 7).padding(.horizontal, 14)
+                .background(Color.panel, in: Capsule())
+                .overlay(Capsule().stroke(Color.nCyan.opacity(0.4), lineWidth: 1))
+        }
+        .buttonStyle(.plain)
     }
 
     private var ringSummary: some View {
@@ -105,7 +124,7 @@ struct StatsView: View {
                 }
             }
             VStack(alignment: .leading, spacing: 6) {
-                Text("徽章收藏").font(Typo.serif(21))
+                Text("徽章收藏").font(.system(size: 13, weight: .semibold)).tracking(1).foregroundStyle(Color.muted)
                 Text("\(board.unlockedCount) / \(board.total)")
                     .font(.system(size: 12)).foregroundStyle(Color.muted)
             }
@@ -117,26 +136,10 @@ struct StatsView: View {
     // MARK: - 统计汇总（页面顶部）
 
     private var statsSummary: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(alignment: .bottom) {
-                Spacer()
-                Button {
-                    reportImage = nil          // 即刻开面板（显示 spinner），渲染异步进行，避免卡点击
-                    showReport = true
-                } label: {
-                    Label("分享", systemImage: "square.and.arrow.up")
-                        .font(.system(size: 12, weight: .semibold)).foregroundStyle(Color.nCyan)
-                        .padding(.vertical, 7).padding(.horizontal, 14)
-                        .background(Color.panel, in: Capsule())
-                        .overlay(Capsule().stroke(Color.nCyan.opacity(0.4), lineWidth: 1))
-                }
-                .buttonStyle(.plain)
-            }
-            HStack(spacing: 10) {
-                summaryCard("\(stats.countries)", "国家", "/ \(stats.worldTotal)")
-                summaryCard("\(stats.cities)", "城市", nil)
-                summaryCard("\(stats.continentsCovered)", "大洲", "/ 7")
-            }
+        HStack(spacing: 10) {
+            summaryCard("\(stats.countries)", "国家", "/ \(stats.worldTotal)")
+            summaryCard("\(stats.cities)", "城市", nil)
+            summaryCard("\(stats.continentsCovered)", "大洲", "/ 7")
         }
         .padding(.horizontal, 26)
     }
@@ -297,7 +300,7 @@ struct StatsView: View {
 
     private var conquestSection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("大洲征服 Conquest").font(.system(size: 13, weight: .semibold)).foregroundStyle(Color.muted)
+            Text("大洲征服 Conquest").font(.system(size: 13, weight: .semibold)).tracking(1).foregroundStyle(Color.muted)
                 .padding(.horizontal, 26)
             HStack(alignment: .top, spacing: 8) {
                 ForEach(stats.conquest) { c in

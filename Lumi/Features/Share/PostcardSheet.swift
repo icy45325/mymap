@@ -7,7 +7,6 @@ struct PostcardSheet: View {
     let footprint: Footprint
 
     @Environment(\.dismiss) private var dismiss
-    @AppStorage("lumi.receivedTokens") private var receivedTokensRaw: String = ""
     @AppStorage("lumi.profile.name") private var holderName: String = ""
     @ObservedObject private var store = PlusStore.shared
     @ObservedObject private var contacts = PostcardContacts.shared
@@ -370,10 +369,9 @@ struct PostcardSheet: View {
     private func copyLink() {
         UIPasteboard.general.string = shareLinkString
         contacts.record(recipient, sent: true)   // 复制链接寄出也攒往来
-        // 标记本机已「见过」此 token，避免发送方自己再被弹「收到明信片」
-        var seen = Set(receivedTokensRaw.split(separator: ",").map(String.init))
-        seen.insert(token)
-        receivedTokensRaw = seen.joined(separator: ",")
+        // 标记为「本机分享出去的」：剪贴板被动探测会跳过它（不自弹），
+        // 但主动扫码 / 点链接仍可收下 → 支持「自己发自己收」。
+        PostcardInbox.shared.markShared(token)
         copied = true
         Haptics.selection()
     }

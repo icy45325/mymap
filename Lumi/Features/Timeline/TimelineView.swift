@@ -108,7 +108,7 @@ struct TimelineView: View {
         let cities = Set(fps.compactMap { $0.cityName }).count
         return HStack(spacing: 14) {
             VStack(alignment: .leading, spacing: 2) {
-                Text("\(yr) 年").font(Typo.serif(20)).foregroundStyle(Color.text)
+                Text("\(String(yr)) 年").font(Typo.serif(20)).foregroundStyle(Color.text)
                 Text("今年的足迹").font(.system(size: 10)).foregroundStyle(Color.muted)
             }
             Spacer()

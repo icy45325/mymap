@@ -90,7 +90,7 @@ struct RootTabView: View {
     // MARK: - 明信片接收（统一走 PostcardInbox）
 
     private func checkClipboardForPostcard() {
-        if let text = UIPasteboard.general.string { inbox.handle(text: text) }
+        if let text = UIPasteboard.general.string { inbox.handle(text: text, source: .clipboard) }
     }
 
     private func receive(_ p: PostcardPayload) {
