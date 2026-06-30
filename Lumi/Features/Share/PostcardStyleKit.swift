@@ -260,6 +260,25 @@ struct PostcardBackPanel: View {
     private var locEn: String { (footprint.cityName ?? footprint.title).uppercased() }
     private var locZh: String { footprint.locationSubtitle.isEmpty ? footprint.title : footprint.locationSubtitle }
 
+    /// 命中节日章吗（仅收件人视角；按足迹所在地区 + 寄出日期窗口）。
+    private var festival: Festival? {
+        showPostmark ? Festival.match(countryCode: footprint.countryCode, date: footprint.visitedAt) : nil
+    }
+
+    /// 邮票位：命中节日 → 节日主题邮票；否则空运/陆运/海运邮票（收件人视角再叠通用邮戳）。
+    @ViewBuilder
+    private func stampMark(_ w: CGFloat, _ h: CGFloat, pm: CGSize) -> some View {
+        if let f = festival {
+            FestivalSeal(festival: f).frame(width: w + 4, height: h + 4)
+        } else {
+            ZStack(alignment: .bottomLeading) {
+                PostcardStampView(stamp: stamp)
+                    .frame(width: w, height: h).rotationEffect(.degrees(4))
+                if showPostmark { postmark.offset(x: pm.width, y: pm.height) }
+            }
+        }
+    }
+
     var body: some View {
         Group { if portrait { vertical } else { horizontal } }
             .background(theme.paper)
@@ -299,11 +318,7 @@ struct PostcardBackPanel: View {
                     }
                 }
                 Spacer()
-                ZStack(alignment: .bottomLeading) {
-                    PostcardStampView(stamp: stamp)
-                        .frame(width: 54, height: 64).rotationEffect(.degrees(4))
-                    if showPostmark { postmark.offset(x: -16, y: 10) }
-                }
+                stampMark(54, 64, pm: CGSize(width: -16, height: 10))
             }
         }
         .padding(18)
@@ -341,11 +356,7 @@ struct PostcardBackPanel: View {
             VStack(alignment: .leading, spacing: 0) {
                 HStack {
                     Spacer()
-                    ZStack(alignment: .bottomLeading) {
-                        PostcardStampView(stamp: stamp)
-                            .frame(width: 50, height: 60).rotationEffect(.degrees(4))
-                        if showPostmark { postmark.offset(x: -14, y: 10) }
-                    }
+                    stampMark(50, 60, pm: CGSize(width: -14, height: 10))
                 }
                 Spacer(minLength: 0)
                 Rectangle().fill(theme.line).frame(height: 1).padding(.bottom, 6)
@@ -363,22 +374,18 @@ struct PostcardBackPanel: View {
         }
     }
 
-    /// 邮戳：节日窗口内且地区匹配 → 节日主题章；否则通用 Lumi 圆戳。
-    @ViewBuilder private var postmark: some View {
-        if let f = Festival.match(countryCode: footprint.countryCode, date: footprint.visitedAt) {
-            FestivalSeal(festival: f, year: pmYear)
-        } else {
-            VStack(spacing: 0) {
-                Text("LUMI").font(.system(size: 4.5, weight: .bold))
-                Text(pmCity).font(.system(size: 4, weight: .bold))
-                Text(pmYear).font(.system(size: 3.5, design: .monospaced))
-            }
-            .foregroundStyle(theme.pm)
-            .frame(width: 32, height: 32)
-            .overlay(Circle().stroke(theme.pm, lineWidth: 1))
-            .background(Circle().fill(.white.opacity(0.3)))
-            .rotationEffect(.degrees(-8))
+    /// 通用 Lumi 圆戳（邮局盖章）；节日章已在 `stampMark` 里替换整枚邮票，这里只管非节日的常规邮戳。
+    private var postmark: some View {
+        VStack(spacing: 0) {
+            Text("LUMI").font(.system(size: 4.5, weight: .bold))
+            Text(pmCity).font(.system(size: 4, weight: .bold))
+            Text(pmYear).font(.system(size: 3.5, design: .monospaced))
         }
+        .foregroundStyle(theme.pm)
+        .frame(width: 32, height: 32)
+        .overlay(Circle().stroke(theme.pm, lineWidth: 1))
+        .background(Circle().fill(.white.opacity(0.3)))
+        .rotationEffect(.degrees(-8))
     }
 
     private var pmCity: String {
@@ -419,8 +426,9 @@ struct PostcardQRCard: View {
     }
 }
 
-/// 导出 / 分享用的成品图：**照片 + 背面信息（寄语 / 邮票 / 邮戳 / 寄给）一起**。
-/// 朝向随上传照片：宽图 → 横版，竖图 → 竖版。供 `ShareRender.image(_:)` 渲染。
+/// 导出 / 分享用的成品图：**正面 + 背面并排展示**（竖版明信片左右排：左正面、右背面；
+/// 横版明信片上下排：上正面、下背面），带霓虹底色与 Lumi 品牌标。供 `ShareRender.image(_:)` 渲染。
+/// 注意：App 内查看（`PostcardFlipCard`）仍是翻面交互，不走此布局。
 struct PostcardExportCard: View {
     let footprint: Footprint
     var cover: UIImage?
@@ -428,7 +436,7 @@ struct PostcardExportCard: View {
     var recipient: String
     let style: PostcardStyle
     let stamp: PostcardStamp
-    var watermark: Bool = false
+    var watermark: Bool = false      // 免费版显示 Lumi 品牌标；Plus 去标
     var sender: String = ""
     var dateText: String = ""
     /// 邮戳（邮局盖章）：寄出/分享前不展示，仅收件人看到。
@@ -438,35 +446,60 @@ struct PostcardExportCard: View {
     private var orient: PostcardOrient { PostcardOrient.from(cover) }
 
     var body: some View {
-        let cardW: CGFloat = orient == .landscape ? 380 : 300
-        let frontH: CGFloat = cardW / orient.frontAspect
-        let backH: CGFloat = orient == .landscape ? 170 : 226
-        VStack(spacing: 14) {
-            PostcardFrontPanel(footprint: footprint, cover: cover, style: style)
-                .frame(width: cardW, height: frontH)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
-                .overlay(RoundedRectangle(cornerRadius: 12).stroke(.white.opacity(0.08), lineWidth: 1))
-                .overlay(alignment: .topLeading) {
-                    Text("LUMI").font(.system(size: 10, weight: .heavy)).tracking(3)
-                        .foregroundStyle(.white.opacity(0.9))
-                        .padding(10)
-                        .shadow(color: .black.opacity(0.4), radius: 3)
+        let isLandscape = orient == .landscape
+        let frontW: CGFloat = isLandscape ? 380 : 300
+        let frontH: CGFloat = frontW / orient.frontAspect
+        // 并排（竖/方）：正反等高；上下（横）：背面给固定高度。
+        let backW: CGFloat = isLandscape ? frontW : 300
+        let backH: CGFloat = isLandscape ? 176 : frontH
+
+        VStack(spacing: 16) {
+            Group {
+                if isLandscape {
+                    VStack(spacing: 14) { frontPanel(frontW, frontH); backPanel(backW, backH) }
+                } else {
+                    HStack(alignment: .top, spacing: 14) { frontPanel(frontW, frontH); backPanel(backW, backH) }
                 }
-            PostcardBackPanel(footprint: footprint, message: message, recipient: recipient,
-                              style: style, stamp: stamp, portrait: orient.verticalBack,
-                              sender: sender, dateText: dateText, showPostmark: showPostmark)
-                .frame(width: cardW, height: backH)
-                .overlay(RoundedRectangle(cornerRadius: 9).stroke(.white.opacity(0.06), lineWidth: 1))
-        }
-        .padding(18)
-        .background(Color(hex: 0x0F0F17))
-        .overlay(alignment: .bottomTrailing) {
-            if watermark {
-                LumiBrandMark(size: 40)
-                    .padding(.vertical, 5).padding(.horizontal, 9)
-                    .background(.black.opacity(0.3), in: Capsule())
-                    .padding(26)
             }
+            if watermark {
+                HStack(spacing: 7) {
+                    LumiBrandMark(size: 26)
+                    Text(verbatim: "TRACK YOUR JOURNEY. LIGHT UP THE MAP.")
+                        .font(.system(size: 8, weight: .semibold)).tracking(1)
+                        .foregroundStyle(.white.opacity(0.45))
+                }
+            }
+        }
+        .padding(.horizontal, 30).padding(.top, 30).padding(.bottom, 22)
+        .background(shareBackground)
+    }
+
+    private func frontPanel(_ w: CGFloat, _ h: CGFloat) -> some View {
+        PostcardFrontPanel(footprint: footprint, cover: cover, style: style)
+            .frame(width: w, height: h)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .overlay(RoundedRectangle(cornerRadius: 12).stroke(.white.opacity(0.1), lineWidth: 1))
+            .shadow(color: .black.opacity(0.5), radius: 14, y: 8)
+    }
+
+    private func backPanel(_ w: CGFloat, _ h: CGFloat) -> some View {
+        PostcardBackPanel(footprint: footprint, message: message, recipient: recipient,
+                          style: style, stamp: stamp, portrait: orient.verticalBack,
+                          sender: sender, dateText: dateText, showPostmark: showPostmark)
+            .frame(width: w, height: h)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .overlay(RoundedRectangle(cornerRadius: 12).stroke(.white.opacity(0.08), lineWidth: 1))
+            .shadow(color: .black.opacity(0.5), radius: 14, y: 8)
+    }
+
+    /// 分享底色：深色 + 双角霓虹辉光（呼应应用主题）。
+    private var shareBackground: some View {
+        ZStack {
+            Color(hex: 0x0E0B1A)
+            RadialGradient(colors: [Color(hex: 0x9B5DE5).opacity(0.38), .clear],
+                           center: .topLeading, startRadius: 0, endRadius: 360)
+            RadialGradient(colors: [Color(hex: 0x4DD9FF).opacity(0.22), .clear],
+                           center: .bottomTrailing, startRadius: 0, endRadius: 380)
         }
     }
 }

@@ -15,48 +15,15 @@ enum Festival: String, CaseIterable, Identifiable {
 
     var id: String { rawValue }
 
-    /// 章上短字（直接印在图上，不进本地化目录）。
-    var caption: String {
+    /// 节日章贴图资源名（霓虹邮票线稿，Assets.xcassets）。
+    var imageName: String {
         switch self {
-        case .prophetBirthday: return "MAWLID"
-        case .uaeNationalDay:   return "UAE"
-        case .thanksgiving:     return "THANKS"
-        case .christmas:        return "XMAS"
-        case .midAutumn:        return "中秋"
-        case .chinaNationalDay: return "国庆"
-        }
-    }
-    /// 章中心图标（SF Symbol）。
-    var motif: String {
-        switch self {
-        case .prophetBirthday: return "moon.stars.fill"
-        case .uaeNationalDay:   return "flag.fill"
-        case .thanksgiving:     return "leaf.fill"
-        case .christmas:        return "snowflake"
-        case .midAutumn:        return "moon.fill"
-        case .chinaNationalDay: return "star.fill"
-        }
-    }
-    /// 主色（环 + 图标 + 字）。
-    var ink: Color {
-        switch self {
-        case .prophetBirthday: return Color(hex: 0x1F7A4D)
-        case .uaeNationalDay:   return Color(hex: 0xCE1126)
-        case .thanksgiving:     return Color(hex: 0xB5651D)
-        case .christmas:        return Color(hex: 0xC8102E)
-        case .midAutumn:        return Color(hex: 0xB8860B)
-        case .chinaNationalDay: return Color(hex: 0xDE2910)
-        }
-    }
-    /// 底色（淡淡填充）。
-    var accent: Color {
-        switch self {
-        case .prophetBirthday: return Color(hex: 0xC9A24B)
-        case .uaeNationalDay:   return Color(hex: 0x009639)
-        case .thanksgiving:     return Color(hex: 0xE8A24B)
-        case .christmas:        return Color(hex: 0x146B3A)
-        case .midAutumn:        return Color(hex: 0xE8B04B)
-        case .chinaNationalDay: return Color(hex: 0xFFDE00)
+        case .prophetBirthday: return "festival_prophet"
+        case .uaeNationalDay:   return "festival_uae"
+        case .thanksgiving:     return "festival_thanksgiving"
+        case .christmas:        return "festival_christmas"
+        case .midAutumn:        return "festival_midautumn"
+        case .chinaNationalDay: return "festival_china"
         }
     }
     /// 中文名（文档 / 预览用，不入码上）。
@@ -129,25 +96,14 @@ enum Festival: String, CaseIterable, Identifiable {
     }
 }
 
-/// 节日主题邮戳（圆形盖章风），替换明信片背面通用「LUMI」邮戳。
+/// 节日主题邮票（霓虹线稿贴图），命中节日窗口时盖在收到的明信片邮票位。
 struct FestivalSeal: View {
     let festival: Festival
-    var year: String = ""
 
     var body: some View {
-        VStack(spacing: 0) {
-            Image(systemName: festival.motif).font(.system(size: 9))
-            Text(verbatim: festival.caption).font(.system(size: 3.6, weight: .bold)).tracking(0.3)
-                .lineLimit(1).minimumScaleFactor(0.5)
-            if !year.isEmpty {
-                Text(verbatim: year).font(.system(size: 3.2, design: .monospaced))
-            }
-        }
-        .foregroundStyle(festival.ink)
-        .frame(width: 34, height: 34)
-        .background(Circle().fill(festival.accent.opacity(0.16)))
-        .overlay(Circle().stroke(festival.ink, lineWidth: 1.2))
-        .overlay(Circle().stroke(festival.ink.opacity(0.4), lineWidth: 0.5).padding(2.5))
-        .rotationEffect(.degrees(-8))
+        Image(festival.imageName)
+            .resizable().scaledToFit()
+            .rotationEffect(.degrees(-6))
+            .shadow(color: Color(hex: 0x9B5DE5).opacity(0.5), radius: 4)
     }
 }
