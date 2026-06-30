@@ -360,10 +360,12 @@ struct PostcardQRCard: View {
         VStack(spacing: 14) {
             ZStack {
                 Image(uiImage: qr).interpolation(.none).resizable()
-                    .frame(width: 240, height: 240)
-                Image("LumiMark").resizable().frame(width: 52, height: 52)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
-                    .overlay(RoundedRectangle(cornerRadius: 12).stroke(.white, lineWidth: 4))
+                    .frame(width: 250, height: 250)
+                // 中心留一块**实心白底**作干净遮挡（QR 高容错 H 自动重建），logo 叠其上 → 仍可扫
+                ZStack {
+                    RoundedRectangle(cornerRadius: 13).fill(.white).frame(width: 60, height: 60)
+                    Image("LumiMark").resizable().scaledToFit().frame(width: 46, height: 46)
+                }
             }
             .padding(20)
             .background(.white, in: RoundedRectangle(cornerRadius: 24))
