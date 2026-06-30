@@ -184,7 +184,8 @@ struct PostcardSheet: View {
         .onChange(of: stamp) { _, _ in rerender() }
         .onChange(of: sendDate) { _, _ in rerender() }
         .onChange(of: coverAssetID) { _, id in
-            Task { cover = await loadAssetUIImage(id); rerender() }   // 选了相册里某张
+            guard let id else { return }   // nil = 刚从相册新选了一张（cover 已直接赋值），别再异步清空它
+            Task { cover = await loadAssetUIImage(id); rerender() }   // 选了足迹自带的某张
         }
         .onChange(of: pickedPhoto) { _, item in
             Task {                                                   // 从相册新选一张
