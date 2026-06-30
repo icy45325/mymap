@@ -5501,6 +5501,50 @@
         }
       }
     },
+    "收到的明信片": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "收到的明信片"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Postcards received"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "البطاقات المستلمة"
+          }
+        }
+      }
+    },
+    "往来的人": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "往来的人"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Correspondents"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "المراسلون"
+          }
+        }
+      }
+    },
     "订阅会自动续订，可随时在「设置 › Apple ID › 订阅」取消。付款将在确认购买时记入你的 Apple ID。": {
       "localizations": {
         "zh-Hans": {
@@ -7389,28 +7433,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "تم التحديد: %@"
-          }
-        }
-      }
-    },
-    "往来的人": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "往来的人"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "People you've exchanged with"
-          }
-        },
-        "ar": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "من تبادلت معهم"
           }
         }
       }

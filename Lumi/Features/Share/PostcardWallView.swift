@@ -35,6 +35,7 @@ struct PostcardWallView: View {
             } else {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 16) {
+                        if !items.isEmpty { countStat }
                         if !contacts.recent.isEmpty { contactsStrip }
                         if items.isEmpty {
                             Text("还没有收到明信片").font(.subheadline).foregroundStyle(Color.muted)
@@ -75,6 +76,25 @@ struct PostcardWallView: View {
         .preferredColorScheme(.dark)
         .sheet(item: $selected) { ReceivedPostcardSheet(footprint: $0) }
         .sheet(isPresented: $showScanner) { ScannerSheet() }
+    }
+
+    /// 明信片墙统计：已收到的明信片数量（+ 往来的人数）。
+    private var countStat: some View {
+        HStack(spacing: 10) {
+            statCard("\(items.count)", "收到的明信片")
+            if !contacts.recent.isEmpty { statCard("\(contacts.recent.count)", "往来的人") }
+        }
+    }
+
+    private func statCard(_ value: String, _ label: LocalizedStringKey) -> some View {
+        VStack(alignment: .leading, spacing: 3) {
+            Text(value).font(Typo.serif(26)).foregroundStyle(Color.text)
+            Text(label).font(.system(size: 11)).foregroundStyle(Color.muted)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.vertical, 12).padding(.horizontal, 14)
+        .background(Color.panel, in: RoundedRectangle(cornerRadius: 14))
+        .overlay(RoundedRectangle(cornerRadius: 14).stroke(Color.line, lineWidth: 1))
     }
 
     /// 往来的人（本地 social-lite）：收 / 发明信片攒下的昵称头像横条。
