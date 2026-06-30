@@ -363,17 +363,22 @@ struct PostcardBackPanel: View {
         }
     }
 
-    private var postmark: some View {
-        VStack(spacing: 0) {
-            Text("LUMI").font(.system(size: 4.5, weight: .bold))
-            Text(pmCity).font(.system(size: 4, weight: .bold))
-            Text(pmYear).font(.system(size: 3.5, design: .monospaced))
+    /// 邮戳：节日窗口内且地区匹配 → 节日主题章；否则通用 Lumi 圆戳。
+    @ViewBuilder private var postmark: some View {
+        if let f = Festival.match(countryCode: footprint.countryCode, date: footprint.visitedAt) {
+            FestivalSeal(festival: f, year: pmYear)
+        } else {
+            VStack(spacing: 0) {
+                Text("LUMI").font(.system(size: 4.5, weight: .bold))
+                Text(pmCity).font(.system(size: 4, weight: .bold))
+                Text(pmYear).font(.system(size: 3.5, design: .monospaced))
+            }
+            .foregroundStyle(theme.pm)
+            .frame(width: 32, height: 32)
+            .overlay(Circle().stroke(theme.pm, lineWidth: 1))
+            .background(Circle().fill(.white.opacity(0.3)))
+            .rotationEffect(.degrees(-8))
         }
-        .foregroundStyle(theme.pm)
-        .frame(width: 32, height: 32)
-        .overlay(Circle().stroke(theme.pm, lineWidth: 1))
-        .background(Circle().fill(.white.opacity(0.3)))
-        .rotationEffect(.degrees(-8))
     }
 
     private var pmCity: String {
