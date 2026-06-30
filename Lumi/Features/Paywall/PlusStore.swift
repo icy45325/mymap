@@ -2,15 +2,15 @@ import Foundation
 import StoreKit
 
 /// Lumi Plus 内购产品（ID 与 App Store Connect / `Lumi.storekit` 一致）。
-/// 当前仅**月订阅**一档。
+/// 当前仅**终身买断**一档（早鸟一次性内购，非订阅）。
 enum PlusProduct: String, CaseIterable {
-    case monthly = "com.lumi.plus.monthly"
+    case lifetime = "com.lumi.plus.lifetime"
 
     var sortOrder: Int { 0 }
-    var isSubscription: Bool { true }
+    var isSubscription: Bool { false }
 
     /// 计划名（本地化键，源中文）。
-    var title: String { String(localized: "按月") }
+    var title: String { String(localized: "终身会员") }
 }
 
 /// Plus 权益 + 内购。**当前用 StoreKit 2 原生实现**；业务层只读 `isPlus` / `products`，
@@ -20,13 +20,9 @@ enum PlusProduct: String, CaseIterable {
 final class PlusStore: ObservableObject {
     static let shared = PlusStore()
 
-    /// 是否已解锁 Plus（订阅未过期 或 终身买断）。业务层唯一需要读的开关。
+    /// 是否已解锁 Plus（终身买断，永久有效）。业务层唯一需要读的开关。
     @Published private(set) var isPlus = false
-    /// 当前订阅到期 / 下次续订日期（终身买断为 nil）。
-    @Published private(set) var expirationDate: Date?
-    /// 是否已开启自动续订。
-    @Published private(set) var autoRenewOn = false
-    /// 三个可售产品（已按 月 → 年 → 终身 排序）。
+    /// 可售产品（当前仅终身一档）。
     @Published private(set) var products: [Product] = []
     @Published private(set) var loadingProducts = false
     @Published private(set) var purchasing = false
@@ -101,36 +97,18 @@ final class PlusStore: ObservableObject {
 
     func refreshEntitlement() async {
         var active = false
-        var expiry: Date?
         for await result in Transaction.currentEntitlements {
             guard let transaction = try? verify(result), isEntitling(transaction) else { continue }
             active = true
-            expiry = transaction.expirationDate          // 订阅有到期；终身为 nil
         }
         isPlus = active
-        expirationDate = expiry
-        await refreshRenewalState()
     }
 
-    /// 读取自动续订状态（StoreKit 2 订阅状态流）。
-    private func refreshRenewalState() async {
-        guard isPlus,
-              let sub = products.first(where: { PlusProduct(rawValue: $0.id) != nil })?.subscription,
-              let statuses = try? await sub.status else { autoRenewOn = false; return }
-        for status in statuses {
-            guard case .verified(let renewal) = status.renewalInfo else { continue }
-            if status.state == .subscribed || status.state == .inGracePeriod {
-                autoRenewOn = renewal.willAutoRenew
-                return
-            }
-        }
-        autoRenewOn = false
-    }
-
-    /// 这笔交易是否当前有效（我们的产品 · 未撤销 · 订阅未过期 / 买断永久）。
+    /// 这笔交易是否当前有效（我们的产品 · 未撤销 · 终身买断永久有效）。
     private func isEntitling(_ transaction: Transaction) -> Bool {
         guard PlusProduct(rawValue: transaction.productID) != nil,
               transaction.revocationDate == nil else { return false }
+        // 终身买断无到期；若日后再引入订阅，过期判定也一并兼容。
         if let expiry = transaction.expirationDate { return expiry > Date() }
         return true
     }

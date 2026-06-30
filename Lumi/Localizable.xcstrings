@@ -5325,6 +5325,182 @@
         }
       }
     },
+    "终身会员": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "终身会员"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lifetime member"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "عضو مدى الحياة"
+          }
+        }
+      }
+    },
+    "早鸟会员": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "早鸟会员"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Early bird"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "عضوية مبكرة"
+          }
+        }
+      }
+    },
+    "成为终身会员": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "成为终身会员"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Become a lifetime member"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "كن عضوًا مدى الحياة"
+          }
+        }
+      }
+    },
+    "一次买断 · 永久解锁 · 含后续所有迭代": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "一次买断 · 永久解锁 · 含后续所有迭代"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "One-time · forever · all future updates"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "دفعة واحدة · للأبد · كل التحديثات القادمة"
+          }
+        }
+      }
+    },
+    "后续所有功能迭代": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "后续所有功能迭代"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All future features"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "كل الميزات القادمة"
+          }
+        }
+      }
+    },
+    "一次解锁，未来新增 Plus 功能全部包含": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "一次解锁，未来新增 Plus 功能全部包含"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlock once; every future Plus feature included"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "افتح مرة واحدة؛ كل ميزات Plus القادمة مشمولة"
+          }
+        }
+      }
+    },
+    "一次性买断，永久解锁全部功能与后续所有迭代。付款将在确认购买时记入你的 Apple ID，不会自动续费。": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "一次性买断，永久解锁全部功能与后续所有迭代。付款将在确认购买时记入你的 Apple ID，不会自动续费。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A one-time purchase unlocks every feature forever, including all future updates. Payment is charged to your Apple ID at confirmation and does not auto-renew."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "عملية شراء لمرة واحدة تفتح كل الميزات للأبد، بما في ذلك جميع التحديثات القادمة. يُخصم المبلغ من Apple ID عند التأكيد ولا يتجدد تلقائيًا."
+          }
+        }
+      }
+    },
+    "终身会员 · 早鸟": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "终身会员 · 早鸟"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lifetime · Early bird"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "مدى الحياة · مبكر"
+          }
+        }
+      }
+    },
     "订阅会自动续订，可随时在「设置 › Apple ID › 订阅」取消。付款将在确认购买时记入你的 Apple ID。": {
       "localizations": {
         "zh-Hans": {

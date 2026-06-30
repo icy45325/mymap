@@ -7,15 +7,18 @@
 ## 一句话现状
 
 功能侧（点亮回路 / 时间线 / 成就+统计报告 / 心愿单 / 相册导入 / 小组件 / 明信片收发+样式邮票 / 护照 / 三语徽章 / Sign in with Apple 登录）**已就绪**。
-付费开发者账号**已开通**（B1✅）。**关键路径只剩 3 件**：① 真机系统化回归 + 复验（见 [`ACCEPTANCE.md`](ACCEPTANCE.md)）→ ② **能力/变现配置**（Xcode 能力 + StoreKit + ASC 月订一档，见下「🔴」/`BUILD-CONFIG.md`）→ ③ 截图/元数据/法务页 + 提审。
+付费开发者账号**已开通**（B1✅）。**关键路径只剩 3 件**：① 真机系统化回归 + 复验（见 [`ACCEPTANCE.md`](ACCEPTANCE.md)）→ ② **能力/变现配置**（Xcode 能力 + StoreKit + ASC 终身买断一档，见下「🔴」/`BUILD-CONFIG.md`）→ ③ 截图/元数据/法务页 + 提审。
+
+> **变现模型已定：终身会员（早鸟）一次性买断**，`com.lumi.plus.lifetime` @9.9（USD/CNY/AED），**非订阅、不自动续费**，解锁后续所有功能迭代。`Lumi.storekit` 已改为 Non-Consumable。
+> **App Group 已从 `group.com.lumi.v0`（全球被占用、描述文件不支持）改为 `group.com.lumi.fun`**——两个 target 的 Capability 都要勾它、去掉旧的。
 
 ---
 
-## 🔴 当前最容易卡住的：订阅看不到 3 个套餐
+## 🔴 当前最容易卡住的：StoreKit 看不到内购
 
 代码与 `Lumi.storekit` 都没问题，是 **scheme 没指向 StoreKit 配置**。
 本地：Edit Scheme → Run → Options → **StoreKit Configuration = `Lumi.storekit`**。
-上架：在 App Store Connect 建同 ID 的三个产品。**完整步骤见 [`BUILD-CONFIG.md`](BUILD-CONFIG.md) 顶部**。
+上架：在 App Store Connect 建同 ID 的**终身买断（非消耗型）**内购。**完整步骤见 [`BUILD-CONFIG.md`](BUILD-CONFIG.md) 顶部**。
 
 ---
 
@@ -39,7 +42,7 @@
 | B1 | 付费 Apple 开发者账号 | ✅ 已开通 |
 | B2 | Xcode 能力：App Groups(两 target) + **Sign in with Apple** + In-App Purchase | 🔲 |
 | B3 | scheme 设 StoreKit Configuration（本地看到套餐） | 🔲 |
-| B4 | App Store Connect 建 App + **仅月订**一档 `com.lumi.plus.monthly` @9.9（USD/CNY/AED）+ 价格分层 | 🔲 |
+| B4 | App Store Connect 建 App + **终身买断（非消耗型）**一档 `com.lumi.plus.lifetime` @9.9（USD/CNY/AED）+ 价格分层 | 🔲 |
 | B5 | 沙盒/真机购买 + 恢复购买验证 | 🔲 |
 | B6 | 开 GitHub Pages 托管法务页（paywall 已指向） | 🔲 |
 | B7 | 截图（6.7"/6.1" 三语）+ 元数据 | 🔲 |

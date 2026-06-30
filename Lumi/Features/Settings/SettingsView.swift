@@ -128,15 +128,10 @@ struct SettingsView: View {
         .overlay(RoundedRectangle(cornerRadius: 14).stroke(store.isPlus ? Color.nCyan.opacity(0.4) : Color.line, lineWidth: 1))
     }
 
-    /// Plus 账单状态：到期/下次续订日期 + 自动续订开关。
+    /// Plus 会员状态：终身买断（早鸟），无到期、无续费。
     private var plusBillingText: String? {
         guard store.isPlus else { return nil }
-        let renew = store.autoRenewOn ? String(localized: "自动续订已开启") : String(localized: "自动续订已关闭")
-        if let exp = store.expirationDate {
-            let label = store.autoRenewOn ? String(localized: "下次续订") : String(localized: "到期")
-            return "\(label) \(exp.formatted(date: .abbreviated, time: .omitted)) · \(renew)"
-        }
-        return renew
+        return String(localized: "终身会员 · 早鸟")
     }
 
     // MARK: - 反馈与建议（邮件）

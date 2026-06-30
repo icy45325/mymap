@@ -63,6 +63,7 @@ struct PaywallView: View {
 
     private var valueProps: some View {
         VStack(spacing: 12) {
+            prop("infinity", "后续所有功能迭代", "一次解锁，未来新增 Plus 功能全部包含", available: true)
             prop("sparkles", "明信片无水印 · 高清导出", "去掉 Lumi 水印，3 倍分辨率导出", available: true)
             prop("photo.stack", "全部明信片样式 & 邮票", "解锁所有卡面样式与邮票贴图", available: false)
             prop("map", "地图皮肤 & 主题", "更多地图配色与主题", available: false)
@@ -116,8 +117,14 @@ struct PaywallView: View {
                 Image(systemName: isSel ? "largecircle.fill.circle" : "circle")
                     .font(.system(size: 20)).foregroundStyle(isSel ? Color.nPink : Color.line)
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(kind?.title ?? product.displayName)
-                        .font(.system(size: 15, weight: .semibold)).foregroundStyle(Color.text)
+                    HStack(spacing: 6) {
+                        Text(kind?.title ?? product.displayName)
+                            .font(.system(size: 15, weight: .semibold)).foregroundStyle(Color.text)
+                        Text("早鸟会员")
+                            .font(.system(size: 9, weight: .bold)).foregroundStyle(.white)
+                            .padding(.vertical, 3).padding(.horizontal, 7)
+                            .background(LinearGradient.neonH, in: Capsule())
+                    }
                     Text(priceSubtitle(product, kind: kind))
                         .font(.system(size: 11)).foregroundStyle(Color.muted)
                 }
@@ -152,13 +159,13 @@ struct PaywallView: View {
         .opacity(selected == nil ? 0.5 : 1)
     }
 
-    private var ctaTitle: LocalizedStringKey { "开始订阅" }
+    private var ctaTitle: LocalizedStringKey { "成为终身会员" }
 
     // MARK: - 条款
 
     private var legal: some View {
         VStack(spacing: 8) {
-            Text("订阅会自动续订，可随时在「设置 › Apple ID › 订阅」取消。付款将在确认购买时记入你的 Apple ID。")
+            Text("一次性买断，永久解锁全部功能与后续所有迭代。付款将在确认购买时记入你的 Apple ID，不会自动续费。")
                 .font(.system(size: 10)).foregroundStyle(Color.faint)
                 .multilineTextAlignment(.center)
             HStack(spacing: 16) {
@@ -178,6 +185,6 @@ struct PaywallView: View {
     }
 
     private func priceSubtitle(_ product: Product, kind: PlusProduct?) -> LocalizedStringKey {
-        kind == .monthly ? "每月 · 随时取消" : ""
+        "一次买断 · 永久解锁 · 含后续所有迭代"
     }
 }
