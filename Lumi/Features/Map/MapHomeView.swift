@@ -25,6 +25,16 @@ struct MapHomeView: View {
     private var stats: LumiStats { LumiStats(footprints: footprints) }
 
     var body: some View {
+        NavigationStack {
+            content
+                .navigationDestination(for: Footprint.self) { fp in
+                    FootprintDetailView(footprint: fp)
+                }
+                .toolbar(.hidden, for: .navigationBar)
+        }
+    }
+
+    private var content: some View {
         ZStack(alignment: .top) {
             Color.bg.ignoresSafeArea()
 
@@ -165,7 +175,14 @@ struct MapHomeView: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 12) {
                     ForEach(stats.highlights) { h in
-                        HighlightCard(highlight: h)
+                        if let fp = footprints.first(where: { $0.id == h.id }) {
+                            NavigationLink(value: fp) {
+                                HighlightCard(highlight: h)
+                            }
+                            .buttonStyle(.plain)
+                        } else {
+                            HighlightCard(highlight: h)
+                        }
                     }
                 }
                 .padding(.horizontal, 4)
@@ -202,7 +219,7 @@ struct MapHomeView: View {
     }
 }
 
-/// 精彩瞬间卡（封面 + 标题），点开后跳详情可后续接入。
+/// 精彩瞬间卡（封面 + 标题），点按进入对应足迹详情页（返回回到主页）。
 private struct HighlightCard: View {
     let highlight: Highlight
 
