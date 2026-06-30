@@ -60,7 +60,7 @@ struct LumiSnapshot: Codable, Equatable {
 /// App Group 常量（主 App 与小组件共用同一套标识）。
 enum LumiAppGroup {
     /// App Group 容器标识；主 App 与小组件的 entitlements 都要声明它。
-    static let id = "group.com.lumi.v0"
+    static let id = "group.com.lumi.fun"
     /// 快照在共享 UserDefaults 里的键（v2 起含 memories；快照全派生，升级即由 App 重写）。
     static let snapshotKey = "lumi.snapshot.v2"
     /// 小组件 kind（StaticConfiguration / reloadTimelines(ofKind:) 共用）。
