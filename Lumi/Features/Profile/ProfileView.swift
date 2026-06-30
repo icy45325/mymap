@@ -19,7 +19,6 @@ struct ProfileView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
                     profileTop
-                    statsRow
                     levelBar
                     entryCard("book.closed.fill", "我的护照本",
                               "去过 \(stats.countries) 国 · 翻开看看出入境章", Color(hex: 0xC9A24B)) { PassportView() }
@@ -88,23 +87,6 @@ struct ProfileView: View {
             .frame(width: 38, height: 38)
             .background(Color.panel, in: Circle())
             .overlay(Circle().stroke(Color.line, lineWidth: 1))
-    }
-
-    private var statsRow: some View {
-        HStack(spacing: 10) {
-            stat("\(stats.countries)", "国家")
-            stat("\(stats.cities)", "城市")
-            stat("\(stats.badgeBoard.unlockedCount)", "勋章")
-        }
-        .padding(.horizontal, 26).padding(.top, 16)
-    }
-
-    private func stat(_ v: String, _ l: String) -> some View {
-        VStack(spacing: 3) {
-            Text(v).font(Typo.serif(21)).foregroundStyle(Color.text)
-            Text(l.localized).font(.system(size: 10)).foregroundStyle(Color.muted)
-        }
-        .frame(maxWidth: .infinity).padding(.vertical, 12).panelCard(15)
     }
 
     private var levelBar: some View {

@@ -129,7 +129,7 @@ private struct ReceivedPostcardSheet: View {
     private var exportCard: PostcardExportCard {
         PostcardExportCard(footprint: footprint, cover: cover, message: footprint.mood,
                            recipient: holderName, style: style, stamp: stamp,
-                           watermark: true, sender: sender, dateText: dateText)
+                           watermark: true, sender: sender, dateText: dateText, showPostmark: true)
     }
 
     var body: some View {
@@ -138,7 +138,7 @@ private struct ReceivedPostcardSheet: View {
                 VStack(spacing: 18) {
                     PostcardFlipCard(footprint: footprint, cover: cover, message: footprint.mood,
                                      recipient: holderName, style: style, stamp: stamp, flipped: flipped,
-                                     sender: sender, dateText: dateText)
+                                     sender: sender, dateText: dateText, showPostmark: true)
                         .onTapGesture { withAnimation { flipped.toggle() } }
 
                     Button { withAnimation { flipped.toggle() } } label: {

@@ -40,6 +40,39 @@ enum PostcardStamp: String, CaseIterable, Identifiable {
     var stripes: Bool { self == .air }
 }
 
+/// 明信片朝向：由封面照片长宽比决定。
+/// 宽>高 → 横版（取 16:9 正面）；宽<高 → 竖版（取 3:4 正面）；近似正方形 → 方版（1:1 正面，邮票在底部）。
+enum PostcardOrient {
+    case landscape, portrait, square
+
+    static func from(_ cover: UIImage?) -> PostcardOrient {
+        guard let c = cover, c.size.width > 0, c.size.height > 0 else { return .landscape }
+        let r = c.size.width / c.size.height
+        if r > 1.02 { return .landscape }
+        if r < 0.98 { return .portrait }
+        return .square
+    }
+
+    /// 正面照片裁切比例（宽 / 高）。
+    var frontAspect: CGFloat {
+        switch self {
+        case .landscape: return 16.0 / 9.0
+        case .portrait:  return 3.0 / 4.0
+        case .square:    return 1.0
+        }
+    }
+    /// 背面是否用竖版排布（地名+寄语在上、邮票+寄给在下）。横版用左右分栏。
+    var verticalBack: Bool { self != .landscape }
+    /// 预览卡最大宽度。
+    var previewMaxWidth: CGFloat {
+        switch self {
+        case .landscape: return 345
+        case .square:    return 320
+        case .portrait:  return 300
+        }
+    }
+}
+
 /// 一种样式解析出的配色 / 字体口径。
 struct PostcardTheme {
     let photo: [Color]
@@ -154,25 +187,23 @@ struct PostcardFlipCard: View {
     let flipped: Bool
     var sender: String = ""
     var dateText: String = ""
+    /// 邮戳（邮局盖章）：寄出/分享前不展示，仅收件人看到。
+    var showPostmark: Bool = false
 
     private var theme: PostcardTheme { PostcardTheme.make(style) }
     private var locEn: String { (footprint.cityName ?? footprint.title).uppercased() }
     private var locZh: String { footprint.locationSubtitle.isEmpty ? footprint.title : footprint.locationSubtitle }
 
-    /// 上传的是竖图（高>宽）时，整张明信片转为竖版，避免横版裁切丢内容。
-    private var isPortrait: Bool {
-        guard let c = cover else { return false }
-        return c.size.height > c.size.width * 1.05
-    }
+    /// 朝向随封面：宽>高=横(16:9)、宽<高=竖(3:4)、近方=方(1:1)。
+    private var orient: PostcardOrient { PostcardOrient.from(cover) }
 
     var body: some View {
         ZStack {
             front.opacity(flipped ? 0 : 1)
             back.opacity(flipped ? 1 : 0).rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
         }
-        .aspectRatio(isPortrait ? 0.66 : 1.55, contentMode: .fit)
-        // 限制在一屏内：竖版更窄(≤300)、横版≤345，避免预览卡撑满屏
-        .frame(maxWidth: isPortrait ? 300 : 345)
+        .aspectRatio(orient.frontAspect, contentMode: .fit)
+        .frame(maxWidth: orient.previewMaxWidth)
         .frame(maxWidth: .infinity)
         .rotation3DEffect(.degrees(flipped ? 180 : 0), axis: (x: 0, y: 1, z: 0))
         .animation(.easeInOut(duration: 0.6), value: flipped)
@@ -186,8 +217,8 @@ struct PostcardFlipCard: View {
 
     private var back: some View {
         PostcardBackPanel(footprint: footprint, message: message, recipient: recipient,
-                          style: style, stamp: stamp, portrait: isPortrait,
-                          sender: sender, dateText: dateText)
+                          style: style, stamp: stamp, portrait: orient.verticalBack,
+                          sender: sender, dateText: dateText, showPostmark: showPostmark)
     }
 }
 
@@ -223,6 +254,7 @@ struct PostcardBackPanel: View {
     var portrait: Bool = false
     var sender: String = ""        // 寄自（默认发送方昵称）
     var dateText: String = ""      // 发送日期（在行程范围内由发送方选定）
+    var showPostmark: Bool = false // 邮戳：寄出/分享前不盖，仅收件人看到
 
     private var theme: PostcardTheme { PostcardTheme.make(style) }
     private var locEn: String { (footprint.cityName ?? footprint.title).uppercased() }
@@ -270,7 +302,7 @@ struct PostcardBackPanel: View {
                 ZStack(alignment: .bottomLeading) {
                     PostcardStampView(stamp: stamp)
                         .frame(width: 54, height: 64).rotationEffect(.degrees(4))
-                    postmark.offset(x: -16, y: 10)
+                    if showPostmark { postmark.offset(x: -16, y: 10) }
                 }
             }
         }
@@ -312,7 +344,7 @@ struct PostcardBackPanel: View {
                     ZStack(alignment: .bottomLeading) {
                         PostcardStampView(stamp: stamp)
                             .frame(width: 50, height: 60).rotationEffect(.degrees(4))
-                        postmark.offset(x: -14, y: 10)
+                        if showPostmark { postmark.offset(x: -14, y: 10) }
                     }
                 }
                 Spacer(minLength: 0)
@@ -394,17 +426,16 @@ struct PostcardExportCard: View {
     var watermark: Bool = false
     var sender: String = ""
     var dateText: String = ""
+    /// 邮戳（邮局盖章）：寄出/分享前不展示，仅收件人看到。
+    var showPostmark: Bool = false
 
-    /// 与预览卡同口径：明显竖图才走竖版，其余横版。
-    private var isLandscape: Bool {
-        guard let c = cover else { return true }
-        return !(c.size.height > c.size.width * 1.05)
-    }
+    /// 与预览卡同口径：横(16:9) / 竖(3:4) / 方(1:1)。
+    private var orient: PostcardOrient { PostcardOrient.from(cover) }
 
     var body: some View {
-        let cardW: CGFloat = isLandscape ? 380 : 300
-        let frontH: CGFloat = isLandscape ? cardW / 1.55 : cardW / 0.66
-        let backH: CGFloat = isLandscape ? 170 : 226
+        let cardW: CGFloat = orient == .landscape ? 380 : 300
+        let frontH: CGFloat = cardW / orient.frontAspect
+        let backH: CGFloat = orient == .landscape ? 170 : 226
         VStack(spacing: 14) {
             PostcardFrontPanel(footprint: footprint, cover: cover, style: style)
                 .frame(width: cardW, height: frontH)
@@ -417,8 +448,8 @@ struct PostcardExportCard: View {
                         .shadow(color: .black.opacity(0.4), radius: 3)
                 }
             PostcardBackPanel(footprint: footprint, message: message, recipient: recipient,
-                              style: style, stamp: stamp, portrait: !isLandscape,
-                              sender: sender, dateText: dateText)
+                              style: style, stamp: stamp, portrait: orient.verticalBack,
+                              sender: sender, dateText: dateText, showPostmark: showPostmark)
                 .frame(width: cardW, height: backH)
                 .overlay(RoundedRectangle(cornerRadius: 9).stroke(.white.opacity(0.06), lineWidth: 1))
         }

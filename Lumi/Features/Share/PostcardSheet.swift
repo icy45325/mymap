@@ -39,6 +39,8 @@ struct PostcardSheet: View {
         _coverAssetID = State(initialValue: footprint.photoAssetIDs.first)
     }
 
+    /// 当前样式解析出的配色 / 字体口径（输入框寄语字体与卡面保持一致）。
+    private var theme: PostcardTheme { PostcardTheme.make(style) }
     /// 发送方昵称（来自可编辑的「寄自」，默认个人资料名字）。
     private var senderName: String { fromName.trimmingCharacters(in: .whitespaces) }
     /// 发送日期可选范围 = 行程起止日。
@@ -77,7 +79,9 @@ struct PostcardSheet: View {
 
                     editorBlock("明信片寄语") {
                         TextField("在明信片上写点什么…", text: $message, axis: .vertical)
-                            .font(.handwriting(20)).foregroundStyle(Color.text).lineLimit(2...5)
+                            .font(theme.msgSerif ? Typo.serif(18, weight: .regular).italic()
+                                                 : .system(size: 18, weight: .light))
+                            .foregroundStyle(Color.text).lineLimit(2...5)
                             .padding(12)
                             .background(Color.panel, in: RoundedRectangle(cornerRadius: 12))
                             .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.line, lineWidth: 1))

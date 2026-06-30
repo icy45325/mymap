@@ -3,38 +3,20 @@ import SwiftData
 import UIKit
 
 /// 点亮成就（§4.4）· 暗夜霓虹 v2。
-/// 环形概览 + 置顶展示 + 蜂巢徽章 + 分类筛选 + 即将解锁 + 大洲征服环。
+/// 环形概览 + 蜂巢徽章 + 分类筛选 + 大洲征服环。
 struct StatsView: View {
 
     @Query private var footprints: [Footprint]
 
     @State private var categoryFilter: CatFilter = .all
     @State private var selectedBadge: Badge?
-    @State private var celebrate: Badge?
     @State private var reportImage: Image?
     @State private var showReport = false
-    /// 用户手动钉选的置顶徽章 id（持久化；空 = 用默认「最高荣耀」）。
-    @AppStorage("lumi.featuredBadgeID") private var pinnedID: String = ""
 
     private enum CatFilter: Hashable { case all, category(BadgeCategory), rare }
 
     private var stats: LumiStats { LumiStats(footprints: footprints) }
     private var board: BadgeBoard { stats.badgeBoard }
-
-    /// 置顶展示：`"none"` = 用户选择「全部不置顶」(不展示)；手动钉选（且仍为已解锁）优先；
-    /// 否则（空串，初始默认）回退到稀有度最高的已解锁徽章。
-    private var featuredBadge: Badge? {
-        if pinnedID == "none" { return nil }
-        if !pinnedID.isEmpty,
-           let pinned = board.badges.first(where: { $0.id == pinnedID && $0.state == .lit }) {
-            return pinned
-        }
-        return board.featured
-    }
-    private var isManuallyPinned: Bool {
-        !pinnedID.isEmpty && board.badges.contains { $0.id == pinnedID && $0.state == .lit }
-    }
-
 
     var body: some View {
         NavigationStack {
@@ -47,7 +29,6 @@ struct StatsView: View {
                     // —— 徽章墙在下 ——
                     badgesHeader
                     ringSummary
-                    if let f = featuredBadge { showcase(f) }
                     honeycomb
                     moreEntry
                     Color.clear.frame(height: 20)
@@ -62,9 +43,8 @@ struct StatsView: View {
         .onAppear {
             Analytics.log(.statsViewed(totalLit: stats.countries, percent: Int(stats.worldPercent.rounded())))
         }
-        .sheet(item: $selectedBadge) { BadgeSheet(badge: $0, isFeatured: $0.id == featuredBadge?.id) }
+        .sheet(item: $selectedBadge) { BadgeSheet(badge: $0) }
         .sheet(isPresented: $showReport) { reportShareSheet }
-        .overlay { if let c = celebrate { UnlockCelebration(badge: c) { celebrate = nil } } }
     }
 
     /// 成就数据报告分享：预览 + 分享/保存。
@@ -139,14 +119,6 @@ struct StatsView: View {
     private var statsSummary: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(alignment: .bottom) {
-                VStack(alignment: .leading, spacing: 2) {
-                    HStack(alignment: .firstTextBaseline, spacing: 8) {
-                        Text("\(stats.countries)").font(Typo.serif(40)).foregroundStyle(Color.text)
-                        Text("/ \(Boundaries.shared.unMemberCount)")
-                            .font(Typo.serif(20)).foregroundStyle(Color.muted)
-                    }
-                    Text("已访问 UN 成员国").font(.system(size: 12)).foregroundStyle(Color.muted)
-                }
                 Spacer()
                 Button {
                     reportImage = nil          // 即刻开面板（显示 spinner），渲染异步进行，避免卡点击
@@ -187,58 +159,6 @@ struct StatsView: View {
         Text("徽章墙").font(.system(size: 13, weight: .semibold)).tracking(1)
             .foregroundStyle(Color.muted)
             .padding(.horizontal, 26).padding(.top, 4)
-    }
-
-    // MARK: - 置顶展示
-
-    private func showcase(_ b: Badge) -> some View {
-        HStack(alignment: .top) {
-            VStack(alignment: .leading, spacing: 6) {
-                Text("\(b.rarity.tierName.localized) · \(b.rarity.rawValue.uppercased())")
-                    .font(.system(size: 10, weight: .heavy)).tracking(1.6)
-                    .foregroundStyle(b.rarity.color)
-                Text(b.name.localized).font(Typo.serif(25)).foregroundStyle(Color.text)
-                Text(b.desc.localized).font(.system(size: 12)).foregroundStyle(Color(hex: 0xC9C2D6))
-                    .frame(maxWidth: 195, alignment: .leading)
-                Text("◆ 全球仅 \(b.ownership) 玩家拥有")
-                    .font(.system(size: 10.5)).foregroundStyle(Color(hex: 0xE6C18C))
-                    .padding(.top, 6)
-            }
-            Spacer()
-            HexBadge(badge: b, size: 70)
-        }
-        .padding(18)
-        .background(
-            LinearGradient(colors: [Color.nOrange.opacity(0.2), Color.nPink.opacity(0.12), Color.nPurple.opacity(0.18)],
-                           startPoint: .topLeading, endPoint: .bottomTrailing),
-            in: RoundedRectangle(cornerRadius: 20))
-        .overlay(RoundedRectangle(cornerRadius: 20).stroke(Color.nOrange.opacity(0.45), lineWidth: 1))
-        .overlay(alignment: .topTrailing) { pinControl }
-        .contentShape(Rectangle())
-        .onTapGesture { celebrate = b }
-        .padding(.horizontal, 22)
-    }
-
-    /// 置顶角标：手动钉选时给「取消置顶」；自动「最高荣耀」时也可选择「不展示」(全部不置顶)。
-    @ViewBuilder private var pinControl: some View {
-        if isManuallyPinned {
-            Button { pinnedID = "none"; Haptics.selection() } label: {
-                Label("取消置顶", systemImage: "pin.slash.fill")
-                    .font(.system(size: 9, weight: .bold)).tracking(0.5)
-                    .foregroundStyle(Color.nOrange)
-                    .padding(.vertical, 5).padding(.horizontal, 9)
-                    .background(Color.black.opacity(0.32), in: Capsule())
-            }
-            .buttonStyle(.plain)
-            .padding(12)
-        } else {
-            Menu {
-                Button("不展示徽章", systemImage: "eye.slash") { pinnedID = "none" }
-            } label: {
-                Text("桂冠 · 最高荣耀").font(.system(size: 9, weight: .bold)).tracking(1)
-                    .foregroundStyle(Color.nOrange).padding(14)
-            }
-        }
     }
 
     // MARK: - 徽章墙（3 列网格，给插画徽章更大展示空间）
@@ -427,7 +347,7 @@ private struct BadgeMoreView: View {
         .toolbarBackground(Color.bg, for: .navigationBar)
         .toolbarColorScheme(.dark, for: .navigationBar)
         .preferredColorScheme(.dark)
-        .sheet(item: $selectedBadge) { BadgeSheet(badge: $0, isFeatured: false) }
+        .sheet(item: $selectedBadge) { BadgeSheet(badge: $0) }
     }
 
     private func section(_ title: LocalizedStringKey, _ badges: [Badge], dimmed: Bool) -> some View {
@@ -462,12 +382,8 @@ private struct BadgeMoreView: View {
 
 private struct BadgeSheet: View {
     let badge: Badge
-    /// 是否为成就页当前「置顶展示」的徽章（含自动「最高荣耀」）；决定按钮显示置顶 / 取消置顶，保持与展示一致。
-    let isFeatured: Bool
 
     @State private var shareImage: Image?
-    @AppStorage("lumi.featuredBadgeID") private var pinnedID: String = ""
-    private var isPinned: Bool { isFeatured }
 
     private static let dateFormat: Date.FormatStyle = .dateTime.year().month().day()
 
@@ -496,16 +412,9 @@ private struct BadgeSheet: View {
                     .font(.system(size: 11, weight: .heavy)).tracking(1.8)
                     .foregroundStyle(badge.rarity.color).padding(.top, 6)
 
-                // ——— 操作：pin + 分享，小按钮一排（仅已解锁）———
+                // ——— 操作：分享，小按钮一排（仅已解锁）———
                 if badge.state == .lit {
                     HStack(spacing: 10) {
-                        Button { pinnedID = isPinned ? "none" : badge.id; Haptics.selection() } label: {
-                            compactAction(isPinned ? "取消置顶" : "置顶",
-                                          systemImage: isPinned ? "pin.slash.fill" : "pin.fill",
-                                          tint: Color.nOrange, filled: !isPinned)
-                        }
-                        .buttonStyle(.plain)
-
                         if let shareImage {
                             ShareLink(item: shareImage,
                                       preview: SharePreview(badge.name.localized, image: shareImage)) {
