@@ -1,6 +1,7 @@
 import SwiftUI
+import UIKit
 
-/// 个性化展示台：把可定制的东西（小组件 / 护照风格）摘出来「打组」成可视画廊。
+/// 个性化展示台：把可定制的东西（小组件 / 地图皮肤 / App 图标 / 护照风格）摘出来「打组」成可视画廊。
 /// 小组件可看小 + 中两种尺寸并「添加到桌面」（图文指引）；护照风格点一下即应用。
 /// 作为设置页的下钻页（外层已有 NavigationStack）。
 struct CustomizeShowcaseView: View {
@@ -11,6 +12,8 @@ struct CustomizeShowcaseView: View {
     @State private var widgetPage = 0
     @State private var showGuide = false
     @State private var showPaywall = false
+    /// 当前生效的备用图标名（"" = 默认主图标）。
+    @State private var currentIcon = ""
 
     private let widgetNames: [LocalizedStringKey] = ["点亮战绩", "去过的国旗", "去年今日"]
     private var currentWidgetName: LocalizedStringKey { widgetNames[min(widgetPage, widgetNames.count - 1)] }
@@ -20,6 +23,7 @@ struct CustomizeShowcaseView: View {
             VStack(alignment: .leading, spacing: 26) {
                 widgetSection
                 mapSkinSection
+                appIconSection
                 passportSection
                 Color.clear.frame(height: 20)
             }
@@ -34,6 +38,79 @@ struct CustomizeShowcaseView: View {
         .preferredColorScheme(.dark)
         .sheet(isPresented: $showGuide) { WidgetAddGuideSheet(widgetName: currentWidgetName) }
         .sheet(isPresented: $showPaywall) { PaywallView() }
+    }
+
+    // MARK: App 图标（Plus）
+
+    /// 备用 App 图标：默认（nil）/ 暗金 / 粉霓。
+    private enum AppIconChoice: String, CaseIterable, Identifiable {
+        case classic = "", mono = "AppIcon-Mono", neon = "AppIcon-Neon"
+        var id: String { rawValue }
+        var label: LocalizedStringKey {
+            switch self {
+            case .classic: return "霓虹紫"
+            case .mono:    return "暗金"
+            case .neon:    return "粉霓"
+            }
+        }
+        var preview: String {
+            switch self {
+            case .classic: return "iconprev_classic"
+            case .mono:    return "iconprev_mono"
+            case .neon:    return "iconprev_neon"
+            }
+        }
+        var isFree: Bool { self == .classic }
+        var alternateName: String? { rawValue.isEmpty ? nil : rawValue }
+    }
+
+    private var appIconSection: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            sectionHeader("App 图标", "换一枚桌面图标 · 默认免费，其余属 Plus")
+            HStack(spacing: 12) {
+                ForEach(AppIconChoice.allCases) { c in appIconCard(c) }
+            }
+        }
+        .onAppear { currentIcon = UIApplication.shared.alternateIconName ?? "" }
+    }
+
+    private func appIconCard(_ c: AppIconChoice) -> some View {
+        let locked = !c.isFree && !plus.isPlus
+        let active = currentIcon == c.rawValue
+        return Button {
+            if locked { showPaywall = true; return }
+            UIApplication.shared.setAlternateIconName(c.alternateName) { error in
+                if error == nil { Task { @MainActor in currentIcon = c.rawValue; Haptics.selection() } }
+            }
+        } label: {
+            VStack(spacing: 7) {
+                Image(c.preview)
+                    .resizable().scaledToFit()
+                    .frame(width: 58, height: 58)
+                    .clipShape(RoundedRectangle(cornerRadius: 13))
+                    .overlay(RoundedRectangle(cornerRadius: 13)
+                        .stroke(active ? Color.nPink.opacity(0.8) : Color.line, lineWidth: active ? 1.6 : 1))
+                    .overlay(alignment: .topTrailing) {
+                        if locked {
+                            Image(systemName: "lock.fill").font(.system(size: 10))
+                                .foregroundStyle(.white.opacity(0.9))
+                                .padding(4)
+                                .background(.black.opacity(0.45), in: Circle())
+                                .offset(x: 5, y: -5)
+                        }
+                    }
+                HStack(spacing: 4) {
+                    Text(c.label).font(.system(size: 11.5, weight: .semibold))
+                        .foregroundStyle(active ? Color.text : Color.muted)
+                    if active {
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.system(size: 10)).foregroundStyle(Color.nPink)
+                    }
+                }
+            }
+            .frame(maxWidth: .infinity)
+        }
+        .buttonStyle(.plain)
     }
 
     // MARK: 地图皮肤（Plus）
