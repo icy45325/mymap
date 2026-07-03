@@ -23,6 +23,7 @@ struct ProfileView: View {
                     entryCard("book.closed.fill", "我的护照本",
                               "去过 \(stats.countries) 国 · 翻开看看出入境章", Color(hex: 0xC9A24B)) { PassportView() }
                     entryCard("rectangle.stack", "明信片墙", "收到的明信片都在这", Color.nPink) { PostcardWallView() }
+                    entryCard("book.pages", "收集图鉴", "邮票 · 邮戳 · 节日章", Color.nPurple) { CodexView() }
                     entryCard("heart.fill", "心愿单", "想去的地方", Color.nCyan) { WishlistView() }
                     Color.clear.frame(height: 24)
                 }

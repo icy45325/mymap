@@ -38,6 +38,31 @@ enum Festival: String, CaseIterable, Identifiable {
         }
     }
 
+    /// 本地化展示名（图鉴等 UI 用）。
+    var titleKey: LocalizedStringKey {
+        switch self {
+        case .prophetBirthday: return "先知诞辰"
+        case .uaeNationalDay:   return "阿联酋国庆"
+        case .thanksgiving:     return "感恩节"
+        case .christmas:        return "圣诞节"
+        case .midAutumn:        return "中秋"
+        case .chinaNationalDay: return "中国国庆"
+        }
+    }
+    /// 收集窗口的展示文本（含前后 2 天，如 "8.23 – 8.27"）。
+    var windowText: String {
+        let (f, t) = window
+        return "\(f.0).\(f.1) – \(t.0).\(t.1)"
+    }
+    /// 该章适用地区的本地化说明。
+    var regionKey: LocalizedStringKey {
+        switch self {
+        case .prophetBirthday, .uaeNationalDay: return "中东足迹"
+        case .thanksgiving, .christmas:          return "欧美与亚洲足迹"
+        case .midAutumn, .chinaNationalDay:      return "中国足迹"
+        }
+    }
+
     /// 节日窗口（含两端，已并入前后 2 天）。以 (月,日) 表示。
     private var window: (from: (Int, Int), to: (Int, Int)) {
         switch self {
