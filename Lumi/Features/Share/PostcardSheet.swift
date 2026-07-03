@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftData
 import UIKit
 import PhotosUI
 
@@ -20,7 +21,9 @@ struct PostcardSheet: View {
     @State private var showPaywall = false
     @State private var token = UUID().uuidString    // 本张分享卡的幂等标识（稳定）
     @State private var style: PostcardStyle
-    @State private var stamp: PostcardStamp
+    @State private var stamp: StampKind
+    /// 全部足迹：用于派生已解锁的地区特色邮票（去过即解锁）。
+    @Query private var allFootprints: [Footprint]
     @State private var flipped = false
     @State private var recipient = ""
     @State private var sendDate: Date                // 发送日期，限定在行程范围内
@@ -32,7 +35,7 @@ struct PostcardSheet: View {
         self.footprint = footprint
         _message = State(initialValue: defaultPostcardMessage(footprint))
         _style = State(initialValue: PostcardStyle(rawValue: footprint.postcardStyle) ?? .vintage)
-        _stamp = State(initialValue: PostcardStamp(rawValue: footprint.stampStyle) ?? .air)
+        _stamp = State(initialValue: StampKind(raw: footprint.stampStyle))
         _sendDate = State(initialValue: footprint.visitedAt)
         _fromName = State(initialValue: UserDefaults.standard.string(forKey: "lumi.profile.name") ?? "")
         _coverAssetID = State(initialValue: footprint.photoAssetIDs.first)
@@ -53,7 +56,7 @@ struct PostcardSheet: View {
     private func makeToken(includeCover: Bool) -> String {
         PostcardToken.encode(footprint: footprint, message: message, token: token,
                              sender: senderName.isEmpty ? nil : senderName,
-                             style: style.rawValue, stamp: stamp.rawValue,
+                             style: style.rawValue, stamp: stamp.raw,
                              date: sendDate, cover: includeCover ? coverB64 : nil)
     }
     private var tokenString: String { makeToken(includeCover: true) }
@@ -270,27 +273,43 @@ struct PostcardSheet: View {
         }
     }
 
-    /// 邮票选择（空运 / 陆运 / 海运）。
+    /// 已解锁的地区特色邮票（去过该国即解锁）。
+    private var unlockedRegionals: [RegionalStamp] {
+        RegionalStamp.unlocked(litCodes: Set(allFootprints.compactMap { $0.countryCode }))
+    }
+
+    /// 邮票选择：基础三款（空运 / 陆运 / 海运）+ 已解锁的地区特色邮票（横滑）。
     private var stampPicker: some View {
         editorBlock("邮票") {
-            HStack(spacing: 8) {
-                ForEach(PostcardStamp.allCases) { p in
-                    let active = p == stamp
-                    Button { stamp = p; Haptics.selection() } label: {
-                        VStack(spacing: 5) {
-                            PostcardStampView(stamp: p, mini: true).frame(width: 30, height: 36)
-                            Text(p.label).font(.system(size: 11, weight: .semibold))
-                                .foregroundStyle(active ? Color.text : Color.muted)
-                        }
-                        .frame(maxWidth: .infinity).padding(.vertical, 9)
-                        .background(active ? Color.white.opacity(0.07) : .clear, in: RoundedRectangle(cornerRadius: 12))
-                        .overlay(RoundedRectangle(cornerRadius: 12)
-                            .stroke(active ? Color.white.opacity(0.18) : Color.white.opacity(0.06), lineWidth: 1))
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    ForEach(PostcardStamp.allCases) { p in
+                        stampCell(.basic(p), title: Text(p.label))
                     }
-                    .buttonStyle(.plain)
+                    ForEach(unlockedRegionals) { r in
+                        stampCell(.regional(r), title: Text(verbatim: "\(r.flag) \(r.displayName)"))
+                    }
                 }
+                .padding(.horizontal, 2)
             }
         }
+    }
+
+    private func stampCell(_ kind: StampKind, title: Text) -> some View {
+        let active = kind == stamp
+        return Button { stamp = kind; Haptics.selection() } label: {
+            VStack(spacing: 5) {
+                StampView(kind: kind, mini: true).frame(width: 30, height: 36)
+                title.font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(active ? Color.text : Color.muted)
+                    .lineLimit(1)
+            }
+            .frame(minWidth: 74).padding(.vertical, 9).padding(.horizontal, 6)
+            .background(active ? Color.white.opacity(0.07) : .clear, in: RoundedRectangle(cornerRadius: 12))
+            .overlay(RoundedRectangle(cornerRadius: 12)
+                .stroke(active ? Color.white.opacity(0.18) : Color.white.opacity(0.06), lineWidth: 1))
+        }
+        .buttonStyle(.plain)
     }
 
     /// 免费版水印提示 + 升级入口。

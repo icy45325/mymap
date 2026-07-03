@@ -183,7 +183,7 @@ struct PostcardFlipCard: View {
     var message: String
     var recipient: String
     let style: PostcardStyle
-    let stamp: PostcardStamp
+    let stamp: StampKind
     let flipped: Bool
     var sender: String = ""
     var dateText: String = ""
@@ -250,7 +250,7 @@ struct PostcardBackPanel: View {
     var message: String
     var recipient: String
     let style: PostcardStyle
-    let stamp: PostcardStamp
+    let stamp: StampKind
     var portrait: Bool = false
     var sender: String = ""        // 寄自（默认发送方昵称）
     var dateText: String = ""      // 发送日期（在行程范围内由发送方选定）
@@ -272,7 +272,7 @@ struct PostcardBackPanel: View {
             FestivalSeal(festival: f).frame(width: w + 4, height: h + 4)
         } else {
             ZStack(alignment: .bottomLeading) {
-                PostcardStampView(stamp: stamp)
+                StampView(kind: stamp)
                     .frame(width: w, height: h).rotationEffect(.degrees(4))
                 if showPostmark { postmark.offset(x: pm.width, y: pm.height) }
             }
@@ -435,7 +435,7 @@ struct PostcardExportCard: View {
     var message: String
     var recipient: String
     let style: PostcardStyle
-    let stamp: PostcardStamp
+    let stamp: StampKind
     var watermark: Bool = false      // 免费版显示 Lumi 品牌标；Plus 去标
     var sender: String = ""
     var dateText: String = ""

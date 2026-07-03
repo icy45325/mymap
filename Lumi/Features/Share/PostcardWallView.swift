@@ -142,7 +142,7 @@ private struct ReceivedPostcardSheet: View {
     @State private var shareImage: Image?
 
     private var style: PostcardStyle { PostcardStyle(rawValue: footprint.postcardStyle) ?? .vintage }
-    private var stamp: PostcardStamp { PostcardStamp(rawValue: footprint.stampStyle) ?? .air }
+    private var stamp: StampKind { StampKind(raw: footprint.stampStyle) }
     private var dateText: String { footprint.visitSpanText() }
     private var sender: String { footprint.senderName ?? "" }
 
@@ -209,7 +209,7 @@ private struct PostcardCell: View {
     let footprint: Footprint
 
     private var style: PostcardStyle { PostcardStyle(rawValue: footprint.postcardStyle) ?? .vintage }
-    private var stamp: PostcardStamp { PostcardStamp(rawValue: footprint.stampStyle) ?? .air }
+    private var stamp: StampKind { StampKind(raw: footprint.stampStyle) }
 
     var body: some View {
         ZStack(alignment: .bottomLeading) {
@@ -247,7 +247,7 @@ private struct PostcardCell: View {
         .clipShape(RoundedRectangle(cornerRadius: 16))
         .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.line, lineWidth: 1))
         .overlay(alignment: .topLeading) {
-            PostcardStampView(stamp: stamp, mini: true).frame(width: 26, height: 31).padding(8)
+            StampView(kind: stamp, mini: true).frame(width: 26, height: 31).padding(8)
         }
         .overlay(alignment: .topTrailing) {
             if footprint.isReceived {
