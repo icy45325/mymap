@@ -143,6 +143,12 @@ struct TimelineView: View {
                                  onDelete: { pendingDelete = fp })
                         .padding(.horizontal, 22)
                         .padding(.bottom, 20)
+                        // 入场微动效：滚动进入视口时渐显 + 轻微上浮
+                        .scrollTransition(.animated(.easeOut(duration: 0.3))) { content, phase in
+                            content
+                                .opacity(phase.isIdentity ? 1 : 0.25)
+                                .offset(y: phase == .bottomTrailing ? 14 : 0)
+                        }
                 }
             }
         }

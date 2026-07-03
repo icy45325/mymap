@@ -206,7 +206,7 @@ struct PostcardFlipCard: View {
         .frame(maxWidth: orient.previewMaxWidth)
         .frame(maxWidth: .infinity)
         .rotation3DEffect(.degrees(flipped ? 180 : 0), axis: (x: 0, y: 1, z: 0))
-        .animation(.easeInOut(duration: 0.6), value: flipped)
+        .animation(.spring(response: 0.62, dampingFraction: 0.78), value: flipped)   // 翻面带轻微回弹
         .shadow(color: .black.opacity(0.45), radius: 16, y: 8)
     }
 

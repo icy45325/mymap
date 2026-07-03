@@ -178,7 +178,15 @@ struct StatsView: View {
                     .frame(maxWidth: .infinity).padding(.vertical, 24)
             } else {
                 LazyVGrid(columns: cols, spacing: 18) {
-                    ForEach(litBadges) { b in badgeCell(b) }
+                    ForEach(litBadges) { b in
+                        badgeCell(b)
+                            // 入场微动效：滚动进入视口时轻缩放渐显
+                            .scrollTransition(.animated(.spring(response: 0.4, dampingFraction: 0.8))) { content, phase in
+                                content
+                                    .opacity(phase.isIdentity ? 1 : 0.3)
+                                    .scaleEffect(phase.isIdentity ? 1 : 0.86)
+                            }
+                    }
                 }
             }
         }
