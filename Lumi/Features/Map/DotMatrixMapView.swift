@@ -15,17 +15,21 @@ struct DotMatrixBackground: View {
     let footprints: [Footprint]
 
     @State private var pulse = false
+    /// 地图皮肤（Plus）：读存储 + 权益判定，切换即时生效。
+    @AppStorage(MapSkin.storageKey) private var skinRaw: String = ""
+    @ObservedObject private var plus = PlusStore.shared
+    private var skin: MapSkin.Palette { MapSkin.resolve(skinRaw, isPlus: plus.isPlus).palette }
 
     var body: some View {
         GeometryReader { geo in
             let mapW = geo.size.width * 1.25
             let mapH = mapW * 188.0 / 360.0
             ZStack {
-                RadialGradient(colors: [Color.nPurple.opacity(0.30), Color.nPurple.opacity(0.06), .clear],
+                RadialGradient(colors: [skin.glow.opacity(0.30), skin.glow.opacity(0.06), .clear],
                                center: UnitPoint(x: 0.5, y: 0.42), startRadius: 20, endRadius: 460)
                 ZStack {
-                    DotMatrixWorld(footprints: footprints)
-                    PinsLayer(footprints: footprints, pulse: pulse)
+                    DotMatrixWorld(footprints: footprints, skin: skin)
+                    PinsLayer(footprints: footprints, pulse: pulse, skin: skin)
                 }
                 .frame(width: mapW, height: mapH)
                 .position(x: geo.size.width / 2, y: geo.size.height * 0.42)
@@ -57,6 +61,7 @@ enum MapProjection {
 /// 暗点阵陆地 + 城市附近高亮，靠 Canvas 一次绘制。
 private struct DotMatrixWorld: View {
     let footprints: [Footprint]
+    let skin: MapSkin.Palette
 
     /// 陆地近似椭圆 [cx, cy, rx, ry]（归一化），源自原型 land 数组。
     private static let land: [[Double]] = [
@@ -83,7 +88,7 @@ private struct DotMatrixWorld: View {
                     let nx = px / size.width, ny = py / size.height
                     if Self.inLand(nx, ny) {
                         let d = Self.nearestCity(nx, ny, cities)
-                        let (color, r) = Self.style(forDistance: d)
+                        let (color, r) = Self.style(forDistance: d, skin: skin)
                         let jx = px + Self.jitter(i), jy = py + Self.jitter(i &+ 7)
                         ctx.fill(Path(ellipseIn: CGRect(x: jx - r, y: jy - r, width: r * 2, height: r * 2)),
                                  with: .color(color))
@@ -113,11 +118,11 @@ private struct DotMatrixWorld: View {
         return m
     }
 
-    private static func style(forDistance d: Double) -> (Color, CGFloat) {
-        if d < 0.045 { return (Color(hex: 0xE59BF0), 1.7) }   // 紧邻足迹：亮粉
-        if d < 0.085 { return (Color(hex: 0xB07FE0), 1.45) }  // 近：紫
-        if d < 0.16  { return (Color(hex: 0x6E5FA0), 1.2) }   // 中距过渡：暗紫（更宽，过渡更顺）
-        return (Color(hex: 0x46466A), 1.15)                   // 基线：清晰冷靛蓝——未去过的大陆也读成完整点阵地球
+    private static func style(forDistance d: Double, skin: MapSkin.Palette) -> (Color, CGFloat) {
+        if d < 0.045 { return (skin.dotNear, 1.7) }   // 紧邻足迹
+        if d < 0.085 { return (skin.dotMid, 1.45) }   // 近
+        if d < 0.16  { return (skin.dotFar, 1.2) }    // 中距过渡（更宽，过渡更顺）
+        return (skin.dotBase, 1.15)                   // 基线：未去过的大陆也读成完整点阵地球
     }
 
     /// 确定性抖动（避免每帧重绘抖动闪烁）：返回约 -0.7...0.7。
@@ -132,13 +137,14 @@ private struct DotMatrixWorld: View {
 private struct PinsLayer: View {
     let footprints: [Footprint]
     let pulse: Bool
+    let skin: MapSkin.Palette
 
     var body: some View {
         GeometryReader { geo in
             ForEach(footprints) { fp in
                 let p = MapProjection.point(fp.coordinate, in: geo.size)
                 // 脉冲环
-                Circle().stroke(Color.nPink, lineWidth: 1.3)
+                Circle().stroke(skin.pinTop, lineWidth: 1.3)
                     .frame(width: 8, height: 8)
                     .scaleEffect(pulse ? 3.4 : 1)
                     .opacity(pulse ? 0 : 0.9)
@@ -146,9 +152,9 @@ private struct PinsLayer: View {
                 // 发光点 + 白芯
                 ZStack {
                     Circle()
-                        .fill(LinearGradient(colors: [.nPink, .nOrange], startPoint: .top, endPoint: .bottom))
+                        .fill(LinearGradient(colors: [skin.pinTop, skin.pinBottom], startPoint: .top, endPoint: .bottom))
                         .frame(width: 8, height: 8)
-                        .shadow(color: Color.nPink.opacity(0.9), radius: 5)
+                        .shadow(color: skin.pinTop.opacity(0.9), radius: 5)
                     Circle().fill(.white).frame(width: 3, height: 3)
                 }
                 .position(p)

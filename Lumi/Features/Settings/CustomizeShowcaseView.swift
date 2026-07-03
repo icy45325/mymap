@@ -6,8 +6,11 @@ import SwiftUI
 struct CustomizeShowcaseView: View {
 
     @AppStorage("lumi.passport.style") private var passportStyle: String = PassportStyle.classic.rawValue
+    @AppStorage(MapSkin.storageKey) private var skinRaw: String = ""
+    @ObservedObject private var plus = PlusStore.shared
     @State private var widgetPage = 0
     @State private var showGuide = false
+    @State private var showPaywall = false
 
     private let widgetNames: [LocalizedStringKey] = ["点亮战绩", "去过的国旗", "去年今日"]
     private var currentWidgetName: LocalizedStringKey { widgetNames[min(widgetPage, widgetNames.count - 1)] }
@@ -16,6 +19,7 @@ struct CustomizeShowcaseView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 26) {
                 widgetSection
+                mapSkinSection
                 passportSection
                 Color.clear.frame(height: 20)
             }
@@ -29,6 +33,71 @@ struct CustomizeShowcaseView: View {
         .toolbarColorScheme(.dark, for: .navigationBar)
         .preferredColorScheme(.dark)
         .sheet(isPresented: $showGuide) { WidgetAddGuideSheet(widgetName: currentWidgetName) }
+        .sheet(isPresented: $showPaywall) { PaywallView() }
+    }
+
+    // MARK: 地图皮肤（Plus）
+
+    /// 当前生效皮肤（非 Plus 恒为霓虹）。
+    private var activeSkin: MapSkin { MapSkin.resolve(skinRaw, isPlus: plus.isPlus) }
+
+    private var mapSkinSection: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            sectionHeader("地图皮肤", "换一套点亮配色 · 霓虹免费，更多皮肤属 Plus")
+            HStack(spacing: 12) {
+                ForEach(MapSkin.allCases) { s in mapSkinCard(s) }
+            }
+        }
+    }
+
+    private func mapSkinCard(_ s: MapSkin) -> some View {
+        let locked = !s.isFree && !plus.isPlus
+        let active = s == activeSkin
+        let p = s.palette
+        return Button {
+            if locked { showPaywall = true }
+            else { skinRaw = s.rawValue; Haptics.selection() }
+        } label: {
+            VStack(spacing: 7) {
+                // 迷你点阵地球 swatch：氛围光 + 三档点色 + 一枚光点
+                ZStack {
+                    RoundedRectangle(cornerRadius: 12).fill(Color(hex: 0x11101E))
+                    RadialGradient(colors: [p.glow.opacity(0.4), .clear],
+                                   center: .center, startRadius: 2, endRadius: 46)
+                    HStack(spacing: 5) {
+                        Circle().fill(p.dotBase).frame(width: 5, height: 5)
+                        Circle().fill(p.dotFar).frame(width: 5, height: 5)
+                        Circle().fill(p.dotMid).frame(width: 6, height: 6)
+                        Circle().fill(p.dotNear).frame(width: 7, height: 7)
+                    }
+                    Circle()
+                        .fill(LinearGradient(colors: [p.pinTop, p.pinBottom],
+                                             startPoint: .top, endPoint: .bottom))
+                        .frame(width: 9, height: 9)
+                        .shadow(color: p.pinTop.opacity(0.9), radius: 4)
+                        .offset(x: 22, y: -14)
+                    if locked {
+                        Image(systemName: "lock.fill").font(.system(size: 11))
+                            .foregroundStyle(.white.opacity(0.85))
+                            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                            .padding(7)
+                    }
+                }
+                .frame(height: 64)
+                .overlay(RoundedRectangle(cornerRadius: 12)
+                    .stroke(active ? p.pinTop.opacity(0.8) : Color.line, lineWidth: active ? 1.6 : 1))
+                HStack(spacing: 4) {
+                    Text(s.label).font(.system(size: 11.5, weight: .semibold))
+                        .foregroundStyle(active ? Color.text : Color.muted)
+                    if active {
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.system(size: 10)).foregroundStyle(p.pinTop)
+                    }
+                }
+            }
+        }
+        .buttonStyle(.plain)
+        .frame(maxWidth: .infinity)
     }
 
     // MARK: 小组件展示（轮播：每个含小 + 中两种尺寸）

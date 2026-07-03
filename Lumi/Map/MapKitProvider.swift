@@ -15,6 +15,11 @@ private struct LumiMapView: View {
 
     let state: MapRenderState
 
+    /// 地图皮肤（Plus）：点亮区与足迹点配色随皮肤。
+    @AppStorage(MapSkin.storageKey) private var skinRaw: String = ""
+    @ObservedObject private var plus = PlusStore.shared
+    private var skin: MapSkin.Palette { MapSkin.resolve(skinRaw, isPlus: plus.isPlus).palette }
+
     /// 初始视野：以阿布扎比为中心的世界尺度（作者正在 UAE dogfood）。
     private static let initialRegion = MKCoordinateRegion(
         center: CLLocationCoordinate2D(latitude: 24.45, longitude: 54.38),
@@ -38,14 +43,14 @@ private struct LumiMapView: View {
                 ForEach(state.litRegions) { region in
                     ForEach(Array(region.rings.enumerated()), id: \.offset) { _, ring in
                         MapPolygon(coordinates: ring)
-                            .foregroundStyle(Color.nPurple.opacity(0.30))
-                            .stroke(Color.nPink.opacity(0.9), lineWidth: 1)
+                            .foregroundStyle(skin.litFill.opacity(0.30))
+                            .stroke(skin.litStroke.opacity(0.9), lineWidth: 1)
                     }
                 }
                 // ③ 足迹点：发光琥珀圆点
                 ForEach(state.pins) { pin in
                     Annotation("", coordinate: pin.coordinate, anchor: .center) {
-                        FootprintDot()
+                        FootprintDot(skin: skin)
                     }
                     .annotationTitles(.hidden)
                 }
@@ -65,17 +70,18 @@ private struct LumiMapView: View {
 
 /// 足迹发光点（霓虹粉→橙渐变 + 白芯）。
 private struct FootprintDot: View {
+    let skin: MapSkin.Palette
     var body: some View {
         ZStack {
             Circle()
-                .fill(Color.nPink.opacity(0.28))
+                .fill(skin.pinTop.opacity(0.28))
                 .frame(width: 22, height: 22)
                 .blur(radius: 4)
             Circle()
-                .fill(LinearGradient(colors: [.nPink, .nOrange],
+                .fill(LinearGradient(colors: [skin.pinTop, skin.pinBottom],
                                      startPoint: .top, endPoint: .bottom))
                 .frame(width: 12, height: 12)
-                .shadow(color: Color.nPink.opacity(0.9), radius: 6)
+                .shadow(color: skin.pinTop.opacity(0.9), radius: 6)
             Circle().fill(.white).frame(width: 4, height: 4)
         }
     }
