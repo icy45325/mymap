@@ -6293,6 +6293,468 @@
         }
       }
     },
+    "主题色": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "主题色"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Theme"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "السمة"
+          }
+        }
+      }
+    },
+    "高亮色、地图与 App 图标一起换 · 霓虹免费，其余属 Plus": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "高亮色、地图与 App 图标一起换 · 霓虹免费，其余属 Plus"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accent colors, map and app icon switch together · Neon is free, others with Plus"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تتبدل ألوان التمييز والخريطة وأيقونة التطبيق معًا · نيون مجاني والبقية مع Plus"
+          }
+        }
+      }
+    },
+    "PLUS": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PLUS"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PLUS"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PLUS"
+          }
+        }
+      }
+    },
+    "主题色 · 专属图标 · 小组件": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "主题色 · 专属图标 · 小组件"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Themes · exclusive icons · widgets"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "السمات · أيقونات حصرية · الودجات"
+          }
+        }
+      }
+    },
+    "极光/暖阳整套主题（高亮+地图+图标），主屏小组件": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "极光/暖阳整套主题（高亮+地图+图标），主屏小组件"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aurora & sunset full themes (accents + map + icon), Home Screen widgets"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "سمات الشفق والغروب الكاملة، وودجات الشاشة الرئيسية"
+          }
+        }
+      }
+    },
+    "点亮该国家即解锁 · 仅限该国足迹的明信片": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "点亮该国家即解锁 · 仅限该国足迹的明信片"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlock by lighting the country · usable only on that country's footprints"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "افتحه بإضاءة الدولة · يُستخدم فقط على بصمات تلك الدولة"
+          }
+        }
+      }
+    },
+    "节日前后 5 天限时可用（地区性节日仅限该地区足迹）· 收到贴此章的明信片即收集": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "节日前后 5 天限时可用（地区性节日仅限该地区足迹）· 收到贴此章的明信片即收集"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Usable within 5 days around the festival (regional festivals limited to that region) · collect by receiving a card bearing it"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "يُستخدم خلال 5 أيام حول العيد (الأعياد الإقليمية لمنطقتها فقط) · اجمعه باستلام بطاقة تحمله"
+          }
+        }
+      }
+    },
+    "已收集": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已收集"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Collected"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تم جمعه"
+          }
+        }
+      }
+    },
+    "未收集": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未收集"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not collected"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "لم يُجمع"
+          }
+        }
+      }
+    },
+    "使用限制": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用限制"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Usage"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الاستخدام"
+          }
+        }
+      }
+    },
+    "用法": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "用法"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How to use"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "طريقة الاستخدام"
+          }
+        }
+      }
+    },
+    "可用窗口": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "可用窗口"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Window"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الفترة"
+          }
+        }
+      }
+    },
+    "适用地区": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "适用地区"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Region"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "المنطقة"
+          }
+        }
+      }
+    },
+    "收集方式": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "收集方式"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How to collect"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "طريقة الجمع"
+          }
+        }
+      }
+    },
+    "说明": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "说明"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "About"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "حول"
+          }
+        }
+      }
+    },
+    "仅限该国足迹的明信片": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "仅限该国足迹的明信片"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Only on postcards from that country's footprints"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "فقط على بطاقات بصمات تلك الدولة"
+          }
+        }
+      }
+    },
+    "寄明信片时在邮票选择器中选用": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "寄明信片时在邮票选择器中选用"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pick it in the stamp selector when sending a postcard"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "اختره من منتقي الطوابع عند إرسال بطاقة"
+          }
+        }
+      }
+    },
+    "节日前后 5 天，寄该地区足迹的明信片可选用": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "节日前后 5 天，寄该地区足迹的明信片可选用"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Within 5 days around the festival, on that region's footprints"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "خلال 5 أيام حول العيد، على بصمات تلك المنطقة"
+          }
+        }
+      }
+    },
+    "收到贴此章的明信片即可收集": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "收到贴此章的明信片即可收集"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Receive a postcard bearing this seal to collect it"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "استلم بطاقة تحمل هذا الختم لجمعه"
+          }
+        }
+      }
+    },
+    "任意明信片可选": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "任意明信片可选"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Usable on any postcard"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "يُستخدم على أي بطاقة"
+          }
+        }
+      }
+    },
+    "邮局盖章：明信片寄达后由 Lumi 邮局盖上，仅收件人翻面可见": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "邮局盖章：明信片寄达后由 Lumi 邮局盖上，仅收件人翻面可见"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Post office mark: stamped by the Lumi post office on delivery, visible only to the recipient"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ختم البريد: يختمه بريد Lumi عند التسليم ويظهر للمستلم فقط"
+          }
+        }
+      }
+    },
     "订阅会自动续订，可随时在「设置 › Apple ID › 订阅」取消。付款将在确认购买时记入你的 Apple ID。": {
       "localizations": {
         "zh-Hans": {
