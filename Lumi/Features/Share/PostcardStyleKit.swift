@@ -260,22 +260,13 @@ struct PostcardBackPanel: View {
     private var locEn: String { (footprint.cityName ?? footprint.title).uppercased() }
     private var locZh: String { footprint.locationSubtitle.isEmpty ? footprint.title : footprint.locationSubtitle }
 
-    /// 命中节日章吗（仅收件人视角；按足迹所在地区 + 寄出日期窗口）。
-    private var festival: Festival? {
-        showPostmark ? Festival.match(countryCode: footprint.countryCode, date: footprint.visitedAt) : nil
-    }
-
-    /// 邮票位：命中节日 → 节日主题邮票；否则空运/陆运/海运邮票（收件人视角再叠通用邮戳）。
+    /// 邮票位：发送方选定的邮票（基础 / 本国特色 / 节日章）；收件人视角再叠通用邮戳。
     @ViewBuilder
     private func stampMark(_ w: CGFloat, _ h: CGFloat, pm: CGSize) -> some View {
-        if let f = festival {
-            FestivalSeal(festival: f).frame(width: w + 4, height: h + 4)
-        } else {
-            ZStack(alignment: .bottomLeading) {
-                StampView(kind: stamp)
-                    .frame(width: w, height: h).rotationEffect(.degrees(4))
-                if showPostmark { postmark.offset(x: pm.width, y: pm.height) }
-            }
+        ZStack(alignment: .bottomLeading) {
+            StampView(kind: stamp)
+                .frame(width: w, height: h).rotationEffect(.degrees(4))
+            if showPostmark { postmark.offset(x: pm.width, y: pm.height) }
         }
     }
 

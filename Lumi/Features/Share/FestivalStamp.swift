@@ -63,15 +63,15 @@ enum Festival: String, CaseIterable, Identifiable {
         }
     }
 
-    /// 节日窗口（含两端，已并入前后 2 天）。以 (月,日) 表示。
+    /// 节日窗口（含两端，已并入前后 5 天）。以 (月,日) 表示。
     private var window: (from: (Int, Int), to: (Int, Int)) {
         switch self {
-        case .prophetBirthday: return ((8, 23), (8, 27))   // 8/25 ±2
-        case .uaeNationalDay:   return ((11, 30), (12, 5))  // 12/2–12/3 ±2
-        case .thanksgiving:     return ((11, 24), (11, 28)) // 11/26 ±2
-        case .christmas:        return ((12, 23), (12, 27)) // 12/25 ±2
-        case .midAutumn:        return ((9, 23), (9, 29))   // 9/25–9/27 ±2
-        case .chinaNationalDay: return ((9, 29), (10, 9))   // 10/1–10/7 ±2
+        case .prophetBirthday: return ((8, 20), (8, 30))    // 8/25 ±5
+        case .uaeNationalDay:   return ((11, 27), (12, 8))   // 12/2–12/3 ±5
+        case .thanksgiving:     return ((11, 21), (12, 1))   // 11/26 ±5
+        case .christmas:        return ((12, 20), (12, 30))  // 12/25 ±5
+        case .midAutumn:        return ((9, 20), (10, 2))    // 9/25–9/27 ±5
+        case .chinaNationalDay: return ((9, 26), (10, 12))   // 10/1–10/7 ±5
         }
     }
 
@@ -97,27 +97,26 @@ enum Festival: String, CaseIterable, Identifiable {
         return ["Europe", "North America", "South America", "Asia"].contains(c)
     }
 
-    /// 按足迹所在国家码 + 寄出/分享日期，匹配应盖的节日章；无匹配返回 nil（用通用 Lumi 邮戳）。
-    static func match(countryCode: String?, date: Date) -> Festival? {
-        guard let code = countryCode?.uppercased() else { return nil }
-        let comps = Calendar.current.dateComponents([.month, .day], from: date)
-        guard let m = comps.month, let d = comps.day else { return nil }
+    /// 某国家码可用的节日集合（地区限定：中东 / 中国额外 / 欧美+亚洲）。
+    private static func regionFestivals(_ code: String) -> [Festival] {
+        if isMiddleEast(code) { return [.prophetBirthday, .uaeNationalDay] }
+        var list: [Festival] = []
+        if code == "CN" { list += [.midAutumn, .chinaNationalDay] }
+        if isWesternOrAsia(code) { list += [.thanksgiving, .christmas] }
+        return list
+    }
 
-        if isMiddleEast(code) {                         // 中东：仅伊斯兰 / 阿联酋节日
-            if Festival.prophetBirthday.contains(month: m, day: d) { return .prophetBirthday }
-            if Festival.uaeNationalDay.contains(month: m, day: d) { return .uaeNationalDay }
-            return nil
-        }
-        if code == "CN" {                               // 中国：中秋 / 国庆优先
-            if Festival.midAutumn.contains(month: m, day: d) { return .midAutumn }
-            if Festival.chinaNationalDay.contains(month: m, day: d) { return .chinaNationalDay }
-            // 落空则继续走亚洲组（圣诞 / 感恩节）
-        }
-        if isWesternOrAsia(code) {                      // 欧美 + 亚洲（含中、新、日韩等）
-            if Festival.thanksgiving.contains(month: m, day: d) { return .thanksgiving }
-            if Festival.christmas.contains(month: m, day: d) { return .christmas }
-        }
-        return nil
+    /// **寄卡时**可选的节日章：足迹所在地区匹配 + 给定日期落在节日窗口（前后 5 天）内。
+    static func eligible(countryCode: String?, on date: Date) -> [Festival] {
+        guard let code = countryCode?.uppercased() else { return [] }
+        let comps = Calendar.current.dateComponents([.month, .day], from: date)
+        guard let m = comps.month, let d = comps.day else { return [] }
+        return regionFestivals(code).filter { $0.contains(month: m, day: d) }
+    }
+
+    /// 按足迹所在国家码 + 日期匹配单个节日（旧收到卡的兼容判定用）。
+    static func match(countryCode: String?, date: Date) -> Festival? {
+        eligible(countryCode: countryCode, on: date).first
     }
 }
 

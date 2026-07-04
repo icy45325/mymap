@@ -47,16 +47,18 @@ struct RegionalStamp: Identifiable, Equatable, Hashable {
     }
 }
 
-/// 邮票的统一类型：基础（空运/陆运/海运）或地区特色。序列化用 `raw` 字符串，双向兼容旧数据。
+/// 邮票的统一类型：基础（空运/陆运/海运）/ 地区特色 / 节日限定。序列化用 `raw` 字符串，双向兼容旧数据。
 enum StampKind: Equatable, Hashable, Identifiable {
     case basic(PostcardStamp)
     case regional(RegionalStamp)
+    case festival(Festival)
 
     var id: String { raw }
     var raw: String {
         switch self {
         case .basic(let b):    return b.rawValue
         case .regional(let r): return r.raw
+        case .festival(let f): return "fest:\(f.rawValue)"
         }
     }
 
@@ -64,13 +66,15 @@ enum StampKind: Equatable, Hashable, Identifiable {
     init(raw: String) {
         if raw.hasPrefix("cc:"), let r = RegionalStamp.byCode(String(raw.dropFirst(3))) {
             self = .regional(r)
+        } else if raw.hasPrefix("fest:"), let f = Festival(rawValue: String(raw.dropFirst(5))) {
+            self = .festival(f)
         } else {
             self = .basic(PostcardStamp(rawValue: raw) ?? .air)
         }
     }
 }
 
-/// 统一邮票视图：按 kind 分发到基础邮票或地区邮票。
+/// 统一邮票视图：按 kind 分发到 基础邮票 / 地区邮票 / 节日章贴图。
 struct StampView: View {
     let kind: StampKind
     var mini: Bool = false
@@ -79,6 +83,7 @@ struct StampView: View {
         switch kind {
         case .basic(let s):    PostcardStampView(stamp: s, mini: mini)
         case .regional(let r): RegionalStampView(stamp: r, mini: mini)
+        case .festival(let f): FestivalSeal(festival: f)
         }
     }
 }

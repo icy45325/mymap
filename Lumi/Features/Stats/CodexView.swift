@@ -12,10 +12,12 @@ struct CodexView: View {
 
     private var litCodes: Set<String> { Set(footprints.compactMap { $0.countryCode }) }
 
-    /// 已收集的节日章：收到的明信片里命中过的节日。
+    /// 已收集的节日章：收到过贴着该章的明信片（`fest:` 前缀）；旧卡按 地区×日期 兜底判定。
     private var collectedFestivals: Set<Festival> {
-        Set(footprints.filter { $0.isReceived }
-            .compactMap { Festival.match(countryCode: $0.countryCode, date: $0.visitedAt) })
+        Set(footprints.filter { $0.isReceived }.compactMap { fp -> Festival? in
+            if case .festival(let f) = StampKind(raw: fp.stampStyle) { return f }
+            return Festival.match(countryCode: fp.countryCode, date: fp.visitedAt)   // 旧卡兼容
+        })
     }
 
     private var unlockedRegionalCount: Int {
@@ -34,12 +36,12 @@ struct CodexView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
                 progressHeader
-                section("地区邮票", subtitle: "点亮该国家即解锁，可贴在寄出的明信片上") {
+                section("地区邮票", subtitle: "点亮该国家即解锁 · 仅限该国足迹的明信片") {
                     LazyVGrid(columns: cols, spacing: 14) {
                         ForEach(RegionalStamp.all) { r in regionalCell(r) }
                     }
                 }
-                section("节日限定章", subtitle: "收到命中节日期间寄出的明信片即可收集") {
+                section("节日限定章", subtitle: "节日前后 5 天限时可用（地区性节日仅限该地区足迹）· 收到贴此章的明信片即收集") {
                     LazyVGrid(columns: cols, spacing: 14) {
                         ForEach(Festival.allCases) { f in festivalCell(f) }
                     }

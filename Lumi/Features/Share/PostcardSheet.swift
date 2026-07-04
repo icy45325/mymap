@@ -22,8 +22,6 @@ struct PostcardSheet: View {
     @State private var token = UUID().uuidString    // 本张分享卡的幂等标识（稳定）
     @State private var style: PostcardStyle
     @State private var stamp: StampKind
-    /// 全部足迹：用于派生已解锁的地区特色邮票（去过即解锁）。
-    @Query private var allFootprints: [Footprint]
     @State private var flipped = false
     @State private var recipient = ""
     @State private var sendDate: Date                // 发送日期，限定在行程范围内
@@ -273,12 +271,16 @@ struct PostcardSheet: View {
         }
     }
 
-    /// 已解锁的地区特色邮票（去过该国即解锁）。
-    private var unlockedRegionals: [RegionalStamp] {
-        RegionalStamp.unlocked(litCodes: Set(allFootprints.compactMap { $0.countryCode }))
+    /// 该足迹所在国的特色邮票（地区票**仅限本国足迹**使用；目录里没有该国则不出现）。
+    private var footprintRegional: RegionalStamp? {
+        footprint.countryCode.flatMap { RegionalStamp.byCode($0) }
+    }
+    /// 当前可用的节日章：**今天**落在节日窗口（前后 5 天）内 + 足迹地区匹配。
+    private var eligibleFestivals: [Festival] {
+        Festival.eligible(countryCode: footprint.countryCode, on: Date())
     }
 
-    /// 邮票选择：基础三款（空运 / 陆运 / 海运）+ 已解锁的地区特色邮票（横滑）。
+    /// 邮票选择：基础三款 + 本国特色票 + 窗口期内的节日章（横滑）。
     private var stampPicker: some View {
         editorBlock("邮票") {
             ScrollView(.horizontal, showsIndicators: false) {
@@ -286,8 +288,11 @@ struct PostcardSheet: View {
                     ForEach(PostcardStamp.allCases) { p in
                         stampCell(.basic(p), title: Text(p.label))
                     }
-                    ForEach(unlockedRegionals) { r in
+                    if let r = footprintRegional {
                         stampCell(.regional(r), title: Text(verbatim: "\(r.flag) \(r.displayName)"))
+                    }
+                    ForEach(eligibleFestivals) { f in
+                        stampCell(.festival(f), title: Text(f.titleKey))
                     }
                 }
                 .padding(.horizontal, 2)
