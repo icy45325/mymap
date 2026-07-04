@@ -40,7 +40,9 @@ struct FlagWidgetView: View {
     private var allFlags: [String] { snapshot.litCountryCodes.map(flagEmoji) }
 
     var body: some View {
-        if allFlags.isEmpty {
+        if !WidgetTheme.plusActive {
+            WidgetPlusLock()
+        } else if allFlags.isEmpty {
             VStack(alignment: .leading, spacing: 10) {
                 WidgetHeader(section: "去过的国旗")
                 Spacer()

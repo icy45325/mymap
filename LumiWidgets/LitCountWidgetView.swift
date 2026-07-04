@@ -12,6 +12,10 @@ struct LitCountWidgetView: View {
     private var percent: String { "\(snapshot.worldPercent)%" }
 
     var body: some View {
+        if WidgetTheme.plusActive { content } else { WidgetPlusLock() }
+    }
+
+    @ViewBuilder private var content: some View {
         switch family {
         case .systemSmall:        small
         case .systemMedium:       medium

@@ -8,6 +8,10 @@ struct OnThisDayWidgetView: View {
     @Environment(\.widgetFamily) private var family
 
     var body: some View {
+        if WidgetTheme.plusActive { content } else { WidgetPlusLock() }
+    }
+
+    @ViewBuilder private var content: some View {
         switch family {
         case .systemSmall:          small
         case .systemMedium:         medium

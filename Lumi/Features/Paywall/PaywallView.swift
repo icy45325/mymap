@@ -66,7 +66,7 @@ struct PaywallView: View {
             prop("infinity", "后续所有功能迭代", "一次解锁，未来新增 Plus 功能全部包含", available: true)
             prop("sparkles", "明信片无水印 · 高清导出", "去掉 Lumi 水印，3 倍分辨率导出", available: true)
             prop("photo.stack", "全部明信片样式 & 邮票", "解锁所有卡面样式与邮票贴图", available: false)
-            prop("map", "地图皮肤 & App 图标", "极光/暖阳地图配色，专属桌面图标", available: true)
+            prop("paintpalette.fill", "主题色 · 专属图标 · 小组件", "极光/暖阳整套主题（高亮+地图+图标），主屏小组件", available: true)
             prop("icloud", "云同步 · 多设备 · 跨平台", "换机不丢，iOS / Android 共享权益", available: false)
             prop("chart.bar.xaxis", "进阶统计 · 年度回顾", "更深的足迹洞察与年度叙事", available: false)
         }

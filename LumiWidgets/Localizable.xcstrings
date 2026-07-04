@@ -550,6 +550,72 @@
           }
         }
       }
+    },
+    "Lumi Plus 专属": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lumi Plus 专属"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lumi Plus exclusive"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "حصري لـ Lumi Plus"
+          }
+        }
+      }
+    },
+    "打开 Lumi 解锁": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打开 Lumi 解锁"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open Lumi to unlock"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "افتح Lumi للفتح"
+          }
+        }
+      }
+    },
+    "成为终身会员，把旅行进度放上主屏": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "成为终身会员，把旅行进度放上主屏"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Become a lifetime member to put your journey on the Home Screen"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "كن عضوًا مدى الحياة لعرض رحلتك على الشاشة الرئيسية"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

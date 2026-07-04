@@ -31,3 +31,37 @@ struct DotMatrixBackdrop: View {
             .opacity(opacity)
     }
 }
+
+/// Plus 门控锁定态：小组件为 Lumi Plus 专属，未解锁时替代真实内容。
+/// 按尺寸族给紧凑/完整两种布局；解锁后由主 App 刷新时间线自动恢复。
+struct WidgetPlusLock: View {
+    @Environment(\.widgetFamily) private var family
+
+    var body: some View {
+        switch family {
+        case .accessoryInline:
+            Label("Lumi Plus 专属", systemImage: "lock.fill")
+        case .accessoryRectangular:
+            HStack(spacing: 6) {
+                Image(systemName: "lock.fill").font(.system(size: 13))
+                VStack(alignment: .leading, spacing: 1) {
+                    Text("Lumi Plus 专属").font(.system(size: 12, weight: .semibold))
+                    Text("打开 Lumi 解锁").font(.system(size: 10)).opacity(0.7)
+                }
+            }
+        default:
+            VStack(spacing: 7) {
+                Image(systemName: "lock.fill")
+                    .font(.system(size: 22, weight: .semibold))
+                    .foregroundStyle(WidgetTheme.lit)
+                Text("Lumi Plus 专属")
+                    .font(.system(size: 13, weight: .bold)).foregroundStyle(WidgetTheme.text)
+                Text("成为终身会员，把旅行进度放上主屏")
+                    .font(.system(size: 10)).foregroundStyle(WidgetTheme.muted)
+                    .multilineTextAlignment(.center)
+            }
+            .padding(12)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+    }
+}

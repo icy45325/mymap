@@ -110,7 +110,14 @@ struct CustomizeShowcaseView: View {
 
     private var widgetSection: some View {
         VStack(alignment: .leading, spacing: 10) {
-            sectionHeader("小组件 Widgets", "把旅行进度放上主屏 / 锁屏")
+            HStack(spacing: 8) {
+                sectionHeader("小组件 Widgets", "把旅行进度放上主屏 / 锁屏")
+                Text("PLUS")
+                    .font(.system(size: 9, weight: .heavy)).tracking(1)
+                    .foregroundStyle(.white)
+                    .padding(.vertical, 3).padding(.horizontal, 8)
+                    .background(LinearGradient.neonH, in: Capsule())
+            }
             TabView(selection: $widgetPage) {
                 widgetShowcaseCard(name: "点亮战绩", desc: "主屏显示已点亮国家数与全球占比",
                                    small: { statsWidgetTile }, medium: { statsWidgetMediumTile }).tag(0)
@@ -130,7 +137,7 @@ struct CustomizeShowcaseView: View {
             }
             .frame(maxWidth: .infinity)
 
-            Button { showGuide = true } label: {
+            Button { if plus.isPlus { showGuide = true } else { showPaywall = true } } label: {
                 Label("添加到桌面", systemImage: "plus.app.fill")
                     .font(.system(size: 15, weight: .semibold)).foregroundStyle(.white)
                     .frame(maxWidth: .infinity).padding(.vertical, 13)
