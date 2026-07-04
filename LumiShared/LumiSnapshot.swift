@@ -63,6 +63,10 @@ enum LumiAppGroup {
     static let id = "group.com.lumi.fun"
     /// 快照在共享 UserDefaults 里的键（v2 起含 memories；快照全派生，升级即由 App 重写）。
     static let snapshotKey = "lumi.snapshot.v2"
+    /// Plus 权益标志（主 App 写、小组件读——小组件为 Plus 专属，未解锁显示锁定态）。
+    static let plusKey = "lumi.plus.active"
+    /// 当前主题 raw（主 App 写、小组件读——小组件高亮色跟随主题）。
+    static let themeKey = "lumi.theme.active"
     /// 小组件 kind（StaticConfiguration / reloadTimelines(ofKind:) 共用）。
     static let widgetKind = "LitCountWidget"
     /// 国旗集合小组件 kind。

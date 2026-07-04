@@ -102,6 +102,7 @@ final class PlusStore: ObservableObject {
             active = true
         }
         isPlus = active
+        ThemeStore.shared.refresh(isPlus: active)   // 主题（Plus 门控）+ 小组件锁定标志 一并对齐
     }
 
     /// 历史产品（曾售月订）：老交易继续算 Plus，早鸟订阅用户升级后权益不丢。

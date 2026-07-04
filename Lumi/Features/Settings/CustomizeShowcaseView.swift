@@ -7,13 +7,11 @@ import UIKit
 struct CustomizeShowcaseView: View {
 
     @AppStorage("lumi.passport.style") private var passportStyle: String = PassportStyle.classic.rawValue
-    @AppStorage(MapSkin.storageKey) private var skinRaw: String = ""
     @ObservedObject private var plus = PlusStore.shared
+    @ObservedObject private var theme = ThemeStore.shared
     @State private var widgetPage = 0
     @State private var showGuide = false
     @State private var showPaywall = false
-    /// 当前生效的备用图标名（"" = 默认主图标）。
-    @State private var currentIcon = ""
 
     private let widgetNames: [LocalizedStringKey] = ["点亮战绩", "去过的国旗", "去年今日"]
     private var currentWidgetName: LocalizedStringKey { widgetNames[min(widgetPage, widgetNames.count - 1)] }
@@ -21,9 +19,8 @@ struct CustomizeShowcaseView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 26) {
+                themeSection
                 widgetSection
-                mapSkinSection
-                appIconSection
                 passportSection
                 Color.clear.frame(height: 20)
             }
@@ -41,119 +38,50 @@ struct CustomizeShowcaseView: View {
         .task { await plus.refreshEntitlement() }   // 进页即对齐 Plus 权益（购买后无需重启）
     }
 
-    // MARK: App 图标（Plus）
+    // MARK: 主题（Plus）——高亮色 + 地图配色 + App 图标 一套切换
 
-    /// 备用 App 图标：默认（nil）/ 暗金 / 粉霓。
-    private enum AppIconChoice: String, CaseIterable, Identifiable {
-        case classic = "", mono = "AppIcon-Mono", neon = "AppIcon-Neon"
-        var id: String { rawValue }
-        var label: LocalizedStringKey {
-            switch self {
-            case .classic: return "霓虹紫"
-            case .mono:    return "暗金"
-            case .neon:    return "粉霓"
-            }
-        }
-        var preview: String {
-            switch self {
-            case .classic: return "iconprev_classic"
-            case .mono:    return "iconprev_mono"
-            case .neon:    return "iconprev_neon"
-            }
-        }
-        var isFree: Bool { self == .classic }
-        var alternateName: String? { rawValue.isEmpty ? nil : rawValue }
-    }
-
-    private var appIconSection: some View {
+    private var themeSection: some View {
         VStack(alignment: .leading, spacing: 14) {
-            sectionHeader("App 图标", "换一枚桌面图标 · 默认免费，其余属 Plus")
+            sectionHeader("主题色", "高亮色、地图与 App 图标一起换 · 霓虹免费，其余属 Plus")
             HStack(spacing: 12) {
-                ForEach(AppIconChoice.allCases) { c in appIconCard(c) }
-            }
-        }
-        .onAppear { currentIcon = UIApplication.shared.alternateIconName ?? "" }
-    }
-
-    private func appIconCard(_ c: AppIconChoice) -> some View {
-        let locked = !c.isFree && !plus.isPlus
-        let active = currentIcon == c.rawValue
-        return Button {
-            if locked { showPaywall = true; return }
-            UIApplication.shared.setAlternateIconName(c.alternateName) { error in
-                if error == nil { Task { @MainActor in currentIcon = c.rawValue; Haptics.selection() } }
-            }
-        } label: {
-            VStack(spacing: 7) {
-                Image(c.preview)
-                    .resizable().scaledToFit()
-                    .frame(width: 58, height: 58)
-                    .clipShape(RoundedRectangle(cornerRadius: 13))
-                    .overlay(RoundedRectangle(cornerRadius: 13)
-                        .stroke(active ? Color.nPink.opacity(0.8) : Color.line, lineWidth: active ? 1.6 : 1))
-                    .overlay(alignment: .topTrailing) {
-                        if locked {
-                            Image(systemName: "lock.fill").font(.system(size: 10))
-                                .foregroundStyle(.white.opacity(0.9))
-                                .padding(4)
-                                .background(.black.opacity(0.45), in: Circle())
-                                .offset(x: 5, y: -5)
-                        }
-                    }
-                HStack(spacing: 4) {
-                    Text(c.label).font(.system(size: 11.5, weight: .semibold))
-                        .foregroundStyle(active ? Color.text : Color.muted)
-                    if active {
-                        Image(systemName: "checkmark.circle.fill")
-                            .font(.system(size: 10)).foregroundStyle(Color.nPink)
-                    }
-                }
-            }
-            .frame(maxWidth: .infinity)
-        }
-        .buttonStyle(.plain)
-    }
-
-    // MARK: 地图皮肤（Plus）
-
-    /// 当前生效皮肤（非 Plus 恒为霓虹）。
-    private var activeSkin: MapSkin { MapSkin.resolve(skinRaw, isPlus: plus.isPlus) }
-
-    private var mapSkinSection: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            sectionHeader("地图皮肤", "换一套点亮配色 · 霓虹免费，更多皮肤属 Plus")
-            HStack(spacing: 12) {
-                ForEach(MapSkin.allCases) { s in mapSkinCard(s) }
+                ForEach(AppTheme.allCases) { t in themeCard(t) }
             }
         }
     }
 
-    private func mapSkinCard(_ s: MapSkin) -> some View {
-        let locked = !s.isFree && !plus.isPlus
-        let active = s == activeSkin
-        let p = s.palette
+    private func themeCard(_ t: AppTheme) -> some View {
+        let locked = !t.isFree && !plus.isPlus
+        let active = t == theme.applied
+        let a = t.accents
+        let p = t.palette
         return Button {
             if locked { showPaywall = true }
-            else { skinRaw = s.rawValue; Haptics.selection() }
+            else { theme.select(t, isPlus: plus.isPlus); Haptics.selection() }
         } label: {
             VStack(spacing: 7) {
-                // 迷你点阵地球 swatch：氛围光 + 三档点色 + 一枚光点
                 ZStack {
                     RoundedRectangle(cornerRadius: 12).fill(Color(hex: 0x11101E))
-                    RadialGradient(colors: [p.glow.opacity(0.4), .clear],
+                    RadialGradient(colors: [p.glow.opacity(0.35), .clear],
                                    center: .center, startRadius: 2, endRadius: 46)
-                    HStack(spacing: 5) {
-                        Circle().fill(p.dotBase).frame(width: 5, height: 5)
-                        Circle().fill(p.dotFar).frame(width: 5, height: 5)
-                        Circle().fill(p.dotMid).frame(width: 6, height: 6)
-                        Circle().fill(p.dotNear).frame(width: 7, height: 7)
+                    VStack(spacing: 7) {
+                        // 强调色三点 + 渐变胶囊（全局高亮预览）
+                        Capsule()
+                            .fill(LinearGradient(colors: [a.primary, a.secondary, a.warm],
+                                                 startPoint: .leading, endPoint: .trailing))
+                            .frame(width: 46, height: 7)
+                        // 迷你点阵（地图预览）
+                        HStack(spacing: 4) {
+                            Circle().fill(p.dotBase).frame(width: 4.5, height: 4.5)
+                            Circle().fill(p.dotFar).frame(width: 4.5, height: 4.5)
+                            Circle().fill(p.dotMid).frame(width: 5.5, height: 5.5)
+                            Circle().fill(p.dotNear).frame(width: 6.5, height: 6.5)
+                        }
+                        // 配套图标缩略
+                        Image(t.iconPreview)
+                            .resizable().scaledToFit()
+                            .frame(width: 22, height: 22)
+                            .clipShape(RoundedRectangle(cornerRadius: 5))
                     }
-                    Circle()
-                        .fill(LinearGradient(colors: [p.pinTop, p.pinBottom],
-                                             startPoint: .top, endPoint: .bottom))
-                        .frame(width: 9, height: 9)
-                        .shadow(color: p.pinTop.opacity(0.9), radius: 4)
-                        .offset(x: 22, y: -14)
                     if locked {
                         Image(systemName: "lock.fill").font(.system(size: 11))
                             .foregroundStyle(.white.opacity(0.85))
@@ -161,15 +89,15 @@ struct CustomizeShowcaseView: View {
                             .padding(7)
                     }
                 }
-                .frame(height: 64)
+                .frame(height: 88)
                 .overlay(RoundedRectangle(cornerRadius: 12)
-                    .stroke(active ? p.pinTop.opacity(0.8) : Color.line, lineWidth: active ? 1.6 : 1))
+                    .stroke(active ? a.primary.opacity(0.8) : Color.line, lineWidth: active ? 1.6 : 1))
                 HStack(spacing: 4) {
-                    Text(s.label).font(.system(size: 11.5, weight: .semibold))
+                    Text(t.label).font(.system(size: 11.5, weight: .semibold))
                         .foregroundStyle(active ? Color.text : Color.muted)
                     if active {
                         Image(systemName: "checkmark.circle.fill")
-                            .font(.system(size: 10)).foregroundStyle(p.pinTop)
+                            .font(.system(size: 10)).foregroundStyle(a.primary)
                     }
                 }
             }

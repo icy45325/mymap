@@ -19,9 +19,13 @@ struct LumiApp: App {
         }
     }
 
+    /// 主题：切换/权益变化时整树重建（.id），令牌缓存已在发布前写好。
+    @StateObject private var theme = ThemeStore.shared
+
     var body: some Scene {
         WindowGroup {
             RootTabView()
+                .id(theme.applied)                                            // 主题切换 → 整树按新令牌重建
                 .onOpenURL { url in PostcardInbox.shared.handle(url: url) }  // lumi:// 链接 / AirDrop .lumicard 文件
                 .task { await PlusStore.shared.start() }                      // 拉产品 + 对齐 Plus 权益
                 .task { await FootprintRepair.backfillMissingCountries(LumiStore.shared.mainContext) }  // 补全缺国家码的足迹

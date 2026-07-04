@@ -23,24 +23,25 @@ extension Color {
     static let muted  = Color(hex: 0x8585A0)
     static let faint  = Color(hex: 0x52526A)
 
-    static let nPink   = Color(hex: 0xFF3D9A)  // 签名霓虹（足迹 / 主强调）
-    static let nPurple = Color(hex: 0x9B5DE5)
-    static let nOrange = Color(hex: 0xFF9A45)
-    static let nCyan   = Color(hex: 0x4DD9FF)
-    static let grn     = Color(hex: 0x37E0A0)
+    // 四强调槽位随主题（AppTheme/ThemeCache）动态取值；切主题时根视图整树重建。
+    static var nPink:   Color { ThemeCache.primary }    // 签名色（足迹 / 主强调）
+    static var nPurple: Color { ThemeCache.secondary }
+    static var nOrange: Color { ThemeCache.warm }
+    static var nCyan:   Color { ThemeCache.cool }
+    static let grn     = Color(hex: 0x37E0A0)           // 成功色不随主题
 
     static let glass  = Color.white.opacity(0.045)
 
-    // MARK: 旧令牌别名（保持存量视图编译）
+    // MARK: 旧令牌别名（保持存量视图编译；随主题动态）
     static let ink           = bg
     static let lineSoft      = hair
     static let textPrimary   = text
     static let textSecondary = muted
     static let textMuted     = faint
-    static let litGlow       = nPink     // 「点亮」签名色（霓虹粉）
-    static let litGlow2      = nOrange   // 渐变高光
-    static let accentRose    = nPink
-    static let accentCyan    = nCyan
+    static var litGlow:    Color { nPink }     // 「点亮」签名色
+    static var litGlow2:   Color { nOrange }   // 渐变高光
+    static var accentRose: Color { nPink }
+    static var accentCyan: Color { nCyan }
 }
 
 extension ShapeStyle where Self == LinearGradient {

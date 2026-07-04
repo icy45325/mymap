@@ -15,10 +15,8 @@ struct DotMatrixBackground: View {
     let footprints: [Footprint]
 
     @State private var pulse = false
-    /// 地图皮肤（Plus）：读存储 + 权益判定，切换即时生效。
-    @AppStorage(MapSkin.storageKey) private var skinRaw: String = ""
-    @ObservedObject private var plus = PlusStore.shared
-    private var skin: MapSkin.Palette { MapSkin.resolve(skinRaw, isPlus: plus.isPlus).palette }
+    /// 主题地图色板（主题切换时根视图整树重建，无需自行观察）。
+    private var skin: AppTheme.Palette { AppTheme.applied.palette }
 
     var body: some View {
         GeometryReader { geo in
@@ -61,7 +59,7 @@ enum MapProjection {
 /// 暗点阵陆地 + 城市附近高亮，靠 Canvas 一次绘制。
 private struct DotMatrixWorld: View {
     let footprints: [Footprint]
-    let skin: MapSkin.Palette
+    let skin: AppTheme.Palette
 
     /// 陆地近似椭圆 [cx, cy, rx, ry]（归一化），源自原型 land 数组。
     private static let land: [[Double]] = [
@@ -118,7 +116,7 @@ private struct DotMatrixWorld: View {
         return m
     }
 
-    private static func style(forDistance d: Double, skin: MapSkin.Palette) -> (Color, CGFloat) {
+    private static func style(forDistance d: Double, skin: AppTheme.Palette) -> (Color, CGFloat) {
         if d < 0.045 { return (skin.dotNear, 1.7) }   // 紧邻足迹
         if d < 0.085 { return (skin.dotMid, 1.45) }   // 近
         if d < 0.16  { return (skin.dotFar, 1.2) }    // 中距过渡（更宽，过渡更顺）
@@ -137,7 +135,7 @@ private struct DotMatrixWorld: View {
 private struct PinsLayer: View {
     let footprints: [Footprint]
     let pulse: Bool
-    let skin: MapSkin.Palette
+    let skin: AppTheme.Palette
 
     var body: some View {
         GeometryReader { geo in

@@ -15,10 +15,8 @@ private struct LumiMapView: View {
 
     let state: MapRenderState
 
-    /// 地图皮肤（Plus）：点亮区与足迹点配色随皮肤。
-    @AppStorage(MapSkin.storageKey) private var skinRaw: String = ""
-    @ObservedObject private var plus = PlusStore.shared
-    private var skin: MapSkin.Palette { MapSkin.resolve(skinRaw, isPlus: plus.isPlus).palette }
+    /// 主题地图色板（主题切换时根视图整树重建）。
+    private var skin: AppTheme.Palette { AppTheme.applied.palette }
 
     /// 初始视野：以阿布扎比为中心的世界尺度（作者正在 UAE dogfood）。
     private static let initialRegion = MKCoordinateRegion(
@@ -70,7 +68,7 @@ private struct LumiMapView: View {
 
 /// 足迹发光点（霓虹粉→橙渐变 + 白芯）。
 private struct FootprintDot: View {
-    let skin: MapSkin.Palette
+    let skin: AppTheme.Palette
     var body: some View {
         ZStack {
             Circle()
