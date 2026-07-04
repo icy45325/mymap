@@ -104,11 +104,15 @@ final class PlusStore: ObservableObject {
         isPlus = active
     }
 
-    /// 这笔交易是否当前有效（我们的产品 · 未撤销 · 终身买断永久有效）。
+    /// 历史产品（曾售月订）：老交易继续算 Plus，早鸟订阅用户升级后权益不丢。
+    private static let legacyProductIDs: Set<String> = ["com.lumi.plus.monthly"]
+
+    /// 这笔交易是否当前有效（我们的产品或历史产品 · 未撤销 · 终身永久 / 订阅未过期）。
     private func isEntitling(_ transaction: Transaction) -> Bool {
-        guard PlusProduct(rawValue: transaction.productID) != nil,
+        guard PlusProduct(rawValue: transaction.productID) != nil
+                || Self.legacyProductIDs.contains(transaction.productID),
               transaction.revocationDate == nil else { return false }
-        // 终身买断无到期；若日后再引入订阅，过期判定也一并兼容。
+        // 终身买断无到期；历史月订带 expirationDate，过期自动不算。
         if let expiry = transaction.expirationDate { return expiry > Date() }
         return true
     }

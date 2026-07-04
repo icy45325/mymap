@@ -38,6 +38,7 @@ struct CustomizeShowcaseView: View {
         .preferredColorScheme(.dark)
         .sheet(isPresented: $showGuide) { WidgetAddGuideSheet(widgetName: currentWidgetName) }
         .sheet(isPresented: $showPaywall) { PaywallView() }
+        .task { await plus.refreshEntitlement() }   // 进页即对齐 Plus 权益（购买后无需重启）
     }
 
     // MARK: App 图标（Plus）
