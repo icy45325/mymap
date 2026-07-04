@@ -466,25 +466,32 @@ struct PassportView: View {
         .transition(.opacity)
     }
 
-    /// 逐国暗纹：按国家码取地标意象（复用地区邮票映射，未覆盖国家用地球兜底），
-    /// 低不透明度斜向平铺——只作纸纹质感，不抢内容。
+    /// 逐国暗纹：按国家码取地标意象（复用地区邮票映射——含 GB/CN/US/SG 手绘地标，
+    /// 未覆盖国家用地球兜底），低不透明度斜向平铺——只作纸纹质感，不抢内容。
     private func motifWatermark(_ st: PassportStamp, ink: Color) -> some View {
-        let symbol = RegionalStamp.byCode(st.id)?.motif ?? "globe.asia.australia.fill"
+        let stamp = RegionalStamp.byCode(st.id)
         let cols = 4, rows = 7
         return VStack(spacing: 34) {
             ForEach(0..<rows, id: \.self) { r in
                 HStack(spacing: 44) {
                     ForEach(0..<cols, id: \.self) { c in
-                        Image(systemName: symbol)
-                            .font(.system(size: 30))
-                            .rotationEffect(.degrees(-16))
-                            .offset(x: r.isMultiple(of: 2) ? 0 : 24)
-                            .opacity((r + c).isMultiple(of: 2) ? 1 : 0.6)
+                        Group {
+                            if let stamp {
+                                RegionalMotifView(stamp: stamp, fill: ink, accent: ink)
+                                    .frame(width: 30, height: 34)
+                            } else {
+                                Image(systemName: "globe.asia.australia.fill")
+                                    .font(.system(size: 30)).foregroundStyle(ink)
+                            }
+                        }
+                        .rotationEffect(.degrees(-16))
+                        .offset(x: r.isMultiple(of: 2) ? 0 : 24)
+                        .opacity((r + c).isMultiple(of: 2) ? 1 : 0.6)
                     }
                 }
             }
         }
-        .foregroundStyle(ink.opacity(0.05))
+        .opacity(0.05)
         .allowsHitTesting(false)
     }
 
