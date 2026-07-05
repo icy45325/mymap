@@ -279,8 +279,14 @@ struct PostcardSheet: View {
     private var eligibleFestivals: [Festival] {
         Festival.eligible(countryCode: footprint.countryCode, on: Date())
     }
+    /// 匹配该足迹（国家 + 子区域）的典藏票；非 Plus 只露前 2 枚作付费入口。
+    private var visiblePremiums: [PremiumStamp] {
+        let matched = PremiumStamp.matching(countryCode: footprint.countryCode,
+                                            subRegionCode: footprint.subRegionCode)
+        return store.isPlus ? matched : Array(matched.prefix(2))
+    }
 
-    /// 邮票选择：基础三款 + 本国特色票 + 窗口期内的节日章（横滑）。
+    /// 邮票选择：基础三款 + 本国特色票 + 窗口期内节日章 + 典藏票（Plus / 带锁入口）。
     private var stampPicker: some View {
         editorBlock("邮票") {
             ScrollView(.horizontal, showsIndicators: false) {
@@ -294,10 +300,50 @@ struct PostcardSheet: View {
                     ForEach(eligibleFestivals) { f in
                         stampCell(.festival(f), title: Text(f.titleKey))
                     }
+                    ForEach(visiblePremiums) { p in premiumCell(p) }
                 }
                 .padding(.horizontal, 2)
             }
         }
+    }
+
+    /// 典藏票 cell：Plus 正常选用；非 Plus 带锁 + PLUS 徽记，点击弹 Paywall（付费入口）。
+    private func premiumCell(_ p: PremiumStamp) -> some View {
+        let locked = !store.isPlus
+        let kind = StampKind.premium(p)
+        let active = kind == stamp
+        return Button {
+            if locked { showPaywall = true } else { stamp = kind; Haptics.selection() }
+        } label: {
+            VStack(spacing: 5) {
+                StampView(kind: kind, mini: true)
+                    .frame(width: 30, height: 36)
+                    .grayscale(locked ? 0.6 : 0).opacity(locked ? 0.75 : 1)
+                    .overlay(alignment: .topTrailing) {
+                        if locked {
+                            Image(systemName: "lock.fill").font(.system(size: 8))
+                                .foregroundStyle(.white)
+                                .padding(3).background(.black.opacity(0.55), in: Circle())
+                                .offset(x: 6, y: -6)
+                        }
+                    }
+                HStack(spacing: 3) {
+                    Text(p.nameKey).font(.system(size: 11, weight: .semibold))
+                        .foregroundStyle(active ? Color.text : Color.muted).lineLimit(1)
+                    if locked {
+                        Text(verbatim: "PLUS").font(.system(size: 7, weight: .heavy)).tracking(0.5)
+                            .foregroundStyle(.white)
+                            .padding(.vertical, 2).padding(.horizontal, 5)
+                            .background(LinearGradient.neonH, in: Capsule())
+                    }
+                }
+            }
+            .frame(minWidth: 74).padding(.vertical, 9).padding(.horizontal, 6)
+            .background(active ? Color.white.opacity(0.07) : .clear, in: RoundedRectangle(cornerRadius: 12))
+            .overlay(RoundedRectangle(cornerRadius: 12)
+                .stroke(active ? Color.white.opacity(0.18) : Color.white.opacity(0.06), lineWidth: 1))
+        }
+        .buttonStyle(.plain)
     }
 
     private func stampCell(_ kind: StampKind, title: Text) -> some View {
@@ -377,6 +423,8 @@ struct PostcardSheet: View {
     }
 
     @MainActor private func rerender() {
+        // 权益回落守卫：非 Plus 不可寄典藏票（权益过期/未购时自动回落基础空运）
+        if !store.isPlus, stamp.isPremium { stamp = .basic(.air) }
         coverB64 = cover.flatMap { PostcardToken.encodeCover($0) }   // 压缩封面（AirDrop/链接带图）
         // Plus：无水印 + 高清(3x)；免费：盖水印 + 标清(2x)
         let card = PostcardExportCard(footprint: footprint, cover: cover, message: message,

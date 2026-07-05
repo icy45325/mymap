@@ -52,6 +52,7 @@ enum StampKind: Equatable, Hashable, Identifiable {
     case basic(PostcardStamp)
     case regional(RegionalStamp)
     case festival(Festival)
+    case premium(PremiumStamp)
 
     var id: String { raw }
     var raw: String {
@@ -59,8 +60,11 @@ enum StampKind: Equatable, Hashable, Identifiable {
         case .basic(let b):    return b.rawValue
         case .regional(let r): return r.raw
         case .festival(let f): return "fest:\(f.rawValue)"
+        case .premium(let p):  return p.raw
         }
     }
+    /// 是否 Plus 专属（典藏票）；用于权益回落守卫。
+    var isPremium: Bool { if case .premium = self { return true }; return false }
 
     /// 从存储/口令字符串解析；未知值兜底空运（与旧行为一致）。
     init(raw: String) {
@@ -68,13 +72,15 @@ enum StampKind: Equatable, Hashable, Identifiable {
             self = .regional(r)
         } else if raw.hasPrefix("fest:"), let f = Festival(rawValue: String(raw.dropFirst(5))) {
             self = .festival(f)
+        } else if raw.hasPrefix("prem:"), let p = PremiumStamp.byID(String(raw.dropFirst(5))) {
+            self = .premium(p)
         } else {
             self = .basic(PostcardStamp(rawValue: raw) ?? .air)
         }
     }
 }
 
-/// 统一邮票视图：按 kind 分发到 基础邮票 / 地区邮票 / 节日章贴图。
+/// 统一邮票视图：按 kind 分发到 基础邮票 / 地区邮票 / 节日章 / 典藏票贴图。
 struct StampView: View {
     let kind: StampKind
     var mini: Bool = false
@@ -84,6 +90,9 @@ struct StampView: View {
         case .basic(let s):    PostcardStampView(stamp: s, mini: mini)
         case .regional(let r): RegionalStampView(stamp: r, mini: mini)
         case .festival(let f): FestivalSeal(festival: f)
+        case .premium(let p):
+            Image(p.imageName).resizable().scaledToFit()   // 美术自带票框/齿孔
+                .shadow(color: .black.opacity(0.25), radius: mini ? 1 : 2, y: 1)
         }
     }
 }

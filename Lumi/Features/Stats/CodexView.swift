@@ -9,6 +9,7 @@ import SwiftData
 struct CodexView: View {
 
     @Query private var footprints: [Footprint]
+    @ObservedObject private var plus = PlusStore.shared
     @State private var selected: CodexEntry?
 
     private var litCodes: Set<String> { Set(footprints.compactMap { $0.countryCode }) }
@@ -24,11 +25,18 @@ struct CodexView: View {
     private var unlockedRegionalCount: Int {
         RegionalStamp.all.filter { litCodes.contains($0.code) }.count
     }
+    /// 可用的典藏票数（Plus + 点亮该国）。
+    private var usablePremiumCount: Int {
+        guard plus.isPlus else { return 0 }
+        return PremiumStamp.all.filter { litCodes.contains($0.code) }.count
+    }
     private var collectedTotal: Int {
-        unlockedRegionalCount + collectedFestivals.count + PostcardStamp.allCases.count + 1  // +1 通用邮戳
+        unlockedRegionalCount + usablePremiumCount + collectedFestivals.count
+            + PostcardStamp.allCases.count + 1  // +1 通用邮戳
     }
     private var codexTotal: Int {
-        RegionalStamp.all.count + Festival.allCases.count + PostcardStamp.allCases.count + 1
+        RegionalStamp.all.count + PremiumStamp.all.count + Festival.allCases.count
+            + PostcardStamp.allCases.count + 1
     }
 
     private let cols = Array(repeating: GridItem(.flexible(), spacing: 12), count: 3)
@@ -40,6 +48,11 @@ struct CodexView: View {
                 section("地区邮票", subtitle: "点亮该国家即解锁 · 仅限该国足迹的明信片") {
                     LazyVGrid(columns: cols, spacing: 14) {
                         ForEach(RegionalStamp.all) { r in regionalCell(r) }
+                    }
+                }
+                section("典藏邮票 · PLUS", subtitle: "终身会员专属 · 点亮该国家后，寄该地足迹的明信片可选用") {
+                    LazyVGrid(columns: cols, spacing: 14) {
+                        ForEach(PremiumStamp.all) { p in premiumCell(p) }
                     }
                 }
                 section("节日限定章", subtitle: "节日前后 5 天限时可用（地区性节日仅限该地区足迹）· 收到贴此章的明信片即收集") {
@@ -134,6 +147,36 @@ struct CodexView: View {
         }
     }
 
+    private func premiumCell(_ p: PremiumStamp) -> some View {
+        let lit = litCodes.contains(p.code)
+        let usable = plus.isPlus && lit
+        let country = Locale.current.localizedString(forRegionCode: p.code) ?? p.code
+        return Button { selected = .premium(p, usable: usable); Haptics.selection() } label: {
+            cellFrame(unlocked: usable) {
+                Image(p.imageName)
+                    .resizable().scaledToFit()
+                    .frame(width: 48, height: 60)
+                    .grayscale(usable ? 0 : 1)
+                    .opacity(usable ? 1 : 0.34)
+                    .overlay(alignment: .topTrailing) {
+                        if !plus.isPlus {
+                            Image(systemName: "lock.fill").font(.system(size: 8))
+                                .foregroundStyle(.white)
+                                .padding(3).background(.black.opacity(0.55), in: Circle())
+                                .offset(x: 5, y: -5)
+                        }
+                    }
+            } title: {
+                Text(p.nameKey)
+            } footnote: {
+                if !plus.isPlus { return Text("终身会员解锁") }
+                if !lit { return Text("点亮 \(country) 解锁") }
+                if let city = p.cityKey { return Text(city) }
+                return nil
+            }
+        }.buttonStyle(.plain)
+    }
+
     private func festivalCell(_ f: Festival) -> some View {
         let collected = collectedFestivals.contains(f)
         return Button { selected = .festival(f, collected: collected); Haptics.selection() } label: {
@@ -197,6 +240,7 @@ struct CodexView: View {
 /// 图鉴里可点开详情的条目（带解锁/收集态）。
 enum CodexEntry: Identifiable {
     case regional(RegionalStamp, unlocked: Bool)
+    case premium(PremiumStamp, usable: Bool)
     case festival(Festival, collected: Bool)
     case basic(PostcardStamp)
     case postmark
@@ -204,6 +248,7 @@ enum CodexEntry: Identifiable {
     var id: String {
         switch self {
         case .regional(let r, _): return "r-\(r.code)"
+        case .premium(let p, _):  return "p-\(p.id)"
         case .festival(let f, _): return "f-\(f.rawValue)"
         case .basic(let b):       return "b-\(b.rawValue)"
         case .postmark:           return "postmark"
@@ -214,6 +259,8 @@ enum CodexEntry: Identifiable {
 /// 半屏详情：放大贴图 + 名称 + 解锁/使用说明（怎么获得、什么时候能用、贴在哪）。
 struct CodexDetailSheet: View {
     let entry: CodexEntry
+    @ObservedObject private var plus = PlusStore.shared
+    @State private var showPaywall = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -227,10 +274,20 @@ struct CodexDetailSheet: View {
                 .padding(.top, 8)
             VStack(spacing: 9) { infoRows }
                 .padding(.top, 18).padding(.horizontal, 30)
+            if case .premium = entry, !plus.isPlus {
+                Button { showPaywall = true } label: {
+                    Text("成为终身会员")
+                        .font(.system(size: 14, weight: .bold)).foregroundStyle(.white)
+                        .frame(maxWidth: .infinity).padding(.vertical, 13)
+                        .background(LinearGradient.neonH, in: Capsule())
+                }
+                .padding(.top, 16).padding(.horizontal, 30)
+            }
             Spacer(minLength: 20)
         }
         .frame(maxWidth: .infinity)
         .background(Color(hex: 0x0F0F1B).ignoresSafeArea())
+        .sheet(isPresented: $showPaywall) { PaywallView() }
         .presentationDetents([.medium])
         .presentationDragIndicator(.hidden)
         .preferredColorScheme(.dark)
@@ -244,6 +301,10 @@ struct CodexDetailSheet: View {
             RegionalStampView(stamp: r)
                 .frame(width: 118, height: 142)
                 .grayscale(unlocked ? 0 : 1).opacity(unlocked ? 1 : 0.4)
+        case .premium(let p, let usable):
+            Image(p.imageName).resizable().scaledToFit()
+                .frame(width: 118, height: 148)
+                .grayscale(usable ? 0 : 1).opacity(usable ? 1 : 0.45)
         case .festival(let f, let collected):
             Image(f.imageName).resizable().scaledToFit()
                 .frame(width: 128, height: 150)
@@ -269,6 +330,8 @@ struct CodexDetailSheet: View {
         switch entry {
         case .regional(let r, _):
             Text(verbatim: "\(r.flag) \(r.displayName)").font(Typo.serif(23)).foregroundStyle(Color.text)
+        case .premium(let p, _):
+            Text(p.nameKey).font(Typo.serif(23)).foregroundStyle(Color.text)
         case .festival(let f, _):
             Text(f.titleKey).font(Typo.serif(23)).foregroundStyle(Color.text)
         case .basic(let b):
@@ -282,6 +345,7 @@ struct CodexDetailSheet: View {
         let (text, on): (LocalizedStringKey, Bool) = {
             switch entry {
             case .regional(_, let u): return (u ? "已解锁" : "未解锁", u)
+            case .premium(_, let u):  return (u ? "已解锁" : "未解锁", u)
             case .festival(_, let c): return (c ? "已收集" : "未收集", c)
             case .basic, .postmark:   return ("默认解锁", true)
             }
@@ -300,6 +364,14 @@ struct CodexDetailSheet: View {
         case .regional(let r, _):
             infoRow("解锁条件", Text("点亮 \(r.displayName) 解锁"))
             infoRow("使用限制", Text("仅限该国足迹的明信片"))
+            infoRow("用法", Text("寄明信片时在邮票选择器中选用"))
+        case .premium(let p, _):
+            infoRow("解锁条件", Text("成为终身会员，并点亮该国家"))
+            if let city = p.cityKey {
+                infoRow("使用限制", Text(city) + Text(verbatim: " · ") + Text("仅限该城市足迹的明信片"))
+            } else {
+                infoRow("使用限制", Text("仅限该国足迹的明信片"))
+            }
             infoRow("用法", Text("寄明信片时在邮票选择器中选用"))
         case .festival(let f, _):
             infoRow("可用窗口", Text(verbatim: f.windowText))
