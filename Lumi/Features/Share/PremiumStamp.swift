@@ -11,6 +11,10 @@ struct PremiumStamp: Identifiable, Equatable, Hashable {
     let imageName: String       // Assets: premium_<id>
     let nameKey: LocalizedStringKey
 
+    // LocalizedStringKey 不是 Hashable，手动按 id 实现（目录内 id 唯一）。
+    static func == (lhs: PremiumStamp, rhs: PremiumStamp) -> Bool { lhs.id == rhs.id }
+    func hash(into hasher: inout Hasher) { hasher.combine(id) }
+
     var raw: String { "prem:\(id)" }
 
     static let all: [PremiumStamp] = [
