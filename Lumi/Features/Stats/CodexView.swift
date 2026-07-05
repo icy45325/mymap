@@ -45,6 +45,17 @@ struct CodexView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
                 progressHeader
+                section("基础邮票", subtitle: "普通邮票 · 默认解锁，任意明信片可选") {
+                    HStack(spacing: 14) {
+                        ForEach(PostcardStamp.allCases) { st in
+                            Button { selected = .basic(st); Haptics.selection() } label: {
+                                cellFrame(unlocked: true) {
+                                    PostcardStampView(stamp: st).frame(width: 44, height: 53)
+                                } title: { Text(st.label) }
+                            }.buttonStyle(.plain)
+                        }
+                    }
+                }
                 section("地区邮票", subtitle: "点亮该国家即解锁 · 仅限该国足迹的明信片") {
                     LazyVGrid(columns: cols, spacing: 14) {
                         ForEach(RegionalStamp.all) { r in regionalCell(r) }
@@ -60,20 +71,15 @@ struct CodexView: View {
                         ForEach(Festival.allCases) { f in festivalCell(f) }
                     }
                 }
-                section("基础邮票 · 邮戳", subtitle: "默认解锁") {
+                section("邮戳 Postmarks", subtitle: "寄达后由 Lumi 邮局盖上，仅收件人可见 · 更多国家/地区/节日邮戳将陆续为会员推出") {
                     HStack(spacing: 14) {
-                        ForEach(PostcardStamp.allCases) { st in
-                            Button { selected = .basic(st); Haptics.selection() } label: {
-                                cellFrame(unlocked: true) {
-                                    PostcardStampView(stamp: st).frame(width: 44, height: 53)
-                                } title: { Text(st.label) }
-                            }.buttonStyle(.plain)
-                        }
                         Button { selected = .postmark; Haptics.selection() } label: {
                             cellFrame(unlocked: true) {
                                 genericPostmark
                             } title: { Text("通用邮戳") }
                         }.buttonStyle(.plain)
+                        comingSoonCell
+                        Color.clear.frame(maxWidth: .infinity)   // 占位对齐三列宽度
                     }
                 }
                 Color.clear.frame(height: 20)
@@ -219,6 +225,25 @@ struct CodexView: View {
         .background(Color.panel, in: RoundedRectangle(cornerRadius: 14))
         .overlay(RoundedRectangle(cornerRadius: 14)
             .stroke(unlocked ? Color.nPurple.opacity(0.35) : Color.line, lineWidth: 1))
+    }
+
+    /// 「敬请期待」占位卡：未来按 国家/地区/节日 扩充的邮戳位（不计入进度）。
+    private var comingSoonCell: some View {
+        VStack(spacing: 6) {
+            ZStack {
+                RoundedRectangle(cornerRadius: 10)
+                    .stroke(Color.line, style: StrokeStyle(lineWidth: 1.2, dash: [4, 3]))
+                Text(verbatim: "✦").font(.system(size: 18)).foregroundStyle(Color.faint)
+            }
+            .frame(width: 48, height: 48)
+            .frame(height: 62)
+            Text("敬请期待").font(.system(size: 10.5, weight: .semibold)).foregroundStyle(Color.faint)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 12).padding(.horizontal, 6)
+        .background(Color.panel.opacity(0.5), in: RoundedRectangle(cornerRadius: 14))
+        .overlay(RoundedRectangle(cornerRadius: 14)
+            .stroke(Color.line.opacity(0.6), style: StrokeStyle(lineWidth: 1, dash: [5, 4])))
     }
 
     /// 通用 LUMI 圆戳（陈列版，放大）。
@@ -383,6 +408,7 @@ struct CodexDetailSheet: View {
             infoRow("用法", Text("寄明信片时在邮票选择器中选用"))
         case .postmark:
             infoRow("说明", Text("邮局盖章：明信片寄达后由 Lumi 邮局盖上，仅收件人翻面可见"))
+            infoRow("后续", Text("更多按国家/地区/节日区分的邮戳将为终身会员推出"))
         }
     }
 

@@ -7261,6 +7261,160 @@
         }
       }
     },
+    "基础邮票": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "基础邮票"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Basic stamps"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الطوابع الأساسية"
+          }
+        }
+      }
+    },
+    "普通邮票 · 默认解锁，任意明信片可选": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "普通邮票 · 默认解锁，任意明信片可选"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ordinary stamps · unlocked by default, usable on any postcard"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "طوابع عادية · مفتوحة افتراضيًا وتصلح لأي بطاقة"
+          }
+        }
+      }
+    },
+    "邮戳 Postmarks": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "邮戳 Postmarks"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Postmarks"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أختام البريد"
+          }
+        }
+      }
+    },
+    "寄达后由 Lumi 邮局盖上，仅收件人可见 · 更多国家/地区/节日邮戳将陆续为会员推出": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "寄达后由 Lumi 邮局盖上，仅收件人可见 · 更多国家/地区/节日邮戳将陆续为会员推出"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stamped by the Lumi post office on delivery, visible only to the recipient · more country / region / festival postmarks coming for members"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "يختمه بريد Lumi عند التسليم ويظهر للمستلم فقط · المزيد من أختام الدول والمناطق والأعياد قادمة للأعضاء"
+          }
+        }
+      }
+    },
+    "后续": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "后续"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Coming next"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "قادم"
+          }
+        }
+      }
+    },
+    "更多按国家/地区/节日区分的邮戳将为终身会员推出": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更多按国家/地区/节日区分的邮戳将为终身会员推出"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More postmarks by country / region / festival are coming for lifetime members"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "المزيد من الأختام حسب الدولة والمنطقة والعيد قادمة للأعضاء مدى الحياة"
+          }
+        }
+      }
+    },
+    "敬请期待": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "敬请期待"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Coming soon"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "قريبًا"
+          }
+        }
+      }
+    },
     "订阅会自动续订，可随时在「设置 › Apple ID › 订阅」取消。付款将在确认购买时记入你的 Apple ID。": {
       "localizations": {
         "zh-Hans": {
