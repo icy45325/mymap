@@ -90,14 +90,19 @@ final class LumiPost: ObservableObject {
     }
 
     /// 直寄一张明信片到对方邮箱号。`payload` 为现有口令编码（PostcardToken.encode 产物）。
-    func send(payload: String, to boxID: String) async throws {
+    /// 返回服务端信件 id（记入台账 → 足迹详情送达回执；解析失败返回 -1，不影响寄出成功）。
+    @discardableResult
+    func send(payload: String, to boxID: String) async throws -> Int64 {
         guard LumiPostConfig.isEnabled else { throw LumiPostError.disabled }
         let from = identity?.boxID
-        _ = try await rpc("send_mail", body: [
-            "p_to": normalize(boxID),
+        let data = try await rpc("send_mail", body: [
+            "p_to": Self.normalize(boxID),
             "p_from": from as Any,
             "p_payload": payload,
         ])
+        let raw = String(data: data, encoding: .utf8)?
+            .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        return Int64(raw) ?? -1
     }
 
     /// 拉取收件箱新信（服务端顺手置 delivered）；逐封交给 `PostcardInbox` 走既有入库/幂等流程。
@@ -127,10 +132,63 @@ final class LumiPost: ObservableObject {
         } catch { return [] }
     }
 
+    // MARK: - 寄出台账 / 送达回执
+
+    private static let ledgerKey = "lumi.post.sentLedger"       // [footprintID: [mailID]]
+    private static let deliveredKey = "lumi.post.deliveredIDs"  // 已确认送达的 mailID（终态缓存）
+
+    private var ledger: [String: [Int64]] {
+        get {
+            guard let data = UserDefaults.standard.data(forKey: Self.ledgerKey) else { return [:] }
+            return (try? JSONDecoder().decode([String: [Int64]].self, from: data)) ?? [:]
+        }
+        set {
+            if let data = try? JSONEncoder().encode(newValue) {
+                UserDefaults.standard.set(data, forKey: Self.ledgerKey)
+            }
+        }
+    }
+
+    private var deliveredCache: Set<Int64> {
+        get {
+            guard let data = UserDefaults.standard.data(forKey: Self.deliveredKey) else { return [] }
+            return (try? JSONDecoder().decode(Set<Int64>.self, from: data)) ?? []
+        }
+        set {
+            if let data = try? JSONEncoder().encode(newValue) {
+                UserDefaults.standard.set(data, forKey: Self.deliveredKey)
+            }
+        }
+    }
+
+    /// 记一笔寄出（footprint → 服务端信件 id）。
+    func recordSent(footprintID: String, mailID: Int64) {
+        guard mailID > 0 else { return }
+        var l = ledger
+        l[footprintID, default: []].append(mailID)
+        ledger = l
+    }
+
+    /// 该足迹直寄过几封 / 送达几封。已送达是终态：确认过的进本地缓存，不再重复查询。
+    func deliveredCount(for footprintID: String) async -> (sent: Int, delivered: Int) {
+        let ids = ledger[footprintID] ?? []
+        guard !ids.isEmpty else { return (0, 0) }
+        var done = deliveredCache
+        let pending = ids.filter { !done.contains($0) }
+        if !pending.isEmpty {
+            let confirmed = await checkDelivered(ids: pending)
+            if !confirmed.isEmpty {
+                done.formUnion(confirmed)
+                deliveredCache = done
+            }
+        }
+        return (ids.count, ids.filter { done.contains($0) }.count)
+    }
+
     // MARK: - 内部
 
     /// 邮箱号归一化：容忍用户少打前缀 / 小写 / 混入空格连字符差异。
-    private func normalize(_ raw: String) -> String {
+    nonisolated static func normalize(_ raw: String) -> String {
         var s = raw.uppercased().replacingOccurrences(of: " ", with: "")
         if !s.hasPrefix("LUMI-") { s = "LUMI-" + s.replacingOccurrences(of: "LUMI", with: "") }
         return s

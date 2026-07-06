@@ -42,9 +42,12 @@ begin
   return json_build_object('box_id', v_box, 'read_token', v_token);
 end $$;
 
--- 寄信：校验信箱存在 + 每箱每日限量 200
+-- 寄信：校验信箱存在 + 每箱每日限量 200；返回信件 id（发件方记本地台账 → 送达回执）
+-- （若曾执行过 returns void 的旧版：先 drop function send_mail(text,text,text); 再跑本段）
 create or replace function send_mail(p_to text, p_from text, p_payload text)
-returns void language plpgsql security definer as $$
+returns bigint language plpgsql security definer as $$
+declare
+  v_id bigint;
 begin
   if not exists (select 1 from mailbox where box_id = p_to) then
     raise sqlstate 'PT404' using message = 'box not found';
@@ -52,7 +55,9 @@ begin
   if (select count(*) from mail where to_box = p_to and created_at > now() - interval '1 day') >= 200 then
     raise sqlstate 'PT429' using message = 'daily limit reached';
   end if;
-  insert into mail (to_box, from_box, payload) values (p_to, p_from, p_payload);
+  insert into mail (to_box, from_box, payload) values (p_to, p_from, p_payload)
+    returning id into v_id;
+  return v_id;
 end $$;
 
 -- 收信：校验读取密钥 → 返回未送达信件并置 delivered
