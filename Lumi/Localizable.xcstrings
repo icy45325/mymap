@@ -7415,6 +7415,94 @@
         }
       }
     },
+    "站内直投未启用": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "站内直投未启用"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In-app delivery isn't enabled"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "التسليم داخل التطبيق غير مفعّل"
+          }
+        }
+      }
+    },
+    "邮局暂时不可用（%lld）": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "邮局暂时不可用（%lld）"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Post office unavailable (%lld)"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "مكتب البريد غير متاح (%lld)"
+          }
+        }
+      }
+    },
+    "没有找到这个 Lumi 邮箱号": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "没有找到这个 Lumi 邮箱号"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lumi mailbox not found"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "لم يُعثر على صندوق Lumi هذا"
+          }
+        }
+      }
+    },
+    "邮箱还没开通": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "邮箱还没开通"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mailbox not set up yet"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "لم يُفتح الصندوق بعد"
+          }
+        }
+      }
+    },
     "订阅会自动续订，可随时在「设置 › Apple ID › 订阅」取消。付款将在确认购买时记入你的 Apple ID。": {
       "localizations": {
         "zh-Hans": {
