@@ -11308,6 +11308,270 @@
           }
         }
       }
+    },
+    "直寄": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "直寄"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send direct"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "إرسال مباشر"
+          }
+        }
+      }
+    },
+    "直寄到 Lumi 邮箱": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "直寄到 Lumi 邮箱"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send to a Lumi mailbox"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أرسل إلى صندوق بريد Lumi"
+          }
+        }
+      }
+    },
+    "我的 Lumi 邮箱号": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "我的 Lumi 邮箱号"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "My Lumi mailbox"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "صندوق بريدي في Lumi"
+          }
+        }
+      }
+    },
+    "开通我的邮箱": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "开通我的邮箱"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open my mailbox"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "افتح صندوق بريدي"
+          }
+        }
+      }
+    },
+    "复制邮箱号": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "复制邮箱号"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy mailbox No."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "نسخ رقم الصندوق"
+          }
+        }
+      }
+    },
+    "输入对方的 Lumi 邮箱号，明信片直接寄进 Ta 的 App": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "输入对方的 Lumi 邮箱号，明信片直接寄进 Ta 的 App"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter their Lumi mailbox number and the postcard lands right in their app"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أدخل رقم صندوق بريد Lumi الخاص بهم وستصل البطاقة مباشرة إلى تطبيقهم"
+          }
+        }
+      }
+    },
+    "从往来的人里选": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "从往来的人里选"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pick from your circle"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "اختر من معارفك"
+          }
+        }
+      }
+    },
+    "已寄出 · 等待送达": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已寄出 · 等待送达"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sent · awaiting delivery"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أُرسلت · بانتظار التسليم"
+          }
+        }
+      }
+    },
+    "已送达 ✓": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已送达 ✓"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delivered ✓"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تم التسليم ✓"
+          }
+        }
+      }
+    },
+    "寄出成功！对方打开 Lumi 就能收到": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "寄出成功！对方打开 Lumi 就能收到"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sent! They'll get it when they open Lumi"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أُرسلت! ستصلهم عند فتح Lumi"
+          }
+        }
+      }
+    },
+    "把邮箱号告诉朋友，Ta 就能把明信片直接寄进你的 App": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "把邮箱号告诉朋友，Ta 就能把明信片直接寄进你的 App"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Share your mailbox number and friends can send postcards straight into your app"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "شارك رقم صندوقك ليتمكن أصدقاؤك من إرسال البطاقات مباشرة إلى تطبيقك"
+          }
+        }
+      }
+    },
+    "LUMI-XXXXXX": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LUMI-XXXXXX"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LUMI-XXXXXX"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LUMI-XXXXXX"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

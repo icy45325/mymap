@@ -1,14 +1,17 @@
 import SwiftUI
 import SwiftData
+import UIKit
 
 /// 明信片墙：只收藏**收到的**明信片（扫码 / 链接 / 隔空投送收到的）。
 /// 自己点亮的足迹不是明信片；自己寄出的（按明信片逻辑）自己也看不到。
 struct PostcardWallView: View {
     @Query(sort: \Footprint.createdAt, order: .reverse) private var footprints: [Footprint]
     @ObservedObject private var contacts = PostcardContacts.shared
+    @ObservedObject private var post = LumiPost.shared
     @State private var selected: Footprint?
     @State private var showScanner = false
     @State private var sort: WallSort = .received
+    @State private var boxCopied = false
 
     enum WallSort: String, CaseIterable, Identifiable {
         case received, place
@@ -31,10 +34,11 @@ struct PostcardWallView: View {
     var body: some View {
         Group {
             if items.isEmpty && contacts.recent.isEmpty {
-                empty
+                emptyWrap
             } else {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 16) {
+                        if LumiPostConfig.isEnabled { mailboxCard }
                         if !items.isEmpty { countStat }
                         if !contacts.recent.isEmpty { contactsStrip }
                         if items.isEmpty {
@@ -57,8 +61,10 @@ struct PostcardWallView: View {
                     }
                     .padding(16)
                 }
+                .refreshable { await LumiPost.shared.refreshInbox() }   // 下拉收信（未启用时 no-op）
             }
         }
+        .task { await LumiPost.shared.refreshInbox() }                  // 进页即拉一次
         .background(Color.bg.ignoresSafeArea())
         .navigationTitle("明信片墙")
         .navigationBarTitleDisplayMode(.inline)
@@ -76,6 +82,57 @@ struct PostcardWallView: View {
         .preferredColorScheme(.dark)
         .sheet(item: $selected) { ReceivedPostcardSheet(footprint: $0) }
         .sheet(isPresented: $showScanner) { ScannerSheet() }
+    }
+
+    /// 我的 Lumi 邮箱号卡（v1.1）：复制 / 分享给朋友；还没开通则一键开通。
+    private var mailboxCard: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 6) {
+                Image(systemName: "tray.full.fill").font(.system(size: 12)).foregroundStyle(Color.nOrange)
+                Text("我的 Lumi 邮箱号").font(.system(size: 13, weight: .semibold)).foregroundStyle(Color.muted)
+            }
+            if let identity = post.identity {
+                HStack(spacing: 10) {
+                    Text(verbatim: identity.boxID)
+                        .font(.system(size: 20, weight: .bold, design: .monospaced))
+                        .foregroundStyle(Color.text)
+                    Spacer()
+                    Button {
+                        UIPasteboard.general.string = identity.boxID
+                        boxCopied = true; Haptics.selection()
+                    } label: {
+                        Label(boxCopied ? "已复制" : "复制邮箱号",
+                              systemImage: boxCopied ? "checkmark" : "doc.on.doc")
+                            .font(.system(size: 11, weight: .semibold)).foregroundStyle(Color.nCyan)
+                            .padding(.vertical, 7).padding(.horizontal, 12)
+                            .background(Color.bg, in: Capsule())
+                            .overlay(Capsule().stroke(Color.nCyan.opacity(0.5), lineWidth: 1))
+                    }
+                    .buttonStyle(.plain)
+                    ShareLink(item: identity.boxID) {
+                        Image(systemName: "square.and.arrow.up")
+                            .font(.system(size: 13, weight: .semibold)).foregroundStyle(Color.nPink)
+                            .padding(8)
+                            .background(Color.bg, in: Circle())
+                            .overlay(Circle().stroke(Color.nPink.opacity(0.5), lineWidth: 1))
+                    }
+                }
+                Text("把邮箱号告诉朋友，Ta 就能把明信片直接寄进你的 App")
+                    .font(.system(size: 11)).foregroundStyle(Color.muted)
+            } else {
+                Button {
+                    Task { await post.ensureMailbox() }
+                } label: {
+                    Label("开通我的邮箱", systemImage: "sparkles")
+                        .font(.system(size: 13, weight: .semibold)).foregroundStyle(.white)
+                        .frame(maxWidth: .infinity).padding(.vertical, 11)
+                        .background(LinearGradient.neonH, in: Capsule())
+                }
+            }
+        }
+        .padding(14)
+        .background(Color.panel, in: RoundedRectangle(cornerRadius: 14))
+        .overlay(RoundedRectangle(cornerRadius: 14).stroke(Color.line, lineWidth: 1))
     }
 
     /// 明信片墙统计：已收到的明信片数量（+ 往来的人数）。
@@ -110,6 +167,14 @@ struct PostcardWallView: View {
                                     .overlay(Circle().stroke(Color.line, lineWidth: 1))
                                 Text(String(c.name.prefix(1))).font(Typo.serif(18)).foregroundStyle(.white)
                             }
+                            .overlay(alignment: .topTrailing) {
+                                if c.boxID != nil {   // 存了邮箱号 → 可直寄标识
+                                    Image(systemName: "envelope.fill").font(.system(size: 8))
+                                        .foregroundStyle(.white)
+                                        .padding(4).background(Color.nOrange, in: Circle())
+                                        .offset(x: 3, y: -3)
+                                }
+                            }
                             Text(c.name).font(.system(size: 10)).foregroundStyle(Color.muted)
                                 .lineLimit(1).frame(width: 52)
                         }
@@ -118,6 +183,18 @@ struct PostcardWallView: View {
                 .padding(.horizontal, 2)
             }
         }
+    }
+
+    /// 空态也能下拉收信、看到邮箱号卡（否则新用户找不到直投入口）。
+    private var emptyWrap: some View {
+        ScrollView {
+            VStack(spacing: 16) {
+                if LumiPostConfig.isEnabled { mailboxCard }
+                empty.padding(.top, 60)
+            }
+            .padding(16)
+        }
+        .refreshable { await LumiPost.shared.refreshInbox() }
     }
 
     private var empty: some View {

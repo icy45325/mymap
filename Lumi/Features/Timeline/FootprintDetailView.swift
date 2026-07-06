@@ -10,6 +10,7 @@ struct FootprintDetailView: View {
     @State private var showPostcard = false
     @State private var heroPage = 0
     @State private var flipGen = 0      // 自动翻页「代」标记：只允许最新一代写入，杜绝双计时器跳页
+    @State private var delivery: (sent: Int, delivered: Int)?   // v1.1 直寄回执（无记录 = nil 不渲染）
 
     private static let dateFormat: Date.FormatStyle = .dateTime.year().month(.wide).day()
 
@@ -27,6 +28,7 @@ struct FootprintDetailView: View {
                     }
                     infoRow("日期", footprint.visitSpanText(Self.dateFormat))
                     if !footprint.companions.isEmpty { companionsSection }
+                    if let d = delivery, d.sent > 0 { deliveryRow(d) }
                     Button { showPostcard = true } label: {
                         Label("分享明信片", systemImage: "paperplane.fill")
                             .font(.system(size: 14, weight: .semibold)).foregroundStyle(.white)
@@ -53,6 +55,32 @@ struct FootprintDetailView: View {
         .sheet(isPresented: $showPostcard) {
             PostcardSheet(footprint: footprint)
         }
+        .task(id: showPostcard) {   // 打开时查一次；直寄弹窗关回来再查（拿到刚寄的那封）
+            guard LumiPostConfig.isEnabled, !showPostcard else { return }
+            let d = await LumiPost.shared.deliveredCount(for: footprint.id.uuidString)
+            if d.sent > 0 { delivery = d }
+        }
+    }
+
+    /// v1.1 直寄回执：这张卡直寄过 → 全部送达打 ✓，否则显示等待中。
+    private func deliveryRow(_ d: (sent: Int, delivered: Int)) -> some View {
+        HStack(spacing: 7) {
+            Image(systemName: d.delivered >= d.sent ? "checkmark.seal.fill" : "paperplane.circle")
+                .font(.system(size: 13))
+                .foregroundStyle(d.delivered >= d.sent ? Color.nCyan : Color.muted)
+            if d.delivered >= d.sent {
+                Text("已送达 ✓").font(.system(size: 12, weight: .semibold)).foregroundStyle(Color.nCyan)
+            } else {
+                Text("已寄出 · 等待送达").font(.system(size: 12)).foregroundStyle(Color.muted)
+            }
+            if d.sent > 1 {
+                Text(verbatim: "\(d.delivered)/\(d.sent)")
+                    .font(.system(size: 11, design: .monospaced)).foregroundStyle(Color.muted)
+            }
+        }
+        .padding(.vertical, 8).padding(.horizontal, 12)
+        .background(Color.panel, in: Capsule())
+        .overlay(Capsule().stroke(Color.line, lineWidth: 1))
     }
 
     private var editButton: some View {

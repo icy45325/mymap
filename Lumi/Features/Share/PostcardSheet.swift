@@ -19,6 +19,7 @@ struct PostcardSheet: View {
     @State private var cardFile: URL?                // AirDrop 用的 .lumicard 文件
     @State private var copied = false
     @State private var showPaywall = false
+    @State private var showDirectSend = false        // v1.1 站内直寄（LumiPostConfig.isEnabled 才露出）
     @State private var token = UUID().uuidString    // 本张分享卡的幂等标识（稳定）
     @State private var style: PostcardStyle
     @State private var stamp: StampKind
@@ -145,6 +146,11 @@ struct PostcardSheet: View {
                             .font(.system(size: 11)).foregroundStyle(Color.muted)
                             .multilineTextAlignment(.center)
                         HStack(spacing: 10) {
+                            if LumiPostConfig.isEnabled {
+                                Button { showDirectSend = true } label: {
+                                    miniLabel("直寄", "tray.and.arrow.up", Color.nOrange)
+                                }
+                            }
                             Button { copyLink() } label: {
                                 miniLabel(copied ? "已复制" : "复制链接", copied ? "checkmark" : "link", Color.nCyan)
                             }
@@ -175,6 +181,11 @@ struct PostcardSheet: View {
         }
         .preferredColorScheme(.dark)
         .sheet(isPresented: $showPaywall) { PaywallView() }
+        .sheet(isPresented: $showDirectSend) {
+            DirectSendSheet(payload: tokenString, footprintID: footprint.id.uuidString,
+                            recipientName: recipient, token: token)
+                .presentationDetents([.medium, .large])
+        }
         .task { await store.refreshEntitlement()        // 打开即对齐 Plus 权益（订阅后无需再开订阅页）
                 cover = await loadAssetUIImage(coverAssetID); rerender() }
         .onChange(of: message) { _, _ in rerender() }

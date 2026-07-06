@@ -70,14 +70,17 @@ revoke all on mailbox, mail from anon;
 
 - **配置开关**：`Info.plist` 增 `LumiPostURL` / `LumiPostAnonKey` 两键；**空 = 功能整体隐藏**（提审预留分支
   永不配置即保持纯本地；v1.1 分支配置后功能亮起）。
-- **服务层** `Lumi/Services/LumiPost.swift`（已落地脚手架）：URLSession 直调 PostgREST RPC（无 SDK 依赖，
+- **服务层** `Lumi/Services/LumiPost.swift`（已落地）：URLSession 直调 PostgREST RPC（无 SDK 依赖，
   不动 SPM/pbxproj）；`identity`（两码）JSON 存 UserDefaults；全部接口在未配置时 no-op。
-- **UI 接线（下一批）**：
-  1. Me 页 / 明信片页展示我的邮箱号（一键复制/分享）；
-  2. `PostcardSheet` 增「直寄到 Lumi 邮箱」入口（输入邮箱号 / 从往来的人选）→ `send_mail`；
-  3. 明信片墙下拉刷新 + 进入 App 时 `fetch_mail` → 走现有 `PostcardInbox.handle(text:)` 入库（幂等去重复用）；
-  4. 「往来的人」存对方邮箱号（本地），头像直寄；
-  5. 发出的卡在足迹详情显示「已送达 ✓」（`check_delivered`）。
+  `send_mail` 返回信件 id（bigint）→ 客户端记本地台账 `lumi.post.sentLedger`（footprint → [mailID]），
+  送达确认进终态缓存 `lumi.post.deliveredIDs` 不再重复查询。
+- **UI 接线（已落地）**：
+  1. ✅ 明信片墙顶部「我的 Lumi 邮箱号」卡（复制 / 分享 / 一键开通；空态也露出）；
+  2. ✅ `PostcardSheet` mini 行增「直寄」→ `DirectSendSheet`（输入邮箱号 / 从往来的人快选）→ `send_mail`，
+     成功后 `markShared` 防自弹 + 往来的人记 boxID；
+  3. ✅ 明信片墙下拉刷新 / 进页 + App 启动与回前台 `fetch_mail` → 走现有 `PostcardInbox.handle(text:)`（幂等去重复用）；
+  4. ✅ 「往来的人」存对方邮箱号（`PostcardContact.boxID`），头像带 ✉ 角标，直寄弹窗内点选即填；
+  5. ✅ 足迹详情「已送达 ✓ / 已寄出 · 等待送达」（`check_delivered`，多封显示 n/m）。
 
 ## 5. 安全 / 成本 / 滥用护栏
 
