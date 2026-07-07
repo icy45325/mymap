@@ -11858,6 +11858,226 @@
           }
         }
       }
+    },
+    "中国": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "中国"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "China"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الصين"
+          }
+        }
+      }
+    },
+    "按国家 A–Z": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "按国家 A–Z"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "By country A–Z"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "حسب الدولة أ–ي"
+          }
+        }
+      }
+    },
+    "寄卡人": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "寄卡人"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "From"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "المرسل"
+          }
+        }
+      }
+    },
+    "回寄明信片": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "回寄明信片"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send one back"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أرسل بطاقة بالمقابل"
+          }
+        }
+      }
+    },
+    "选一个足迹回寄": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "选一个足迹回寄"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pick a footprint to send back"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "اختر أثرًا للرد"
+          }
+        }
+      }
+    },
+    "还没有可回寄的足迹，先去点亮一个地方吧": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "还没有可回寄的足迹，先去点亮一个地方吧"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No footprints to send yet — light up a place first"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "لا آثار للإرسال بعد — أضئ مكانًا أولًا"
+          }
+        }
+      }
+    },
+    "一起点亮世界地图、在 Lumi 互寄明信片吧 ✦": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "一起点亮世界地图、在 Lumi 互寄明信片吧 ✦"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Let's light up the world map and swap postcards on Lumi ✦"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "لنضئ خريطة العالم ونتبادل البطاقات على Lumi ✦"
+          }
+        }
+      }
+    },
+    "把 Lumi 介绍给朋友": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "把 Lumi 介绍给朋友"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tell a friend about Lumi"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أخبر صديقًا عن Lumi"
+          }
+        }
+      }
+    },
+    "推荐给朋友": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "推荐给朋友"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tell a friend"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أخبر صديقًا"
+          }
+        }
+      }
+    },
+    "把 Lumi 分享给会喜欢它的人": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "把 Lumi 分享给会喜欢它的人"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Share Lumi with someone who'd love it"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "شارك Lumi مع من سيحبه"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

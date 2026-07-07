@@ -601,6 +601,16 @@ S = [
  ("点亮世界地图 · 寄一张会盖邮戳的明信片","Light up the world map · send a postmarked postcard","أضئ خريطة العالم · أرسل بطاقة بختم البريد"),
  ("扫码了解 Lumi","Scan to meet Lumi","امسح لتتعرف على Lumi"),
  ("登录失败","Sign-in failed","فشل تسجيل الدخول"),
+ ("中国","China","الصين"),
+ ("按国家 A–Z","By country A–Z","حسب الدولة أ–ي"),
+ ("寄卡人","From","المرسل"),
+ ("回寄明信片","Send one back","أرسل بطاقة بالمقابل"),
+ ("选一个足迹回寄","Pick a footprint to send back","اختر أثرًا للرد"),
+ ("还没有可回寄的足迹，先去点亮一个地方吧","No footprints to send yet — light up a place first","لا آثار للإرسال بعد — أضئ مكانًا أولًا"),
+ ("一起点亮世界地图、在 Lumi 互寄明信片吧 ✦","Let's light up the world map and swap postcards on Lumi ✦","لنضئ خريطة العالم ونتبادل البطاقات على Lumi ✦"),
+ ("把 Lumi 介绍给朋友","Tell a friend about Lumi","أخبر صديقًا عن Lumi"),
+ ("推荐给朋友","Tell a friend","أخبر صديقًا"),
+ ("把 Lumi 分享给会喜欢它的人","Share Lumi with someone who'd love it","شارك Lumi مع من سيحبه"),
 ]
 
 # Resolve duplicate "国家" (Country vs Countries): keep two distinct? They share key -> can't.

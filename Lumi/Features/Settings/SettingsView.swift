@@ -45,6 +45,7 @@ struct SettingsView: View {
                     .background(Color.panel, in: RoundedRectangle(cornerRadius: 14))
                     .overlay(RoundedRectangle(cornerRadius: 14).stroke(Color.line, lineWidth: 1))
                 }
+                section("把 Lumi 介绍给朋友") { tellFriendRow }
                 section("反馈与建议") { feedbackRow }
                 section("关于") { aboutRows }
             }
@@ -103,6 +104,30 @@ struct SettingsView: View {
             .background(Color.panel, in: RoundedRectangle(cornerRadius: 14))
             .overlay(RoundedRectangle(cornerRadius: 14).stroke(Color.line, lineWidth: 1))
         }
+    }
+
+    // MARK: - 推荐给朋友
+
+    /// 纯文本分享：一句话 + 官网链接（官网含下载入口）。
+    private var tellFriendRow: some View {
+        ShareLink(item: String(localized: "一起点亮世界地图、在 Lumi 互寄明信片吧 ✦") +
+                        " https://icy45325.github.io/mymap/") {
+            HStack(spacing: 12) {
+                Image(systemName: "heart.text.square.fill")
+                    .font(.system(size: 20)).foregroundStyle(Color.nPink).frame(width: 28)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("推荐给朋友").font(.system(size: 15, weight: .semibold)).foregroundStyle(Color.text)
+                    Text("把 Lumi 分享给会喜欢它的人").font(.system(size: 11)).foregroundStyle(Color.muted)
+                }
+                Spacer()
+                Image(systemName: "square.and.arrow.up").font(.system(size: 14)).foregroundStyle(Color.nCyan)
+            }
+            .padding(.vertical, 13).padding(.horizontal, 14)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .background(Color.panel, in: RoundedRectangle(cornerRadius: 14))
+        .overlay(RoundedRectangle(cornerRadius: 14).stroke(Color.line, lineWidth: 1))
     }
 
     // MARK: - Lumi Plus 入口

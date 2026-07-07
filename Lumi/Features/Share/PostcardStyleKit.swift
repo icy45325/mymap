@@ -396,13 +396,17 @@ struct PostcardQRCard: View {
                 // 中心留一块**实心白底**作干净遮挡（QR 高容错 H 自动重建），logo 叠其上 → 仍可扫
                 ZStack {
                     RoundedRectangle(cornerRadius: 13).fill(.white).frame(width: 60, height: 60)
-                    Image("LumiMark").resizable().scaledToFit().frame(width: 46, height: 46)
+                    Image(AppTheme.applied.iconPreview).resizable().scaledToFit()
+                        .frame(width: 46, height: 46)
+                        .clipShape(RoundedRectangle(cornerRadius: 10))   // 用当前 App 图标，非抠图版
                 }
             }
             .padding(20)
             .background(.white, in: RoundedRectangle(cornerRadius: 24))
-            VStack(spacing: 4) {
-                LumiBrandMark(size: 44)
+            VStack(spacing: 6) {
+                Image(AppTheme.applied.iconPreview).resizable().scaledToFit()
+                    .frame(width: 44, height: 44)
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
                 Text("扫码用 Lumi 收下这张明信片")
                     .font(.system(size: 12)).foregroundStyle(Color(hex: 0x6A6480))
             }

@@ -17,7 +17,7 @@ struct PostcardWallView: View {
     enum WallSort: String, CaseIterable, Identifiable {
         case received, place
         var id: String { rawValue }
-        var label: LocalizedStringKey { self == .received ? "按接收时间" : "按来源地 A–Z" }
+        var label: LocalizedStringKey { self == .received ? "按接收时间" : "按国家 A–Z" }
     }
 
     private var items: [Footprint] {
@@ -25,12 +25,44 @@ struct PostcardWallView: View {
         switch sort {
         case .received:   // 接收时间倒序（无 receivedAt 的旧数据用 createdAt 兜底）
             return received.sorted { ($0.receivedAt ?? $0.createdAt) > ($1.receivedAt ?? $1.createdAt) }
-        case .place:      // 来源地 A→Z
-            return received.sorted { $0.title.localizedCaseInsensitiveCompare($1.title) == .orderedAscending }
+        case .place:      // 国家名 A→Z（无国家码回退地点名）
+            return received.sorted {
+                let a = CountryInfo.localizedName(for: $0.countryCode) ?? $0.title
+                let b = CountryInfo.localizedName(for: $1.countryCode) ?? $1.title
+                return a.localizedCaseInsensitiveCompare(b) == .orderedAscending
+            }
         }
     }
 
-    private let cols = [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)]
+    /// 封面横竖判定（解码一次后缓存；无图默认竖版）。
+    private static var orientCache: [UUID: Bool] = [:]
+    private func isLandscape(_ fp: Footprint) -> Bool {
+        if let hit = Self.orientCache[fp.id] { return hit }
+        var v = false
+        if let d = fp.receivedCoverData, let ui = UIImage(data: d) {
+            v = ui.size.width > ui.size.height
+        }
+        Self.orientCache[fp.id] = v
+        return v
+    }
+
+    /// 流式行：横版卡独占一行（宽 16:10 限高），竖版卡两两一行（3:4）。
+    private var wallRows: [[Footprint]] {
+        var rows: [[Footprint]] = []
+        var pending: Footprint?
+        for fp in items {
+            if isLandscape(fp) {
+                if let p = pending { rows.append([p]); pending = nil }
+                rows.append([fp])
+            } else if let p = pending {
+                rows.append([p, fp]); pending = nil
+            } else {
+                pending = fp
+            }
+        }
+        if let p = pending { rows.append([p]) }
+        return rows
+    }
 
     var body: some View {
         Group {
@@ -52,10 +84,25 @@ struct PostcardWallView: View {
                                 }
                                 .pickerStyle(.segmented)
                             }
-                            LazyVGrid(columns: cols, spacing: 12) {
-                                ForEach(items) { fp in
-                                    Button { selected = fp } label: { PostcardCell(footprint: fp) }
+                            LazyVStack(spacing: 12) {
+                                ForEach(Array(wallRows.enumerated()), id: \.offset) { _, row in
+                                    if row.count == 1 && isLandscape(row[0]) {
+                                        Button { selected = row[0] } label: {
+                                            PostcardCell(footprint: row[0], landscape: true)
+                                        }
                                         .buttonStyle(.plain)
+                                    } else {
+                                        HStack(alignment: .top, spacing: 12) {
+                                            ForEach(row) { fp in
+                                                Button { selected = fp } label: { PostcardCell(footprint: fp) }
+                                                    .buttonStyle(.plain)
+                                                    .frame(maxWidth: .infinity)
+                                            }
+                                            if row.count == 1 {   // 奇数收尾：占位半宽保持对齐
+                                                Color.clear.frame(maxWidth: .infinity)
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -229,7 +276,7 @@ struct PostcardWallView: View {
     }
 }
 
-/// 查看收到的明信片：只翻转 + 分享（系统 / Instagram），无样式 / 邮票 / 编辑功能。
+/// 查看收到的明信片：翻转 + 分享 + 寄卡人档案与一键回寄。
 private struct ReceivedPostcardSheet: View {
     let footprint: Footprint
     @Environment(\.dismiss) private var dismiss
@@ -237,6 +284,14 @@ private struct ReceivedPostcardSheet: View {
     @State private var flipped = false
     @State private var cover: UIImage?
     @State private var shareImage: Image?
+    @State private var showReplyPicker = false
+
+    /// 寄卡人在「往来的人」里的档案（头像 / 国籍 / 邮箱号随卡攒下）。
+    private var senderContact: PostcardContact? {
+        guard !sender.isEmpty else { return nil }
+        return PostcardContacts.shared.contacts
+            .first { $0.name.caseInsensitiveCompare(sender) == .orderedSame }
+    }
 
     private var style: PostcardStyle { PostcardStyle(rawValue: footprint.postcardStyle) ?? .vintage }
     private var stamp: StampKind { StampKind(raw: footprint.stampStyle) }
@@ -265,6 +320,8 @@ private struct ReceivedPostcardSheet: View {
                             .background(Color.panel, in: Capsule())
                             .overlay(Capsule().stroke(Color.line, lineWidth: 1))
                     }
+
+                    if !sender.isEmpty { senderCard }
 
                     if let shareImage {
                         HStack(spacing: 10) {
@@ -297,6 +354,116 @@ private struct ReceivedPostcardSheet: View {
         .task {
             if let d = footprint.receivedCoverData { cover = UIImage(data: d) }
             shareImage = ShareRender.image(exportCard, scale: 3)
+        }
+        .sheet(isPresented: $showReplyPicker) {
+            ReplyFootprintPicker(recipientName: sender, recipientBox: senderContact?.boxID)
+        }
+    }
+
+    /// 寄卡人档案卡：头像 + 名字 + 国籍 + 邮箱号 + 回寄按钮。
+    private var senderCard: some View {
+        let contact = senderContact
+        return VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 12) {
+                if let c = contact {
+                    PostcardWallView.avatar(c, size: 46)
+                } else {
+                    PostcardWallView.avatar(PostcardContact(name: sender, lastAt: .now), size: 46)
+                }
+                VStack(alignment: .leading, spacing: 3) {
+                    HStack(spacing: 6) {
+                        Text("寄卡人").font(.system(size: 10)).foregroundStyle(Color.muted)
+                        if let cc = contact?.countryCode {
+                            Text(verbatim: flagEmoji(cc)).font(.system(size: 11))
+                        }
+                    }
+                    Text(verbatim: sender).font(.system(size: 15, weight: .semibold)).foregroundStyle(Color.text)
+                    if let box = contact?.boxID {
+                        Text(verbatim: box)
+                            .font(.system(size: 11, weight: .semibold, design: .monospaced))
+                            .foregroundStyle(Color.muted)
+                    }
+                }
+                Spacer()
+                Button { showReplyPicker = true } label: {
+                    Label("回寄明信片", systemImage: "arrowshape.turn.up.left.fill")
+                        .font(.system(size: 12, weight: .semibold)).foregroundStyle(.white)
+                        .padding(.vertical, 9).padding(.horizontal, 14)
+                        .background(LinearGradient.neonH, in: Capsule())
+                }
+            }
+        }
+        .padding(14)
+        .background(Color.panel, in: RoundedRectangle(cornerRadius: 14))
+        .overlay(RoundedRectangle(cornerRadius: 14).stroke(Color.line, lineWidth: 1))
+        .padding(.horizontal, 4)
+    }
+}
+
+/// 回寄：从自己的足迹里挑一个作为明信片，收件人 / 邮箱号已预填。
+private struct ReplyFootprintPicker: View {
+    let recipientName: String
+    let recipientBox: String?
+    @Environment(\.dismiss) private var dismiss
+    @Query(sort: \Footprint.visitedAt, order: .reverse) private var footprints: [Footprint]
+    @State private var replyTarget: Footprint?
+
+    private var mine: [Footprint] { footprints.filter { !$0.isReceived } }
+    private static let df: Date.FormatStyle = .dateTime.year().month(.abbreviated).day()
+
+    var body: some View {
+        NavigationStack {
+            Group {
+                if mine.isEmpty {
+                    VStack(spacing: 10) {
+                        Image(systemName: "mappin.slash").font(.system(size: 34)).foregroundStyle(Color.muted)
+                        Text("还没有可回寄的足迹，先去点亮一个地方吧")
+                            .font(.subheadline).foregroundStyle(Color.muted)
+                            .multilineTextAlignment(.center).padding(.horizontal, 40)
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else {
+                    ScrollView {
+                        LazyVStack(spacing: 10) {
+                            ForEach(mine) { fp in
+                                Button { replyTarget = fp } label: {
+                                    HStack(spacing: 12) {
+                                        Text(fp.flag).font(.system(size: 24))
+                                        VStack(alignment: .leading, spacing: 3) {
+                                            Text(fp.title).font(.system(size: 15, weight: .semibold))
+                                                .foregroundStyle(Color.text).lineLimit(1)
+                                            Text(fp.visitSpanText(Self.df))
+                                                .font(.system(size: 11)).foregroundStyle(Color.muted)
+                                        }
+                                        Spacer()
+                                        Image(systemName: "chevron.right")
+                                            .font(.system(size: 12)).foregroundStyle(Color.muted)
+                                    }
+                                    .padding(13)
+                                    .background(Color.panel, in: RoundedRectangle(cornerRadius: 14))
+                                    .overlay(RoundedRectangle(cornerRadius: 14).stroke(Color.line, lineWidth: 1))
+                                }
+                                .buttonStyle(.plain)
+                            }
+                        }
+                        .padding(16)
+                    }
+                }
+            }
+            .background(Color.bg.ignoresSafeArea())
+            .navigationTitle("选一个足迹回寄")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("取消") { dismiss() }.foregroundStyle(Color.muted)
+                }
+            }
+            .toolbarBackground(Color.bg, for: .navigationBar)
+            .toolbarColorScheme(.dark, for: .navigationBar)
+        }
+        .preferredColorScheme(.dark)
+        .sheet(item: $replyTarget) { fp in
+            PostcardSheet(footprint: fp, prefillRecipient: recipientName, prefillMailbox: recipientBox)
         }
     }
 }
@@ -371,11 +538,14 @@ private struct ContactCardSheet: View {
 }
 
 /// 明信片墙单元：封面（照片或霓虹渐变）+ 手写寄语片段 + 地点；收到的标「✦ 收到」。
+/// 竖版 3:4；横版卡（封面宽>高）16:10 独占整行。
 private struct PostcardCell: View {
     let footprint: Footprint
+    var landscape: Bool = false
 
     private var style: PostcardStyle { PostcardStyle(rawValue: footprint.postcardStyle) ?? .vintage }
     private var stamp: StampKind { StampKind(raw: footprint.stampStyle) }
+    private var aspect: CGFloat { landscape ? 16.0/10.0 : 3.0/4.0 }
 
     var body: some View {
         ZStack(alignment: .bottomLeading) {
@@ -390,7 +560,7 @@ private struct PostcardCell: View {
                     .overlay(Text(footprint.flag).font(.system(size: 64)).opacity(0.25))
                 }
             }
-            .aspectRatio(3.0/4.0, contentMode: .fill)
+            .aspectRatio(aspect, contentMode: .fill)
             .frame(maxWidth: .infinity)
             .clipped()
 
@@ -409,7 +579,8 @@ private struct PostcardCell: View {
             }
             .padding(12)
         }
-        .aspectRatio(3.0/4.0, contentMode: .fit)
+        .aspectRatio(aspect, contentMode: .fit)
+        .frame(maxWidth: .infinity)
         .clipShape(RoundedRectangle(cornerRadius: 16))
         .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.line, lineWidth: 1))
         .overlay(alignment: .topLeading) {

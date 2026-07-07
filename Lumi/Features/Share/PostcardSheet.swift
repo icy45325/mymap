@@ -33,7 +33,8 @@ struct PostcardSheet: View {
     @State private var coverAssetID: String?         // 当前选作封面的相册资源 id（nil=新选/无）
     @State private var pickedPhoto: PhotosPickerItem?
 
-    init(footprint: Footprint) {
+    /// `prefillRecipient` / `prefillMailbox`：回寄入口预填收件人与邮箱号（填了号直寄即为主按钮）。
+    init(footprint: Footprint, prefillRecipient: String? = nil, prefillMailbox: String? = nil) {
         self.footprint = footprint
         _message = State(initialValue: defaultPostcardMessage(footprint))
         _style = State(initialValue: PostcardStyle(rawValue: footprint.postcardStyle) ?? .vintage)
@@ -41,6 +42,8 @@ struct PostcardSheet: View {
         _sendDate = State(initialValue: footprint.visitedAt)
         _fromName = State(initialValue: UserDefaults.standard.string(forKey: "lumi.profile.name") ?? "")
         _coverAssetID = State(initialValue: footprint.photoAssetIDs.first)
+        _recipient = State(initialValue: prefillRecipient ?? "")
+        _mailbox = State(initialValue: prefillMailbox ?? "")
     }
 
     /// 当前样式解析出的配色 / 字体口径（输入框寄语字体与卡面保持一致）。
@@ -62,7 +65,8 @@ struct PostcardSheet: View {
                                     style: style.rawValue, stamp: stamp.raw,
                                     date: sendDate, cover: includeCover ? coverB64 : nil,
                                     senderAvatar: includeCover ? avatarB64 : nil,
-                                    senderCountry: (nation?.isEmpty ?? true) ? nil : nation)
+                                    senderCountry: (nation?.isEmpty ?? true) ? nil : nation,
+                                    senderBox: LumiPost.shared.identity?.boxID)
     }
     private var tokenString: String { makeToken(includeCover: true) }
 
@@ -219,7 +223,9 @@ struct PostcardSheet: View {
             .toolbarColorScheme(.dark, for: .navigationBar)
         }
         .preferredColorScheme(.dark)
-        .sheet(isPresented: $showPaywall) { PaywallView() }
+        .sheet(isPresented: $showPaywall, onDismiss: {
+            Task { await store.refreshEntitlement(); rerender() }   // 付费回来立即解锁典藏票，可继续寄
+        }) { PaywallView() }
         .task { cover = await loadAssetUIImage(coverAssetID); rerender() }   // 封面先行加载，不被网络阻塞
         .task { await store.refreshEntitlement() }      // 权益对齐并行（订阅后无需再开订阅页）
         .task {                                          // 头像缩略图（≈96px）随卡传给对方
@@ -442,6 +448,8 @@ struct PostcardSheet: View {
             contacts.record(name.isEmpty ? target : name, boxID: target, sent: true)
             sentOK = true
             Haptics.success()
+            try? await Task.sleep(nanoseconds: 1_000_000_000)   // 让成功态停留一秒
+            dismiss()                                            // 回足迹详情（详情页会刷新寄出记录）
         } catch {
             sendError = error.localizedDescription
         }

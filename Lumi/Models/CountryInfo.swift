@@ -58,7 +58,10 @@ enum CountryInfo {
     /// ISO_A2 → 本地化国名（随系统语言：阿联酋 / United Arab Emirates / الإمارات）。
     static func localizedName(for code: String?) -> String? {
         guard let code else { return nil }
-        return Locale.current.localizedString(forRegionCode: String(code.prefix(2)))
+        let cc = String(code.prefix(2))
+        // 产品口径覆盖：系统词表把 CN 译作 “China mainland / 中国大陆”，统一用 China / 中国。
+        if cc == "CN" { return String(localized: "中国") }
+        return Locale.current.localizedString(forRegionCode: cc)
     }
 
     /// 中东国家码（这些国家在展示上归入「中东」分组，而非地理大洲）。

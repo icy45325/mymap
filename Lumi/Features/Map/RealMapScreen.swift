@@ -31,13 +31,26 @@ struct RealMapScreen: View {
         Set(wishes.compactMap { $0.countryCode }).subtracting(litCountryCodes)
     }
 
+    /// 收到明信片的来源大头针：按 ~5km 网格聚合，同格多张卡计数。
+    private var postcardPins: [PostcardMapPin] {
+        var groups: [String: (CLLocationCoordinate2D, Int)] = [:]
+        for fp in footprints where fp.isReceived {
+            let key = "\((fp.latitude * 20).rounded())|\((fp.longitude * 20).rounded())"
+            if let g = groups[key] { groups[key] = (g.0, g.1 + 1) }
+            else { groups[key] = (fp.coordinate, 1) }
+        }
+        return groups.map { PostcardMapPin(id: $0.key, coordinate: $0.value.0, count: $0.value.1) }
+    }
+
     private var renderState: MapRenderState {
         MapRenderState(
             litRegions: Boundaries.shared.regions(forCountryCodes: litCountryCodes,
                                                   emirateCodes: litEmirateCodes),
             wishRegions: Boundaries.shared.regions(forCountryCodes: wishCountryCodes,
                                                    emirateCodes: []),
-            pins: footprints.map { MapPin(id: $0.id, coordinate: $0.coordinate) },
+            pins: footprints.filter { !$0.isReceived }   // 收到的卡用信封 pin 表达，不再重复圆点
+                            .map { MapPin(id: $0.id, coordinate: $0.coordinate) },
+            postcardPins: postcardPins,
             onTapCoordinate: handleTap)
     }
 

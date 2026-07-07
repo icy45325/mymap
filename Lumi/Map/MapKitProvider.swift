@@ -52,6 +52,13 @@ private struct LumiMapView: View {
                     }
                     .annotationTitles(.hidden)
                 }
+                // ④ 收到明信片的来源：信封大头针（多张聚合显示计数）
+                ForEach(state.postcardPins) { pin in
+                    Annotation("", coordinate: pin.coordinate, anchor: .bottom) {
+                        PostcardPinView(count: pin.count)
+                    }
+                    .annotationTitles(.hidden)
+                }
             }
             .mapStyle(.standard(elevation: .flat, pointsOfInterest: .excludingAll))
             .preferredColorScheme(.dark)      // 暗夜底图
@@ -62,6 +69,45 @@ private struct LumiMapView: View {
                     state.onTapCoordinate(coordinate)
                 }
             }
+        }
+    }
+}
+
+/// 收到明信片来源大头针：信封气泡 + 尾巴；同地多张右上角标计数。
+private struct PostcardPinView: View {
+    let count: Int
+    var body: some View {
+        VStack(spacing: -1) {
+            ZStack {
+                RoundedRectangle(cornerRadius: 9)
+                    .fill(LinearGradient(colors: [Color.nOrange, Color.nPink],
+                                         startPoint: .topLeading, endPoint: .bottomTrailing))
+                    .frame(width: 30, height: 30)
+                    .shadow(color: Color.nOrange.opacity(0.7), radius: 5)
+                Image(systemName: "envelope.fill")
+                    .font(.system(size: 13, weight: .semibold)).foregroundStyle(.white)
+            }
+            .overlay(alignment: .topTrailing) {
+                if count > 1 {
+                    Text(verbatim: count > 99 ? "99+" : "\(count)")
+                        .font(.system(size: 9, weight: .heavy)).foregroundStyle(.white)
+                        .padding(.vertical, 2).padding(.horizontal, 5)
+                        .background(Color.nPink, in: Capsule())
+                        .overlay(Capsule().stroke(.white.opacity(0.8), lineWidth: 1))
+                        .offset(x: 9, y: -7)
+                }
+            }
+            Triangle().fill(Color.nPink).frame(width: 9, height: 6)   // 指向坐标的小尾巴
+        }
+    }
+    private struct Triangle: Shape {
+        func path(in r: CGRect) -> Path {
+            var p = Path()
+            p.move(to: CGPoint(x: r.midX, y: r.maxY))
+            p.addLine(to: CGPoint(x: r.minX, y: r.minY))
+            p.addLine(to: CGPoint(x: r.maxX, y: r.minY))
+            p.closeSubpath()
+            return p
         }
     }
 }

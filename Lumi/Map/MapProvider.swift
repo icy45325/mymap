@@ -27,6 +27,13 @@ struct LitRegion: Identifiable {
     let rings: [[CLLocationCoordinate2D]]
 }
 
+/// 收到明信片的来源点（信封大头针；同一地点多张卡聚合计数）。
+struct PostcardMapPin: Identifiable {
+    let id: String
+    let coordinate: CLLocationCoordinate2D
+    let count: Int
+}
+
 /// 一帧地图渲染所需的全部输入。View 只描述"要画什么"，怎么画交给 provider。
 struct MapRenderState {
     /// 已点亮区域（去过 · 霓虹粉/紫着色）。
@@ -35,6 +42,8 @@ struct MapRenderState {
     var wishRegions: [LitRegion] = []
     /// 足迹点（发光圆点）。
     var pins: [MapPin]
+    /// 收到明信片的来源点（信封 pin + 计数；默认空 = 不画）。
+    var postcardPins: [PostcardMapPin] = []
     /// 用户点屏回调，参数为该屏幕点对应的 WGS-84 坐标。
     var onTapCoordinate: (CLLocationCoordinate2D) -> Void
 }

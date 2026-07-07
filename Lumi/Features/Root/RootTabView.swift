@@ -114,8 +114,8 @@ struct RootTabView: View {
         context.insert(Card(footprint: fp))
         try? context.save()
         markSeen(p.token)
-        PostcardContacts.shared.record(p.sender, avatarB64: p.senderAvatar,
-                                       countryCode: p.senderCountry, sent: false)   // 攒「往来的人」(含档案)
+        PostcardContacts.shared.record(p.sender, boxID: p.senderBox, avatarB64: p.senderAvatar,
+                                       countryCode: p.senderCountry, sent: false)   // 攒「往来的人」(含档案+邮箱号)
         WidgetSync.refresh(context)
         Haptics.success()                                       // D 收下明信片震动
         inbox.pending = nil
