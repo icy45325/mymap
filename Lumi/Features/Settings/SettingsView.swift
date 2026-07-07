@@ -11,10 +11,14 @@ struct SettingsView: View {
     @State private var showPaywall = false
     @State private var showWhatsNew = false
 
+    /// 上线检查项：恢复 Sign in with Apple —— 置 true + 恢复 Lumi.entitlements 里的
+    /// applesignin 键（需付费团队签名；个人团队不支持，日常调试先隐藏登录入口）。
+    static let signInEnabled = false
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 18) {
-                section("账户") { accountRow }
+                if Self.signInEnabled { section("账户") { accountRow } }
                 section("Lumi Plus") { plusRow }
                 section("个性化") { customizeEntry }
                 section("语言 Language") {

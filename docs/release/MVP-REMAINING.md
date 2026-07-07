@@ -55,6 +55,7 @@
 | C1 | **三语 × 机型系统化回归**（照 `QA-REGRESSION.md`） | 🔲 头号 |
 | C2 | 本批验收（见 `ACCEPTANCE.md`） | 🔲 |
 | C3 | 英文/中文系统语言已修复（zh-Hans 根因），清装复验一次 | ⚠️ 待复验 |
+| C4 | **恢复 Sign in with Apple（上线前）**：`Lumi.entitlements` 恢复 `com.apple.developer.applesignin` 键（注释里备着）+ `SettingsView.signInEnabled = true` + **付费团队签名**验证登录可用。日常调试用个人团队不支持该 capability，已临时摘除并隐藏入口（2026-07-07） | 🔲 上线前 |
 
 ---
 

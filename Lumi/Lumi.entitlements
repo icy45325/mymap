@@ -6,9 +6,8 @@
 	<array>
 		<string>group.com.lumi.fun</string>
 	</array>
-	<key>com.apple.developer.applesignin</key>
-	<array>
-		<string>Default</string>
-	</array>
+	<!-- 上线检查项：恢复 Sign in with Apple（需付费团队签名）——
+	     <key>com.apple.developer.applesignin</key><array><string>Default</string></array>
+	     同时把 SettingsView.signInEnabled 打开。个人团队不支持该 capability，日常真机调试先摘除。 -->
 </dict>
 </plist>
