@@ -93,7 +93,15 @@ revoke all on mailbox, mail from anon;
 
 - `claude/mvp-1.0-submission`：**提审预留冻结**，只收验收 bug 修复；修复后择机 cherry-pick/merge 进 v1.1 分支。
 - `claude/v1.1-lumi-post`：v1.1 全部开发；MVP 审核通过后作为 1.1 版本提交。
-- ICY 侧一次性操作：注册 Supabase 项目（Free）→ 跑 §3 SQL → 把 URL/anon key 填进 Info.plist 两键。
+
+**接入进度（2026-07-07）**
+- ✅ Supabase 项目已建：`https://brxpnharduwacnqkarkr.supabase.co`；`LumiPostURL` 已入 `Lumi/Info.plist`
+  （只有 URL 没有 key 时 `isEnabled=false`，功能仍隐藏——半配置是安全态）。
+- ⬜ ICY：SQL Editor 整段粘贴执行 [`lumi-post-schema.sql`](lumi-post-schema.sql)
+  （建两表 + 4 RPC + 收权限；全新项目直接跑，无需 drop；可选：启用 pg_cron 后执行文件尾注释的 30 天 TTL）。
+- ⬜ ICY：把 **anon public** key 发来（Dashboard → Settings → API → Project API keys → `anon` `public`）
+  → 补进 Info.plist `LumiPostAnonKey`，功能即亮起。anon key 可公开进客户端（见 §5）。
+- ⬜ 双机验收（§7）。提审分支永不配置两键，不受影响。
 
 ## 7. 验收要点（真机，双机或双模拟器）
 
