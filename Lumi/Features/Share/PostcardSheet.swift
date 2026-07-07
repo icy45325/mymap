@@ -16,10 +16,13 @@ struct PostcardSheet: View {
     @State private var coverB64: String?             // 压缩封面 base64（随 AirDrop/链接传，QR 不带）
     @State private var shareImage: Image?
     @State private var qr: Image?
-    @State private var cardFile: URL?                // AirDrop 用的 .lumicard 文件
     @State private var copied = false
     @State private var showPaywall = false
-    @State private var showDirectSend = false        // v1.1 站内直寄（LumiPostConfig.isEnabled 才露出）
+    @State private var mailbox = ""                  // 对方 Lumi 邮箱号（填了 → 直寄成为主按钮）
+    @State private var avatarB64: String?            // 我的头像缩略图（随卡传给对方的往来名单）
+    @State private var sending = false
+    @State private var sentOK = false
+    @State private var sendError: String?
     @State private var token = UUID().uuidString    // 本张分享卡的幂等标识（稳定）
     @State private var style: PostcardStyle
     @State private var stamp: StampKind
@@ -51,12 +54,15 @@ struct PostcardSheet: View {
     }
     private var dateText: String { sendDate.formatted(.dateTime.year().month(.abbreviated).day()) }
 
-    /// `includeCover` 区分：true=AirDrop/链接（带压缩封面图）；false=二维码（容量有限不带图）。
+    /// `includeCover` 区分：true=链接/直寄（带压缩封面图）；false=二维码（容量有限不带图）。
     private func makeToken(includeCover: Bool) -> String {
-        PostcardToken.encode(footprint: footprint, message: message, token: token,
-                             sender: senderName.isEmpty ? nil : senderName,
-                             style: style.rawValue, stamp: stamp.raw,
-                             date: sendDate, cover: includeCover ? coverB64 : nil)
+        let nation = UserDefaults.standard.string(forKey: "lumi.profile.nationality")
+        return PostcardToken.encode(footprint: footprint, message: message, token: token,
+                                    sender: senderName.isEmpty ? nil : senderName,
+                                    style: style.rawValue, stamp: stamp.raw,
+                                    date: sendDate, cover: includeCover ? coverB64 : nil,
+                                    senderAvatar: includeCover ? avatarB64 : nil,
+                                    senderCountry: (nation?.isEmpty ?? true) ? nil : nation)
     }
     private var tokenString: String { makeToken(includeCover: true) }
 
@@ -95,6 +101,22 @@ struct PostcardSheet: View {
                                 .padding(12)
                                 .background(Color.panel, in: RoundedRectangle(cornerRadius: 12))
                                 .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.line, lineWidth: 1))
+                            if LumiPostConfig.isEnabled {
+                                HStack(spacing: 8) {
+                                    Image(systemName: "tray.full").font(.system(size: 12))
+                                        .foregroundStyle(Color.nOrange)
+                                    TextField("Lumi 邮箱号（选填，填了可直寄）", text: $mailbox)
+                                        .font(.system(size: 14, weight: .semibold, design: .monospaced))
+                                        .textInputAutocapitalization(.characters)
+                                        .autocorrectionDisabled()
+                                        .foregroundStyle(Color.text)
+                                }
+                                .padding(12)
+                                .background(Color.panel, in: RoundedRectangle(cornerRadius: 12))
+                                .overlay(RoundedRectangle(cornerRadius: 12)
+                                    .stroke(mailboxFilled ? Color.nOrange.opacity(0.6) : Color.line, lineWidth: 1))
+                                .onChange(of: mailbox) { _, _ in sendError = nil; sentOK = false }
+                            }
                             if recipient.isEmpty && !contacts.recent.isEmpty { contactSuggestions }
                         }
                     }
@@ -113,54 +135,71 @@ struct PostcardSheet: View {
                     if footprint.isMultiDay { sendDatePicker }
 
                     if let shareImage {
-                        HStack(spacing: 10) {
-                            ShareLink(item: shareImage,
-                                      preview: SharePreview(footprint.title, image: shareImage)) {
-                                Label("邮寄明信片", systemImage: "paperplane.fill")
-                                    .font(.headline).frame(maxWidth: .infinity, minHeight: 52)
-                                    .background(LinearGradient.neonH, in: Capsule())
-                                    .foregroundStyle(.white)
-                            }
-                            .simultaneousGesture(TapGesture().onEnded {
-                                contacts.record(recipient, sent: true)   // 寄出即攒往来
-                                Haptics.light()
-                            })
-                            InstagramShareButton {                        // 装了 IG 才出现，点按高清现渲染
-                                ShareRender.uiImage(
-                                    PostcardExportCard(footprint: footprint, cover: cover, message: message,
-                                                       recipient: recipient, style: style, stamp: stamp,
-                                                       watermark: !store.isPlus, sender: senderName, dateText: dateText),
-                                    scale: 4)
+                        VStack(spacing: 10) {
+                            if LumiPostConfig.isEnabled && mailboxFilled {
+                                // 填了邮箱号 → 直寄是主按钮（默认寄送方式）
+                                Button { Task { await directSend() } } label: {
+                                    Group {
+                                        if sentOK {
+                                            Label("已寄达对方邮箱", systemImage: "checkmark.circle.fill")
+                                        } else if sending {
+                                            ProgressView().tint(.white)
+                                        } else {
+                                            Label("直寄到 Lumi 邮箱", systemImage: "paperplane.fill")
+                                        }
+                                    }
+                                    .font(.headline).foregroundStyle(.white)
+                                    .frame(maxWidth: .infinity, minHeight: 52)
+                                    .background(sentOK ? AnyShapeStyle(Color.nCyan.opacity(0.85))
+                                                       : AnyShapeStyle(LinearGradient.neonH), in: Capsule())
+                                }
+                                .disabled(sending || sentOK)
+                                if let sendError {
+                                    Label(sendError, systemImage: "exclamationmark.triangle.fill")
+                                        .font(.system(size: 12)).foregroundStyle(Color.nOrange)
+                                }
+                                HStack(spacing: 10) {
+                                    ShareLink(item: shareImage,
+                                              preview: SharePreview(footprint.title, image: shareImage)) {
+                                        miniLabel("分享图片", "square.and.arrow.up", Color.nCyan)
+                                    }
+                                    igShare
+                                }
+                            } else {
+                                // 没填邮箱号 → 分享成图为主，提示可直寄
+                                HStack(spacing: 10) {
+                                    ShareLink(item: shareImage,
+                                              preview: SharePreview(footprint.title, image: shareImage)) {
+                                        Label("邮寄明信片", systemImage: "paperplane.fill")
+                                            .font(.headline).frame(maxWidth: .infinity, minHeight: 52)
+                                            .background(LinearGradient.neonH, in: Capsule())
+                                            .foregroundStyle(.white)
+                                    }
+                                    .simultaneousGesture(TapGesture().onEnded {
+                                        contacts.record(recipient, sent: true)   // 寄出即攒往来
+                                        Haptics.light()
+                                    })
+                                    igShare
+                                }
+                                .fixedSize(horizontal: false, vertical: true)
+                                if LumiPostConfig.isEnabled {
+                                    Text("对方也用 Lumi？在上方填 Ta 的邮箱号即可直寄")
+                                        .font(.system(size: 11)).foregroundStyle(Color.muted)
+                                }
                             }
                         }
-                        .fixedSize(horizontal: false, vertical: true)
                     } else {
                         ProgressView().tint(Color.nPink).frame(maxWidth: .infinity).padding(.vertical, 14)
                     }
 
-                    if !store.isPlus { plusUpsell }
-
-                    // 链接 / 二维码 / 隔空投送：对方扫码或点开即在 Lumi 自动收下
-                    VStack(spacing: 10) {
-                        Text("链接 / 二维码 / 隔空投送 —— 对方扫码或点开即在 Lumi 收下")
-                            .font(.system(size: 11)).foregroundStyle(Color.muted)
-                            .multilineTextAlignment(.center)
-                        HStack(spacing: 10) {
-                            if LumiPostConfig.isEnabled {
-                                Button { showDirectSend = true } label: {
-                                    miniLabel("直寄", "tray.and.arrow.up", Color.nOrange)
-                                }
-                            }
-                            Button { copyLink() } label: {
-                                miniLabel(copied ? "已复制" : "复制链接", copied ? "checkmark" : "link", Color.nCyan)
-                            }
-                            if let qr {
-                                ShareLink(item: qr, preview: SharePreview("Lumi 明信片二维码", image: qr)) {
-                                    miniLabel("二维码", "qrcode", Color.nPink)
-                                }
-                            }
-                            if let cardFile {
-                                ShareLink(item: cardFile) { miniLabel("隔空投送", "paperplane", Color.nPurple) }
+                    // 备用通道：链接 / 二维码（对方扫码或点开即在 Lumi 收下）
+                    HStack(spacing: 10) {
+                        Button { copyLink() } label: {
+                            miniLabel(copied ? "已复制" : "复制链接", copied ? "checkmark" : "link", Color.nCyan)
+                        }
+                        if let qr {
+                            ShareLink(item: qr, preview: SharePreview("Lumi 明信片二维码", image: qr)) {
+                                miniLabel("二维码", "qrcode", Color.nPink)
                             }
                         }
                     }
@@ -181,13 +220,15 @@ struct PostcardSheet: View {
         }
         .preferredColorScheme(.dark)
         .sheet(isPresented: $showPaywall) { PaywallView() }
-        .sheet(isPresented: $showDirectSend) {
-            DirectSendSheet(payload: tokenString, footprintID: footprint.id.uuidString,
-                            recipientName: recipient, token: token)
-                .presentationDetents([.medium, .large])
+        .task { cover = await loadAssetUIImage(coverAssetID); rerender() }   // 封面先行加载，不被网络阻塞
+        .task { await store.refreshEntitlement() }      // 权益对齐并行（订阅后无需再开订阅页）
+        .task {                                          // 头像缩略图（≈96px）随卡传给对方
+            let avatarID = UserDefaults.standard.string(forKey: "lumi.profile.avatarID")
+            if let id = avatarID, !id.isEmpty,
+               let ui = await loadAssetUIImage(id, targetSize: CGSize(width: 192, height: 192)) {
+                avatarB64 = PostcardToken.encodeCover(ui, maxDim: 96, quality: 0.6)
+            }
         }
-        .task { await store.refreshEntitlement()        // 打开即对齐 Plus 权益（订阅后无需再开订阅页）
-                cover = await loadAssetUIImage(coverAssetID); rerender() }
         .onChange(of: message) { _, _ in rerender() }
         .onChange(of: recipient) { _, _ in rerender() }      // 导出图含「寄给」，改收件人即时重渲
         .onChange(of: fromName) { _, _ in rerender() }       // 「寄自」即时重渲
@@ -374,35 +415,51 @@ struct PostcardSheet: View {
         .buttonStyle(.plain)
     }
 
-    /// 免费版水印提示 + 升级入口。
-    private var plusUpsell: some View {
-        Button { showPaywall = true } label: {
-            HStack(spacing: 10) {
-                Image(systemName: "sparkles").font(.system(size: 15)).foregroundStyle(Color.nCyan)
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("明信片带 Lumi 水印").font(.system(size: 13, weight: .semibold)).foregroundStyle(Color.text)
-                    Text("升级 Plus 去水印 · 高清导出").font(.system(size: 11)).foregroundStyle(Color.muted)
-                }
-                Spacer()
-                Text("升级").font(.system(size: 12, weight: .bold)).foregroundStyle(.white)
-                    .padding(.vertical, 6).padding(.horizontal, 14)
-                    .background(LinearGradient.neonH, in: Capsule())
-            }
-            .padding(12)
-            .background(Color.panel, in: RoundedRectangle(cornerRadius: 14))
-            .overlay(RoundedRectangle(cornerRadius: 14).stroke(Color.nCyan.opacity(0.3), lineWidth: 1))
+    /// 邮箱号已填（去空格后非空）。
+    private var mailboxFilled: Bool { !mailbox.trimmingCharacters(in: .whitespaces).isEmpty }
+
+    /// Instagram 分享按钮（装了 IG 才出现，点按高清现渲染）。
+    private var igShare: some View {
+        InstagramShareButton {
+            ShareRender.uiImage(
+                PostcardExportCard(footprint: footprint, cover: cover, message: message,
+                                   recipient: recipient, style: style, stamp: stamp,
+                                   watermark: !store.isPlus, sender: senderName, dateText: dateText),
+                scale: 4)
         }
-        .buttonStyle(.plain)
     }
 
-    /// 往来联系人快选（点一下填入「寄给」）。
+    /// 站内直寄（v1.1 默认寄送方式）：寄达对方 Lumi 邮箱。
+    @MainActor private func directSend() async {
+        let target = LumiPost.normalize(mailbox)
+        sending = true; sendError = nil
+        defer { sending = false }
+        do {
+            let mailID = try await LumiPost.shared.send(payload: tokenString, to: target)
+            LumiPost.shared.recordSent(footprintID: footprint.id.uuidString, mailID: mailID)
+            PostcardInbox.shared.markShared(token)   // 防剪贴板被动探测自弹
+            let name = recipient.trimmingCharacters(in: .whitespaces)
+            contacts.record(name.isEmpty ? target : name, boxID: target, sent: true)
+            sentOK = true
+            Haptics.success()
+        } catch {
+            sendError = error.localizedDescription
+        }
+    }
+
+    /// 往来联系人快选（点一下填入「寄给」；有邮箱号的连邮箱号一起带出）。
     private var contactSuggestions: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
                 ForEach(contacts.recent.prefix(8)) { c in
-                    Button { recipient = c.name } label: {
+                    Button {
+                        recipient = c.name
+                        if let box = c.boxID { mailbox = box }
+                    } label: {
                         HStack(spacing: 5) {
-                            Image(systemName: "person.fill").font(.system(size: 9)).foregroundStyle(Color.nCyan)
+                            Image(systemName: c.boxID != nil ? "envelope.fill" : "person.fill")
+                                .font(.system(size: 9))
+                                .foregroundStyle(c.boxID != nil ? Color.nOrange : Color.nCyan)
                             Text(c.name).font(.system(size: 12)).foregroundStyle(Color.text).lineLimit(1)
                         }
                         .padding(.vertical, 6).padding(.horizontal, 11)
@@ -446,7 +503,6 @@ struct PostcardSheet: View {
         if let qrUI = PostcardToken.qrImage(qrLinkString, correction: "H") {
             qr = ShareRender.image(PostcardQRCard(qr: qrUI), scale: 3)
         }
-        cardFile = PostcardToken.writeCardFile(tokenString)
         copied = false
     }
 

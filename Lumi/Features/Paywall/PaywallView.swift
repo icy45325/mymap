@@ -98,7 +98,26 @@ struct PaywallView: View {
     private var plans: some View {
         Group {
             if store.products.isEmpty {
-                ProgressView().tint(Color.nPink).frame(maxWidth: .infinity).padding(.vertical, 20)
+                if store.loadingProducts {
+                    ProgressView().tint(Color.nPink).frame(maxWidth: .infinity).padding(.vertical, 20)
+                } else {
+                    // 拉产品失败（网络不佳 / 商店抽风）→ 给重试入口，不再无限转圈
+                    VStack(spacing: 10) {
+                        Text("价格没加载出来（网络不佳或 App Store 暂时无响应）")
+                            .font(.system(size: 12)).foregroundStyle(Color.muted)
+                            .multilineTextAlignment(.center)
+                        Button {
+                            Task { await store.loadProducts(); syncSelection() }
+                        } label: {
+                            Label("重新加载", systemImage: "arrow.clockwise")
+                                .font(.system(size: 13, weight: .semibold)).foregroundStyle(Color.nCyan)
+                                .padding(.vertical, 10).padding(.horizontal, 22)
+                                .background(Color.panel, in: Capsule())
+                                .overlay(Capsule().stroke(Color.nCyan.opacity(0.5), lineWidth: 1))
+                        }
+                    }
+                    .frame(maxWidth: .infinity).padding(.vertical, 14)
+                }
             } else {
                 VStack(spacing: 10) {
                     ForEach(store.products, id: \.id) { product in

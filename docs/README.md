@@ -1,6 +1,9 @@
 # Lumi 文档地图
 
 > 目录于 2026-07-07 重组（原平铺 → 四区）。旧链接若 404，按下表找新位置。
+> 本目录同时是 **GitHub Pages 站点根**：[`index.html`](index.html) = 官网落地页
+> （三语，分享图二维码指向 `https://icy45325.github.io/mymap/`；Pages 跟随 **main** 分支，
+> 官网改动需合入 main 才上线；上架后把 `index.html` 顶部 `APPSTORE_URL` 填上）。
 
 ## product/ —— 产品线（要做什么、为什么、何时）
 

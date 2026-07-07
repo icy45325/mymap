@@ -15,7 +15,9 @@ struct PostcardPayload: Codable {
     let sender: String?
     var style: String? = nil  // 明信片样式（vintage/modern/vivid），旧口令可空
     var stamp: String? = nil  // 邮票（air/city），旧口令可空
-    var cover: String? = nil  // 压缩封面图 base64（AirDrop/链接带，QR 因容量不带）
+    var cover: String? = nil  // 压缩封面图 base64（链接带，QR 因容量不带）
+    var senderAvatar: String? = nil   // 寄件人头像缩略图 base64（≈96px，随卡传给「往来的人」）
+    var senderCountry: String? = nil  // 寄件人国籍码（ISO2）
 }
 
 /// 明信片口令编解码（纯本地带外传输：复制口令 / 二维码 → 对方在 App 内自动收下）。
@@ -24,11 +26,13 @@ enum PostcardToken {
 
     static func encode(footprint fp: Footprint, message: String, token: String,
                        sender: String? = nil, style: String? = nil, stamp: String? = nil,
-                       date: Date? = nil, cover: String? = nil) -> String {
+                       date: Date? = nil, cover: String? = nil,
+                       senderAvatar: String? = nil, senderCountry: String? = nil) -> String {
         let p = PostcardPayload(token: token, place: fp.placeName, city: fp.cityName,
                                 countryCode: fp.countryCode, lat: fp.latitude, lon: fp.longitude,
                                 visitedAt: date ?? fp.visitedAt, message: message, sender: sender,
-                                style: style, stamp: stamp, cover: cover)
+                                style: style, stamp: stamp, cover: cover,
+                                senderAvatar: senderAvatar, senderCountry: senderCountry)
         guard let data = try? JSONEncoder().encode(p) else { return "" }
         return prefix + data.base64EncodedString()
     }

@@ -89,6 +89,11 @@ struct SettingsView: View {
                     .signInWithAppleButtonStyle(.white)
                     .frame(height: 46)
                     .clipShape(Capsule())
+                if let err = auth.lastError {
+                    Label(err, systemImage: "exclamationmark.triangle.fill")
+                        .font(.system(size: 11)).foregroundStyle(Color.nOrange)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
             }
             .padding(.vertical, 13).padding(.horizontal, 14)
             .background(Color.panel, in: RoundedRectangle(cornerRadius: 14))

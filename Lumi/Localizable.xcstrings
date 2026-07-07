@@ -11572,6 +11572,292 @@
           }
         }
       }
+    },
+    "Lumi 邮箱号（选填，填了可直寄）": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lumi 邮箱号（选填，填了可直寄）"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lumi mailbox No. (optional — fill in to send direct)"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "رقم صندوق Lumi (اختياري — املأه للإرسال المباشر)"
+          }
+        }
+      }
+    },
+    "已寄达对方邮箱": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已寄达对方邮箱"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delivered to their mailbox"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "وصلت إلى صندوقهم"
+          }
+        }
+      }
+    },
+    "分享图片": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "分享图片"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Share image"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "مشاركة الصورة"
+          }
+        }
+      }
+    },
+    "对方也用 Lumi？在上方填 Ta 的邮箱号即可直寄": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "对方也用 Lumi？在上方填 Ta 的邮箱号即可直寄"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "They use Lumi too? Enter their mailbox number above to send direct"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "هل يستخدمون Lumi أيضًا؟ أدخل رقم صندوقهم أعلاه للإرسال المباشر"
+          }
+        }
+      }
+    },
+    "价格没加载出来（网络不佳或 App Store 暂时无响应）": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "价格没加载出来（网络不佳或 App Store 暂时无响应）"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prices didn't load (weak network or the App Store isn't responding)"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "لم تُحمَّل الأسعار (شبكة ضعيفة أو App Store لا يستجيب)"
+          }
+        }
+      }
+    },
+    "重新加载": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重新加载"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reload"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "إعادة التحميل"
+          }
+        }
+      }
+    },
+    "寄给 Ta": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "寄给 Ta"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sent to them"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أرسلت لهم"
+          }
+        }
+      }
+    },
+    "收到 Ta 的": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "收到 Ta 的"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Received from them"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "وصلتك منهم"
+          }
+        }
+      }
+    },
+    "寄明信片时从「往来的人」点选 Ta，即可直寄": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "寄明信片时从「往来的人」点选 Ta，即可直寄"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pick them from your circle when sending a postcard to send direct"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "اخترهم من معارفك عند إرسال بطاقة للإرسال المباشر"
+          }
+        }
+      }
+    },
+    "搜索国家 / 地区": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "搜索国家 / 地区"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search countries & regions"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ابحث عن الدول والمناطق"
+          }
+        }
+      }
+    },
+    "点亮世界地图 · 寄一张会盖邮戳的明信片": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "点亮世界地图 · 寄一张会盖邮戳的明信片"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Light up the world map · send a postmarked postcard"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أضئ خريطة العالم · أرسل بطاقة بختم البريد"
+          }
+        }
+      }
+    },
+    "扫码了解 Lumi": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "扫码了解 Lumi"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scan to meet Lumi"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "امسح لتتعرف على Lumi"
+          }
+        }
+      }
+    },
+    "登录失败": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "登录失败"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sign-in failed"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "فشل تسجيل الدخول"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

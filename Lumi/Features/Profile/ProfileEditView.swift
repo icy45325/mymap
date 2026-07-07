@@ -9,11 +9,17 @@ struct ProfileEditView: View {
     @AppStorage("lumi.profile.avatarID") private var avatarID: String = ""
     @AppStorage("lumi.passport.style") private var passportStyle: String = PassportStyle.classic.rawValue
     @State private var pickerItem: PhotosPickerItem?
+    @State private var showNationalityPicker = false
 
-    private let nationalities = ["CN", "HK", "TW", "JP", "KR", "SG", "MY", "TH", "VN", "ID", "IN",
-                                 "AE", "SA", "QA", "TR", "RU", "GB", "FR", "DE", "IT", "ES", "NL",
-                                 "CH", "GR", "PT", "IE", "US", "CA", "MX", "BR", "AU", "NZ", "ZA",
-                                 "EG", "MA", "NG"]
+    /// 全量 ISO 3166-1 国家/地区码（按本地化名排序），不再用手挑短名单。
+    static let allNationalities: [String] = {
+        let codes = Locale.Region.isoRegions.map(\.identifier)
+            .filter { $0.count == 2 && $0.allSatisfy(\.isLetter) && $0 != "ZZ" }
+        return Array(Set(codes)).sorted {
+            (CountryInfo.localizedName(for: $0) ?? $0)
+                .localizedCaseInsensitiveCompare(CountryInfo.localizedName(for: $1) ?? $1) == .orderedAscending
+        }
+    }()
 
     var body: some View {
         NavigationStack {
@@ -45,13 +51,7 @@ struct ProfileEditView: View {
                     }
 
                     section("国籍") {
-                        Menu {
-                            ForEach(nationalities, id: \.self) { c in
-                                Button { nationality = c } label: {
-                                    Text("\(flagEmoji(c))  \(CountryInfo.localizedName(for: c) ?? c)")
-                                }
-                            }
-                        } label: {
+                        Button { showNationalityPicker = true } label: {
                             HStack {
                                 Text(nationality.isEmpty ? "选择国籍"
                                      : "\(flagEmoji(nationality))  \(CountryInfo.localizedName(for: nationality) ?? nationality)")
@@ -99,6 +99,9 @@ struct ProfileEditView: View {
             .onChange(of: pickerItem) { _, item in
                 if let id = item?.itemIdentifier { avatarID = id }
             }
+            .sheet(isPresented: $showNationalityPicker) {
+                NationalityPickerSheet(selected: $nationality)
+            }
         }
         .preferredColorScheme(.dark)
     }
@@ -108,5 +111,63 @@ struct ProfileEditView: View {
             Text(title).font(.system(size: 12, weight: .semibold)).foregroundStyle(Color.muted)
             content()
         }
+    }
+}
+
+/// 国籍选择：全量 ISO 国家/地区，支持按名称 / 代码搜索。
+private struct NationalityPickerSheet: View {
+    @Binding var selected: String
+    @Environment(\.dismiss) private var dismiss
+    @State private var query = ""
+
+    private var filtered: [String] {
+        let q = query.trimmingCharacters(in: .whitespaces)
+        guard !q.isEmpty else { return ProfileEditView.allNationalities }
+        return ProfileEditView.allNationalities.filter {
+            ($0.localizedCaseInsensitiveContains(q)) ||
+            (CountryInfo.localizedName(for: $0)?.localizedCaseInsensitiveContains(q) ?? false)
+        }
+    }
+
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                LazyVStack(spacing: 0) {
+                    ForEach(filtered, id: \.self) { c in
+                        Button {
+                            selected = c; Haptics.selection(); dismiss()
+                        } label: {
+                            HStack(spacing: 10) {
+                                Text(flagEmoji(c)).font(.system(size: 20))
+                                Text(CountryInfo.localizedName(for: c) ?? c)
+                                    .font(.system(size: 15)).foregroundStyle(Color.text)
+                                Spacer()
+                                if c == selected {
+                                    Image(systemName: "checkmark").font(.system(size: 13, weight: .semibold))
+                                        .foregroundStyle(Color.nPink)
+                                }
+                            }
+                            .padding(.vertical, 11).padding(.horizontal, 18)
+                            .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                        Divider().overlay(Color.line.opacity(0.5)).padding(.leading, 48)
+                    }
+                }
+            }
+            .background(Color.bg.ignoresSafeArea())
+            .navigationTitle("选择国籍")
+            .navigationBarTitleDisplayMode(.inline)
+            .searchable(text: $query, placement: .navigationBarDrawer(displayMode: .always),
+                        prompt: "搜索国家 / 地区")
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("取消") { dismiss() }.foregroundStyle(Color.muted)
+                }
+            }
+            .toolbarBackground(Color.bg, for: .navigationBar)
+            .toolbarColorScheme(.dark, for: .navigationBar)
+        }
+        .preferredColorScheme(.dark)
     }
 }

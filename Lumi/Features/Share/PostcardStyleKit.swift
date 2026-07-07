@@ -41,16 +41,13 @@ enum PostcardStamp: String, CaseIterable, Identifiable {
 }
 
 /// 明信片朝向：由封面照片长宽比决定。
-/// 宽>高 → 横版（取 16:9 正面）；宽<高 → 竖版（取 3:4 正面）；近似正方形 → 方版（1:1 正面，邮票在底部）。
+/// 宽 > 高 → 横版（取 16:9 正面）；其余（含正方形）→ 竖版（取 3:4 正面）。
 enum PostcardOrient {
     case landscape, portrait, square
 
     static func from(_ cover: UIImage?) -> PostcardOrient {
         guard let c = cover, c.size.width > 0, c.size.height > 0 else { return .landscape }
-        let r = c.size.width / c.size.height
-        if r > 1.02 { return .landscape }
-        if r < 0.98 { return .portrait }
-        return .square
+        return c.size.width > c.size.height ? .landscape : .portrait
     }
 
     /// 正面照片裁切比例（宽 / 高）。
@@ -452,14 +449,7 @@ struct PostcardExportCard: View {
                     HStack(alignment: .top, spacing: 14) { frontPanel(frontW, frontH); backPanel(backW, backH) }
                 }
             }
-            if watermark {
-                HStack(spacing: 7) {
-                    LumiBrandMark(size: 26)
-                    Text(verbatim: "TRACK YOUR JOURNEY. LIGHT UP THE MAP.")
-                        .font(.system(size: 8, weight: .semibold)).tracking(1)
-                        .foregroundStyle(.white.opacity(0.45))
-                }
-            }
+            ShareBrandFooter()   // 常驻品牌页脚（logo + 介绍 + 官网二维码），分享即获客
         }
         .padding(.horizontal, 30).padding(.top, 30).padding(.bottom, 22)
         .background(shareBackground)

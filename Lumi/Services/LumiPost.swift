@@ -40,14 +40,17 @@ struct LumiIncomingMail: Decodable {
 }
 
 enum LumiPostError: LocalizedError {
-    case disabled, badResponse(Int), boxNotFound, noIdentity
+    case disabled, badResponse(Int, String?), boxNotFound, noIdentity
 
     var errorDescription: String? {
         switch self {
-        case .disabled:          return String(localized: "站内直投未启用")
-        case .badResponse(let c): return String(localized: "邮局暂时不可用（\(c)）")
-        case .boxNotFound:       return String(localized: "没有找到这个 Lumi 邮箱号")
-        case .noIdentity:        return String(localized: "邮箱还没开通")
+        case .disabled:  return String(localized: "站内直投未启用")
+        case .badResponse(let c, let msg):
+            let base = String(localized: "邮局暂时不可用（\(c)）")
+            if let msg, !msg.isEmpty { return base + " · " + msg }   // 带上服务器原因，便于定位
+            return base
+        case .boxNotFound: return String(localized: "没有找到这个 Lumi 邮箱号")
+        case .noIdentity:  return String(localized: "邮箱还没开通")
         }
     }
 }
@@ -94,10 +97,11 @@ final class LumiPost: ObservableObject {
     @discardableResult
     func send(payload: String, to boxID: String) async throws -> Int64 {
         guard LumiPostConfig.isEnabled else { throw LumiPostError.disabled }
-        let from = identity?.boxID
+        // p_from 为空时必须显式传 NSNull（Optional 直接进 JSONSerialization 会抛「invalid type」）
+        let from: Any = identity?.boxID ?? NSNull()
         let data = try await rpc("send_mail", body: [
             "p_to": Self.normalize(boxID),
-            "p_from": from as Any,
+            "p_from": from,
             "p_payload": payload,
         ])
         let raw = String(data: data, encoding: .utf8)?
@@ -208,7 +212,7 @@ final class LumiPost: ObservableObject {
         }
         var req = URLRequest(url: base.appendingPathComponent("rest/v1/rpc/\(name)"))
         req.httpMethod = "POST"
-        req.timeoutInterval = 15
+        req.timeoutInterval = 30
         req.setValue("application/json", forHTTPHeaderField: "Content-Type")
         req.setValue(key, forHTTPHeaderField: "apikey")
         // 旧版 anon key 是 JWT（eyJ… 开头）→ 需同时作 Bearer；
@@ -219,11 +223,15 @@ final class LumiPost: ObservableObject {
         }
         req.httpBody = try JSONSerialization.data(withJSONObject: body)
         let (data, resp) = try await URLSession.shared.data(for: req)
-        guard let http = resp as? HTTPURLResponse else { throw LumiPostError.badResponse(-1) }
+        guard let http = resp as? HTTPURLResponse else { throw LumiPostError.badResponse(-1, nil) }
         switch http.statusCode {
         case 200...299: return data
         case 404:       throw LumiPostError.boxNotFound
-        default:        throw LumiPostError.badResponse(http.statusCode)
+        default:
+            // 透出 PostgREST 错误 JSON 的 message（如 daily limit / 约束违反），便于真机定位
+            struct PGError: Decodable { let message: String? }
+            let msg = (try? JSONDecoder().decode(PGError.self, from: data))?.message
+            throw LumiPostError.badResponse(http.statusCode, msg)
         }
     }
 }

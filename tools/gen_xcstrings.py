@@ -588,6 +588,19 @@ S = [
  ("寄出成功！对方打开 Lumi 就能收到","Sent! They'll get it when they open Lumi","أُرسلت! ستصلهم عند فتح Lumi"),
  ("把邮箱号告诉朋友，Ta 就能把明信片直接寄进你的 App","Share your mailbox number and friends can send postcards straight into your app","شارك رقم صندوقك ليتمكن أصدقاؤك من إرسال البطاقات مباشرة إلى تطبيقك"),
  ("LUMI-XXXXXX","LUMI-XXXXXX","LUMI-XXXXXX"),
+ ("Lumi 邮箱号（选填，填了可直寄）","Lumi mailbox No. (optional — fill in to send direct)","رقم صندوق Lumi (اختياري — املأه للإرسال المباشر)"),
+ ("已寄达对方邮箱","Delivered to their mailbox","وصلت إلى صندوقهم"),
+ ("分享图片","Share image","مشاركة الصورة"),
+ ("对方也用 Lumi？在上方填 Ta 的邮箱号即可直寄","They use Lumi too? Enter their mailbox number above to send direct","هل يستخدمون Lumi أيضًا؟ أدخل رقم صندوقهم أعلاه للإرسال المباشر"),
+ ("价格没加载出来（网络不佳或 App Store 暂时无响应）","Prices didn't load (weak network or the App Store isn't responding)","لم تُحمَّل الأسعار (شبكة ضعيفة أو App Store لا يستجيب)"),
+ ("重新加载","Reload","إعادة التحميل"),
+ ("寄给 Ta","Sent to them","أرسلت لهم"),
+ ("收到 Ta 的","Received from them","وصلتك منهم"),
+ ("寄明信片时从「往来的人」点选 Ta，即可直寄","Pick them from your circle when sending a postcard to send direct","اخترهم من معارفك عند إرسال بطاقة للإرسال المباشر"),
+ ("搜索国家 / 地区","Search countries & regions","ابحث عن الدول والمناطق"),
+ ("点亮世界地图 · 寄一张会盖邮戳的明信片","Light up the world map · send a postmarked postcard","أضئ خريطة العالم · أرسل بطاقة بختم البريد"),
+ ("扫码了解 Lumi","Scan to meet Lumi","امسح لتتعرف على Lumi"),
+ ("登录失败","Sign-in failed","فشل تسجيل الدخول"),
 ]
 
 # Resolve duplicate "国家" (Country vs Countries): keep two distinct? They share key -> can't.

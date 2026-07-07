@@ -6,7 +6,9 @@ struct PostcardContact: Codable, Identifiable, Equatable {
     var lastAt: Date
     var sentCount: Int = 0
     var receivedCount: Int = 0
-    var boxID: String? = nil     // 对方的 Lumi 邮箱号（v1.1 直寄；旧数据无此字段自然为 nil）
+    var boxID: String? = nil        // 对方的 Lumi 邮箱号（v1.1 直寄；旧数据无此字段自然为 nil）
+    var avatarB64: String? = nil    // 对方头像缩略图（随收到的明信片传来）
+    var countryCode: String? = nil  // 对方国籍码（ISO2）
     var id: String { name }
 }
 
@@ -25,17 +27,20 @@ final class PostcardContacts: ObservableObject {
     var recent: [PostcardContact] { contacts.sorted { $0.lastAt > $1.lastAt } }
 
     /// 记一笔往来：寄出（sent）或收到（!sent）。同名（忽略大小写）合并计数；
-    /// 带 `boxID`（直寄时拿到的对方邮箱号）则记住 / 更新，之后可点选直寄。
-    func record(_ rawName: String?, boxID: String? = nil, sent: Bool, at date: Date = Date()) {
+    /// 带 `boxID`（直寄邮箱号）/ `avatarB64` / `countryCode`（随收到的卡传来）则记住 / 更新。
+    func record(_ rawName: String?, boxID: String? = nil, avatarB64: String? = nil,
+                countryCode: String? = nil, sent: Bool, at date: Date = Date()) {
         guard let name = rawName?.trimmingCharacters(in: .whitespacesAndNewlines), !name.isEmpty else { return }
         if let i = contacts.firstIndex(where: { $0.name.caseInsensitiveCompare(name) == .orderedSame }) {
             contacts[i].lastAt = date
             if sent { contacts[i].sentCount += 1 } else { contacts[i].receivedCount += 1 }
             if let boxID { contacts[i].boxID = boxID }
+            if let avatarB64 { contacts[i].avatarB64 = avatarB64 }
+            if let countryCode { contacts[i].countryCode = countryCode }
         } else {
             contacts.append(PostcardContact(name: name, lastAt: date,
                                             sentCount: sent ? 1 : 0, receivedCount: sent ? 0 : 1,
-                                            boxID: boxID))
+                                            boxID: boxID, avatarB64: avatarB64, countryCode: countryCode))
         }
         save()
     }

@@ -2,7 +2,7 @@ import SwiftUI
 import Photos
 
 /// 按 assetID 异步取相册原图（供 ImageRenderer 等需要「先拿到 UIImage 再同步渲染」的场景，如明信片）。
-func loadAssetUIImage(_ assetID: String?, targetSize: CGSize = CGSize(width: 1080, height: 1440)) async -> UIImage? {
+func loadAssetUIImage(_ assetID: String?, targetSize: CGSize = CGSize(width: 1440, height: 1440)) async -> UIImage? {
     guard let assetID,
           let asset = PHAsset.fetchAssets(withLocalIdentifiers: [assetID], options: nil).firstObject
     else { return nil }
@@ -12,7 +12,8 @@ func loadAssetUIImage(_ assetID: String?, targetSize: CGSize = CGSize(width: 108
     options.resizeMode = .exact
     return await withCheckedContinuation { cont in
         PHImageManager.default().requestImage(
-            for: asset, targetSize: targetSize, contentMode: .aspectFill, options: options
+            // aspectFit：保留原始长宽比（明信片横竖版由照片比例判定，aspectFill 会一律裁成目标比例）
+            for: asset, targetSize: targetSize, contentMode: .aspectFit, options: options
         ) { img, _ in cont.resume(returning: img) }
     }
 }

@@ -9,6 +9,7 @@ struct PostcardWallView: View {
     @ObservedObject private var contacts = PostcardContacts.shared
     @ObservedObject private var post = LumiPost.shared
     @State private var selected: Footprint?
+    @State private var selectedContact: PostcardContact?
     @State private var showScanner = false
     @State private var sort: WallSort = .received
     @State private var boxCopied = false
@@ -81,7 +82,27 @@ struct PostcardWallView: View {
         .toolbarColorScheme(.dark, for: .navigationBar)
         .preferredColorScheme(.dark)
         .sheet(item: $selected) { ReceivedPostcardSheet(footprint: $0) }
+        .sheet(item: $selectedContact) { ContactCardSheet(contact: $0) }
         .sheet(isPresented: $showScanner) { ScannerSheet() }
+    }
+
+    /// 联系人头像：有随卡传来的头像图就用，否则霓虹底 + 首字母。
+    @ViewBuilder
+    static func avatar(_ c: PostcardContact, size: CGFloat) -> some View {
+        if let b64 = c.avatarB64, let data = Data(base64Encoded: b64), let ui = UIImage(data: data) {
+            Image(uiImage: ui).resizable().scaledToFill()
+                .frame(width: size, height: size).clipShape(Circle())
+                .overlay(Circle().stroke(Color.line, lineWidth: 1))
+        } else {
+            ZStack {
+                Circle().fill(LinearGradient.neon).frame(width: size, height: size)
+                    .overlay(Circle().stroke(Color.line, lineWidth: 1))
+                Text(String(c.name.prefix(1))).font(Typo.serif(size * 0.4)).foregroundStyle(.white)
+            }
+        }
+    }
+    private func contactAvatar(_ c: PostcardContact, size: CGFloat) -> some View {
+        Self.avatar(c, size: size)
     }
 
     /// 我的 Lumi 邮箱号卡（v1.1）：复制 / 分享给朋友；还没开通则一键开通。
@@ -154,33 +175,32 @@ struct PostcardWallView: View {
         .overlay(RoundedRectangle(cornerRadius: 14).stroke(Color.line, lineWidth: 1))
     }
 
-    /// 往来的人（本地 social-lite）：收 / 发明信片攒下的昵称头像横条。
+    /// 往来的人（本地 social-lite）：收 / 发明信片攒下的昵称头像横条；点击看资料卡。
     private var contactsStrip: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("往来的人").font(.system(size: 13, weight: .semibold)).foregroundStyle(Color.muted)
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 12) {
                     ForEach(contacts.recent) { c in
-                        VStack(spacing: 5) {
-                            ZStack {
-                                Circle().fill(LinearGradient.neon).frame(width: 46, height: 46)
-                                    .overlay(Circle().stroke(Color.line, lineWidth: 1))
-                                Text(String(c.name.prefix(1))).font(Typo.serif(18)).foregroundStyle(.white)
+                        Button { selectedContact = c } label: {
+                            VStack(spacing: 5) {
+                                contactAvatar(c, size: 46)
+                                    .overlay(alignment: .topTrailing) {
+                                        if c.boxID != nil {   // 存了邮箱号 → 可直寄标识
+                                            Image(systemName: "envelope.fill").font(.system(size: 7))
+                                                .foregroundStyle(.white)
+                                                .padding(3.5).background(Color.nOrange, in: Circle())
+                                                .overlay(Circle().stroke(Color.bg, lineWidth: 1.5))
+                                        }
+                                    }
+                                Text(c.name).font(.system(size: 10)).foregroundStyle(Color.muted)
+                                    .lineLimit(1).frame(width: 52)
                             }
-                            .overlay(alignment: .topTrailing) {
-                                if c.boxID != nil {   // 存了邮箱号 → 可直寄标识
-                                    Image(systemName: "envelope.fill").font(.system(size: 8))
-                                        .foregroundStyle(.white)
-                                        .padding(4).background(Color.nOrange, in: Circle())
-                                        .offset(x: 3, y: -3)
-                                }
-                            }
-                            Text(c.name).font(.system(size: 10)).foregroundStyle(Color.muted)
-                                .lineLimit(1).frame(width: 52)
                         }
+                        .buttonStyle(.plain)
                     }
                 }
-                .padding(.horizontal, 2)
+                .padding(.horizontal, 2).padding(.top, 4)   // 顶部留白：角标不被滚动容器裁切
             }
         }
     }
@@ -278,6 +298,75 @@ private struct ReceivedPostcardSheet: View {
             if let d = footprint.receivedCoverData { cover = UIImage(data: d) }
             shareImage = ShareRender.image(exportCard, scale: 3)
         }
+    }
+}
+
+/// 往来联系人资料卡：头像 + 名字 + 国籍 + 收发计数 + 邮箱号（可复制）。
+private struct ContactCardSheet: View {
+    let contact: PostcardContact
+    @Environment(\.dismiss) private var dismiss
+    @State private var copied = false
+
+    var body: some View {
+        VStack(spacing: 16) {
+            PostcardWallView.avatar(contact, size: 84)
+            VStack(spacing: 5) {
+                Text(contact.name).font(Typo.serif(24)).foregroundStyle(Color.text)
+                if let cc = contact.countryCode {
+                    Text(verbatim: "\(flagEmoji(cc)) \(CountryInfo.localizedName(for: cc) ?? cc)")
+                        .font(.system(size: 13)).foregroundStyle(Color.muted)
+                }
+            }
+            HStack(spacing: 10) {
+                statPill("\(contact.sentCount)", "寄给 Ta")
+                statPill("\(contact.receivedCount)", "收到 Ta 的")
+            }
+            if let box = contact.boxID {
+                Button {
+                    UIPasteboard.general.string = box
+                    copied = true; Haptics.selection()
+                } label: {
+                    HStack(spacing: 8) {
+                        Image(systemName: "tray.full").font(.system(size: 12)).foregroundStyle(Color.nOrange)
+                        Text(verbatim: box)
+                            .font(.system(size: 14, weight: .semibold, design: .monospaced))
+                            .foregroundStyle(Color.text)
+                        Image(systemName: copied ? "checkmark" : "doc.on.doc")
+                            .font(.system(size: 11)).foregroundStyle(copied ? Color.nCyan : Color.muted)
+                    }
+                    .padding(.vertical, 9).padding(.horizontal, 16)
+                    .background(Color.panel, in: Capsule())
+                    .overlay(Capsule().stroke(Color.line, lineWidth: 1))
+                }
+                .buttonStyle(.plain)
+                Text("寄明信片时从「往来的人」点选 Ta，即可直寄")
+                    .font(.system(size: 11)).foregroundStyle(Color.muted)
+            }
+            Spacer(minLength: 0)
+        }
+        .padding(.top, 28).padding(.horizontal, 24)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.bg.ignoresSafeArea())
+        .preferredColorScheme(.dark)
+        .presentationDetents([.medium])
+        .overlay(alignment: .topTrailing) {
+            Button { dismiss() } label: {
+                Image(systemName: "xmark").font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(Color.muted).padding(10)
+                    .background(Color.panel, in: Circle())
+            }
+            .padding(14)
+        }
+    }
+
+    private func statPill(_ value: String, _ label: LocalizedStringKey) -> some View {
+        VStack(spacing: 2) {
+            Text(value).font(Typo.serif(20)).foregroundStyle(Color.text)
+            Text(label).font(.system(size: 10)).foregroundStyle(Color.muted)
+        }
+        .frame(minWidth: 86).padding(.vertical, 10).padding(.horizontal, 14)
+        .background(Color.panel, in: RoundedRectangle(cornerRadius: 12))
+        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.line, lineWidth: 1))
     }
 }
 

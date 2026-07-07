@@ -16,6 +16,7 @@ final class AuthStore: ObservableObject {
 
     @Published private(set) var userID: String
     @Published private(set) var displayName: String
+    @Published var lastError: String?      // 登录失败原因（此前静默吞掉 → 看起来像「点不动」）
 
     var isLoggedIn: Bool { !userID.isEmpty }
 
@@ -24,10 +25,18 @@ final class AuthStore: ObservableObject {
         displayName = store.string(forKey: kName) ?? ""
     }
 
-    /// 处理 `SignInWithAppleButton` 的回调结果。
+    /// 处理 `SignInWithAppleButton` 的回调结果。失败要透出（缺 capability / 网络等，用户取消除外）。
     func handle(_ result: Result<ASAuthorization, Error>) {
+        if case .failure(let error) = result {
+            let ns = error as NSError
+            if ns.code != ASAuthorizationError.canceled.rawValue {
+                lastError = String(localized: "登录失败") + "（\(ns.code)）: \(ns.localizedDescription)"
+            }
+            return
+        }
         guard case .success(let auth) = result,
               let cred = auth.credential as? ASAuthorizationAppleIDCredential else { return }
+        lastError = nil
         userID = cred.user
         store.set(userID, forKey: kID)
         if let n = cred.fullName {

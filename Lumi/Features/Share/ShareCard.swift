@@ -26,6 +26,40 @@ struct LumiBrandMark: View {
     }
 }
 
+/// 分享图统一品牌页脚：左 = Lumi 标 + 一句话介绍；右 = 官网二维码（扫码 → 落地页 → 下载）。
+/// 所有对外分享成图（明信片导出、徽章卡、成就报告）通用——分享即获客入口。
+struct ShareBrandFooter: View {
+    /// 官网二维码（静态缓存）。
+    static let siteQR: UIImage? = PostcardToken.qrImage(
+        "https://icy45325.github.io/mymap/", scale: 8, correction: "M")
+
+    var body: some View {
+        HStack(alignment: .center, spacing: 10) {
+            LumiBrandMark(size: 30)
+            VStack(alignment: .leading, spacing: 3) {
+                Text(verbatim: "TRACK YOUR JOURNEY. LIGHT UP THE MAP.")
+                    .font(.system(size: 7.5, weight: .semibold)).tracking(1)
+                    .foregroundStyle(.white.opacity(0.5))
+                Text("点亮世界地图 · 寄一张会盖邮戳的明信片")
+                    .font(.system(size: 9)).foregroundStyle(.white.opacity(0.7))
+            }
+            Spacer(minLength: 12)
+            HStack(spacing: 8) {
+                Text("扫码了解 Lumi")
+                    .font(.system(size: 8)).foregroundStyle(.white.opacity(0.5))
+                    .frame(maxWidth: 56)
+                    .multilineTextAlignment(.trailing)
+                if let qr = Self.siteQR {
+                    Image(uiImage: qr).interpolation(.none).resizable()
+                        .frame(width: 46, height: 46)
+                        .padding(4)
+                        .background(.white, in: RoundedRectangle(cornerRadius: 7))
+                }
+            }
+        }
+    }
+}
+
 /// 徽章分享卡：暗夜霓虹风的成就卡，供 ImageRenderer 渲染分享。
 struct BadgeShareCard: View {
     let badge: Badge
@@ -45,6 +79,7 @@ struct BadgeShareCard: View {
                 .multilineTextAlignment(.center).padding(.horizontal, 18)
             Text("✦ 成就解锁 · Lit on Lumi").font(.system(size: 11))
                 .foregroundStyle(Color.muted).padding(.top, 2)
+            ShareBrandFooter().padding(.top, 6)
         }
         .padding(.vertical, 36).padding(.horizontal, 28)
         .frame(width: 340)
