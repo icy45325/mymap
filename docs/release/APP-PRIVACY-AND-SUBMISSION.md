@@ -1,7 +1,7 @@
 # App 隐私标签 + 提审清单（B5）
 
 > 把 App Store Connect 提审需要的答案与材料集中在此。配合 [`APPSTORE-LISTING.md`](APPSTORE-LISTING.md)（文案/截图）
-> 与 [`legal/`](legal/)（隐私/条款/支持页）使用。最后更新 2026-06-27。
+> 与 [`legal/`](../legal/)（隐私/条款/支持页）使用。最后更新 2026-06-27。
 
 ## 1. App 隐私「营养标签」（App Privacy）
 

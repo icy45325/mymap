@@ -75,7 +75,7 @@
 
 ### B5 · 上架准备 —— 🚧 文案 / 法务页已起草，待 ICY 走 ASC 流程
 - [x] 三语元数据（名称/副标题/关键词/描述/宣传文本/更新说明）+ 截图清单 → [`APPSTORE-LISTING.md`](APPSTORE-LISTING.md)
-- [x] 隐私政策 / 使用条款 / 支持页（可托管 HTML，三语）→ [`legal/`](legal/)（paywall 链接已指向 GitHub Pages）
+- [x] 隐私政策 / 使用条款 / 支持页（可托管 HTML，三语）→ [`legal/`](../legal/)（paywall 链接已指向 GitHub Pages）
 - [x] App 隐私标签答案（Data Not Collected）+ 出口合规 + 年龄分级 4+ + 审核备注 + 提审清单 → [`APP-PRIVACY-AND-SUBMISSION.md`](APP-PRIVACY-AND-SUBMISSION.md)
 - [ ] **ICY**：开 GitHub Pages（Settings → Pages → /docs）让三个法务页可访问
 - [ ] **ICY**：付费开发者账号 + App Store Connect 建 App + 三产品 + 价格分层（中东/全球）

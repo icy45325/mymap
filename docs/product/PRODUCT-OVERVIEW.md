@@ -54,7 +54,7 @@ Lumi 不做后台 GPS 自动记录——**点亮是手动的、是有意识的�
 ## MVP 与变现
 
 - **MVP（上架首版）**：纯本地、无账号，聚焦「核心点亮回路 + 明信片分享 + 三语」，变现走**轻 paywall**。详见 [`ROADMAP.md` MVP 章节](ROADMAP.md#mvp--上架首版ios--纯本地--无账号)。
-- **变现（已定）**：**终身会员 · 早鸟一次性买断 9.9**（USD/CNY/AED，非订阅，`com.lumi.plus.lifetime`），解锁后续所有迭代；已落地权益 = 典藏邮票 14 枚 / 统一主题（含 App 图标）/ 主屏小组件 / 明信片去水印高清。装饰内购方向并入会员权益，后续可扩独立邮票商店。详见 [`DESIGN-monetization.md`](../design/DESIGN-monetization.md)。
+- **变现（已定）**：**终身会员 · 早鸟一次性买断 9.9**（USD/CNY/AED，非订阅，`com.lumi.plus.lifetime`），解锁后续所有迭代；已落地权益 = 典藏邮票 14 枚 / 统一主题（含 App 图标）/ 主屏小组件 / 明信片去水印高清。装饰内购方向并入会员权益；**资源商店已立项**（v1.15 内置预热 → v1.2 开张：常规包 Plus 免费领、限量/联名包单点购买），见 [`DESIGN-store.md`](../design/DESIGN-store.md)。详见 [`DESIGN-monetization.md`](../design/DESIGN-monetization.md)。
 - **跨平台**：已确定要做 Android，账号 / 同步层因此选**跨平台 BaaS（非 CloudKit）**，两端复用。详见 [`DESIGN-baas-selection.md`](../design/DESIGN-baas-selection.md)。
 
 ## 技术基调
@@ -69,6 +69,7 @@ Lumi 不做后台 GPS 自动记录——**点亮是手动的、是有意识的�
 | 文档 | 内容 |
 |------|------|
 | [`PRODUCT-OVERVIEW.md`](PRODUCT-OVERVIEW.md) | 本文：产品概览 + 核心功能 |
+| [`PRODUCT-MAP.md`](PRODUCT-MAP.md) | 产品功能架构：功能树（现状+规划）× 变现地图 |
 | [`REQUIREMENTS.md`](REQUIREMENTS.md) | 逐条需求台账 + 进度（单一事实源）|
 | [`ROADMAP.md`](ROADMAP.md) | 阶段级蓝图 + MVP 范围 |
 | [`MVP-PLAN.md`](../release/MVP-PLAN.md) | MVP 执行批次与进度 |
@@ -76,8 +77,9 @@ Lumi 不做后台 GPS 自动记录——**点亮是手动的、是有意识的�
 | [`APPSTORE-LISTING.md`](../release/APPSTORE-LISTING.md) | App Store 上架文案（三语）+ 截图清单 |
 | [`APP-PRIVACY-AND-SUBMISSION.md`](../release/APP-PRIVACY-AND-SUBMISSION.md) | App 隐私标签 + 提审清单 |
 | [`QA-REGRESSION.md`](../release/QA-REGRESSION.md) | 提审前真机回归测试脚本（三语 × 全路径）|
-| [`legal/`](legal/) | 隐私政策 / 使用条款 / 支持页（可托管 HTML，三语）|
-| [`ARCHITECTURE.md`](../architecture/ARCHITECTURE.md) | 工程架构 |
+| [`legal/`](../legal/) | 隐私政策 / 使用条款 / 支持页（可托管 HTML，三语）|
+| [`ARCHITECTURE.md`](../architecture/ARCHITECTURE.md) | 全 App 技术架构（现状 + 演进）|
+| [`DESIGN-store.md`](../design/DESIGN-store.md) | 资源商店（品类 / ContentPack / 权益 / 分期）|
 | [`DESIGN-accounts-and-exchange.md`](../design/DESIGN-accounts-and-exchange.md) | 账号体系 / 数据迁移 / 交换日记·明信片 / IM 分享 |
 | [`DESIGN-monetization.md`](../design/DESIGN-monetization.md) | 变现设计（Plus / 装饰内购）|
 | [`DESIGN-baas-selection.md`](../design/DESIGN-baas-selection.md) | 跨平台 BaaS 选型 |
