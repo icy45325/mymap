@@ -3,7 +3,7 @@ import Foundation
 // ─────────────────────────────────────────────────────────────
 //  Lumi 邮局（v1.1 轻互动）：明信片站内直投的客户端服务层。
 //
-//  设计见 docs/DESIGN-v1.1-lumi-post.md。要点：
+//  设计见 docs/design/DESIGN-v1.1-lumi-post.md。要点：
 //  · Supabase Free + 零 Auth「能力密钥」模型：box_id 公开可寄、read_token 私密可读；
 //  · 仅调 PostgREST RPC（URLSession 直连，无 SDK / 无 SPM 依赖）；
 //  · Info.plist 未配置 LumiPostURL / LumiPostAnonKey 时整体 no-op（提审预留分支保持纯本地）。

@@ -1,7 +1,7 @@
 # Lumi 设计：账号体系 · 数据迁移 · 交换日记/明信片 · IM 分享
 
-> 性质：方向性设计文档（v0.x → v2 的「记忆 / 共创」主线）。配合 [`ROADMAP.md`](ROADMAP.md)、
-> [`ios-native-capabilities.md`](ios-native-capabilities.md)、[`REQUIREMENTS.md`](REQUIREMENTS.md) 阅读。
+> 性质：方向性设计文档（v0.x → v2 的「记忆 / 共创」主线）。配合 [`ROADMAP.md`](../product/ROADMAP.md)、
+> [`ios-native-capabilities.md`](../release/ios-native-capabilities.md)、[`REQUIREMENTS.md`](../product/REQUIREMENTS.md) 阅读。
 > 本文不含代码改动；评审通过后按 [§7 落阶段](#7-落阶段与-roadmap-对齐) 拆任务回填 REQUIREMENTS。
 
 ## Context（为什么写这篇）
@@ -123,7 +123,7 @@
 
 ### 合规
 UGC + 社交必带**举报 / 屏蔽 / 拉黑**，且触发 Apple **2026 年中**起的儿童安全与年龄分级问卷
-（见 [`ios-native-capabilities.md`](ios-native-capabilities.md) 合规提醒）。
+（见 [`ios-native-capabilities.md`](../release/ios-native-capabilities.md) 合规提醒）。
 
 ---
 
@@ -170,7 +170,7 @@ UGC + 社交必带**举报 / 屏蔽 / 拉黑**，且触发 Apple **2026 年中**
 
 ## 验证 / 下一步
 
-1. 本文为设计文档，**无代码改动**；评审通过后按 §7 拆任务并回填 [`REQUIREMENTS.md`](REQUIREMENTS.md)
+1. 本文为设计文档，**无代码改动**；评审通过后按 §7 拆任务并回填 [`REQUIREMENTS.md`](../product/REQUIREMENTS.md)
    对应的 💡 条目（社交/共享、推荐/行程、交换日志）。
 2. **早期技术验证（PoC）**，验证后再决定排期：
    - **明信片口令/二维码自动接收 PoC**：A 设备生成 universal link/二维码 → B 设备打开自动收卡（纯本地、无后端，可最先做）。

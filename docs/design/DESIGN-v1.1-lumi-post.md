@@ -2,7 +2,7 @@
 
 > 分支：`claude/v1.1-lumi-post`（基于 MVP 1.0 提审预留分支 `claude/mvp-1.0-submission` 切出）。
 > 目标：把 MVP 的带外收发升级为**站内直投**，服务成本 $0 起、零运维；为 v1.2 账号打地基。
-> 版本定位见 [`ROADMAP.md` v1.1 节](ROADMAP.md)。
+> 版本定位见 [`ROADMAP.md` v1.1 节](../product/ROADMAP.md)。
 
 ## 1. 目标与非目标
 

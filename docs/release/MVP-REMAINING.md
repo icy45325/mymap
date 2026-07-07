@@ -1,7 +1,7 @@
 # Lumi MVP 遗留事项（上架前清单）
 
 > 上架首版**还差什么**集中一页。**打包/后台逐项怎么配见 [`BUILD-CONFIG.md`](BUILD-CONFIG.md)**。
-> 逐批排期见 [`MVP-PLAN.md`](MVP-PLAN.md)，逐条台账见 [`REQUIREMENTS.md`](REQUIREMENTS.md)。
+> 逐批排期见 [`MVP-PLAN.md`](MVP-PLAN.md)，逐条台账见 [`REQUIREMENTS.md`](../product/REQUIREMENTS.md)。
 > 图例：✅ 完成 · 🚧 进行中 · 🔲 未开始。最后更新 **2026-07-02**。
 
 ## 一句话现状
@@ -99,8 +99,8 @@
 
 ## 待你拍板 / 待做的小项
 
-1. **新版本检测提示 + 「本次更新」弹窗 + 触觉反馈** —— ✅ 已实现并入库（详见 [`ROADMAP.md`](ROADMAP.md) §MVP 打磨）。
+1. **新版本检测提示 + 「本次更新」弹窗 + 触觉反馈** —— ✅ 已实现并入库（详见 [`ROADMAP.md`](../product/ROADMAP.md) §MVP 打磨）。
 2. 反馈是否要门控登录（**不建议**，会降低反馈量）。
 3. **本批所有功能改动待真机复验**（见 `ACCEPTANCE.md` 累积各轮 + 上方「⭐ 本轮新增 N1–N18」），这是收尾前的头号事项。
 
-> 📍 **MVP 之后的所有产品方向**（自定义图标/地图皮肤、电子·实体相册/视频、IG·TikTok 分享、3D 地图、社交/关注/索要明信片、行程规划、POI 推荐等）已统一汇总到 [`ROADMAP.md`](ROADMAP.md)。
+> 📍 **MVP 之后的所有产品方向**（自定义图标/地图皮肤、电子·实体相册/视频、IG·TikTok 分享、3D 地图、社交/关注/索要明信片、行程规划、POI 推荐等）已统一汇总到 [`ROADMAP.md`](../product/ROADMAP.md)。

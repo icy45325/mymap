@@ -1,6 +1,6 @@
 -- Lumi 邮局 v1.1 —— Supabase 一次性初始化脚本
 -- 用法：Supabase 控制台 → SQL Editor → 整段粘贴执行。
--- 设计说明见 docs/DESIGN-v1.1-lumi-post.md（零 Auth 能力密钥模型，客户端仅可调 RPC）。
+-- 设计说明见 docs/design/DESIGN-v1.1-lumi-post.md（零 Auth 能力密钥模型，客户端仅可调 RPC）。
 
 -- ── 表 ─────────────────────────────────────────────
 create table if not exists mailbox (

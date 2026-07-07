@@ -1,9 +1,9 @@
 # Lumi 路线图（Roadmap）
 
-把散落在 [`Lumi_v0_PRD.md`](Lumi_v0_PRD.md)、[`ARCHITECTURE.md`](ARCHITECTURE.md) 与各设计文档中的线索，
+把散落在 [`Lumi_v0_PRD.md`](PRD.md)、[`ARCHITECTURE.md`](../architecture/ARCHITECTURE.md) 与各设计文档中的线索，
 整理成以「**能上架的 MVP**」为锚点的分阶段路线。逐条需求与状态见 [`REQUIREMENTS.md`](REQUIREMENTS.md)；
-专题设计见 [账号/迁移/交换/IM](DESIGN-accounts-and-exchange.md)、[变现](DESIGN-monetization.md)、
-[BaaS 选型](DESIGN-baas-selection.md)；iOS 系统能力设想见 [`ios-native-capabilities.md`](ios-native-capabilities.md)。
+专题设计见 [账号/迁移/交换/IM](../design/DESIGN-accounts-and-exchange.md)、[变现](../design/DESIGN-monetization.md)、
+[BaaS 选型](../design/DESIGN-baas-selection.md)；iOS 系统能力设想见 [`ios-native-capabilities.md`](../release/ios-native-capabilities.md)。
 
 > **北极星**：占据竞品最弱的「**记忆 / 共创**」象限——完整形态 = 明信片/交换日记 + 好友共享 + AI 故事片。
 > **原则**：每阶段只在**前一阶段核心假设被验证后**才推进；未验证则修回路，而非堆功能。
@@ -34,7 +34,7 @@ M1–M5 + 增强批次均已落地（暗夜霓虹地图点亮、Capture、离线
 
 **目标**：用真实用户验证「集邮回路」的留存，以及「明信片分享」的自传播意愿。
 **关键特征**：纯本地、无账号、无后端（沿用 v0 架构，成本近零）；登录/联网一律不需要。
-**执行排期**（批次拆解 / 顺序 / 上架 Gate）见 [`MVP-PLAN.md`](MVP-PLAN.md)。
+**执行排期**（批次拆解 / 顺序 / 上架 Gate）见 [`MVP-PLAN.md`](../release/MVP-PLAN.md)。
 
 ### 范围内（IN）— 大多已实现，重点是打磨到上架质量
 
@@ -63,7 +63,7 @@ M1–M5 + 增强批次均已落地（暗夜霓虹地图点亮、Capture、离线
 - **首发即接 RevenueCat**（Android 确定目标，避免日后重做计费层）。
 - **建议**：MVP 的 paywall 保持**轻**（高清导出/打印、全部明信片模板、国旗等额外小组件、地图皮肤），
   核心集邮回路免费，先不伤留存验证；待留存站稳再加厚 Plus。
-- 详见 [`DESIGN-monetization.md`](DESIGN-monetization.md)。
+- 详见 [`DESIGN-monetization.md`](../design/DESIGN-monetization.md)。
 
 ### 进入 v1 的门槛
 真实用户**留存达标**（核心回路被验证）+ 出现明确的「多端 / 想带走数据」诉求。
@@ -103,7 +103,7 @@ M1–M5 + 增强批次均已落地（暗夜霓虹地图点亮、Capture、离线
 - **同步 + 迁移**：跨平台 BaaS（倾向 Supabase，见选型文档）；首次登录把本地 SwiftData 按 UUID **无损认领**，
   之后双向同步（本地仍作离线缓存）。
 - **跨平台变现**：RevenueCat 把已购权益绑到账号，为后续 Android 共享 Plus 打底。
-- 前置技术验证：[BaaS 同步 spike](DESIGN-baas-selection.md#5-poc-验证拍板前)。
+- 前置技术验证：[BaaS 同步 spike](../design/DESIGN-baas-selection.md#5-poc-验证拍板前)。
 
 ## v1.3 — 共创（原 v1.x）
 

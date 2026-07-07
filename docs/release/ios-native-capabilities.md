@@ -1,7 +1,7 @@
 # Lumi · iOS 原生能力待办（纪要）
 
 > 性质：探索性 backlog，不是承诺排期。记录「集邮 / 怀念 / 地图 / 共创」定位下值得接的 iOS 系统能力，
-> 供 v0.x 及以后取用。优先级见文末「落阶段」。配合 [ROADMAP.md](ROADMAP.md) 阅读。
+> 供 v0.x 及以后取用。优先级见文末「落阶段」。配合 [ROADMAP.md](../product/ROADMAP.md) 阅读。
 
 ## 0. 最高杠杆基础设施：App Intents
 

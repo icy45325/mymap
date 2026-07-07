@@ -1,8 +1,8 @@
 # Lumi MVP 执行计划（上架首版排期）
 
-> MVP 范围与定位见 [`ROADMAP.md` MVP 章节](ROADMAP.md#mvp--上架首版ios--纯本地--无账号)。
+> MVP 范围与定位见 [`ROADMAP.md` MVP 章节](../product/ROADMAP.md#mvp--上架首版ios--纯本地--无账号)。
 > 本文把 MVP 拆成可执行批次、定先后与依赖。**状态随推进更新，最后更新 2026-06-27。**
-> 产品概览见 [`PRODUCT-OVERVIEW.md`](PRODUCT-OVERVIEW.md)，逐条进度见 [`REQUIREMENTS.md`](REQUIREMENTS.md)，**上架前遗留清单见 [`MVP-REMAINING.md`](MVP-REMAINING.md)**。
+> 产品概览见 [`PRODUCT-OVERVIEW.md`](../product/PRODUCT-OVERVIEW.md)，逐条进度见 [`REQUIREMENTS.md`](../product/REQUIREMENTS.md)，**上架前遗留清单见 [`MVP-REMAINING.md`](MVP-REMAINING.md)**。
 
 ## 现状盘点（2026-06-27）
 
@@ -55,7 +55,7 @@
 - [x] **B3.2 导出/分享**：`ShareLink` 分享图 + `CIQRCodeGenerator` 二维码 + AirDrop `.lumicard`
 - [x] **B3.3 payload 编解码**：足迹要素编进口令 + **幂等 token** + 发送者昵称
 - [x] **B3.4 接收**：扫码 / 链接 / AirDrop / 剪贴板 → 统一 `PostcardInbox` 解析 + **按 token 去重** + 接收提示 + 明信片墙
-- [ ] **B3.5（增强，下一轮）**：发送可选 **3 样式 + 2 邮票**，外观随口令传达，墙按样式展示（方案已定，见 [`REQUIREMENTS.md` §9](REQUIREMENTS.md)）
+- [ ] **B3.5（增强，下一轮）**：发送可选 **3 样式 + 2 邮票**，外观随口令传达，墙按样式展示（方案已定，见 [`REQUIREMENTS.md` §9](../product/REQUIREMENTS.md)）
 
 **文件**：`Features/Share/*`、`LumiApp`（onOpenURL）、`Lumi/Info.plist`。**主体已交付**。
 
@@ -117,4 +117,4 @@
 3. ✅ **已定（06-25）**：视频上传（≤3min）**不进 MVP**，归 **Plus / 快速跟进**。
 4. 🔲 **待定**：明信片样式/邮票（B3.5）是否在上架首版上线，还是首版后快速跟进？（功能已设计，可放 S1 或顺延。）
 
-> 拍板后把对应条目状态回填 [`REQUIREMENTS.md`](REQUIREMENTS.md)。
+> 拍板后把对应条目状态回填 [`REQUIREMENTS.md`](../product/REQUIREMENTS.md)。

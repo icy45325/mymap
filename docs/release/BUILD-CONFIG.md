@@ -2,7 +2,7 @@
 
 > 代码里能定的都定了；**这份是你在 Xcode / Apple 开发者后台 / App Store Connect 要手动配的全部内容**。
 > **从上往下一步步做**即可。✅=已具备；🔴=阻塞，必须过。付费开发者账号**已开通**。最后更新 2026-06-29。
-> 配套：发版前验收 [`ACCEPTANCE.md`](ACCEPTANCE.md)，上架材料分工 [`MVP-REMAINING.md`](MVP-REMAINING.md)，路线图 [`ROADMAP.md`](ROADMAP.md)。
+> 配套：发版前验收 [`ACCEPTANCE.md`](ACCEPTANCE.md)，上架材料分工 [`MVP-REMAINING.md`](MVP-REMAINING.md)，路线图 [`ROADMAP.md`](../product/ROADMAP.md)。
 
 ---
 

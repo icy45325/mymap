@@ -1,6 +1,6 @@
 # Lumi v0 架构说明
 
-本文档说明 Lumi v0 的工程结构、数据流与关键设计决策，配合需求规格 [`Lumi_v0_PRD.md`](Lumi_v0_PRD.md) 阅读。
+本文档说明 Lumi v0 的工程结构、数据流与关键设计决策，配合需求规格 [`Lumi_v0_PRD.md`](../product/PRD.md) 阅读。
 
 ## 1. 技术栈与约束
 

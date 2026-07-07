@@ -1,7 +1,7 @@
 # Lumi 商业设计：VIP 变现 × 账号
 
 > 方向性设计文档。配合 [`DESIGN-accounts-and-exchange.md`](DESIGN-accounts-and-exchange.md)（账号/迁移/同步）
-> 与 [`ROADMAP.md`](ROADMAP.md) 阅读。无代码改动；评审后按 [§8](#8-落阶段) 拆任务回填 [`REQUIREMENTS.md`](REQUIREMENTS.md)。
+> 与 [`ROADMAP.md`](../product/ROADMAP.md) 阅读。无代码改动；评审后按 [§8](#8-落阶段) 拆任务回填 [`REQUIREMENTS.md`](../product/REQUIREMENTS.md)。
 
 ## Context（为什么写这篇）
 
@@ -44,7 +44,7 @@ App Store / Google Play 的内购本就**自带「身份」与「恢复」**，�
 |------|------|------|
 | **Lumi Plus 订阅（月 / 年）** | ✅ 主力 | 承载持续更新的增益（同步/AI/社交/新模板）。年付给折扣。 |
 | **终身买断（Lifetime）** | ✅ 可选并行 | 满足「讨厌订阅」的用户；定价 ≈ 2–3 年订阅。 |
-| **一次性装饰内购** | 🔵 后续 | 明信片模板 / 地图皮肤 / 徽章皮肤 / **邮票 / 邮戳 / 节日限定章**等纯装饰 + 收集包（详见 [REQUIREMENTS §9](REQUIREMENTS.md#9-明信片收集系统邮票--邮戳--节日章)）。基础款免费，地区特色 / 精美款付费；节日章可限时收集。 |
+| **一次性装饰内购** | 🔵 后续 | 明信片模板 / 地图皮肤 / 徽章皮肤 / **邮票 / 邮戳 / 节日限定章**等纯装饰 + 收集包（详见 [REQUIREMENTS §9](../product/REQUIREMENTS.md#9-明信片收集系统邮票--邮戳--节日章)）。基础款免费，地区特色 / 精美款付费；节日章可限时收集。 |
 | 广告 / 卖数据 | ❌ | 与隐私定位冲突。 |
 | 限免 + 内购解锁 | 🔵 备选 | 即下方 freemium 切分。 |
 

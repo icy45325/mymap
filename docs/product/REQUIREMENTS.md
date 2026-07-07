@@ -3,9 +3,9 @@
 本文档是 Lumi 的**逐条需求台账**：收录用户口述需求与历史规划，按主题分组并标注交付状态，
 作为后续开发的单一事实源。**想快速了解「Lumi 是什么 / 能做什么」先看 [`PRODUCT-OVERVIEW.md`](PRODUCT-OVERVIEW.md)。**
 阶段级蓝图见 [`ROADMAP.md`](ROADMAP.md)，iOS 系统能力设想见
-[`ios-native-capabilities.md`](ios-native-capabilities.md)，产品规格见 [`Lumi_v0_PRD.md`](Lumi_v0_PRD.md)。
+[`ios-native-capabilities.md`](../release/ios-native-capabilities.md)，产品规格见 [`Lumi_v0_PRD.md`](PRD.md)。
 账号体系 / 数据迁移 / 交换日记·明信片 / IM 分享的细化设计见
-[`DESIGN-accounts-and-exchange.md`](DESIGN-accounts-and-exchange.md)。
+[`DESIGN-accounts-and-exchange.md`](../design/DESIGN-accounts-and-exchange.md)。
 
 ## 状态图例
 
@@ -113,13 +113,13 @@
 | 明信片站内直投（Lumi 邮局） | **v1.1 轻互动**：Supabase 免费档 + 匿名身份；「Lumi 邮箱号」短码收发，明信片直达对方收件箱（轮询、无推送）；带外通道保留；RLS+TTL 护栏，$0 起零运维 | 📋 v1.1 | ICY 07-06；设计见 [ROADMAP v1.1](ROADMAP.md#v11--轻互动lumi-邮局小服务成本上架后首个更新) |
 | 旅友码 / 邮箱号地址簿 | 「往来的人」升级：保存对方邮箱号，寄卡免输码点头像直寄 | 📋 v1.1 | ICY 07-06 |
 | 送达回执 | 收件端收下回写 delivered → 发件端显示「已送达 ✓」（送达统计第一步） | 📋 v1.1 | ICY 07-06 |
-| 好友分享（真好友体系） | 好友列表 / 加好友 / 好友共享；**依赖账号 + BaaS**，留 v1/v2 | 💡 | ICY 06-24；设计见 [DESIGN-accounts-and-exchange](DESIGN-accounts-and-exchange.md) |
+| 好友分享（真好友体系） | 好友列表 / 加好友 / 好友共享；**依赖账号 + BaaS**，留 v1/v2 | 💡 | ICY 06-24；设计见 [DESIGN-accounts-and-exchange](../design/DESIGN-accounts-and-exchange.md) |
 | 通讯录邀请好友 | 获取通讯录权限，通过通讯录邀请好友加入 App | 💡 | ICY 06-24 |
-| App 内分享地点/店铺（IM） | 用户间分享旅行地点 / 好店铺；并能从谷歌地图把店铺分享进 Lumi，形成闭环 | 💡 | ICY 06-25；设计见 [DESIGN-accounts-and-exchange §5](DESIGN-accounts-and-exchange.md#5-im-即时通讯--内容分享icy-说的接-im) |
-| 明信片口令/二维码分享 | 发送方成图 / 复制链接 / 二维码 / 隔空投送，对方扫码、点链接、AirDrop 或读剪贴板即在 App 内自动收下；纯本地、幂等去重，后并入 IM 闭环 | ✅ | ICY 06-25；`25c3266`、`8fd104f`；设计见 [DESIGN-accounts-and-exchange §4](DESIGN-accounts-and-exchange.md#4-交换日记--明信片exchange--postcard) |
+| App 内分享地点/店铺（IM） | 用户间分享旅行地点 / 好店铺；并能从谷歌地图把店铺分享进 Lumi，形成闭环 | 💡 | ICY 06-25；设计见 [DESIGN-accounts-and-exchange §5](../design/DESIGN-accounts-and-exchange.md#5-im-即时通讯--内容分享icy-说的接-im) |
+| 明信片口令/二维码分享 | 发送方成图 / 复制链接 / 二维码 / 隔空投送，对方扫码、点链接、AirDrop 或读剪贴板即在 App 内自动收下；纯本地、幂等去重，后并入 IM 闭环 | ✅ | ICY 06-25；`25c3266`、`8fd104f`；设计见 [DESIGN-accounts-and-exchange §4](../design/DESIGN-accounts-and-exchange.md#4-交换日记--明信片exchange--postcard) |
 | 明信片墙 | 收藏**收到的**明信片（扫码 / 链接 / 隔空投送收到的）；自己点亮 / 寄出的不进墙 | ✅ | ICY 06-26；`8fd104f`、`8897587` |
-| 账号体系 + 本地数据迁移 | 首版纯本地无账号；后续加账号并把本地数据无损「认领」为用户（local-first） | 💡 | ICY 06-25；设计见 [DESIGN-accounts-and-exchange §1–3](DESIGN-accounts-and-exchange.md) |
-| Android 客户端 | 确定目标，短期先 iOS；账号/同步层因此走跨平台 BaaS（非 CloudKit），后端与数据模型两端复用 | 💡 | ICY 06-25；设计见 [DESIGN-accounts-and-exchange §2](DESIGN-accounts-and-exchange.md#2-数据迁移本地--账号这就是可行性的关键) |
+| 账号体系 + 本地数据迁移 | 首版纯本地无账号；后续加账号并把本地数据无损「认领」为用户（local-first） | 💡 | ICY 06-25；设计见 [DESIGN-accounts-and-exchange §1–3](../design/DESIGN-accounts-and-exchange.md) |
+| Android 客户端 | 确定目标，短期先 iOS；账号/同步层因此走跨平台 BaaS（非 CloudKit），后端与数据模型两端复用 | 💡 | ICY 06-25；设计见 [DESIGN-accounts-and-exchange §2](../design/DESIGN-accounts-and-exchange.md#2-数据迁移本地--账号这就是可行性的关键) |
 | Android NFC「碰一碰」收发明信片 | 两台 Android 设备碰一碰传明信片（**iOS 原生不支持手机互碰**，Android 端后续可做） | 💡 | ICY 06-25 |
 
 ## 8. 推荐 / 行程规划
@@ -128,13 +128,13 @@
 |------|------|------|-------------|
 | 推荐 | 推荐旅行地、推荐好玩的人 / traveler | 💡 | ICY 06-24 |
 | 规划行程 | 行程规划能力 | 💡 | ICY 06-24 |
-| 共同行程 + 交换日志 | 行程可分享好友、创建**共同行程**；行程结束后互发「交换日志」，各自记录旅行心情并分享给对方 | 💡 | ICY 06-24；设计见 [DESIGN-accounts-and-exchange §4](DESIGN-accounts-and-exchange.md#4-交换日记--明信片exchange--postcard) |
+| 共同行程 + 交换日志 | 行程可分享好友、创建**共同行程**；行程结束后互发「交换日志」，各自记录旅行心情并分享给对方 | 💡 | ICY 06-24；设计见 [DESIGN-accounts-and-exchange §4](../design/DESIGN-accounts-and-exchange.md#4-交换日记--明信片exchange--postcard) |
 
 ## 9. 明信片收集系统（邮票 / 邮戳 / 节日章）
 
 > 灵感（ICY 06-25）：实体明信片的乐趣在「**邮票**」与「**邮局盖戳**」的收集感。把它做成可个性化、可收集、
 > 可付费的装饰体系，叠加在明信片分享之上——既增强情感价值，又是变现的装饰内购方向。
-> 变现见 [DESIGN-monetization §3 装饰内购](DESIGN-monetization.md#3-收费模式)；明信片本体见 [DESIGN-accounts-and-exchange §4](DESIGN-accounts-and-exchange.md#4-交换日记--明信片exchange--postcard)。
+> 变现见 [DESIGN-monetization §3 装饰内购](../design/DESIGN-monetization.md#3-收费模式)；明信片本体见 [DESIGN-accounts-and-exchange §4](../design/DESIGN-accounts-and-exchange.md#4-交换日记--明信片exchange--postcard)。
 
 | 需求 | 说明 | 状态 | 来源 / 关联 |
 |------|------|------|-------------|
@@ -151,7 +151,7 @@
 
 > 灵感（ICY 06-25）：按足迹生成一本**模拟护照本**，盖上各国**入境 / 出境章**，仪式感强；
 > 进一步可按**交通工具区分**（飞机＝飞过来、轮船＝船型章…）。与邮票 / 邮戳收集体系呼应；
-> 可与装饰内购 / Plus 关联（见 [DESIGN-monetization](DESIGN-monetization.md)）。
+> 可与装饰内购 / Plus 关联（见 [DESIGN-monetization](../design/DESIGN-monetization.md)）。
 
 | 需求 | 说明 | 状态 | 来源 |
 |------|------|------|------|
@@ -216,5 +216,5 @@
 ## 维护说明
 
 - 新需求先入对应主题表（标 💡 / 📋），开工置 🚧，合并置 ✅ 并补「提交」列。
-- 状态变化时同步更新 [`ROADMAP.md`](ROADMAP.md) 阶段表与 [`README.md`](../README.md) 里程碑。
+- 状态变化时同步更新 [`ROADMAP.md`](ROADMAP.md) 阶段表与 [`README.md`](../../README.md) 里程碑。
 - 较大特性（💡）拆解后可在本表展开为多条，或另起设计文档并在此链接。

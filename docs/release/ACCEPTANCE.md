@@ -118,4 +118,4 @@
 | 1 |  |  |  |  |
 | 2 |  |  |  |  |
 
-> 上架的账号/能力/ASC/截图/提审清单见 [`MVP-REMAINING.md`](MVP-REMAINING.md)（本轮变更逐项对照其 N1–N18）与 [`BUILD-CONFIG.md`](BUILD-CONFIG.md)；产品路线图见 [`ROADMAP.md`](ROADMAP.md)。
+> 上架的账号/能力/ASC/截图/提审清单见 [`MVP-REMAINING.md`](MVP-REMAINING.md)（本轮变更逐项对照其 N1–N18）与 [`BUILD-CONFIG.md`](BUILD-CONFIG.md)；产品路线图见 [`ROADMAP.md`](../product/ROADMAP.md)。
