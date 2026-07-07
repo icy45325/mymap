@@ -86,7 +86,8 @@ revoke all on mailbox, mail from anon;
 
 - 读取靠 `read_token`（50+ bit 随机）＝能力密钥；邮箱号公开可寄不可读。
 - `send_mail` 限载荷 150KB + 每箱每日限量；30 天 TTL 清理；免费档容量可支撑数万活跃。
-- anon key 暴露在客户端是 Supabase 设计内行为（权限已收敛到仅 RPC）。
+- anon/publishable key 暴露在客户端是 Supabase 设计内行为（权限已收敛到仅 RPC）；
+  新版 `sb_publishable_…` key 只作 `apikey` 头，不进 Authorization。
 - 成本：$0（Free）→ 项目 7 天无请求会暂停（上线有真实流量即不会）→ 增长后 Pro $25/mo。
 
 ## 6. 上线与分支策略
@@ -95,13 +96,13 @@ revoke all on mailbox, mail from anon;
 - `claude/v1.1-lumi-post`：v1.1 全部开发；MVP 审核通过后作为 1.1 版本提交。
 
 **接入进度（2026-07-07）**
-- ✅ Supabase 项目已建：`https://brxpnharduwacnqkarkr.supabase.co`；`LumiPostURL` 已入 `Lumi/Info.plist`
-  （只有 URL 没有 key 时 `isEnabled=false`，功能仍隐藏——半配置是安全态）。
-- ⬜ ICY：SQL Editor 整段粘贴执行 [`lumi-post-schema.sql`](lumi-post-schema.sql)
-  （建两表 + 4 RPC + 收权限；全新项目直接跑，无需 drop；可选：启用 pg_cron 后执行文件尾注释的 30 天 TTL）。
-- ⬜ ICY：把 **anon public** key 发来（Dashboard → Settings → API → Project API keys → `anon` `public`）
-  → 补进 Info.plist `LumiPostAnonKey`，功能即亮起。anon key 可公开进客户端（见 §5）。
+- ✅ Supabase 项目已建：`https://brxpnharduwacnqkarkr.supabase.co`。
+- ✅ 建库 SQL 已执行（两表 + 4 RPC + 收权限）。
+- ✅ `LumiPostURL` + `LumiPostAnonKey` 均已入 `Lumi/Info.plist` —— **双键齐，邮局功能亮起**。
+  key 为新版 `sb_publishable_…` publishable key：客户端只走 `apikey` 头（非 JWT 不能作 Bearer，
+  `LumiPost.rpc` 已按前缀自适配；v1.2 登录后 Authorization 换用户 JWT，同一扩展点）。
 - ⬜ 双机验收（§7）。提审分支永不配置两键，不受影响。
+- ⬜ 可选：Dashboard 启用 pg_cron 后执行 SQL 文件尾注释的 30 天 TTL 清理。
 
 ## 7. 验收要点（真机，双机或双模拟器）
 

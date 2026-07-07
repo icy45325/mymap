@@ -211,7 +211,12 @@ final class LumiPost: ObservableObject {
         req.timeoutInterval = 15
         req.setValue("application/json", forHTTPHeaderField: "Content-Type")
         req.setValue(key, forHTTPHeaderField: "apikey")
-        req.setValue("Bearer \(key)", forHTTPHeaderField: "Authorization")
+        // 旧版 anon key 是 JWT（eyJ… 开头）→ 需同时作 Bearer；
+        // 新版 sb_publishable_… 只能走 apikey 头（非 JWT，放 Bearer 会被网关拒）。
+        // v1.2 登录后：这里换成用户 JWT，同一扩展点。
+        if key.hasPrefix("eyJ") {
+            req.setValue("Bearer \(key)", forHTTPHeaderField: "Authorization")
+        }
         req.httpBody = try JSONSerialization.data(withJSONObject: body)
         let (data, resp) = try await URLSession.shared.data(for: req)
         guard let http = resp as? HTTPURLResponse else { throw LumiPostError.badResponse(-1) }

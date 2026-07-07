@@ -6,6 +6,8 @@
 	<false/>
 	<key>LumiPostURL</key>
 	<string>https://brxpnharduwacnqkarkr.supabase.co</string>
+	<key>LumiPostAnonKey</key>
+	<string>sb_publishable_kQb6B_sfpBESdIZhSV7kGQ_-PAkHVok</string>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>instagram</string>
