@@ -212,8 +212,10 @@ final class LumiCloud: ObservableObject {
     // MARK: - 同步（推 upsert + 拉 LWW 合并）
 
     /// 全量同步：先推后拉。轻量数据（数百条量级）全量往返即可，v1.3 再做增量。
+    /// **Plus 专属**：免费用户数据只存本地；邮箱认领/找回不受此限（属邮局体验，全员可用）。
     func syncNow(_ context: ModelContext) async {
-        guard LumiPostConfig.isEnabled, isSignedIn, !syncing else { return }
+        guard LumiPostConfig.isEnabled, isSignedIn, !syncing,
+              PlusStore.shared.isPlus else { return }
         syncing = true
         defer { syncing = false }
         do {

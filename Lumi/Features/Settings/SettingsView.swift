@@ -85,35 +85,57 @@ struct SettingsView: View {
                 }
                 if LumiPostConfig.isEnabled {
                     Divider().overlay(Color.line)
-                    HStack(spacing: 8) {
-                        Image(systemName: cloud.isSignedIn ? "icloud.fill" : "icloud.slash")
-                            .font(.system(size: 13))
-                            .foregroundStyle(cloud.isSignedIn ? Color.nCyan : Color.muted)
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(cloud.isSignedIn ? "云同步已开启" : "云同步未连接")
-                                .font(.system(size: 12, weight: .semibold)).foregroundStyle(Color.text)
-                            if let at = cloud.lastSyncAt {
-                                Text("上次同步 \(at.formatted(.relative(presentation: .named)))")
-                                    .font(.system(size: 10)).foregroundStyle(Color.muted)
+                    if store.isPlus {
+                        HStack(spacing: 8) {
+                            Image(systemName: cloud.isSignedIn ? "icloud.fill" : "icloud.slash")
+                                .font(.system(size: 13))
+                                .foregroundStyle(cloud.isSignedIn ? Color.nCyan : Color.muted)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(cloud.isSignedIn ? "云同步已开启" : "云同步未连接")
+                                    .font(.system(size: 12, weight: .semibold)).foregroundStyle(Color.text)
+                                if let at = cloud.lastSyncAt {
+                                    Text("上次同步 \(at.formatted(.relative(presentation: .named)))")
+                                        .font(.system(size: 10)).foregroundStyle(Color.muted)
+                                }
                             }
-                        }
-                        Spacer()
-                        if cloud.isSignedIn {
-                            Button {
-                                Task { await cloud.syncNow(LumiStore.shared.mainContext) }
-                            } label: {
-                                if cloud.syncing { ProgressView().scaleEffect(0.7) }
-                                else {
-                                    Label("立即同步", systemImage: "arrow.triangle.2.circlepath")
-                                        .font(.system(size: 11, weight: .semibold)).foregroundStyle(Color.nCyan)
+                            Spacer()
+                            if cloud.isSignedIn {
+                                Button {
+                                    Task { await cloud.syncNow(LumiStore.shared.mainContext) }
+                                } label: {
+                                    if cloud.syncing { ProgressView().scaleEffect(0.7) }
+                                    else {
+                                        Label("立即同步", systemImage: "arrow.triangle.2.circlepath")
+                                            .font(.system(size: 11, weight: .semibold)).foregroundStyle(Color.nCyan)
+                                    }
                                 }
                             }
                         }
-                    }
-                    if let err = cloud.lastError {
-                        Label(err, systemImage: "exclamationmark.triangle.fill")
-                            .font(.system(size: 10)).foregroundStyle(Color.nOrange)
-                            .fixedSize(horizontal: false, vertical: true)
+                        if let err = cloud.lastError {
+                            Label(err, systemImage: "exclamationmark.triangle.fill")
+                                .font(.system(size: 10)).foregroundStyle(Color.nOrange)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                    } else {
+                        // 免费用户：数据存本地；云同步是终身会员权益（邮箱号找回不受限）
+                        Button { showPaywall = true } label: {
+                            HStack(spacing: 8) {
+                                Image(systemName: "icloud.fill").font(.system(size: 13))
+                                    .foregroundStyle(Color.muted)
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("云同步 · 终身会员专属")
+                                        .font(.system(size: 12, weight: .semibold)).foregroundStyle(Color.text)
+                                    Text("升级后足迹与心愿自动云端备份，换机即恢复")
+                                        .font(.system(size: 10)).foregroundStyle(Color.muted)
+                                }
+                                Spacer()
+                                Text("升级").font(.system(size: 11, weight: .bold)).foregroundStyle(.white)
+                                    .padding(.vertical, 5).padding(.horizontal, 12)
+                                    .background(LinearGradient.neonH, in: Capsule())
+                            }
+                            .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
                     }
                 }
             }

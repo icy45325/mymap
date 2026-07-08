@@ -63,6 +63,8 @@ struct PaywallView: View {
 
     private var valueProps: some View {
         VStack(spacing: 12) {
+            prop("icloud.fill", "云端同步与换机恢复",
+                 "足迹与心愿自动备份云端，换机登录即恢复", available: true)
             prop("infinity", "后续所有功能迭代与常规内容包",
                  "一次解锁，未来新增 Plus 功能与商店常规资源包全部包含（限量/联名款除外，会员享折扣）", available: true)
             prop("sparkles", "明信片无水印 · 高清导出", "去掉 Lumi 水印，3 倍分辨率导出", available: true)

@@ -636,6 +636,10 @@ S = [
  ("立即同步","Sync now","زامن الآن"),
  ("资源包 · 商店","Store packs","حزم المتجر"),
  ("来自商店的扩充邮票包 · 拥有后寄对应足迹的明信片可选用","Expansion packs from the store · use on matching footprints once owned","حزم إضافية من المتجر · تُستخدم على الآثار المطابقة بعد امتلاكها"),
+ ("云同步 · 终身会员专属","Cloud sync · lifetime members only","المزامنة السحابية · للأعضاء الدائمين فقط"),
+ ("升级后足迹与心愿自动云端备份，换机即恢复","Upgrade to auto-back up footprints & wishes — restore on any device","بعد الترقية تُنسخ آثارك وأمنياتك تلقائيًا وتُستعاد على أي جهاز"),
+ ("云端同步与换机恢复","Cloud sync & device transfer","المزامنة السحابية ونقل الأجهزة"),
+ ("足迹与心愿自动备份云端，换机登录即恢复","Footprints & wishes back up automatically — sign in on a new device to restore","تُنسخ الآثار والأمنيات تلقائيًا — سجّل الدخول على جهاز جديد للاستعادة"),
 ]
 
 # Resolve duplicate "国家" (Country vs Countries): keep two distinct? They share key -> can't.

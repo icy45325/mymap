@@ -107,8 +107,10 @@ read_token 即丢邮箱号（设计内，v1.2 账号绑定解决）。
 
 **已落地（2026-07-08）**：
 - **账号**：Sign in with Apple identityToken 直换 **Supabase GoTrue 会话**（零 SDK）；登录永远可选，不挡本地。
-- **同步**：Footprint/Wish 两表 JSONB 全量同步（推 upsert + 拉 updatedAt LWW 合并）；进前台/手动「立即同步」；
-  换机恢复（照片跨设备仅保引用；收到卡的封面可还原）。建库脚本 [`lumi-account-schema.sql`](../design/lumi-account-schema.sql)。
+- **同步（Plus 专属）**：Footprint/Wish 两表 JSONB 全量同步（推 upsert + 拉 updatedAt LWW 合并）；
+  进前台/手动「立即同步」；换机恢复（照片跨设备仅保引用；收到卡的封面可还原）。
+  **免费用户数据只存本地**；邮箱号认领/找回全员可用（属邮局体验）。
+  建库脚本 [`lumi-account-schema.sql`](../design/lumi-account-schema.sql)。
 - **邮箱认领**：登录后 v1.1 匿名信箱绑定账号（claim_mailbox），换机 recover_mailbox 找回邮箱号。
 - **商店开张**：远程 manifest 合并（D2 增值远程，Storage 公共桶）+ 远程图票缓存；付费包
   `com.lumi.pack.<id>` Non-Consumable 购买/恢复（ASC 建品后生效）；混合制权益已接。
