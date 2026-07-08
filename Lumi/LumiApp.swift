@@ -43,6 +43,8 @@ struct LumiApp: App {
                 Analytics.log(.appOpen)                       // §9 app_open
                 WidgetSync.refresh(LumiStore.shared.mainContext)  // 启动即对齐小组件快照
                 Task { await LumiPost.shared.refreshInbox() }     // 回前台顺手收信（幂等入库）
+                Task { await LumiCloud.shared.syncNow(LumiStore.shared.mainContext) }  // 已登录则顺手同步
+                Task { await PackStore.shared.refreshOwned() }    // 对齐资源包已购
             }
         }
     }

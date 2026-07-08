@@ -44,6 +44,10 @@ final class AuthStore: ObservableObject {
             if !full.isEmpty { displayName = full; store.set(full, forKey: kName) }
         }
         Haptics.success()
+        // v1.2：identityToken 换 Supabase 会话 → 认领邮箱 + 全量同步（未配置后端时 no-op）
+        if let tokenData = cred.identityToken, let idToken = String(data: tokenData, encoding: .utf8) {
+            Task { await LumiCloud.shared.signIn(appleIDToken: idToken) }
+        }
     }
 
     func signOut() {

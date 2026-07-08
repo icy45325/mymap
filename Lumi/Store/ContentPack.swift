@@ -66,6 +66,7 @@ struct PackItem: Codable, Identifiable, Equatable {
     var name: [String: String] = [:]            // {"zh","en","ar"} 三语名（远程上新不依赖发版）
     let render: PackItemRender
     var legacyRaw: String? = nil                // 迁移镜像条目 → 既有编码（"cc:JP"/"prem:jp_fuji"…）
+    var countryCode: String? = nil              // 条目级国家限定（如探索者包每票限本国足迹）
     var subRegionCode: String? = nil            // 子区域限定（如 AE-DU）
     var festivalWindow: PackFestivalWindow? = nil
     var regionGroup: String? = nil              // 节日地区组："meast" / "westAsia" / "cn"

@@ -7,6 +7,7 @@ struct SettingsView: View {
 
     @ObservedObject private var store = PlusStore.shared
     @ObservedObject private var auth = AuthStore.shared
+    @ObservedObject private var cloud = LumiCloud.shared
     @ObservedObject private var updater = AppUpdateCheck.shared
     @State private var showPaywall = false
     @State private var showWhatsNew = false
@@ -69,17 +70,52 @@ struct SettingsView: View {
 
     @ViewBuilder private var accountRow: some View {
         if auth.isLoggedIn {
-            HStack(spacing: 12) {
-                Image(systemName: "checkmark.seal.fill")
-                    .font(.system(size: 20)).foregroundStyle(Color.nCyan).frame(width: 28)
-                VStack(alignment: .leading, spacing: 2) {
-                    (auth.displayName.isEmpty ? Text("已登录") : Text(verbatim: auth.displayName))
-                        .font(.system(size: 15, weight: .semibold)).foregroundStyle(Color.text)
-                    Text("通过 Apple 登录").font(.system(size: 11)).foregroundStyle(Color.muted)
+            VStack(alignment: .leading, spacing: 10) {
+                HStack(spacing: 12) {
+                    Image(systemName: "checkmark.seal.fill")
+                        .font(.system(size: 20)).foregroundStyle(Color.nCyan).frame(width: 28)
+                    VStack(alignment: .leading, spacing: 2) {
+                        (auth.displayName.isEmpty ? Text("已登录") : Text(verbatim: auth.displayName))
+                            .font(.system(size: 15, weight: .semibold)).foregroundStyle(Color.text)
+                        Text("通过 Apple 登录").font(.system(size: 11)).foregroundStyle(Color.muted)
+                    }
+                    Spacer()
+                    Button("退出登录") { Haptics.light(); cloud.signOut(); auth.signOut() }
+                        .font(.system(size: 13, weight: .semibold)).foregroundStyle(Color.nPink)
                 }
-                Spacer()
-                Button("退出登录") { Haptics.light(); auth.signOut() }
-                    .font(.system(size: 13, weight: .semibold)).foregroundStyle(Color.nPink)
+                if LumiPostConfig.isEnabled {
+                    Divider().overlay(Color.line)
+                    HStack(spacing: 8) {
+                        Image(systemName: cloud.isSignedIn ? "icloud.fill" : "icloud.slash")
+                            .font(.system(size: 13))
+                            .foregroundStyle(cloud.isSignedIn ? Color.nCyan : Color.muted)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(cloud.isSignedIn ? "云同步已开启" : "云同步未连接")
+                                .font(.system(size: 12, weight: .semibold)).foregroundStyle(Color.text)
+                            if let at = cloud.lastSyncAt {
+                                Text("上次同步 \(at.formatted(.relative(presentation: .named)))")
+                                    .font(.system(size: 10)).foregroundStyle(Color.muted)
+                            }
+                        }
+                        Spacer()
+                        if cloud.isSignedIn {
+                            Button {
+                                Task { await cloud.syncNow(LumiStore.shared.mainContext) }
+                            } label: {
+                                if cloud.syncing { ProgressView().scaleEffect(0.7) }
+                                else {
+                                    Label("立即同步", systemImage: "arrow.triangle.2.circlepath")
+                                        .font(.system(size: 11, weight: .semibold)).foregroundStyle(Color.nCyan)
+                                }
+                            }
+                        }
+                    }
+                    if let err = cloud.lastError {
+                        Label(err, systemImage: "exclamationmark.triangle.fill")
+                            .font(.system(size: 10)).foregroundStyle(Color.nOrange)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
             }
             .padding(.vertical, 13).padding(.horizontal, 14)
             .background(Color.panel, in: RoundedRectangle(cornerRadius: 14))

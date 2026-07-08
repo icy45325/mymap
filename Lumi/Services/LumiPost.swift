@@ -198,6 +198,9 @@ final class LumiPost: ObservableObject {
         return s
     }
 
+    /// 采用一套外来两码（v1.2 登录后 recover_mailbox 找回；换机恢复邮箱号）。
+    func adopt(_ id: LumiMailboxIdentity) { persist(id) }
+
     private func persist(_ id: LumiMailboxIdentity) {
         identity = id
         if let data = try? JSONEncoder().encode(id) {

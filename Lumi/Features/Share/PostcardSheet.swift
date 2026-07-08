@@ -10,6 +10,7 @@ struct PostcardSheet: View {
     @Environment(\.dismiss) private var dismiss
     @AppStorage("lumi.profile.name") private var holderName: String = ""
     @ObservedObject private var store = PlusStore.shared
+    @ObservedObject private var packStore = PackStore.shared
     @ObservedObject private var contacts = PostcardContacts.shared
     @State private var message: String
     @State private var cover: UIImage?
@@ -20,6 +21,7 @@ struct PostcardSheet: View {
     @State private var showPaywall = false
     @State private var mailbox = ""                  // 对方 Lumi 邮箱号（填了 → 直寄成为主按钮）
     @State private var avatarB64: String?            // 我的头像缩略图（随卡传给对方的往来名单）
+    @State private var storePack: ContentPack?       // 付费包详情（选择器带锁票点击）
     @State private var sending = false
     @State private var sentOK = false
     @State private var sendError: String?
@@ -226,6 +228,7 @@ struct PostcardSheet: View {
         .sheet(isPresented: $showPaywall, onDismiss: {
             Task { await store.refreshEntitlement(); rerender() }   // 付费回来立即解锁典藏票，可继续寄
         }) { PaywallView() }
+        .sheet(item: $storePack) { PackDetailSheet(pack: $0) }
         .task { cover = await loadAssetUIImage(coverAssetID); rerender() }   // 封面先行加载，不被网络阻塞
         .task { await store.refreshEntitlement() }      // 权益对齐并行（订阅后无需再开订阅页）
         .task {                                          // 头像缩略图（≈96px）随卡传给对方
@@ -344,6 +347,20 @@ struct PostcardSheet: View {
         return store.isPlus ? matched : Array(matched.prefix(2))
     }
 
+    /// 该足迹可用的资源包邮票（v1.15 起的**新包**条目；镜像条目走原有通路，避免重复出现）。
+    private var packStampItems: [(pack: ContentPack, item: PackItem)] {
+        PackCatalog.shared.packs(in: .stamp).flatMap { pack in
+            pack.items.compactMap { item -> (pack: ContentPack, item: PackItem)? in
+                guard item.legacyRaw == nil else { return nil }                     // 镜像条目跳过
+                if let cc = item.countryCode, cc != footprint.countryCode { return nil }
+                if let list = pack.countryCodes, list.isEmpty == false,
+                   list.contains(footprint.countryCode ?? "") == false { return nil }
+                if let sub = item.subRegionCode, sub != footprint.subRegionCode { return nil }
+                return (pack, item)
+            }
+        }
+    }
+
     /// 邮票选择：基础三款 + 本国特色票 + 窗口期内节日章 + 典藏票（Plus / 带锁入口）。
     private var stampPicker: some View {
         editorBlock("邮票") {
@@ -359,10 +376,46 @@ struct PostcardSheet: View {
                         stampCell(.festival(f), title: Text(f.titleKey))
                     }
                     ForEach(visiblePremiums) { p in premiumCell(p) }
+                    ForEach(packStampItems, id: \.item.id) { entry in
+                        packCell(entry.pack, entry.item)
+                    }
                 }
                 .padding(.horizontal, 2)
             }
         }
+    }
+
+    /// 资源包票 cell：已拥有可选用；未拥有带锁（plus 档 → Paywall，付费档 → 商店包详情）。
+    private func packCell(_ pack: ContentPack, _ item: PackItem) -> some View {
+        let owned = PackStore.shared.owns(pack)
+        let kind = StampKind.pack(packID: pack.id, itemID: item.id)
+        let active = kind == stamp
+        return Button {
+            if owned { stamp = kind; Haptics.selection() }
+            else if case .plus = pack.pricing { showPaywall = true }
+            else { storePack = pack }
+        } label: {
+            VStack(spacing: 5) {
+                StampView(kind: kind, mini: true)
+                    .frame(width: 30, height: 36)
+                    .grayscale(owned ? 0 : 0.6).opacity(owned ? 1 : 0.75)
+                    .overlay(alignment: .topTrailing) {
+                        if !owned {
+                            Image(systemName: "lock.fill").font(.system(size: 8))
+                                .foregroundStyle(.white)
+                                .padding(3).background(.black.opacity(0.55), in: Circle())
+                                .offset(x: 6, y: -6)
+                        }
+                    }
+                Text(verbatim: item.localizedName).font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(active ? Color.text : Color.muted).lineLimit(1)
+            }
+            .frame(minWidth: 74).padding(.vertical, 9).padding(.horizontal, 6)
+            .background(active ? Color.white.opacity(0.07) : .clear, in: RoundedRectangle(cornerRadius: 12))
+            .overlay(RoundedRectangle(cornerRadius: 12)
+                .stroke(active ? Color.white.opacity(0.18) : Color.white.opacity(0.06), lineWidth: 1))
+        }
+        .buttonStyle(.plain)
     }
 
     /// 典藏票 cell：Plus 正常选用；非 Plus 带锁 + PLUS 徽记，点击弹 Paywall（付费入口）。
@@ -501,6 +554,11 @@ struct PostcardSheet: View {
     @MainActor private func rerender() {
         // 权益回落守卫：非 Plus 不可寄典藏票（权益过期/未购时自动回落基础空运）
         if !store.isPlus, stamp.isPremium { stamp = .basic(.air) }
+        // 资源包票同理：包未拥有（权益变化/退款）→ 回落基础空运
+        if case .pack(let pid, _) = stamp,
+           let pk = PackCatalog.shared.pack(pid), !PackStore.shared.owns(pk) {
+            stamp = .basic(.air)
+        }
         coverB64 = cover.flatMap { PostcardToken.encodeCover($0) }   // 压缩封面（AirDrop/链接带图）
         // Plus：无水印 + 高清(3x)；免费：盖水印 + 标清(2x)
         let card = PostcardExportCard(footprint: footprint, cover: cover, message: message,

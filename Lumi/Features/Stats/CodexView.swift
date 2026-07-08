@@ -66,6 +66,27 @@ struct CodexView: View {
                         ForEach(PremiumStamp.all) { p in premiumCell(p) }
                     }
                 }
+                if !newStampPacks.isEmpty {
+                    section("资源包 · 商店", subtitle: "来自商店的扩充邮票包 · 拥有后寄对应足迹的明信片可选用") {
+                        VStack(alignment: .leading, spacing: 14) {
+                            ForEach(newStampPacks) { pack in
+                                VStack(alignment: .leading, spacing: 8) {
+                                    HStack(spacing: 6) {
+                                        Text(verbatim: pack.localizedName)
+                                            .font(.system(size: 12, weight: .semibold)).foregroundStyle(Color.text)
+                                        if !PackStore.shared.owns(pack) {
+                                            Image(systemName: "lock.fill").font(.system(size: 9))
+                                                .foregroundStyle(Color.muted)
+                                        }
+                                    }
+                                    LazyVGrid(columns: cols, spacing: 14) {
+                                        ForEach(pack.items) { item in packItemCell(pack, item) }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
                 section("节日限定章", subtitle: "节日前后 5 天限时可用（地区性节日仅限该地区足迹）· 收到贴此章的明信片即收集") {
                     LazyVGrid(columns: cols, spacing: 14) {
                         ForEach(Festival.allCases) { f in festivalCell(f) }
@@ -132,6 +153,26 @@ struct CodexView: View {
     }
 
     // MARK: - 单元格
+
+    /// 商店里的新增邮票包（镜像包除外——它们已在各自分区展示）。
+    private var newStampPacks: [ContentPack] {
+        PackCatalog.shared.packs(in: .stamp).filter { pack in
+            pack.items.contains { $0.legacyRaw == nil }
+        }
+    }
+
+    /// 资源包条目 cell：拥有 → 彩色；未拥有 → 灰。
+    private func packItemCell(_ pack: ContentPack, _ item: PackItem) -> some View {
+        let owned = PackStore.shared.owns(pack)
+        return cellFrame(unlocked: owned) {
+            PackItemStampView(packID: pack.id, itemID: item.id)
+                .frame(width: 48, height: 58)
+                .grayscale(owned ? 0 : 1)
+                .opacity(owned ? 1 : 0.32)
+        } title: {
+            Text(verbatim: item.localizedName)
+        }
+    }
 
     private func regionalCell(_ r: RegionalStamp) -> some View {
         let unlocked = litCodes.contains(r.code)

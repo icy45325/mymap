@@ -92,6 +92,21 @@
       ]
     },
     {
+      "id": "regional-explorer",
+      "category": "stamp",
+      "version": 1,
+      "name": { "zh": "探索者·地区扩充", "en": "Explorer · More Regions", "ar": "المستكشف · مناطق إضافية" },
+      "pricing": "plus",
+      "items": [
+        { "id": "kr", "name": { "zh": "韩国", "en": "South Korea", "ar": "كوريا الجنوبية" }, "render": { "type": "coded", "renderer": "regional:KR" }, "countryCode": "KR" },
+        { "id": "in", "name": { "zh": "印度", "en": "India", "ar": "الهند" }, "render": { "type": "coded", "renderer": "regional:IN" }, "countryCode": "IN" },
+        { "id": "gr", "name": { "zh": "希腊", "en": "Greece", "ar": "اليونان" }, "render": { "type": "coded", "renderer": "regional:GR" }, "countryCode": "GR" },
+        { "id": "nl", "name": { "zh": "荷兰", "en": "Netherlands", "ar": "هولندا" }, "render": { "type": "coded", "renderer": "regional:NL" }, "countryCode": "NL" },
+        { "id": "es", "name": { "zh": "西班牙", "en": "Spain", "ar": "إسبانيا" }, "render": { "type": "coded", "renderer": "regional:ES" }, "countryCode": "ES" },
+        { "id": "ch", "name": { "zh": "瑞士", "en": "Switzerland", "ar": "سويسرا" }, "render": { "type": "coded", "renderer": "regional:CH" }, "countryCode": "CH" }
+      ]
+    },
+    {
       "id": "postmark-lumi",
       "category": "postmark",
       "version": 1,

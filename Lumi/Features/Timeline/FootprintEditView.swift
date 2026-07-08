@@ -361,6 +361,7 @@ struct FootprintEditView: View {
             footprint.countryCode = p.countryCode
             footprint.subRegionCode = p.subRegionCode
         }
+        footprint.updatedAt = .now   // 云同步 LWW 判定
         try? context.save()
 
         WidgetSync.refresh(context)   // 日期改动可能影响「去年今日」/ 最近一次

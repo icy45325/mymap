@@ -96,24 +96,26 @@ M1–M5 + 增强批次均已落地（暗夜霓虹地图点亮、Capture、离线
 **v1.1 剩余**：双机验收（DESIGN §7）· pg_cron TTL 启用 · 发版时 WhatsNew 文案 · 已知限制：换机/重装丢
 read_token 即丢邮箱号（设计内，v1.2 账号绑定解决）。
 
-## v1.15 — 资源包内置化（商店预热，纯本地小版本）
+## v1.15 — 资源包内置化（商店预热，纯本地小版本）　🚧 已开发，待验收
 
-**目标**：把四类邮票的硬编码目录抽成 **ContentPack manifest** 数据驱动（详见
-[`DESIGN-store.md`](../design/DESIGN-store.md)），为 v1.2 商店开张铺轨；顺手上 1–2 个新内置包试水。
-零服务端、raw 编码全兼容、口令交换不受影响。
+**已落地（2026-07-08）**：ContentPack manifest 数据驱动（模型/加载器/内置 manifest 四类目录镜像 33 条）；
+`pack:` 编码 + 接收端降级；商店页（Me 页入口，货架/包详情/三态获取）；图鉴「资源包」区；
+选择器接资源包条目；首个新包「探索者·地区扩充」6 国手绘票（PLUS 档）。
+零服务端、raw 编码全兼容、口令交换不受影响。验收见 [`ACCEPTANCE.md` N 区](../release/ACCEPTANCE.md)。
 
-## v1.2 — 账号 + 同步（BaaS）+ 资源商店开张 + 跨平台变现
+## v1.2 — 账号 + 同步（BaaS）+ 资源商店开张　🚧 主体已开发，待验收
 
-**前提**：MVP 留存成立。目标：让数据「多端可用、可带走」，商店开张，变现跨平台。
+**已落地（2026-07-08）**：
+- **账号**：Sign in with Apple identityToken 直换 **Supabase GoTrue 会话**（零 SDK）；登录永远可选，不挡本地。
+- **同步**：Footprint/Wish 两表 JSONB 全量同步（推 upsert + 拉 updatedAt LWW 合并）；进前台/手动「立即同步」；
+  换机恢复（照片跨设备仅保引用；收到卡的封面可还原）。建库脚本 [`lumi-account-schema.sql`](../design/lumi-account-schema.sql)。
+- **邮箱认领**：登录后 v1.1 匿名信箱绑定账号（claim_mailbox），换机 recover_mailbox 找回邮箱号。
+- **商店开张**：远程 manifest 合并（D2 增值远程，Storage 公共桶）+ 远程图票缓存；付费包
+  `com.lumi.pack.<id>` Non-Consumable 购买/恢复（ASC 建品后生效）；混合制权益已接。
+- 验收见 [`ACCEPTANCE.md` O 区](../release/ACCEPTANCE.md)。
 
-- **账号**：BaaS Auth（Apple + Google 登录归一）；**v1.1 的匿名身份原地升级绑定**（邮箱号/往来关系无损保留）；登录永远可选，不挡本地使用。
-- **同步 + 迁移**：跨平台 BaaS（倾向 Supabase，见选型文档）；首次登录把本地 SwiftData 按 UUID **无损认领**，
-  之后双向同步（本地仍作离线缓存）。
-- **资源商店**（[`DESIGN-store.md`](../design/DESIGN-store.md)）：远程 manifest + Storage 下发；商店页/包详情；
-  混合制权益（常规包 Plus 免费领、限量/联名包单点购买 `com.lumi.pack.<id>`）；明信片**正面素材**品类首发
-  （插画模板/画框/滤镜）；购买记录云端化。
-- **跨平台变现**：RevenueCat 把已购权益绑到账号，为后续 Android 共享 Plus 打底。
-- 前置技术验证：[BaaS 同步 spike](../design/DESIGN-baas-selection.md#5-poc-验证拍板前)。
+**留后续**：正面素材品类内容（D4，待美术）；购买记录云端化（v1.2.1）；Google 登录归一；
+**RevenueCat 推迟到 Android 启动前接**（需引 SDK；iOS 单端 StoreKit 2 原生已够用）；推送通知。
 
 ## v1.3 — 共创（原 v1.x）
 

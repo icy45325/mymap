@@ -9,17 +9,39 @@ import os.log
 //  · 三条协议级不变量见 ARCHITECTURE §4.1：raw 只增不改 / 接收端降级 / manifest 同构。
 // ─────────────────────────────────────────────────────────────
 
-final class PackCatalog {
+@MainActor
+final class PackCatalog: ObservableObject {
     static let shared = PackCatalog()
 
     /// 已加载且当前 App 版本可见的包（minAppVersion 过滤后）。
-    let packs: [ContentPack]
+    /// 基础 = Bundle 内置；D2「增值远程」= remote manifest 里的**新增包**合并进来（同 id 以远程为准）。
+    @Published private(set) var packs: [ContentPack]
 
     private init() {
         packs = Self.loadBundleManifest()
         #if DEBUG
         Self.validateAgainstCodeCatalogs(packs)
         #endif
+    }
+
+    /// 拉远程 manifest（Supabase Storage 公共桶 `packs/index.json`）合并增值包。
+    /// 未配置后端 / 拉取失败 → 静默保持内置目录（商店永不白屏）。
+    func refreshRemote() async {
+        guard let base = LumiPostConfig.url else { return }
+        guard let url = URL(string: base.absoluteString + "/storage/v1/object/public/packs/index.json")
+        else { return }
+        var req = URLRequest(url: url); req.timeoutInterval = 20
+        guard let (data, resp) = try? await URLSession.shared.data(for: req),
+              (resp as? HTTPURLResponse)?.statusCode == 200,
+              let manifest = try? JSONDecoder().decode(PackManifest.self, from: data) else { return }
+        let appVersion = (Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String) ?? "0"
+        let remote = manifest.packs.filter { p in
+            guard let min = p.minAppVersion else { return true }
+            return appVersion.compare(min, options: .numeric) != .orderedAscending
+        }
+        var merged = packs.filter { local in !remote.contains(where: { $0.id == local.id }) }
+        merged.append(contentsOf: remote)
+        packs = merged
     }
 
     // MARK: - 查询
@@ -93,8 +115,12 @@ struct PackItemStampView: View {
             switch item.render.type {
             case "image":
                 if let asset = item.render.asset {
-                    Image(asset).resizable().scaledToFit()
-                        .shadow(color: .black.opacity(0.25), radius: mini ? 1 : 2, y: 1)
+                    if asset.hasPrefix("http") {
+                        RemotePackImage(url: asset, mini: mini)     // 远程图票（增值包）
+                    } else {
+                        Image(asset).resizable().scaledToFit()      // 内置 imageset
+                            .shadow(color: .black.opacity(0.25), radius: mini ? 1 : 2, y: 1)
+                    }
                 } else { fallback }
             case "coded":
                 CodedStampRenderer.view(id: item.render.renderer, mini: mini)
@@ -109,12 +135,61 @@ struct PackItemStampView: View {
     private var fallback: some View { PostcardStampView(stamp: .air, mini: mini) }
 }
 
+/// 远程图票：磁盘缓存优先（保证 ImageRenderer 同步导出可用），未命中即下载后缓存。
+struct RemotePackImage: View {
+    let url: String
+    var mini: Bool = false
+    @State private var image: UIImage?
+
+    var body: some View {
+        Group {
+            if let ui = image ?? PackImageCache.cached(url) {
+                Image(uiImage: ui).resizable().scaledToFit()
+                    .shadow(color: .black.opacity(0.25), radius: mini ? 1 : 2, y: 1)
+            } else {
+                RoundedRectangle(cornerRadius: 2).fill(.white.opacity(0.15))
+                    .overlay(ProgressView().scaleEffect(0.5))
+                    .task { image = await PackImageCache.fetch(url) }
+            }
+        }
+    }
+}
+
+/// 远程票图缓存：Caches/lumi-packs/<sha 简化名>；一次下载永久复用（包版本更新换 URL）。
+enum PackImageCache {
+    private static var dir: URL {
+        let d = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent("lumi-packs", isDirectory: true)
+        try? FileManager.default.createDirectory(at: d, withIntermediateDirectories: true)
+        return d
+    }
+    private static func file(_ url: String) -> URL {
+        // 稳定哈希（FNV-1a）：String.hashValue 每次启动随机化，不能做缓存文件名
+        var h: UInt64 = 0xcbf29ce484222325
+        for b in url.utf8 { h = (h ^ UInt64(b)) &* 0x100000001b3 }
+        return dir.appendingPathComponent(String(h, radix: 36) + ".img")
+    }
+    static func cached(_ url: String) -> UIImage? {
+        guard let data = try? Data(contentsOf: file(url)) else { return nil }
+        return UIImage(data: data)
+    }
+    static func fetch(_ url: String) async -> UIImage? {
+        if let hit = cached(url) { return hit }
+        guard let u = URL(string: url),
+              let (data, resp) = try? await URLSession.shared.data(from: u),
+              (resp as? HTTPURLResponse)?.statusCode == 200,
+              let ui = UIImage(data: data) else { return nil }
+        try? data.write(to: file(url))
+        return ui
+    }
+}
+
 /// code-drawn 渲染器注册表：manifest 用 id 引用 SwiftUI 手绘票（美术零打包成本）。
 enum CodedStampRenderer {
     @ViewBuilder
     static func view(id: String?, mini: Bool) -> some View {
         if let id, id.hasPrefix("regional:"),
-           let r = RegionalStamp.byCode(String(id.dropFirst(9))) {
+           let r = RegionalStamp.byCodeAnywhere(String(id.dropFirst(9))) {
             RegionalStampView(stamp: r, mini: mini)
         } else {
             PostcardStampView(stamp: .air, mini: mini)   // 未知渲染器 → 降级

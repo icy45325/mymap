@@ -16,6 +16,8 @@ final class Footprint {
     // MARK: - 身份
     @Attribute(.unique) var id: UUID
     var createdAt: Date
+    /// 最后修改时间（v1.2 云同步 last-write-wins 判定；带默认值 → SwiftData 轻量迁移）。
+    var updatedAt: Date = Date()
 
     // MARK: - 地点（WGS-84）
     var placeName: String

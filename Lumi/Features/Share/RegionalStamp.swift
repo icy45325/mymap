@@ -45,6 +45,22 @@ struct RegionalStamp: Identifiable, Equatable, Hashable {
     static func unlocked(litCodes: Set<String>) -> [RegionalStamp] {
         all.filter { litCodes.contains($0.code) }
     }
+
+    /// 「探索者」扩充 6 国（v1.15 首个资源包，仅经 `pack:regional-explorer/<cc>` 编码使用，
+    /// **不进 `all`**——避免被 cc: 旧通路当作免费经典票捡走）。
+    static let explorer: [RegionalStamp] = [
+        RegionalStamp(code: "KR", motif: "moon.stars.fill",        inner: Color(hex: 0x1F5FA8), caption: "KOREA"),
+        RegionalStamp(code: "IN", motif: "sun.max.fill",           inner: Color(hex: 0xB8641B), caption: "INDIA"),
+        RegionalStamp(code: "GR", motif: "laurel.trailing",        inner: Color(hex: 0x1D5C8F), caption: "GREECE"),
+        RegionalStamp(code: "NL", motif: "leaf.fill",              inner: Color(hex: 0xC2551E), caption: "HOLLAND"),
+        RegionalStamp(code: "ES", motif: "sun.and.horizon.fill",   inner: Color(hex: 0xA82A2A), caption: "ESPAÑA"),
+        RegionalStamp(code: "CH", motif: "mountain.2.circle.fill", inner: Color(hex: 0x8E1F2F), caption: "SWISS"),
+    ]
+    /// 渲染器注册表用：经典 + 探索者都可按码取（渲染不区分来源）。
+    static func byCodeAnywhere(_ code: String) -> RegionalStamp? {
+        let c = code.uppercased()
+        return all.first { $0.code == c } ?? explorer.first { $0.code == c }
+    }
 }
 
 /// 邮票的统一类型：基础（空运/陆运/海运）/ 地区特色 / 节日限定。序列化用 `raw` 字符串，双向兼容旧数据。
