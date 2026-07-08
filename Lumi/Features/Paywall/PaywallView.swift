@@ -63,7 +63,8 @@ struct PaywallView: View {
 
     private var valueProps: some View {
         VStack(spacing: 12) {
-            prop("infinity", "后续所有功能迭代", "一次解锁，未来新增 Plus 功能全部包含", available: true)
+            prop("infinity", "后续所有功能迭代与常规内容包",
+                 "一次解锁，未来新增 Plus 功能与商店常规资源包全部包含（限量/联名款除外，会员享折扣）", available: true)
             prop("sparkles", "明信片无水印 · 高清导出", "去掉 Lumi 水印，3 倍分辨率导出", available: true)
             prop("photo.stack", "典藏国家邮票", "中国/美国/日本/阿联酋 14 枚典藏票，寄该地明信片专属可用", available: true)
             prop("paintpalette.fill", "主题色 · 专属图标 · 小组件", "极光/暖阳整套主题（高亮+地图+图标），主屏小组件", available: true)
@@ -184,7 +185,7 @@ struct PaywallView: View {
 
     private var legal: some View {
         VStack(spacing: 8) {
-            Text("一次性买断，永久解锁全部功能与后续所有迭代。付款将在确认购买时记入你的 Apple ID，不会自动续费。")
+            Text("一次性买断，永久解锁全部功能、后续所有功能迭代与商店常规内容包。付款将在确认购买时记入你的 Apple ID，不会自动续费。")
                 .font(.system(size: 10)).foregroundStyle(Color.faint)
                 .multilineTextAlignment(.center)
             HStack(spacing: 16) {
@@ -204,6 +205,6 @@ struct PaywallView: View {
     }
 
     private func priceSubtitle(_ product: Product, kind: PlusProduct?) -> LocalizedStringKey {
-        "一次买断 · 永久解锁 · 含后续所有迭代"
+        "一次买断 · 永久解锁 · 含后续功能与常规内容包"
     }
 }
