@@ -2,7 +2,8 @@
 <html lang="zh-Hans">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0E0B1A">
 <title>Lumi — 点亮你的世界地图</title>
 <meta name="description" content="Lumi：点亮世界地图，寄一张会盖邮戳的明信片。">
 <style>
@@ -10,8 +11,8 @@
           --text:#F2EFFA; --muted:#8E87A3; --pink:#FF4FA3; --purple:#9B5DE5; --cyan:#4DD9FF;
           --orange:#FFA94D; --cream:#F6EFDC; --ink:#4A3B2A; }
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-  html { scroll-behavior:smooth; }
-  body { background:var(--bg); color:var(--text); overflow-x:hidden;
+  html { scroll-behavior:smooth; overflow-x:clip; }
+  body { background:var(--bg); color:var(--text); overflow-x:clip;
          font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Noto Sans",sans-serif; }
   body::before { content:""; position:fixed; inset:0; pointer-events:none; z-index:0;
     background:radial-gradient(700px 500px at 15% -5%, rgba(155,93,229,.30), transparent),
@@ -44,6 +45,7 @@
 
   /* 漂浮装饰（参考 bahamabucks） */
   .float { position:absolute; pointer-events:none; opacity:.85; will-change:transform; z-index:0; }
+  .logo-big, .tagline, .sub { position:relative; z-index:1; }
   @keyframes drift1 { 0%,100%{transform:translateY(0) rotate(-8deg)} 50%{transform:translateY(-16px) rotate(-3deg)} }
   @keyframes drift2 { 0%,100%{transform:translateY(0) rotate(6deg)}  50%{transform:translateY(14px) rotate(11deg)} }
   @keyframes drift3 { 0%,100%{transform:translateY(0) rotate(-4deg)} 50%{transform:translateY(-11px) rotate(2deg)} }
@@ -103,7 +105,7 @@
     display:flex; padding:12px; gap:10px; }
   .back-write { flex:1.25; display:flex; flex-direction:column; }
   .back-write textarea { flex:1; border:none; outline:none; background:transparent; resize:none;
-    color:var(--ink); font-size:15px; line-height:1.55; }
+    color:var(--ink); font-size:16px; line-height:1.55; }   /* ≥16px：iOS 聚焦不触发页面缩放 */
   .back-to { font-size:10px; color:#8A7A62; border-top:1px solid #D8CCB4; padding-top:6px; }
   .back-side { flex:1; border-inline-start:1px dashed #C9BC9F; padding-inline-start:10px;
     display:flex; flex-direction:column; align-items:flex-end; justify-content:space-between; }
@@ -197,6 +199,21 @@
     border-top:1px solid var(--line); padding-top:18px; }
   footer a { color:var(--muted); }
   [dir="rtl"] .logo-big, [dir="rtl"] .brand-mini { letter-spacing:.12em; }
+
+  /* ── 移动端 ── */
+  @media (max-width: 560px) {
+    .wrap { padding:16px 14px 56px; }
+    .float { transform:scale(.62); opacity:.55; }
+    #deco1 { top:-26px !important; inset-inline-start:-3% !important; }
+    #deco2 { top:-18px !important; inset-inline-end:-4% !important; }
+    .map-card { padding:10px 8px 8px; border-radius:16px; }
+    .map-hint { font-size:11.5px; }
+    .composer { padding:14px; border-radius:18px; }
+    .stamp-row { justify-content:center; }
+    .notify { top:calc(10px + env(safe-area-inset-top)); inset-inline-end:10px; padding:10px 13px; }
+    .passport { width:170px; }
+    .feat { padding:18px 15px; }
+  }
   [dir="rtl"] .fly-card { transition:all 1.05s cubic-bezier(.5,.05,.6,1); }
 </style>
 </head>
@@ -581,16 +598,16 @@ function drawMap(now){
   for (const c of CITIES){
     const p = cityPx(c);
     const pulse = 0.72 + 0.28 * Math.sin(t*2.2 + p.x);
-    const R = cw * 1.9 * pulse;
+    const R = Math.max(cw * 1.9, 5.5) * pulse;   // 小屏城市点不至于太小
     const grad = ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,R*2.4);
     grad.addColorStop(0, "rgba(255,79,163,.55)");
     grad.addColorStop(1, "rgba(255,79,163,0)");
     ctx.fillStyle = grad;
     ctx.beginPath(); ctx.arc(p.x,p.y,R*2.4,0,7); ctx.fill();
     ctx.fillStyle = "#FF4FA3";
-    ctx.beginPath(); ctx.arc(p.x,p.y,cw*0.62,0,7); ctx.fill();
+    ctx.beginPath(); ctx.arc(p.x,p.y,Math.max(cw*0.62,2.4),0,7); ctx.fill();
     ctx.fillStyle = "#FFD9EA";
-    ctx.beginPath(); ctx.arc(p.x,p.y,cw*0.26,0,7); ctx.fill();
+    ctx.beginPath(); ctx.arc(p.x,p.y,Math.max(cw*0.26,1.1),0,7); ctx.fill();
   }
   requestAnimationFrame(drawMap);
 }
@@ -603,7 +620,7 @@ canvas.addEventListener("click", e => {
     const d = Math.hypot(p.x-x, p.y-y);
     if (d < bd){ bd = d; best = c; }
   }
-  if (best && bd < Math.max(26, MW/16)) openComposer(best);
+  if (best && bd < Math.max(34, MW/14)) openComposer(best);   // 手指目标 ≥34px
 });
 
 /* ── 明信片编辑 ── */
