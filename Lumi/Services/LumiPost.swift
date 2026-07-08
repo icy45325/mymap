@@ -40,11 +40,13 @@ struct LumiIncomingMail: Decodable {
 }
 
 enum LumiPostError: LocalizedError {
-    case disabled, badResponse(Int, String?), boxNotFound, noIdentity
+    case disabled, badResponse(Int, String?), boxNotFound, noIdentity, payloadTooLarge
 
     var errorDescription: String? {
         switch self {
         case .disabled:  return String(localized: "站内直投未启用")
+        case .payloadTooLarge:
+            return String(localized: "明信片太大寄不动了——换一张小一点的照片试试")
         case .badResponse(let c, let msg):
             let base = String(localized: "邮局暂时不可用（\(c)）")
             if let msg, !msg.isEmpty { return base + " · " + msg }   // 带上服务器原因，便于定位
@@ -97,6 +99,8 @@ final class LumiPost: ObservableObject {
     @discardableResult
     func send(payload: String, to boxID: String) async throws -> Int64 {
         guard LumiPostConfig.isEnabled else { throw LumiPostError.disabled }
+        // 服务端 mail.payload 上限 40 万字符（见 lumi-post-schema.sql）；超限提前给友好提示
+        guard payload.count < 390_000 else { throw LumiPostError.payloadTooLarge }
         // p_from 为空时必须显式传 NSNull（Optional 直接进 JSONSerialization 会抛「invalid type」）
         let from: Any = identity?.boxID ?? NSNull()
         let data = try await rpc("send_mail", body: [

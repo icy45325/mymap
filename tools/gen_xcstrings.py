@@ -640,6 +640,7 @@ S = [
  ("升级后足迹与心愿自动云端备份，换机即恢复","Upgrade to auto-back up footprints & wishes — restore on any device","بعد الترقية تُنسخ آثارك وأمنياتك تلقائيًا وتُستعاد على أي جهاز"),
  ("云端同步与换机恢复","Cloud sync & device transfer","المزامنة السحابية ونقل الأجهزة"),
  ("足迹与心愿自动备份云端，换机登录即恢复","Footprints & wishes back up automatically — sign in on a new device to restore","تُنسخ الآثار والأمنيات تلقائيًا — سجّل الدخول على جهاز جديد للاستعادة"),
+ ("明信片太大寄不动了——换一张小一点的照片试试","This postcard is too heavy to send — try a smaller photo","البطاقة أثقل من أن تُرسل — جرّب صورة أصغر"),
 ]
 
 # Resolve duplicate "国家" (Country vs Countries): keep two distinct? They share key -> can't.

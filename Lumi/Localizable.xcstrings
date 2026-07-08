@@ -12716,6 +12716,28 @@
           }
         }
       }
+    },
+    "明信片太大寄不动了——换一张小一点的照片试试": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "明信片太大寄不动了——换一张小一点的照片试试"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This postcard is too heavy to send — try a smaller photo"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "البطاقة أثقل من أن تُرسل — جرّب صورة أصغر"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

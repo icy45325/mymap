@@ -13,7 +13,7 @@ create table if not exists mail (
   id         bigint generated always as identity primary key,
   to_box     text not null references mailbox(box_id),
   from_box   text,
-  payload    text not null check (length(payload) < 150000),
+  payload    text not null check (length(payload) < 400000),
   delivered  boolean not null default false,
   created_at timestamptz not null default now()
 );
@@ -88,6 +88,10 @@ end $$;
 
 grant execute on function create_mailbox(), send_mail(text,text,text),
   fetch_mail(text,text), check_delivered(text,text,bigint[]) to anon;
+
+-- ── 已建库的升级补丁（2026-07-08：带图明信片口令双重 base64 会超旧上限 15 万 → 400 报错） ──
+-- alter table mail drop constraint mail_payload_check;
+-- alter table mail add constraint mail_payload_check check (length(payload) < 400000);
 
 -- ── TTL 清理（30 天）。需在 Dashboard 启用 pg_cron 扩展后执行： ──
 -- select cron.schedule('purge-old-mail', '17 3 * * *', $$delete from mail where created_at < now() - interval '30 days'$$);
