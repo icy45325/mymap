@@ -53,6 +53,7 @@ enum StampKind: Equatable, Hashable, Identifiable {
     case regional(RegionalStamp)
     case festival(Festival)
     case premium(PremiumStamp)
+    case pack(packID: String, itemID: String)   // ContentPack 资源包条目（v1.15+，raw = pack:<p>/<i>）
 
     var id: String { raw }
     var raw: String {
@@ -61,12 +62,16 @@ enum StampKind: Equatable, Hashable, Identifiable {
         case .regional(let r): return r.raw
         case .festival(let f): return "fest:\(f.rawValue)"
         case .premium(let p):  return p.raw
+        case .pack(let p, let i): return "pack:\(p)/\(i)"
         }
     }
     /// 是否 Plus 专属（典藏票）；用于权益回落守卫。
+    /// pack 条目的权益门控随商店 UI（D1–D5 决策后）接入，地基期不进选择器故无需守卫。
     var isPremium: Bool { if case .premium = self { return true }; return false }
 
     /// 从存储/口令字符串解析；未知值兜底空运（与旧行为一致）。
+    /// `pack:` 前缀**保留原始 id 不回落**——即使本地目录没有该包也解析成功，
+    /// 渲染侧（PackItemStampView）负责视觉降级 → 装包后自动按原样还原。
     init(raw: String) {
         if raw.hasPrefix("cc:"), let r = RegionalStamp.byCode(String(raw.dropFirst(3))) {
             self = .regional(r)
@@ -74,6 +79,14 @@ enum StampKind: Equatable, Hashable, Identifiable {
             self = .festival(f)
         } else if raw.hasPrefix("prem:"), let p = PremiumStamp.byID(String(raw.dropFirst(5))) {
             self = .premium(p)
+        } else if raw.hasPrefix("pack:") {
+            let body = raw.dropFirst(5)
+            if let slash = body.firstIndex(of: "/") {
+                self = .pack(packID: String(body[..<slash]),
+                             itemID: String(body[body.index(after: slash)...]))
+            } else {
+                self = .basic(.air)
+            }
         } else {
             self = .basic(PostcardStamp(rawValue: raw) ?? .air)
         }
@@ -93,6 +106,8 @@ struct StampView: View {
         case .premium(let p):
             Image(p.imageName).resizable().scaledToFit()   // 美术自带票框/齿孔
                 .shadow(color: .black.opacity(0.25), radius: mini ? 1 : 2, y: 1)
+        case .pack(let packID, let itemID):
+            PackItemStampView(packID: packID, itemID: itemID, mini: mini)
         }
     }
 }

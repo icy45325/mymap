@@ -1,0 +1,105 @@
+{
+  "schemaVersion": 1,
+  "packs": [
+    {
+      "id": "regional-classic",
+      "category": "stamp",
+      "version": 1,
+      "name": { "zh": "地区特色邮票", "en": "Regional Stamps", "ar": "طوابع المناطق" },
+      "pricing": "free",
+      "items": [
+        { "id": "jp", "name": { "zh": "日本", "en": "Japan", "ar": "اليابان" }, "render": { "type": "coded", "renderer": "regional:JP" }, "legacyRaw": "cc:JP" },
+        { "id": "fr", "name": { "zh": "法国", "en": "France", "ar": "فرنسا" }, "render": { "type": "coded", "renderer": "regional:FR" }, "legacyRaw": "cc:FR" },
+        { "id": "it", "name": { "zh": "意大利", "en": "Italy", "ar": "إيطاليا" }, "render": { "type": "coded", "renderer": "regional:IT" }, "legacyRaw": "cc:IT" },
+        { "id": "gb", "name": { "zh": "英国", "en": "United Kingdom", "ar": "المملكة المتحدة" }, "render": { "type": "coded", "renderer": "regional:GB" }, "legacyRaw": "cc:GB" },
+        { "id": "us", "name": { "zh": "美国", "en": "United States", "ar": "الولايات المتحدة" }, "render": { "type": "coded", "renderer": "regional:US" }, "legacyRaw": "cc:US" },
+        { "id": "cn", "name": { "zh": "中国", "en": "China", "ar": "الصين" }, "render": { "type": "coded", "renderer": "regional:CN" }, "legacyRaw": "cc:CN" },
+        { "id": "ae", "name": { "zh": "阿联酋", "en": "United Arab Emirates", "ar": "الإمارات" }, "render": { "type": "coded", "renderer": "regional:AE" }, "legacyRaw": "cc:AE" },
+        { "id": "th", "name": { "zh": "泰国", "en": "Thailand", "ar": "تايلاند" }, "render": { "type": "coded", "renderer": "regional:TH" }, "legacyRaw": "cc:TH" },
+        { "id": "eg", "name": { "zh": "埃及", "en": "Egypt", "ar": "مصر" }, "render": { "type": "coded", "renderer": "regional:EG" }, "legacyRaw": "cc:EG" },
+        { "id": "au", "name": { "zh": "澳大利亚", "en": "Australia", "ar": "أستراليا" }, "render": { "type": "coded", "renderer": "regional:AU" }, "legacyRaw": "cc:AU" },
+        { "id": "sg", "name": { "zh": "新加坡", "en": "Singapore", "ar": "سنغافورة" }, "render": { "type": "coded", "renderer": "regional:SG" }, "legacyRaw": "cc:SG" },
+        { "id": "tr", "name": { "zh": "土耳其", "en": "Türkiye", "ar": "تركيا" }, "render": { "type": "coded", "renderer": "regional:TR" }, "legacyRaw": "cc:TR" }
+      ]
+    },
+    {
+      "id": "premium-cn",
+      "category": "stamp",
+      "version": 1,
+      "name": { "zh": "典藏·中国", "en": "Collectors · China", "ar": "مقتنيات · الصين" },
+      "pricing": "plus",
+      "countryCodes": ["CN"],
+      "items": [
+        { "id": "cn_skyline", "name": { "zh": "上海天际线", "en": "Shanghai Skyline", "ar": "أفق شنغهاي" }, "render": { "type": "image", "asset": "premium_cn_skyline" }, "legacyRaw": "prem:cn_skyline" },
+        { "id": "cn_dragon", "name": { "zh": "龙跃长城", "en": "Dragon over the Wall", "ar": "تنين فوق السور" }, "render": { "type": "image", "asset": "premium_cn_dragon" }, "legacyRaw": "prem:cn_dragon" },
+        { "id": "cn_terracotta", "name": { "zh": "长城·兵马俑", "en": "Wall & Terracotta", "ar": "السور وجيش التيراكوتا" }, "render": { "type": "image", "asset": "premium_cn_terracotta" }, "legacyRaw": "prem:cn_terracotta" }
+      ]
+    },
+    {
+      "id": "premium-us",
+      "category": "stamp",
+      "version": 1,
+      "name": { "zh": "典藏·美国", "en": "Collectors · USA", "ar": "مقتنيات · أمريكا" },
+      "pricing": "plus",
+      "countryCodes": ["US"],
+      "items": [
+        { "id": "us_modern", "name": { "zh": "摩天都市", "en": "Metropolis", "ar": "المدينة الحديثة" }, "render": { "type": "image", "asset": "premium_us_modern" }, "legacyRaw": "prem:us_modern" },
+        { "id": "us_skylines", "name": { "zh": "永恒天际线", "en": "Timeless Skyline", "ar": "أفق خالد" }, "render": { "type": "image", "asset": "premium_us_skylines" }, "legacyRaw": "prem:us_skylines" },
+        { "id": "us_western", "name": { "zh": "西部风情", "en": "Wild West", "ar": "الغرب الأمريكي" }, "render": { "type": "image", "asset": "premium_us_western" }, "legacyRaw": "prem:us_western" }
+      ]
+    },
+    {
+      "id": "premium-jp",
+      "category": "stamp",
+      "version": 1,
+      "name": { "zh": "典藏·日本", "en": "Collectors · Japan", "ar": "مقتنيات · اليابان" },
+      "pricing": "plus",
+      "countryCodes": ["JP"],
+      "items": [
+        { "id": "jp_fuji", "name": { "zh": "富士花信", "en": "Fuji in Bloom", "ar": "فوجي المزهر" }, "render": { "type": "image", "asset": "premium_jp_fuji" }, "legacyRaw": "prem:jp_fuji" },
+        { "id": "jp_ukiyoe", "name": { "zh": "浮世佳人", "en": "Ukiyo-e Beauty", "ar": "جمال أوكييو-إه" }, "render": { "type": "image", "asset": "premium_jp_ukiyoe" }, "legacyRaw": "prem:jp_ukiyoe" },
+        { "id": "jp_wave", "name": { "zh": "富士浪涛", "en": "The Great Wave", "ar": "الموجة العظيمة" }, "render": { "type": "image", "asset": "premium_jp_wave" }, "legacyRaw": "prem:jp_wave" },
+        { "id": "jp_fisher", "name": { "zh": "江户渔人", "en": "Edo Fisherman", "ar": "صياد إيدو" }, "render": { "type": "image", "asset": "premium_jp_fisher" }, "legacyRaw": "prem:jp_fisher" }
+      ]
+    },
+    {
+      "id": "premium-ae",
+      "category": "stamp",
+      "version": 1,
+      "name": { "zh": "典藏·阿联酋", "en": "Collectors · UAE", "ar": "مقتنيات · الإمارات" },
+      "pricing": "plus",
+      "countryCodes": ["AE"],
+      "items": [
+        { "id": "ae_arc", "name": { "zh": "金弧之城", "en": "City of Golden Arcs", "ar": "مدينة الأقواس الذهبية" }, "render": { "type": "image", "asset": "premium_ae_arc" }, "legacyRaw": "prem:ae_arc", "subRegionCode": "AE-AZ" },
+        { "id": "ae_mosque", "name": { "zh": "大清真寺", "en": "Grand Mosque", "ar": "المسجد الكبير" }, "render": { "type": "image", "asset": "premium_ae_mosque" }, "legacyRaw": "prem:ae_mosque", "subRegionCode": "AE-AZ" },
+        { "id": "ae_louvre", "name": { "zh": "艺术之岛", "en": "Art Island", "ar": "جزيرة الفن" }, "render": { "type": "image", "asset": "premium_ae_louvre" }, "legacyRaw": "prem:ae_louvre", "subRegionCode": "AE-AZ" },
+        { "id": "ae_burj", "name": { "zh": "哈利法塔", "en": "Burj Khalifa", "ar": "برج خليفة" }, "render": { "type": "image", "asset": "premium_ae_burj" }, "legacyRaw": "prem:ae_burj", "subRegionCode": "AE-DU" }
+      ]
+    },
+    {
+      "id": "festival-classic",
+      "category": "stamp",
+      "version": 1,
+      "name": { "zh": "节日限定章", "en": "Festival Seals", "ar": "أختام المواسم" },
+      "pricing": "free",
+      "items": [
+        { "id": "prophetBirthday", "name": { "zh": "先知诞辰", "en": "Prophet's Birthday", "ar": "المولد النبوي" }, "render": { "type": "image", "asset": "festival_prophet" }, "legacyRaw": "fest:prophetBirthday", "festivalWindow": { "fromMonth": 8, "fromDay": 20, "toMonth": 8, "toDay": 30 }, "regionGroup": "meast" },
+        { "id": "uaeNationalDay", "name": { "zh": "阿联酋国庆", "en": "UAE National Day", "ar": "اليوم الوطني الإماراتي" }, "render": { "type": "image", "asset": "festival_uae" }, "legacyRaw": "fest:uaeNationalDay", "festivalWindow": { "fromMonth": 11, "fromDay": 27, "toMonth": 12, "toDay": 8 }, "regionGroup": "meast" },
+        { "id": "thanksgiving", "name": { "zh": "感恩节", "en": "Thanksgiving", "ar": "عيد الشكر" }, "render": { "type": "image", "asset": "festival_thanksgiving" }, "legacyRaw": "fest:thanksgiving", "festivalWindow": { "fromMonth": 11, "fromDay": 21, "toMonth": 12, "toDay": 1 }, "regionGroup": "westAsia" },
+        { "id": "christmas", "name": { "zh": "圣诞节", "en": "Christmas", "ar": "عيد الميلاد" }, "render": { "type": "image", "asset": "festival_christmas" }, "legacyRaw": "fest:christmas", "festivalWindow": { "fromMonth": 12, "fromDay": 20, "toMonth": 12, "toDay": 30 }, "regionGroup": "westAsia" },
+        { "id": "midAutumn", "name": { "zh": "中秋", "en": "Mid-Autumn Festival", "ar": "عيد منتصف الخريف" }, "render": { "type": "image", "asset": "festival_midautumn" }, "legacyRaw": "fest:midAutumn", "festivalWindow": { "fromMonth": 9, "fromDay": 20, "toMonth": 10, "toDay": 2 }, "regionGroup": "cn" },
+        { "id": "chinaNationalDay", "name": { "zh": "中国国庆", "en": "China National Day", "ar": "العيد الوطني الصيني" }, "render": { "type": "image", "asset": "festival_china" }, "legacyRaw": "fest:chinaNationalDay", "festivalWindow": { "fromMonth": 9, "fromDay": 26, "toMonth": 10, "toDay": 12 }, "regionGroup": "cn" }
+      ]
+    },
+    {
+      "id": "postmark-lumi",
+      "category": "postmark",
+      "version": 1,
+      "name": { "zh": "通用 LUMI 邮戳", "en": "LUMI Postmark", "ar": "ختم LUMI" },
+      "pricing": "free",
+      "items": [
+        { "id": "lumi", "name": { "zh": "LUMI 圆章", "en": "LUMI Seal", "ar": "ختم LUMI الدائري" }, "render": { "type": "coded", "renderer": "postmark:lumi" }, "legacyRaw": "postmark" }
+      ]
+    }
+  ]
+}

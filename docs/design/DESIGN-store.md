@@ -107,7 +107,7 @@
 
 | 阶段 | 内容 | 前置 |
 |---|---|---|
-| **v1.15 预热** | ContentPack 协议 + bundle manifest 加载器；四类邮票目录迁移；图鉴/选择器改读 manifest；上 1-2 个新内置包试水 | 无（纯本地） |
+| **v1.15 预热** | ✅ **地基已落**（2026-07-08，不依赖 D1–D5）：`Lumi/Store/ContentPack.swift`（模型）+ `PackCatalog.swift`（Bundle 加载器 + `pack:` raw 解析 + 渲染分发 + DEBUG 一致性自检）+ `Lumi/Resources/StorePacks.json`（四类现有目录元数据镜像 33 条，legacyRaw 链接旧编码）+ `StampKind.pack`（raw 保留式解析，渲染侧降级）。**待 D1–D5 后**：图鉴/选择器改读 manifest、新内置包试水、权益门控 | 地基无前置；后续依赖 D1–D5 |
 | **v1.2 开张** | 远程 manifest + Storage 下发；`paid` 档 + pack SKU + 恢复；商店页/包详情；正面素材品类首发；购买云端化 | 账号（同版） |
 | **v1.3 共创** | 创作者投稿（上传→审核状态机→上架）；分成记账；举报/下架 | 商店已开张 |
 
