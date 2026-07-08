@@ -6,6 +6,8 @@
 <meta name="theme-color" content="#0E0B1A">
 <title>Lumi — 点亮你的世界地图</title>
 <meta name="description" content="Lumi：点亮世界地图，寄一张会盖邮戳的明信片。">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="apple-touch-icon" href="assets/logo.png">
 <style>
   :root { --bg:#0E0B1A; --panel:#1A1530; --panel2:#221B3E; --line:rgba(255,255,255,.09);
           --text:#F2EFFA; --muted:#8E87A3; --pink:#FF4FA3; --purple:#9B5DE5; --cyan:#4DD9FF;
@@ -33,11 +35,14 @@
 
   /* ── hero ── */
   .hero { text-align:center; position:relative; }
-  .logo-big { font-size:clamp(56px,13vw,104px); font-weight:900; letter-spacing:.18em; line-height:1;
+  .app-logo { width:clamp(100px,24vw,150px); aspect-ratio:1; border-radius:22.5%;
+    filter:drop-shadow(0 0 30px rgba(155,93,229,.55)) drop-shadow(0 10px 24px rgba(0,0,0,.45));
+    animation:logoFloat 5.5s infinite ease-in-out; }
+  @keyframes logoFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+  .logo-word { margin-top:14px; font-weight:900; letter-spacing:.4em; font-size:clamp(17px,3.6vw,22px);
     background:linear-gradient(100deg,var(--pink) 10%,var(--purple) 45%,var(--cyan) 90%);
-    -webkit-background-clip:text; background-clip:text; color:transparent;
-    filter:drop-shadow(0 0 26px rgba(155,93,229,.45)); }
-  .logo-star { color:var(--orange); -webkit-text-fill-color:var(--orange); font-size:.5em; vertical-align:.5em; }
+    -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .logo-word .logo-star { color:var(--orange); -webkit-text-fill-color:var(--orange); }
   .tagline { font-size:clamp(17px,3.4vw,24px); margin-top:14px; }
   .tagline em { font-style:normal; background:linear-gradient(90deg,var(--pink),var(--orange));
     -webkit-background-clip:text; background-clip:text; color:transparent; font-weight:700; }
@@ -45,7 +50,8 @@
 
   /* 漂浮装饰（参考 bahamabucks） */
   .float { position:absolute; pointer-events:none; opacity:.85; will-change:transform; z-index:0; }
-  .logo-big, .tagline, .sub { position:relative; z-index:1; }
+  .float img { height:86px; filter:drop-shadow(0 6px 14px rgba(0,0,0,.45)); }
+  .app-logo, .logo-word, .tagline, .sub { position:relative; z-index:1; }
   @keyframes drift1 { 0%,100%{transform:translateY(0) rotate(-8deg)} 50%{transform:translateY(-16px) rotate(-3deg)} }
   @keyframes drift2 { 0%,100%{transform:translateY(0) rotate(6deg)}  50%{transform:translateY(14px) rotate(11deg)} }
   @keyframes drift3 { 0%,100%{transform:translateY(0) rotate(-4deg)} 50%{transform:translateY(-11px) rotate(2deg)} }
@@ -220,7 +226,8 @@
 <body>
 <div class="wrap">
   <header>
-    <div class="brand-mini">LUMI ✦</div>
+    <div class="brand-mini" style="display:flex; align-items:center; gap:8px;">
+      <img src="assets/favicon.png" alt="" style="width:24px; height:24px; border-radius:6px;">LUMI ✦</div>
     <nav class="langs">
       <button data-l="zh" class="on">中文</button><button data-l="en">EN</button><button data-l="ar">عربي</button>
     </nav>
@@ -232,7 +239,8 @@
     <div class="float" style="top:30px; inset-inline-end:3%; animation:drift2 8.5s infinite ease-in-out;" id="deco2"></div>
     <div class="float" style="top:150px; inset-inline-start:6%; animation:drift3 6.5s infinite ease-in-out; font-size:26px;">✈️</div>
 
-    <div class="logo-big">LUMI<span class="logo-star"> ✦</span></div>
+    <img class="app-logo" src="assets/logo.png" alt="Lumi App">
+    <div class="logo-word">LUMI<span class="logo-star"> ✦</span></div>
     <div class="tagline" data-i18n="tagline">把去过的世界，<em>点亮</em>成一本会寄信的护照</div>
     <p class="sub" data-i18n="sub">在世界地图上点亮足迹，收集邮票与入境章，把旅途做成一张会盖邮戳的明信片，直接寄进朋友的 App。</p>
 
@@ -561,11 +569,12 @@ function postmarkSVG(city, size=74){
     <text x="40" y="56" text-anchor="middle" font-size="6.5" fill="#7A4A3A">${ds}</text>
     <text x="40" y="68" text-anchor="middle" font-size="7" fill="#7A4A3A">✦ ✦ ✦</text></svg>`;
 }
-const STAMP_DEFS = [
-  { id:"air",  color:"#3D6FB4", glyph:"✈️", cap:"AIR MAIL" },
-  { id:"land", color:"#1E7A46", glyph:"🚂", cap:"LAND" },
-  { id:"sea",  color:"#8E2430", glyph:"⛴️", cap:"SEA MAIL" },
+const STAMP_DEFS = [   // App 内真实典藏票美术
+  { id:"wave",    img:"assets/stamp_jp_wave.png" },
+  { id:"burj",    img:"assets/stamp_ae_burj.png" },
+  { id:"western", img:"assets/stamp_us_western.png" },
 ];
+const stampImg = (s, h) => `<img src="${s.img}" style="height:${h}px" alt="stamp">`;
 
 /* ── 首屏地图渲染 ── */
 const canvas = document.getElementById("map");
@@ -646,14 +655,14 @@ function renderStampRow(){
   for (const s of STAMP_DEFS){
     const b = document.createElement("button");
     b.className = "stamp-opt" + (s.id===curStamp.id ? " on" : "");
-    b.innerHTML = stampSVG(s.color, s.glyph, s.cap, 38, 46);
+    b.innerHTML = stampImg(s, 46);
     b.onclick = () => pickStamp(s);
     row.appendChild(b);
   }
 }
 function pickStamp(s){
   curStamp = s;
-  document.getElementById("chosenStamp").innerHTML = stampSVG(s.color, s.glyph, s.cap, 46, 56);
+  document.getElementById("chosenStamp").innerHTML = stampImg(s, 60);
   renderStampRow();
 }
 function setFlipLabel(){
@@ -707,7 +716,7 @@ function openReceived(){
   document.getElementById("rCity").textContent = cityName(c);
   document.getElementById("rDate").textContent = new Date().toLocaleDateString(LANG==="zh"?"zh-CN":LANG==="ar"?"ar":"en-US",{year:"numeric",month:"short",day:"numeric"});
   document.getElementById("rMsg").textContent = sentMsg || tt().msgDefault.replace("{city}", cityName(c));
-  document.getElementById("rStamp").innerHTML = stampSVG(s.color, s.glyph, s.cap, 46, 56);
+  document.getElementById("rStamp").innerHTML = stampImg(s, 60);
   document.getElementById("rPostmark").innerHTML = "";
   document.getElementById("receivedOv").classList.add("show");
   // 翻到背面时邮戳落下
@@ -765,10 +774,13 @@ function startMini(){
 function buildShelf(){
   const shelf = document.getElementById("shelf"); shelf.innerHTML = "";
   const items = [
-    { svg: stampSVG("#C0392B","🗻","JAPAN",52,64), n:"JAPAN" },
-    { svg: stampSVG("#156B4A","⛵","UAE",52,64), n:"UAE" },
-    { svg: stampSVG("#24457A","👑","USA",52,64), n:"USA" },
-    { svg: stampSVG("#7A3FA0","🎈","TÜRKİYE",52,64), n:"TÜRKİYE" },
+    { svg: '<img src="assets/stamp_cn_dragon.png" style="height:76px" alt="">', n:"CHINA" },
+    { svg: '<img src="assets/stamp_jp_wave.png" style="height:76px" alt="">', n:"JAPAN" },
+    { svg: '<img src="assets/stamp_ae_burj.png" style="height:76px" alt="">', n:"DUBAI" },
+    { svg: '<img src="assets/stamp_us_western.png" style="height:76px" alt="">', n:"USA" },
+    { svg: '<img src="assets/festival_china.png" style="height:64px" alt="">', n:"FESTIVAL" },
+    { svg: '<img src="assets/festival_christmas.png" style="height:64px" alt="">', n:"XMAS" },
+    { svg: stampSVG("#3D6FB4","✈️","AIR MAIL",52,64), n:"AIR MAIL" },
     { svg: `<svg width="60" height="60" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
         <g fill="none" stroke="#FF4FA3" stroke-width="2.4"><circle cx="40" cy="40" r="36"/><circle cx="40" cy="40" r="27" stroke-width="1.2"/></g>
         <text x="40" y="36" text-anchor="middle" font-size="10" font-weight="800" letter-spacing="2" fill="#FF4FA3">LUMI</text>
@@ -782,8 +794,8 @@ function buildShelf(){
   }
 }
 function buildDeco(){
-  document.getElementById("deco1").innerHTML = stampSVG("#9A2B4A","🦁","SINGAPORE",44,54);
-  document.getElementById("deco2").innerHTML = stampSVG("#26418F","🗼","FRANCE",44,54);
+  document.getElementById("deco1").innerHTML = '<img src="assets/stamp_jp_fuji.png" alt="">';
+  document.getElementById("deco2").innerHTML = '<img src="assets/stamp_ae_mosque.png" alt="">';
   document.getElementById("entryStamp").innerHTML = `<svg width="96" height="66" viewBox="0 0 120 82" xmlns="http://www.w3.org/2000/svg">
     <rect x="2" y="2" width="116" height="78" rx="10" fill="none" stroke="#C05A6A" stroke-width="3"/>
     <text x="60" y="26" text-anchor="middle" font-size="13" font-weight="800" letter-spacing="2" fill="#C05A6A">ADMITTED</text>
