@@ -123,7 +123,7 @@
 | App 内分享地点/店铺（IM） | 用户间分享旅行地点 / 好店铺；并能从谷歌地图把店铺分享进 Lumi，形成闭环 | 💡 | ICY 06-25；设计见 [DESIGN-accounts-and-exchange §5](../design/DESIGN-accounts-and-exchange.md#5-im-即时通讯--内容分享icy-说的接-im) |
 | 明信片口令/二维码分享 | 发送方成图 / 复制链接 / 二维码 / 隔空投送，对方扫码、点链接、AirDrop 或读剪贴板即在 App 内自动收下；纯本地、幂等去重，后并入 IM 闭环 | ✅ | ICY 06-25；`25c3266`、`8fd104f`；设计见 [DESIGN-accounts-and-exchange §4](../design/DESIGN-accounts-and-exchange.md#4-交换日记--明信片exchange--postcard) |
 | 明信片墙 | 收藏**收到的**明信片（扫码 / 链接 / 隔空投送收到的）；自己点亮 / 寄出的不进墙 | ✅ | ICY 06-26；`8fd104f`、`8897587` |
-| 账号体系 + 本地数据迁移 | 首版纯本地无账号；后续加账号并把本地数据无损「认领」为用户（local-first） | 💡 | ICY 06-25；设计见 [DESIGN-accounts-and-exchange §1–3](../design/DESIGN-accounts-and-exchange.md) |
+| 账号体系 + 本地数据迁移 | Apple 登录直换 Supabase 会话（零 SDK）；足迹/心愿两表云同步（**Plus 专属**，免费存本地）；换机恢复 + 邮箱号认领/找回（全员）；local-first 不挡本地使用 | 🚧 已开发，待验收（O 区） | ICY 06-25 / 07-08；`LumiCloud.swift`、[lumi-account-schema.sql](../design/lumi-account-schema.sql) |
 | Android 客户端 | 确定目标，短期先 iOS；账号/同步层因此走跨平台 BaaS（非 CloudKit），后端与数据模型两端复用 | 💡 | ICY 06-25；设计见 [DESIGN-accounts-and-exchange §2](../design/DESIGN-accounts-and-exchange.md#2-数据迁移本地--账号这就是可行性的关键) |
 | Android NFC「碰一碰」收发明信片 | 两台 Android 设备碰一碰传明信片（**iOS 原生不支持手机互碰**，Android 端后续可做） | 💡 | ICY 06-25 |
 
@@ -146,7 +146,7 @@
 | 明信片样式 + 邮票（基础款） | 发送时可选 **3 种样式（复古/现代/插画）+ 2 种邮票（航空/城市）**；翻面预览，外观随口令传给接收方，明信片墙按样式呈现 | ✅ | ICY 06-27；`1aca0be`（全 SwiftUI 原生绘制） |
 | 寄出 / 送达统计 | 详情页记录寄出且**接收成功**的数量；第一步（送达回执 n/m）**已落地 v1.1**；按用户去重的完整统计随 v1.2 账号 | ✅ 第一步 / 📋 完整版 v1.2 | ICY 06-27 / 07-07 |
 | 邮票商店 / 典藏邮票 | 基础款免费；**首批 14 枚典藏国家邮票已落地（Plus 权益）**：CN×3 / US×3 / JP×4 / AE×4（AE 绑酋长国：迪拜/阿布扎比），仅限该地足迹的明信片；非 Plus 在选择器露 2 枚带锁作付费入口。商店化已立项 → 见下「资源商店」 | ✅ 首批 / 📋 商店化 | ICY 07-05；`PremiumStamp.swift` |
-| **资源商店（多品类 ContentPack）** | 邮票/邮戳/明信片正面素材/信纸贴纸/主题/护照风格统一为**资源包商店**：v1.15 内置 manifest 预热 → v1.2 远程下发+单点购买（混合制：常规包 Plus 免费领、限量联名单卖）→ v1.3 接 UGC 上架。raw 编码只增不改、接收端降级渲染 | 🚧 地基已落（07-08：模型/加载器/manifest 镜像/pack: 编码）；**余下依赖 D1–D5 决策** | ICY 07-07；设计 [DESIGN-store](../design/DESIGN-store.md)，架构 [ARCHITECTURE §4.1](../architecture/ARCHITECTURE.md) |
+| **资源商店（多品类 ContentPack）** | 邮票/邮戳/明信片正面素材/信纸贴纸/主题/护照风格统一为**资源包商店**：v1.15 内置 manifest 预热 → v1.2 远程下发+单点购买（混合制：常规包 Plus 免费领、限量联名单卖）→ v1.3 接 UGC 上架。raw 编码只增不改、接收端降级渲染 | 🚧 已开发，待验收（N 区）：商店页/包详情/混合制权益/探索者 6 国新包/远程 manifest 合并/pack SKU 购买（ASC 建品后生效）；正面素材内容待美术 | ICY 07-07；设计 [DESIGN-store](../design/DESIGN-store.md)，架构 [ARCHITECTURE §4.1](../architecture/ARCHITECTURE.md) |
 | 明信片正面商店素材 | 正面从「仅用户照片」扩展：官方**插画整面模板 / 画框边框叠层 / 照片滤镜质感**可从商店选用；背面信纸/花字/贴纸纳入品类排后 | 📋 v1.2 | ICY 07-07；[DESIGN-store §1/§5](../design/DESIGN-store.md) |
 | 地区特色邮票 | **12 国原生绘制邮票（cc:<ISO2> 编码），点亮过该国即解锁**，寄明信片可选、随口令传给接收方；旧数据全兼容 | ✅ | ICY 07-02；`RegionalStamp.swift` |
 | 邮戳 / 邮局盖章 | 明信片背面盖「邮戳」（圆形盖章风），**寄出/分享前不盖，仅收件人查看时显示**（视作真实邮寄时邮局盖的章）；可按地点 / 日期生成对应戳记 | ✅ | ICY 06-30；`PostcardBackPanel.showPostmark` |
