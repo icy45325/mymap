@@ -77,6 +77,20 @@
       ]
     },
     {
+      "id": "premium-es",
+      "category": "stamp",
+      "version": 1,
+      "name": { "zh": "典藏·西班牙", "en": "Collectors · Spain", "ar": "مقتنيات · إسبانيا" },
+      "pricing": "plus",
+      "countryCodes": ["ES"],
+      "items": [
+        { "id": "es_sagrada", "name": { "zh": "圣家堂", "en": "Sagrada Família", "ar": "ساغرادا فاميليا" }, "render": { "type": "image", "asset": "premium_es_sagrada" }, "legacyRaw": "prem:es_sagrada" },
+        { "id": "es_toro", "name": { "zh": "斗牛士", "en": "Tauromaquia", "ar": "مصارعة الثيران" }, "render": { "type": "image", "asset": "premium_es_toro" }, "legacyRaw": "prem:es_toro" },
+        { "id": "es_flamenco", "name": { "zh": "弗拉明戈", "en": "Flamenco", "ar": "فلامنكو" }, "render": { "type": "image", "asset": "premium_es_flamenco" }, "legacyRaw": "prem:es_flamenco" },
+        { "id": "es_quixote", "name": { "zh": "堂吉诃德", "en": "Don Quixote", "ar": "دون كيخوتة" }, "render": { "type": "image", "asset": "premium_es_quixote" }, "legacyRaw": "prem:es_quixote" }
+      ]
+    },
+    {
       "id": "festival-classic",
       "category": "stamp",
       "version": 1,

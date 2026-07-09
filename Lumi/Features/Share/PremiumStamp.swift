@@ -36,6 +36,11 @@ struct PremiumStamp: Identifiable, Equatable, Hashable {
         PremiumStamp(id: "ae_mosque",     code: "AE", subRegion: "AE-AZ", imageName: "premium_ae_mosque", nameKey: "大清真寺"),
         PremiumStamp(id: "ae_louvre",     code: "AE", subRegion: "AE-AZ", imageName: "premium_ae_louvre", nameKey: "艺术之岛"),
         PremiumStamp(id: "ae_burj",       code: "AE", subRegion: "AE-DU", imageName: "premium_ae_burj",   nameKey: "哈利法塔"),
+        // 西班牙（2026-07-08 批）
+        PremiumStamp(id: "es_sagrada",    code: "ES", subRegion: nil, imageName: "premium_es_sagrada",  nameKey: "圣家堂"),
+        PremiumStamp(id: "es_toro",       code: "ES", subRegion: nil, imageName: "premium_es_toro",     nameKey: "斗牛士"),
+        PremiumStamp(id: "es_flamenco",   code: "ES", subRegion: nil, imageName: "premium_es_flamenco", nameKey: "弗拉明戈"),
+        PremiumStamp(id: "es_quixote",    code: "ES", subRegion: nil, imageName: "premium_es_quixote",  nameKey: "堂吉诃德"),
     ]
 
     static func byID(_ id: String) -> PremiumStamp? { all.first { $0.id == id } }
