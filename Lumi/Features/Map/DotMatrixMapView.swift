@@ -4,8 +4,8 @@ import CoreLocation
 // ─────────────────────────────────────────────────────────────
 //  点阵光点世界地图（可选沉浸模式）。
 //
-//  程序生成、非真实地理边界：用等距圆柱投影把足迹 lat/lon 映射成发光光点，
-//  陆地以暗点阵示意（对齐原型 lumi_style1_v2_dotmatrix.html 的沉浸地图）。
+//  用等距圆柱投影把足迹 lat/lon 映射成发光光点；陆地以暗点阵示意，
+//  分布来自 DotMatrixLand 真实国界位图（admin0 → 128×64，与官网首屏地图同源）。
 //  真实地理判定仍在主页 MapKit + 离线 point-in-polygon，二者解耦。
 // ─────────────────────────────────────────────────────────────
 
@@ -57,18 +57,11 @@ enum MapProjection {
 // MARK: - 点阵陆地（Canvas）
 
 /// 暗点阵陆地 + 城市附近高亮，靠 Canvas 一次绘制。
+/// 陆地分布来自 DotMatrixLand（admin0 真实国界 → 128×64 位图，与官网首屏同源），
+/// 网格中心经 MapProjection 投影落点——与 PinsLayer 同一投影，足迹光点必然落在对应大洲。
 private struct DotMatrixWorld: View {
     let footprints: [Footprint]
     let skin: AppTheme.Palette
-
-    /// 陆地近似椭圆 [cx, cy, rx, ry]（归一化），源自原型 land 数组。
-    private static let land: [[Double]] = [
-        [0.17,0.27,0.10,0.11],[0.22,0.37,0.06,0.07],[0.13,0.19,0.06,0.05],[0.24,0.30,0.05,0.06],
-        [0.24,0.45,0.03,0.04],[0.30,0.60,0.05,0.08],[0.32,0.72,0.03,0.06],[0.31,0.15,0.035,0.045],
-        [0.49,0.25,0.05,0.045],[0.45,0.22,0.03,0.03],[0.52,0.40,0.05,0.07],[0.53,0.52,0.055,0.10],
-        [0.585,0.34,0.045,0.05],[0.70,0.27,0.13,0.10],[0.78,0.22,0.07,0.06],[0.655,0.43,0.035,0.045],
-        [0.755,0.45,0.04,0.035],[0.84,0.64,0.06,0.045],
-    ]
 
     private var cityPoints: [CGPoint] {
         footprints.map { MapProjection.normalized($0.coordinate) }
@@ -77,34 +70,21 @@ private struct DotMatrixWorld: View {
     var body: some View {
         let cities = cityPoints
         Canvas { ctx, size in
-            let step = max(3.5, size.width / 96)
-            var i = 0
-            var py = step
-            while py < size.height - step {
-                var px = step
-                while px < size.width - step {
-                    let nx = px / size.width, ny = py / size.height
-                    if Self.inLand(nx, ny) {
-                        let d = Self.nearestCity(nx, ny, cities)
-                        let (color, r) = Self.style(forDistance: d, skin: skin)
-                        let jx = px + Self.jitter(i), jy = py + Self.jitter(i &+ 7)
-                        ctx.fill(Path(ellipseIn: CGRect(x: jx - r, y: jy - r, width: r * 2, height: r * 2)),
-                                 with: .color(color))
-                    }
-                    i &+= 1
-                    px += step
+            for gy in 0..<DotMatrixLand.gridH {
+                for gx in 0..<DotMatrixLand.gridW {
+                    guard DotMatrixLand.land(gx: gx, gy: gy) else { continue }
+                    let c = DotMatrixLand.coordinate(gx: gx, gy: gy)
+                    let n = MapProjection.normalized(CLLocationCoordinate2D(latitude: c.lat, longitude: c.lon))
+                    let d = Self.nearestCity(n.x, n.y, cities)
+                    let (color, r) = Self.style(forDistance: d, skin: skin)
+                    let i = gy &* DotMatrixLand.gridW &+ gx
+                    let jx = n.x * size.width + Self.jitter(i)
+                    let jy = n.y * size.height + Self.jitter(i &+ 7)
+                    ctx.fill(Path(ellipseIn: CGRect(x: jx - r, y: jy - r, width: r * 2, height: r * 2)),
+                             with: .color(color))
                 }
-                py += step
             }
         }
-    }
-
-    private static func inLand(_ nx: Double, _ ny: Double) -> Bool {
-        for e in land {
-            let dx = (nx - e[0]) / e[2], dy = (ny - e[1]) / e[3]
-            if dx * dx + dy * dy <= 1 { return true }
-        }
-        return false
     }
 
     private static func nearestCity(_ nx: Double, _ ny: Double, _ cities: [CGPoint]) -> Double {

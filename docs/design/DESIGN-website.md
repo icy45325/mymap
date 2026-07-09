@@ -29,6 +29,8 @@ ADMITTED 章+六边形徽章）· Lumi 邮局（邮箱号卡+直寄示意）· �
 
 ## 维护
 
-- 点阵数据重生成：`python3 tools/gen_web_dots.py`（改网格/裁切范围后重嵌 DOTS 常量）。
+- 点阵数据重生成：`python3 tools/gen_web_dots.py`（改网格/裁切范围后重嵌 DOTS 常量）；
+  `--swift` 输出 App 侧 `Lumi/Features/Map/DotMatrixLand.swift`——**App 首页点阵陆地与官网首屏共用这份位图**
+  （2026-07-09 起 `DotMatrixWorld` 弃用近似椭圆，改用真实国界轮廓），两边改动需同时重生成保持同值。
 - 上架后：`index.html` 顶部 `APPSTORE_URL` 填真实链接。
 - 验证：容器内 Playwright/Chromium 截图全交互链路 + 三语 + 390px 响应式。
