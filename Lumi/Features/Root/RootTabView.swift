@@ -17,6 +17,10 @@ struct RootTabView: View {
     @State private var celebrateBadges: [Badge] = []
     /// 接收枢纽：剪贴板 / 扫码 / lumi:// / AirDrop 四入口统一到这里。
     @ObservedObject private var inbox = PostcardInbox.shared
+    /// 交换日记：pairID 无命中时请用户选归属（收进已有本 / 新建）。
+    @State private var diaryChoice: DiaryPayload?
+    /// 交换日记收件的轻提示（自收自发 / 已交换过）。
+    @State private var diaryNotice: String?
     /// 新版本检测（A）。
     @ObservedObject private var updater = AppUpdateCheck.shared
     /// 当前选中 Tab（用于切换触觉反馈 D）。
@@ -68,6 +72,20 @@ struct RootTabView: View {
         } message: { payload in
             Text(payload.sender.map { "\($0) 寄来 · \(payload.place)" } ?? payload.place)
         }
+        .alert("收到一本交换日记 ✦",
+               isPresented: Binding(get: { inbox.pendingDiary != nil }, set: { if !$0 { inbox.pendingDiary = nil } }),
+               presenting: inbox.pendingDiary) { payload in
+            Button("收下 ✦") { receiveDiary(payload) }
+            Button("忽略", role: .cancel) { markSeen(payload.token); inbox.pendingDiary = nil }
+        } message: { payload in
+            Text(payload.sender.map { "\($0) 寄来 · \(payload.title)" } ?? payload.title)
+        }
+        .sheet(item: $diaryChoice) { payload in
+            DiaryAttachSheet(payload: payload) { markSeen(payload.token) }
+        }
+        .alert("交换日记", isPresented: Binding(get: { diaryNotice != nil }, set: { if !$0 { diaryNotice = nil } })) {
+            Button("好", role: .cancel) {}
+        } message: { Text(diaryNotice ?? "") }
         .alert("发现新版本 \(updater.available?.version ?? "")",      // A 非阻断更新提示
                isPresented: Binding(get: { updater.available != nil }, set: { if !$0 { updater.dismiss() } }),
                presenting: updater.available) { update in
@@ -119,6 +137,24 @@ struct RootTabView: View {
         WidgetSync.refresh(context)
         Haptics.success()                                       // D 收下明信片震动
         inbox.pending = nil
+    }
+
+    // MARK: - 交换日记接收
+
+    private func receiveDiary(_ payload: DiaryPayload) {
+        switch DiaryStore.attach(payload, context: context) {
+        case .selfSent:
+            diaryNotice = String(localized: "这是你自己封存的日记口令")
+        case .attached:
+            markSeen(payload.token)
+            Haptics.success()
+        case .alreadyExchanged:
+            markSeen(payload.token)
+            diaryNotice = String(localized: "这本日记已经交换过了")
+        case .needsChoice:
+            diaryChoice = payload           // markSeen 由选择 sheet 完成后回调
+        }
+        inbox.pendingDiary = nil
     }
 
     // MARK: - 徽章点亮检测（添加足迹时，全 App 级弹庆祝）
