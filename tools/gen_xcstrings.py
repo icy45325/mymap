@@ -6,8 +6,8 @@ import json, sys
 S = [
  # Tabs
  ("地图","Map","الخريطة"),
- ("星迹","Trails","المسارات"),
- ("成就","Awards","الإنجازات"),
+ ("星迹","Footprints","البصمات"),      # tab 与页面标题统一（2026-07-10 拍板）
+ ("成就","Achievements","الإنجازات"),   # 同上，与 ACHIEVEMENT·UNLOCKED 弹窗一致
  ("我","Me","أنا"),
  # Map home
  ("已点亮 FOOTPRINTS LIT","FOOTPRINTS LIT","المواقع المضاءة"),
@@ -737,6 +737,14 @@ S = [
  ("只看对方","Theirs only","دفتر الآخر فقط"),
  ("%@ 与你的旅程","%@ and you, one journey","%@ وأنت، رحلة واحدة"),
  ("交换于 %@","Exchanged %@","تم التبادل في %@"),
+
+ # 验收三批：明信片接收时间 / 时间线筛选
+ ("收到于 %@","Received %@","استُلمت في %@"),
+ ("筛选","Filter","تصفية"),
+ ("年份","Year","السنة"),
+ ("全部大洲","All continents","كل القارات"),
+ ("全部年份","All years","كل السنوات"),
+ ("清除筛选","Clear filters","مسح التصفية"),
 ]
 
 # Resolve duplicate "国家" (Country vs Countries): keep two distinct? They share key -> can't.

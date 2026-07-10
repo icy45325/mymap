@@ -26,11 +26,8 @@ struct StatsView: View {
                     // —— 统计在上 ——
                     statsSummary
                     conquestSection
-                    // —— 徽章墙在下 ——
-                    badgesHeader
-                    ringSummary
-                    honeycomb
-                    moreEntry
+                    // —— 徽章墙在下（整体一张卡片）——
+                    badgeWallCard
                     Color.clear.frame(height: 20)
                 }
                 .padding(.top, 16)
@@ -91,7 +88,7 @@ struct StatsView: View {
 
     private var header: some View {
         HStack(alignment: .center) {
-            Text("Achievements").font(Typo.serif(27))
+            Text("成就").font(Typo.serif(27))
             Spacer()
             shareButton
         }
@@ -130,7 +127,6 @@ struct StatsView: View {
             }
             Spacer()
         }
-        .padding(.horizontal, 26)
     }
 
     // MARK: - 统计汇总（页面顶部）
@@ -149,19 +145,27 @@ struct StatsView: View {
             Text(label.localized).font(.system(size: 10, weight: .semibold)).tracking(0.5)
                 .foregroundStyle(Color.muted).textCase(.uppercase)
             HStack(alignment: .firstTextBaseline, spacing: 3) {
-                Text(value).font(Typo.serif(24)).foregroundStyle(Color.text)
-                if let sub { Text(sub).font(.system(size: 11)).foregroundStyle(Color.faint) }
+                Text(value).font(Typo.serif(19)).foregroundStyle(Color.text)
+                if let sub { Text(sub).font(.system(size: 10)).foregroundStyle(Color.faint) }
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.vertical, 13).padding(.horizontal, 13)
+        .padding(.vertical, 10).padding(.horizontal, 11)
         .panelCard(14)
     }
 
-    private var badgesHeader: some View {
-        Text("徽章墙").font(.system(size: 13, weight: .semibold)).tracking(1)
-            .foregroundStyle(Color.muted)
-            .padding(.horizontal, 26).padding(.top, 4)
+    /// 徽章墙整卡：标题 + 收藏环 + 已点亮网格 + 更多入口，框进同一张面板卡。
+    private var badgeWallCard: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            Text("徽章墙").font(.system(size: 13, weight: .semibold)).tracking(1)
+                .foregroundStyle(Color.muted)
+            ringSummary
+            honeycomb
+            moreEntry
+        }
+        .padding(16)
+        .panelCard(16)
+        .padding(.horizontal, 22)
     }
 
     // MARK: - 徽章墙（3 列网格，给插画徽章更大展示空间）
@@ -191,8 +195,7 @@ struct StatsView: View {
             }
         }
         .frame(maxWidth: .infinity)
-        .padding(.horizontal, 22)
-        .padding(.vertical, 12)
+        .padding(.vertical, 4)
     }
 
     /// 二级页入口：进行中 + 未解锁的数量，点进去分两类展示。
@@ -244,7 +247,7 @@ struct StatsView: View {
     /// 单元：徽章 + 名称。点击看「是什么 / 怎么得到」。插画徽章自带名字，不再重复文字。
     private func badgeCell(_ b: Badge) -> some View {
         VStack(spacing: 6) {
-            HexBadge(badge: b, size: 96, dimmed: !matches(b))
+            HexBadge(badge: b, size: 88, dimmed: !matches(b))
             if b.imageName == nil {
                 Text(b.name.localized)
                     .font(.system(size: 10, weight: .medium))

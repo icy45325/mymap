@@ -34,13 +34,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Trails"
+            "value": "Footprints"
           }
         },
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "المسارات"
+            "value": "البصمات"
           }
         }
       }
@@ -56,7 +56,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Awards"
+            "value": "Achievements"
           }
         },
         "ar": {
@@ -14715,6 +14715,138 @@
           "stringUnit": {
             "state": "translated",
             "value": "تم التبادل في %@"
+          }
+        }
+      }
+    },
+    "收到于 %@": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "收到于 %@"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Received %@"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "استُلمت في %@"
+          }
+        }
+      }
+    },
+    "筛选": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "筛选"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Filter"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تصفية"
+          }
+        }
+      }
+    },
+    "年份": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "年份"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Year"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "السنة"
+          }
+        }
+      }
+    },
+    "全部大洲": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "全部大洲"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All continents"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "كل القارات"
+          }
+        }
+      }
+    },
+    "全部年份": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "全部年份"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All years"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "كل السنوات"
+          }
+        }
+      }
+    },
+    "清除筛选": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "清除筛选"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear filters"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "مسح التصفية"
           }
         }
       }

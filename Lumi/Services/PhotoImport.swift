@@ -80,7 +80,7 @@ final class PhotoImportService: ObservableObject {
     func importSelected(into context: ModelContext, includePhotos: Bool) -> Int {
         let chosen = candidates.filter { $0.selected && !$0.alreadyImported }
         for c in chosen {
-            let photos = includePhotos ? Array(c.assetIDs.prefix(Footprint.maxPhotos)) : []
+            let photos = includePhotos ? Array(c.importPhotoIDs.prefix(Footprint.maxPhotos)) : []
             let fp = Footprint(placeName: c.placeName, coordinate: c.coordinate,
                                cityName: c.cityName, visitedAt: c.date, photoAssetIDs: photos)
             fp.countryCode = c.countryCode
@@ -96,6 +96,16 @@ final class PhotoImportService: ObservableObject {
 
     func toggleAll(_ on: Bool) {
         for i in candidates.indices where !candidates[i].alreadyImported { candidates[i].selected = on }
+    }
+
+    /// 单张照片勾选/去勾选（列表预览缩略图点击）。
+    func togglePhoto(_ assetID: String, of candidateID: UUID) {
+        guard let i = candidates.firstIndex(where: { $0.id == candidateID }) else { return }
+        if candidates[i].excludedPhotoIDs.contains(assetID) {
+            candidates[i].excludedPhotoIDs.remove(assetID)
+        } else {
+            candidates[i].excludedPhotoIDs.insert(assetID)
+        }
     }
 
     // MARK: - 权限
@@ -154,15 +164,24 @@ final class PhotoImportService: ObservableObject {
 
         // 城市去重（国家+城市，最早）
         cityResult = collapse(named) { "\($0.countryCode ?? "")|\($0.cityName ?? $0.placeName)" }
-            .map { mark($0, cityLevel: true) }
+            .map { mark(Self.capPhotos($0), cityLevel: true) }
         // 国家去重（最早；名字=国名）
         countryResult = collapse(named) { $0.countryCode ?? "" }
             .map { c -> ImportCandidate in
                 var c = c
                 c.cityName = nil
                 c.placeName = CountryInfo.localizedName(for: c.countryCode) ?? c.placeName
-                return mark(c, cityLevel: false)
+                return mark(Self.capPhotos(c), cityLevel: false)
             }
+    }
+
+    /// 每个地点最多随足迹带 3 张照片（按拍摄顺序取前 3）。在候选收口处截断，
+    /// 保证列表预览与最终落库是同一份照片。collapse 内的 prefix(40) 是去重前的池子，保持不动。
+    static let maxPhotosPerPlace = 3
+    nonisolated private static func capPhotos(_ c: ImportCandidate) -> ImportCandidate {
+        var c = c
+        c.assetIDs = Array(c.assetIDs.prefix(maxPhotosPerPlace))
+        return c
     }
 
     private func collapse(_ list: [ImportCandidate], key: (ImportCandidate) -> String) -> [ImportCandidate] {
@@ -272,9 +291,13 @@ struct ImportCandidate: Identifiable, Sendable {
     var assetIDs: [String]
     var selected: Bool = true
     var alreadyImported: Bool = false
+    /// 用户在预览里单张去勾选的照片（默认全选）。
+    var excludedPhotoIDs: Set<String> = []
 
     var coordinate: CLLocationCoordinate2D { .init(latitude: latitude, longitude: longitude) }
-    var photoCount: Int { assetIDs.count }
+    /// 实际会随足迹导入的照片（预览与落库共用同一份口径）。
+    var importPhotoIDs: [String] { assetIDs.filter { !excludedPhotoIDs.contains($0) } }
+    var photoCount: Int { importPhotoIDs.count }
     var flag: String { CountryInfo.flag(for: countryCode) }
     var countryName: String? { CountryInfo.localizedName(for: countryCode) }
 }

@@ -57,8 +57,8 @@ enum MapProjection {
 // MARK: - 点阵陆地（Canvas）
 
 /// 暗点阵陆地 + 城市附近高亮，靠 Canvas 一次绘制。
-/// 陆地分布来自 DotMatrixLand（admin0 真实国界 → 128×64 位图，与官网首屏同源），
-/// 网格中心经 MapProjection 投影落点——与 PinsLayer 同一投影，足迹光点必然落在对应大洲。
+/// 陆地分布来自 DotMatrixLand（admin0 真实国界 → 128×64 位图，与官网首屏同源）；
+/// 画布按均匀方格采样、反投影查位图——与 PinsLayer 同一投影口径，足迹光点必然落在对应大洲。
 private struct DotMatrixWorld: View {
     let footprints: [Footprint]
     let skin: AppTheme.Palette
@@ -70,21 +70,35 @@ private struct DotMatrixWorld: View {
     var body: some View {
         let cities = cityPoints
         Canvas { ctx, size in
-            for gy in 0..<DotMatrixLand.gridH {
-                for gx in 0..<DotMatrixLand.gridW {
-                    guard DotMatrixLand.land(gx: gx, gy: gy) else { continue }
-                    let c = DotMatrixLand.coordinate(gx: gx, gy: gy)
-                    let n = MapProjection.normalized(CLLocationCoordinate2D(latitude: c.lat, longitude: c.lon))
-                    let d = Self.nearestCity(n.x, n.y, cities)
-                    let (color, r) = Self.style(forDistance: d, skin: skin)
-                    let i = gy &* DotMatrixLand.gridW &+ gx
-                    let jx = n.x * size.width + Self.jitter(i)
-                    let jy = n.y * size.height + Self.jitter(i &+ 7)
-                    ctx.fill(Path(ellipseIn: CGRect(x: jx - r, y: jy - r, width: r * 2, height: r * 2)),
-                             with: .color(color))
+            // 画布均匀方格采样（横竖同距、无抖动），每个采样点反投影查位图判陆地——
+            // 轮廓精度来自位图，疏密与横平竖直的秩序感来自方格（此前逐位图格绘制纵向偏密且带抖动，观感发乱）。
+            let step = max(3.5, size.width / 96)
+            var py = step
+            while py < size.height - step {
+                var px = step
+                while px < size.width - step {
+                    let nx = px / size.width, ny = py / size.height
+                    if Self.landAt(nx: nx, ny: ny) {
+                        let d = Self.nearestCity(nx, ny, cities)
+                        let (color, r) = Self.style(forDistance: d, skin: skin)
+                        ctx.fill(Path(ellipseIn: CGRect(x: px - r, y: py - r, width: r * 2, height: r * 2)),
+                                 with: .color(color))
+                    }
+                    px += step
                 }
+                py += step
             }
         }
+    }
+
+    /// 画布归一化坐标 → 位图格（画布是全幅等距圆柱 lat 90..−90 / lon ±180；位图裁切范围之外即水）。
+    private static func landAt(nx: Double, ny: Double) -> Bool {
+        let lon = nx * 360 - 180
+        let lat = 90 - ny * 180
+        guard lat <= DotMatrixLand.latTop, lat >= DotMatrixLand.latBottom else { return false }
+        let gx = Int((lon - DotMatrixLand.lonMin) / (DotMatrixLand.lonMax - DotMatrixLand.lonMin) * Double(DotMatrixLand.gridW))
+        let gy = Int((lat - DotMatrixLand.latTop) / (DotMatrixLand.latBottom - DotMatrixLand.latTop) * Double(DotMatrixLand.gridH))
+        return DotMatrixLand.land(gx: gx, gy: gy)
     }
 
     private static func nearestCity(_ nx: Double, _ ny: Double, _ cities: [CGPoint]) -> Double {
@@ -101,12 +115,6 @@ private struct DotMatrixWorld: View {
         if d < 0.085 { return (skin.dotMid, 1.45) }   // 近
         if d < 0.16  { return (skin.dotFar, 1.2) }    // 中距过渡（更宽，过渡更顺）
         return (skin.dotBase, 1.15)                   // 基线：未去过的大陆也读成完整点阵地球
-    }
-
-    /// 确定性抖动（避免每帧重绘抖动闪烁）：返回约 -0.7...0.7。
-    private static func jitter(_ i: Int) -> CGFloat {
-        let v = sin(Double(i) * 12.9898) * 43758.5453
-        return CGFloat((v - v.rounded(.down)) - 0.5) * 1.4
     }
 }
 

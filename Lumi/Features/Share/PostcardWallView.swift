@@ -576,6 +576,11 @@ private struct PostcardCell: View {
                     Text(footprint.title).font(.system(size: 12, weight: .semibold)).foregroundStyle(.white)
                         .lineLimit(1)
                 }
+                if footprint.isReceived {
+                    // 老数据 receivedAt 为空回落 createdAt（与墙排序口径一致）
+                    Text("收到于 \((footprint.receivedAt ?? footprint.createdAt).formatted(.dateTime.year().month(.abbreviated).day()))")
+                        .font(.system(size: 9.5)).foregroundStyle(.white.opacity(0.72))
+                }
             }
             .padding(12)
         }

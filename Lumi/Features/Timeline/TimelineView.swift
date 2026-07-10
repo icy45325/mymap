@@ -2,7 +2,7 @@ import SwiftUI
 import SwiftData
 
 /// 星迹时间轴（§4.3）· 暗夜霓虹 v2。
-/// 倒序卡片流 + 地区筛选 + 年份分组；支持删除（§10③，长按卡片）。
+/// 倒序卡片流 + 筛选菜单（大洲 / 年份）+ 年份分组；支持删除（§10③，长按卡片）。
 struct TimelineView: View {
 
     @Environment(\.modelContext) private var context
@@ -10,12 +10,12 @@ struct TimelineView: View {
     @Query(sort: \Footprint.visitedAt, order: .reverse)
     private var footprints: [Footprint]
 
-    @State private var regionFilter: RegionFilter = .all
+    /// 筛选（nil = 全部）；选项只列数据里实际出现过的大洲 / 年份。
+    @State private var regionSel: Region?
+    @State private var yearSel: Int?
     @State private var pendingDelete: Footprint?
     @State private var showImport = false
     @State private var showCapture = false
-
-    private enum RegionFilter: Hashable { case all, region(Region) }
 
     var body: some View {
         NavigationStack {
@@ -76,8 +76,7 @@ struct TimelineView: View {
             VStack(alignment: .leading, spacing: 0) {
                 header
                 yearStatCard
-                SegmentBar(items: segmentItems, selection: $regionFilter)
-                    .padding(.top, 14).padding(.bottom, 6)
+                if filterActive { activeFilterChips }
                 timeline
                 Color.clear.frame(height: 24)
             }
@@ -87,16 +86,81 @@ struct TimelineView: View {
     private var header: some View {
         HStack(alignment: .center) {
             VStack(alignment: .leading, spacing: 2) {
-                Text("Footprints").font(Typo.serif(27))
+                Text("星迹").font(Typo.serif(27))
                 Text(statLine).font(.system(size: 11)).tracking(1.2).foregroundStyle(Color.faint)
             }
             Spacer()
             HStack(spacing: 10) {
+                filterMenu
                 importButton
                 newFootprintButton
             }
         }
         .padding(.horizontal, 26).padding(.top, 16)
+    }
+
+    // MARK: - 筛选（大洲 / 年份）
+
+    private var filterActive: Bool { regionSel != nil || yearSel != nil }
+
+    private var filterMenu: some View {
+        Menu {
+            Picker("大洲", selection: $regionSel) {
+                Text("全部大洲").tag(Region?.none)
+                ForEach(presentRegions, id: \.self) { r in
+                    Text(verbatim: r.displayName).tag(Region?.some(r))
+                }
+            }
+            .pickerStyle(.menu)
+            Picker("年份", selection: $yearSel) {
+                Text("全部年份").tag(Int?.none)
+                ForEach(presentYears, id: \.self) { y in
+                    Text(verbatim: String(y)).tag(Int?.some(y))
+                }
+            }
+            .pickerStyle(.menu)
+            if filterActive {
+                Button(role: .destructive) { regionSel = nil; yearSel = nil } label: {
+                    Label("清除筛选", systemImage: "xmark.circle")
+                }
+            }
+        } label: {
+            Image(systemName: filterActive ? "line.3.horizontal.decrease.circle.fill"
+                                           : "line.3.horizontal.decrease.circle")
+                .font(.system(size: 18, weight: .semibold))
+                .foregroundStyle(filterActive ? Color.nPink : Color.text)
+                .frame(width: 38, height: 38)
+                .background(Color.panel, in: Circle())
+                .overlay(Circle().stroke(filterActive ? Color.nPink.opacity(0.5) : Color.line, lineWidth: 1))
+        }
+        .accessibilityLabel(Text("筛选"))
+    }
+
+    /// 激活中的筛选小 chip（点 ✕ 清除单项）。
+    private var activeFilterChips: some View {
+        HStack(spacing: 8) {
+            if let r = regionSel {
+                filterChip(r.displayName) { regionSel = nil }
+            }
+            if let y = yearSel {
+                filterChip(String(y)) { yearSel = nil }
+            }
+            Spacer()
+        }
+        .padding(.horizontal, 26).padding(.top, 12)
+    }
+
+    private func filterChip(_ label: String, clear: @escaping () -> Void) -> some View {
+        Button(action: clear) {
+            HStack(spacing: 5) {
+                Text(verbatim: label).font(.system(size: 12, weight: .semibold))
+                Image(systemName: "xmark").font(.system(size: 9, weight: .bold))
+            }
+            .foregroundStyle(Color.nPink)
+            .padding(.vertical, 6).padding(.horizontal, 11)
+            .background(Color.nPink.opacity(0.12), in: Capsule())
+            .overlay(Capsule().stroke(Color.nPink.opacity(0.4), lineWidth: 1))
+        }
     }
 
     /// 今年的足迹统计（国家 & 城市）。
@@ -189,9 +253,10 @@ struct TimelineView: View {
     // MARK: - 派生
 
     private var filtered: [Footprint] {
-        switch regionFilter {
-        case .all: return footprints
-        case .region(let r): return footprints.filter { $0.region == r }
+        let cal = Calendar.current
+        return footprints.filter { fp in
+            (regionSel == nil || fp.region == regionSel)
+                && (yearSel == nil || cal.component(.year, from: fp.visitedAt) == yearSel)
         }
     }
 
@@ -201,10 +266,13 @@ struct TimelineView: View {
         return groups.keys.sorted(by: >).map { (year: $0, items: groups[$0] ?? []) }
     }
 
-    /// 分段：全部 + 实际出现过的地区。
-    private var segmentItems: [(value: RegionFilter, label: String)] {
-        let present = Region.allCases.filter { r in footprints.contains { $0.region == r } }
-        return [(.all, "全部")] + present.map { (.region($0), $0.displayName) }
+    /// 筛选选项：只列数据里实际出现过的大洲 / 年份。
+    private var presentRegions: [Region] {
+        Region.allCases.filter { r in footprints.contains { $0.region == r } }
+    }
+    private var presentYears: [Int] {
+        let cal = Calendar.current
+        return Set(footprints.map { cal.component(.year, from: $0.visitedAt) }).sorted(by: >)
     }
 
     private var statLine: String {

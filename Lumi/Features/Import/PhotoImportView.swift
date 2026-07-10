@@ -167,25 +167,28 @@ struct PhotoImportView: View {
             candidate.wrappedValue.selected.toggle()
             Haptics.selection()
         } label: {
-            HStack(spacing: 12) {
-                Text(c.flag).font(.system(size: 24))
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(c.placeName).font(.system(size: 15, weight: .medium))
-                        .foregroundStyle(Color.text).lineLimit(1)
-                    HStack(spacing: 8) {
-                        Text(c.date.formatted(Self.dateFormat))
-                            .font(.system(size: 11)).foregroundStyle(Color.muted)
-                        if let country = c.countryName, country != c.placeName {
-                            Text(country).font(.system(size: 11)).foregroundStyle(Color.faint)
+            VStack(alignment: .leading, spacing: 9) {
+                HStack(spacing: 12) {
+                    Text(c.flag).font(.system(size: 24))
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text(c.placeName).font(.system(size: 15, weight: .medium))
+                            .foregroundStyle(Color.text).lineLimit(1)
+                        HStack(spacing: 8) {
+                            Text(c.date.formatted(Self.dateFormat))
+                                .font(.system(size: 11)).foregroundStyle(Color.muted)
+                            if let country = c.countryName, country != c.placeName {
+                                Text(country).font(.system(size: 11)).foregroundStyle(Color.faint)
+                            }
+                            Label("\(c.photoCount)", systemImage: "photo")
+                                .font(.system(size: 11)).foregroundStyle(Color.faint)
                         }
-                        Label("\(c.photoCount)", systemImage: "photo")
-                            .font(.system(size: 11)).foregroundStyle(Color.faint)
                     }
+                    Spacer()
+                    Image(systemName: c.selected ? "checkmark.circle.fill" : "circle")
+                        .font(.system(size: 22))
+                        .foregroundStyle(c.selected ? Color.nPink : Color.line)
                 }
-                Spacer()
-                Image(systemName: c.selected ? "checkmark.circle.fill" : "circle")
-                    .font(.system(size: 22))
-                    .foregroundStyle(c.selected ? Color.nPink : Color.line)
+                photoStrip(c)
             }
             .padding(12)
             .background(Color.panel, in: RoundedRectangle(cornerRadius: 14))
@@ -193,6 +196,41 @@ struct PhotoImportView: View {
                 .stroke(c.selected ? Color.nPink.opacity(0.4) : Color.line, lineWidth: 1))
         }
         .buttonStyle(.plain)
+    }
+
+    /// 将随足迹导入的照片预览（每地点 ≤3 张，拍摄顺序）；点单张缩略图去勾选/恢复。
+    @ViewBuilder
+    private func photoStrip(_ c: ImportCandidate) -> some View {
+        if !c.assetIDs.isEmpty {
+            HStack(spacing: 8) {
+                ForEach(c.assetIDs, id: \.self) { id in
+                    let excluded = c.excludedPhotoIDs.contains(id)
+                    Button {
+                        service.togglePhoto(id, of: c.id)
+                        Haptics.selection()
+                    } label: {
+                        AssetImage(assetID: id, targetSize: CGSize(width: 160, height: 160))
+                            .frame(width: 46, height: 46)
+                            .clipShape(RoundedRectangle(cornerRadius: 9))
+                            .opacity(excluded ? 0.35 : 1)
+                            .overlay(RoundedRectangle(cornerRadius: 9)
+                                .stroke(excluded ? Color.line : Color.nPink.opacity(0.5), lineWidth: 1))
+                            .overlay(alignment: .topTrailing) {
+                                Image(systemName: excluded ? "circle" : "checkmark.circle.fill")
+                                    .font(.system(size: 13))
+                                    .foregroundStyle(excluded ? Color.faint : Color.nPink)
+                                    .background(Circle().fill(.black.opacity(0.45)))
+                                    .offset(x: 4, y: -4)
+                            }
+                    }
+                    .buttonStyle(.plain)
+                }
+                Spacer(minLength: 0)
+            }
+            .padding(.leading, 36)   // 与地名列对齐（旗 24 + 间距 12）
+            .opacity(includePhotos && c.selected ? 1 : 0.35)
+            .disabled(!includePhotos || !c.selected)
+        }
     }
 
     private var importBar: some View {

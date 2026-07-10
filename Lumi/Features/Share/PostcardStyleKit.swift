@@ -257,13 +257,19 @@ struct PostcardBackPanel: View {
     private var locEn: String { (footprint.cityName ?? footprint.title).uppercased() }
     private var locZh: String { footprint.locationSubtitle.isEmpty ? footprint.title : footprint.locationSubtitle }
 
-    /// 邮票位：发送方选定的邮票（基础 / 本国特色 / 节日章）；收件人视角再叠通用邮戳。
+    /// 邮票位：发送方选定的邮票（基础 / 本国特色 / 节日章）；收件人视角再叠寄出邮戳 + 接收戳 + 寄出日印记。
     @ViewBuilder
     private func stampMark(_ w: CGFloat, _ h: CGFloat, pm: CGSize) -> some View {
-        ZStack(alignment: .bottomLeading) {
-            StampView(kind: stamp)
-                .frame(width: w, height: h).rotationEffect(.degrees(4))
-            if showPostmark { postmark.offset(x: pm.width, y: pm.height) }
+        VStack(alignment: .trailing, spacing: 3) {
+            ZStack(alignment: .bottomLeading) {
+                StampView(kind: stamp)
+                    .frame(width: w, height: h).rotationEffect(.degrees(4))
+                if showPostmark {
+                    postmark.offset(x: pm.width, y: pm.height)
+                    receivedStamp.offset(x: pm.width - 30, y: pm.height - 16)
+                }
+            }
+            if showPostmark, !dateText.isEmpty { sentMark }
         }
     }
 
@@ -376,12 +382,43 @@ struct PostcardBackPanel: View {
         .rotationEffect(.degrees(-8))
     }
 
+    /// 接收戳：收件端盖的第二枚圆戳（RCVD + 收到日期）。老数据 receivedAt 为空回落 createdAt。
+    private var receivedStamp: some View {
+        VStack(spacing: 0) {
+            Text(verbatim: "RCVD").font(.system(size: 4.5, weight: .bold))
+            Text(verbatim: recvDay).font(.system(size: 3.8, weight: .bold, design: .monospaced))
+            Text(verbatim: recvYear).font(.system(size: 3.5, design: .monospaced))
+        }
+        .foregroundStyle(theme.pm)
+        .frame(width: 30, height: 30)
+        .overlay(Circle().stroke(theme.pm, lineWidth: 1))
+        .background(Circle().fill(.white.opacity(0.3)))
+        .rotationEffect(.degrees(7))
+    }
+
+    /// 寄出日印记：油墨小方章「SENT · <寄出日>」（寄出日随卡传达，即收到卡的 visitedAt / dateText）。
+    private var sentMark: some View {
+        Text(verbatim: "SENT · \(dateText)")
+            .font(.system(size: 5, weight: .bold, design: .monospaced))
+            .foregroundStyle(theme.pm)
+            .padding(.horizontal, 3).padding(.vertical, 1.5)
+            .overlay(RoundedRectangle(cornerRadius: 2).stroke(theme.pm, lineWidth: 0.6))
+            .rotationEffect(.degrees(-3))
+    }
+
     private var pmCity: String {
         let c = (footprint.cityName ?? footprint.title)
         return String(c.prefix(3)).uppercased()
     }
     private var pmYear: String {
         "'" + String(Calendar.current.component(.year, from: footprint.visitedAt) % 100)
+    }
+    private var receivedDate: Date { footprint.receivedAt ?? footprint.createdAt }
+    private var recvDay: String {
+        receivedDate.formatted(.dateTime.day().month(.abbreviated)).uppercased()
+    }
+    private var recvYear: String {
+        "'" + String(Calendar.current.component(.year, from: receivedDate) % 100)
     }
 }
 
