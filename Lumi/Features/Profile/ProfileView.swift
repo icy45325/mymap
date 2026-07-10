@@ -11,6 +11,10 @@ struct ProfileView: View {
 
     @AppStorage("lumi.profile.name") private var holderName: String = ""
     @AppStorage("lumi.profile.avatarID") private var avatarID: String = ""
+    @ObservedObject private var post = LumiPost.shared
+    /// 邮箱号分享卡渲染缓存。
+    @State private var mailboxImage: Image?
+    @State private var boxCopied = false
 
     private var stats: LumiStats { LumiStats(footprints: footprints) }
 
@@ -59,9 +63,39 @@ struct ProfileView: View {
                 Text("Lv.\(stats.level) 探索者").font(.system(size: 12)).foregroundStyle(Color.muted)
             }
             Spacer()
+            if post.identity != nil { mailboxMenu }
             NavigationLink { SettingsView() } label: { topIcon("gearshape") }
         }
         .padding(.horizontal, 26)
+    }
+
+    /// 快速分享我的邮箱号：复制号码 / 分享带品牌的图（与明信片墙分享同款）。
+    private var mailboxMenu: some View {
+        Menu {
+            Button {
+                if let box = post.identity?.boxID {
+                    UIPasteboard.general.string = box
+                    boxCopied = true
+                    Haptics.selection()
+                }
+            } label: {
+                Label(boxCopied ? "已复制" : "复制邮箱号", systemImage: boxCopied ? "checkmark" : "doc.on.doc")
+            }
+            if let img = mailboxImage {
+                ShareLink(item: img, preview: SharePreview("Lumi", image: img)) {
+                    Label("分享图片", systemImage: "square.and.arrow.up")
+                }
+            } else if let box = post.identity?.boxID {
+                ShareLink(item: box) { Label("分享", systemImage: "square.and.arrow.up") }
+            }
+        } label: {
+            topIcon("envelope.badge")
+        }
+        .task(id: post.identity?.boxID) {
+            guard let box = post.identity?.boxID, mailboxImage == nil else { return }
+            mailboxImage = ShareRender.image(MailboxShareCard(boxID: box))
+        }
+        .accessibilityLabel(Text("分享邮箱号"))
     }
 
     private func entryCard<D: View>(_ icon: String, _ title: LocalizedStringKey, _ subtitle: LocalizedStringKey,

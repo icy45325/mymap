@@ -29,6 +29,8 @@ struct SettingsView: View {
                         }
                     } label: {
                         HStack {
+                            Image(systemName: "globe")
+                                .font(.system(size: 20)).foregroundStyle(Color.nCyan).frame(width: 28)
                             VStack(alignment: .leading, spacing: 3) {
                                 Text("语言跟随系统").foregroundStyle(Color.text)
                                 Text("中文显示中文、阿拉伯语显示阿语，其余默认英文；如需单独指定，可在「系统设置 › Lumi」里调整。")

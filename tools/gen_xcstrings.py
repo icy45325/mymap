@@ -745,6 +745,14 @@ S = [
  ("全部大洲","All continents","كل القارات"),
  ("全部年份","All years","كل السنوات"),
  ("清除筛选","Clear filters","مسح التصفية"),
+
+ # 验收四批：邮箱号分享卡 / 联系人筛选
+ ("只看 %@ 寄来的","Only from %@","فقط من %@"),
+ ("还没有收到 Ta 的明信片","No postcards from them yet","لا بطاقات منهم بعد"),
+ ("看 Ta 寄来的明信片","See postcards from them","عرض بطاقاتهم"),
+ ("分享图片","Share image","مشاركة صورة"),
+ ("分享邮箱号","Share mailbox no.","مشاركة رقم الصندوق"),
+ ("在 Lumi「寄给」里填这个邮箱号，明信片会直接寄进我的 App","Put this mailbox no. in Lumi's \"To\" field — your postcard lands right in my app","اكتب رقم الصندوق هذا في خانة «إلى» في لومي — تصل بطاقتك مباشرة إلى تطبيقي"),
 ]
 
 # Resolve duplicate "国家" (Country vs Countries): keep two distinct? They share key -> can't.

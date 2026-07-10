@@ -54,19 +54,20 @@ struct TimelineView: View {
         .accessibilityLabel(Text("点亮新足迹"))
     }
 
-    /// 从相册同步历史足迹的入口按钮（顶部用）。
+    /// 从相册同步历史足迹的入口按钮（顶部用；icon-only，与筛选/新建按钮同规格）。
     private var importButton: some View {
         Button {
             Analytics.log(.photoImportOpened)
             showImport = true
         } label: {
-            Label("从相册同步", systemImage: "photo.badge.plus")
-                .font(.system(size: 12, weight: .semibold))
+            Image(systemName: "photo.badge.plus")
+                .font(.system(size: 16, weight: .semibold))
                 .foregroundStyle(Color.nPink)
-                .padding(.vertical, 7).padding(.horizontal, 13)
-                .background(Color.panel, in: Capsule())
-                .overlay(Capsule().stroke(Color.nPink.opacity(0.4), lineWidth: 1))
+                .frame(width: 38, height: 38)
+                .background(Color.panel, in: Circle())
+                .overlay(Circle().stroke(Color.nPink.opacity(0.4), lineWidth: 1))
         }
+        .accessibilityLabel(Text("从相册同步"))
     }
 
     // MARK: - 内容
@@ -108,7 +109,7 @@ struct TimelineView: View {
             Picker("大洲", selection: $regionSel) {
                 Text("全部大洲").tag(Region?.none)
                 ForEach(presentRegions, id: \.self) { r in
-                    Text(verbatim: r.displayName).tag(Region?.some(r))
+                    Text(verbatim: r.displayName.localized).tag(Region?.some(r))
                 }
             }
             .pickerStyle(.menu)
@@ -140,7 +141,7 @@ struct TimelineView: View {
     private var activeFilterChips: some View {
         HStack(spacing: 8) {
             if let r = regionSel {
-                filterChip(r.displayName) { regionSel = nil }
+                filterChip(r.displayName.localized) { regionSel = nil }
             }
             if let y = yearSel {
                 filterChip(String(y)) { yearSel = nil }

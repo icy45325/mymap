@@ -13,6 +13,10 @@ struct PostcardWallView: View {
     @State private var showScanner = false
     @State private var sort: WallSort = .received
     @State private var boxCopied = false
+    /// 按联系人筛选：只看 Ta 寄来的（nil = 全部）。
+    @State private var filterSender: String?
+    /// 邮箱号分享卡渲染缓存（identity 就绪后渲一次）。
+    @State private var mailboxImage: Image?
 
     enum WallSort: String, CaseIterable, Identifiable {
         case received, place
@@ -21,7 +25,10 @@ struct PostcardWallView: View {
     }
 
     private var items: [Footprint] {
-        let received = footprints.filter { $0.isReceived }
+        var received = footprints.filter { $0.isReceived }
+        if let who = filterSender {
+            received = received.filter { $0.senderName?.caseInsensitiveCompare(who) == .orderedSame }
+        }
         switch sort {
         case .received:   // 接收时间倒序（无 receivedAt 的旧数据用 createdAt 兜底）
             return received.sorted { ($0.receivedAt ?? $0.createdAt) > ($1.receivedAt ?? $1.createdAt) }
@@ -74,8 +81,10 @@ struct PostcardWallView: View {
                         if LumiPostConfig.isEnabled { mailboxCard }
                         if !items.isEmpty { countStat }
                         if !contacts.recent.isEmpty { contactsStrip }
+                        if let who = filterSender { senderFilterChip(who) }
                         if items.isEmpty {
-                            Text("还没有收到明信片").font(.subheadline).foregroundStyle(Color.muted)
+                            (filterSender == nil ? Text("还没有收到明信片") : Text("还没有收到 Ta 的明信片"))
+                                .font(.subheadline).foregroundStyle(Color.muted)
                                 .frame(maxWidth: .infinity).padding(.vertical, 28)
                         } else {
                             if items.count > 1 {
@@ -113,6 +122,10 @@ struct PostcardWallView: View {
             }
         }
         .task { await LumiPost.shared.refreshInbox() }                  // 进页即拉一次
+        .task(id: post.identity?.boxID) {                               // 邮箱号分享卡预渲染
+            guard let box = post.identity?.boxID else { return }
+            mailboxImage = ShareRender.image(MailboxShareCard(boxID: box))
+        }
         .background(Color.bg.ignoresSafeArea())
         .navigationTitle("明信片墙")
         .navigationBarTitleDisplayMode(.inline)
@@ -129,7 +142,9 @@ struct PostcardWallView: View {
         .toolbarColorScheme(.dark, for: .navigationBar)
         .preferredColorScheme(.dark)
         .sheet(item: $selected) { ReceivedPostcardSheet(footprint: $0) }
-        .sheet(item: $selectedContact) { ContactCardSheet(contact: $0) }
+        .sheet(item: $selectedContact) { c in
+            ContactCardSheet(contact: c) { filterSender = $0.name }
+        }
         .sheet(isPresented: $showScanner) { ScannerSheet() }
     }
 
@@ -177,12 +192,11 @@ struct PostcardWallView: View {
                             .overlay(Capsule().stroke(Color.nCyan.opacity(0.5), lineWidth: 1))
                     }
                     .buttonStyle(.plain)
-                    ShareLink(item: identity.boxID) {
-                        Image(systemName: "square.and.arrow.up")
-                            .font(.system(size: 13, weight: .semibold)).foregroundStyle(Color.nPink)
-                            .padding(8)
-                            .background(Color.bg, in: Circle())
-                            .overlay(Circle().stroke(Color.nPink.opacity(0.5), lineWidth: 1))
+                    // 分享一张带品牌的邮箱号卡图（渲染完成前兜底纯文本）
+                    if let img = mailboxImage {
+                        ShareLink(item: img, preview: SharePreview("Lumi", image: img)) { mailboxShareIcon }
+                    } else {
+                        ShareLink(item: identity.boxID) { mailboxShareIcon }
                     }
                 }
                 Text("把邮箱号告诉朋友，Ta 就能把明信片直接寄进你的 App")
@@ -201,6 +215,34 @@ struct PostcardWallView: View {
         .padding(14)
         .background(Color.panel, in: RoundedRectangle(cornerRadius: 14))
         .overlay(RoundedRectangle(cornerRadius: 14).stroke(Color.line, lineWidth: 1))
+    }
+
+    private var mailboxShareIcon: some View {
+        Image(systemName: "square.and.arrow.up")
+            .font(.system(size: 13, weight: .semibold)).foregroundStyle(Color.nPink)
+            .padding(8)
+            .background(Color.bg, in: Circle())
+            .overlay(Circle().stroke(Color.nPink.opacity(0.5), lineWidth: 1))
+    }
+
+    /// 按联系人筛选激活时的提示 chip（点 ✕ 清除）。
+    private func senderFilterChip(_ who: String) -> some View {
+        HStack(spacing: 8) {
+            Button {
+                filterSender = nil
+                Haptics.selection()
+            } label: {
+                HStack(spacing: 5) {
+                    Text("只看 \(who) 寄来的").font(.system(size: 12, weight: .semibold))
+                    Image(systemName: "xmark").font(.system(size: 9, weight: .bold))
+                }
+                .foregroundStyle(Color.nPink)
+                .padding(.vertical, 6).padding(.horizontal, 11)
+                .background(Color.nPink.opacity(0.12), in: Capsule())
+                .overlay(Capsule().stroke(Color.nPink.opacity(0.4), lineWidth: 1))
+            }
+            Spacer()
+        }
     }
 
     /// 明信片墙统计：已收到的明信片数量（+ 往来的人数）。
@@ -468,9 +510,11 @@ private struct ReplyFootprintPicker: View {
     }
 }
 
-/// 往来联系人资料卡：头像 + 名字 + 国籍 + 收发计数 + 邮箱号（可复制）。
+/// 往来联系人资料卡：头像 + 名字 + 国籍 + 收发计数 + 邮箱号（可复制）+ 只看 Ta 寄来的。
 private struct ContactCardSheet: View {
     let contact: PostcardContact
+    /// 「看 Ta 寄来的明信片」回调（墙置筛选）。
+    var onFilter: ((PostcardContact) -> Void)? = nil
     @Environment(\.dismiss) private var dismiss
     @State private var copied = false
 
@@ -508,6 +552,20 @@ private struct ContactCardSheet: View {
                 .buttonStyle(.plain)
                 Text("寄明信片时从「往来的人」点选 Ta，即可直寄")
                     .font(.system(size: 11)).foregroundStyle(Color.muted)
+            }
+            if contact.receivedCount > 0, let onFilter {
+                Button {
+                    onFilter(contact)
+                    Haptics.selection()
+                    dismiss()
+                } label: {
+                    Label("看 Ta 寄来的明信片", systemImage: "line.3.horizontal.decrease.circle")
+                        .font(.system(size: 13, weight: .semibold)).foregroundStyle(Color.nPink)
+                        .padding(.vertical, 9).padding(.horizontal, 18)
+                        .background(Color.panel, in: Capsule())
+                        .overlay(Capsule().stroke(Color.nPink.opacity(0.4), lineWidth: 1))
+                }
+                .buttonStyle(.plain)
             }
             Spacer(minLength: 0)
         }

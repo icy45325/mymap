@@ -31,6 +31,12 @@ final class PostcardContacts: ObservableObject {
     func record(_ rawName: String?, boxID: String? = nil, avatarB64: String? = nil,
                 countryCode: String? = nil, sent: Bool, at date: Date = Date()) {
         guard let name = rawName?.trimmingCharacters(in: .whitespacesAndNewlines), !name.isEmpty else { return }
+        // 自己不进「往来的人」：自寄自收（测试/自嗨）会让收发两侧都把「自己」记成联系人。
+        // 按本机邮箱号（最可靠）与本机资料名（兜底）双重识别，集中在这里过滤，所有调用点一并生效。
+        if let boxID, boxID == LumiPost.shared.identity?.boxID { return }
+        let myName = (UserDefaults.standard.string(forKey: "lumi.profile.name") ?? "")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        if !myName.isEmpty, name.caseInsensitiveCompare(myName) == .orderedSame { return }
         if let i = contacts.firstIndex(where: { $0.name.caseInsensitiveCompare(name) == .orderedSame }) {
             contacts[i].lastAt = date
             if sent { contacts[i].sentCount += 1 } else { contacts[i].receivedCount += 1 }

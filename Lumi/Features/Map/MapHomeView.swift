@@ -79,11 +79,6 @@ struct MapHomeView: View {
 
     private var hud: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("已点亮 FOOTPRINTS LIT")
-                .font(.system(size: 11, weight: .semibold))
-                .tracking(2.2)
-                .foregroundStyle(Color.muted)
-
             HStack(alignment: .firstTextBaseline, spacing: 6) {
                 GradientText(text: "\(stats.countries)", font: Typo.serif(54))
                 Text("/ \(stats.worldTotal) 国")

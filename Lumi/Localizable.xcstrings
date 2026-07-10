@@ -14850,6 +14850,116 @@
           }
         }
       }
+    },
+    "只看 %@ 寄来的": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "只看 %@ 寄来的"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Only from %@"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "فقط من %@"
+          }
+        }
+      }
+    },
+    "还没有收到 Ta 的明信片": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "还没有收到 Ta 的明信片"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No postcards from them yet"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "لا بطاقات منهم بعد"
+          }
+        }
+      }
+    },
+    "看 Ta 寄来的明信片": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "看 Ta 寄来的明信片"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "See postcards from them"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "عرض بطاقاتهم"
+          }
+        }
+      }
+    },
+    "分享邮箱号": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "分享邮箱号"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Share mailbox no."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "مشاركة رقم الصندوق"
+          }
+        }
+      }
+    },
+    "在 Lumi「寄给」里填这个邮箱号，明信片会直接寄进我的 App": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在 Lumi「寄给」里填这个邮箱号，明信片会直接寄进我的 App"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Put this mailbox no. in Lumi's \"To\" field — your postcard lands right in my app"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "اكتب رقم الصندوق هذا في خانة «إلى» في لومي — تصل بطاقتك مباشرة إلى تطبيقي"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

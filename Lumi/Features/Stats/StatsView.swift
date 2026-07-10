@@ -109,23 +109,12 @@ struct StatsView: View {
         .buttonStyle(.plain)
     }
 
-    private var ringSummary: some View {
-        HStack(spacing: 16) {
-            RingProgress(fraction: board.total > 0 ? Double(board.unlockedCount) / Double(board.total) : 0,
-                         size: 84) {
-                VStack(spacing: 1) {
-                    Text("\(Int((board.total > 0 ? Double(board.unlockedCount) / Double(board.total) : 0) * 100))%")
-                        .font(Typo.serif(21)).foregroundStyle(Color.text)
-                    Text("\(board.unlockedCount) / \(board.total)")
-                        .font(.system(size: 9)).foregroundStyle(Color.muted)
-                }
-            }
-            VStack(alignment: .leading, spacing: 6) {
-                Text("徽章收藏").font(.system(size: 13, weight: .semibold)).tracking(1).foregroundStyle(Color.muted)
-                Text("\(board.unlockedCount) / \(board.total)")
-                    .font(.system(size: 12)).foregroundStyle(Color.muted)
-            }
-            Spacer()
+    /// 徽章收集环（与大洲征服环同规格，放在徽章墙标题行右侧）。
+    private var collectionRing: some View {
+        RingProgress(fraction: board.total > 0 ? Double(board.unlockedCount) / Double(board.total) : 0,
+                     size: 56, lineWidth: 5) {
+            Text("\(Int((board.total > 0 ? Double(board.unlockedCount) / Double(board.total) : 0) * 100))%")
+                .font(Typo.serif(13)).foregroundStyle(Color.text)
         }
     }
 
@@ -145,7 +134,7 @@ struct StatsView: View {
             Text(label.localized).font(.system(size: 10, weight: .semibold)).tracking(0.5)
                 .foregroundStyle(Color.muted).textCase(.uppercase)
             HStack(alignment: .firstTextBaseline, spacing: 3) {
-                Text(value).font(Typo.serif(19)).foregroundStyle(Color.text)
+                Text(value).font(Typo.serif(19)).foregroundStyle(Color.nPink)   // 主题高亮色（随主题切换）
                 if let sub { Text(sub).font(.system(size: 10)).foregroundStyle(Color.faint) }
             }
         }
@@ -154,12 +143,15 @@ struct StatsView: View {
         .panelCard(14)
     }
 
-    /// 徽章墙整卡：标题 + 收藏环 + 已点亮网格 + 更多入口，框进同一张面板卡。
+    /// 徽章墙整卡：标题行（右侧收藏环）+ 已点亮网格 + 更多入口，框进同一张面板卡。
     private var badgeWallCard: some View {
         VStack(alignment: .leading, spacing: 14) {
-            Text("徽章墙").font(.system(size: 13, weight: .semibold)).tracking(1)
-                .foregroundStyle(Color.muted)
-            ringSummary
+            HStack {
+                Text("徽章墙").font(.system(size: 13, weight: .semibold)).tracking(1)
+                    .foregroundStyle(Color.muted)
+                Spacer()
+                collectionRing
+            }
             honeycomb
             moreEntry
         }
