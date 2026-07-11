@@ -787,6 +787,19 @@ S = [
  ("伙伴用 Lumi 打开即收下","Opens right into Lumi","يُفتح مباشرة في لومي"),
  ("伙伴：明信片墙 → 扫码","Companions: Postcard wall → Scan","الرفاق: جدار البطاقات ← مسح"),
  ("只看我","Mine only","يومياتي فقط"),
+
+ # 验收五批：动态中心 / 明信片删除
+ ("动态","Updates","التحديثات"),
+ ("收到的明信片 · 日记更新","Received postcards · diary updates","بطاقات مستلمة · تحديثات اليوميات"),
+ ("暂无动态","No updates yet","لا تحديثات بعد"),
+ ("收到明信片或伙伴的日记寄到时，会出现在这里","When a postcard or a companion's diary arrives, it shows up here","عند وصول بطاقة أو دفتر رفيق، سيظهر هنا"),
+ ("全部已读","Mark all read","تحديد الكل كمقروء"),
+ ("%@ 寄来一张明信片","%@ sent you a postcard","أرسل لك %@ بطاقة"),
+ ("%@ 的日记寄到了","%@'s diary has arrived","وصل دفتر %@"),
+ ("一本日记寄到了","A diary has arrived","وصل دفتر"),
+ ("删除这张明信片","Delete this postcard","حذف هذه البطاقة"),
+ ("删除这张明信片？","Delete this postcard?","أتحذف هذه البطاقة؟"),
+ ("删除后同一张不会再收到。","Once deleted, the same card won't arrive again.","بعد الحذف لن تصل البطاقة نفسها مجدداً."),
 ]
 
 # Resolve duplicate "国家" (Country vs Countries): keep two distinct? They share key -> can't.

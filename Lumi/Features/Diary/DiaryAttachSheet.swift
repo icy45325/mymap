@@ -81,7 +81,8 @@ struct DiaryAttachSheet: View {
     }
 
     private func createNew() {
-        _ = DiaryStore.createFromPayload(payload, context: context)
+        let diary = DiaryStore.createFromPayload(payload, context: context)
+        notify(diary)
         finish()
     }
 
@@ -91,7 +92,15 @@ struct DiaryAttachSheet: View {
         let partner = DiaryStore.matchPartner(in: diary, payload: payload)
         DiaryStore.deposit(payload, into: partner)
         try? context.save()
+        notify(diary)
         finish()
+    }
+
+    private func notify(_ diary: ExchangeDiary) {
+        NoticeCenter.shared.add(.diary,
+                                title: payload.sender.map { String(localized: "\($0) 的日记寄到了") }
+                                    ?? String(localized: "一本日记寄到了"),
+                                subtitle: diary.title, targetID: diary.id.uuidString)
     }
 
     private func finish() {

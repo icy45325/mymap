@@ -12,6 +12,7 @@ struct ProfileView: View {
     @AppStorage("lumi.profile.name") private var holderName: String = ""
     @AppStorage("lumi.profile.avatarID") private var avatarID: String = ""
     @ObservedObject private var post = LumiPost.shared
+    @ObservedObject private var noticeCenter = NoticeCenter.shared
     /// 邮箱号分享卡渲染缓存。
     @State private var mailboxImage: Image?
     @State private var boxCopied = false
@@ -24,6 +25,8 @@ struct ProfileView: View {
                 VStack(alignment: .leading, spacing: 0) {
                     profileTop
                     levelBar
+                    entryCard("bell.fill", "动态", "收到的明信片 · 日记更新", Color.nCyan,
+                              badge: noticeCenter.unreadCount) { NoticeListView() }
                     entryCard("book.closed.fill", "我的护照本",
                               "去过 \(stats.countries) 国 · 翻开看看出入境章", Color(hex: 0xC9A24B)) { PassportView() }
                     entryCard("rectangle.stack", "明信片墙", "收到的明信片都在这", Color.nPink) { PostcardWallView() }
@@ -89,7 +92,7 @@ struct ProfileView: View {
                 ShareLink(item: box) { Label("分享", systemImage: "square.and.arrow.up") }
             }
         } label: {
-            topIcon("envelope.badge")
+            topIcon("tray.and.arrow.up")   // 寄出/分享我的信箱（badge 版太像未读消息）
         }
         .task(id: post.identity?.boxID) {
             guard let box = post.identity?.boxID, mailboxImage == nil else { return }
@@ -99,7 +102,8 @@ struct ProfileView: View {
     }
 
     private func entryCard<D: View>(_ icon: String, _ title: LocalizedStringKey, _ subtitle: LocalizedStringKey,
-                                    _ tint: Color, @ViewBuilder _ destination: @escaping () -> D) -> some View {
+                                    _ tint: Color, badge: Int = 0,
+                                    @ViewBuilder _ destination: @escaping () -> D) -> some View {
         NavigationLink { destination() } label: {
             HStack(spacing: 14) {
                 Image(systemName: icon).font(.system(size: 20)).foregroundStyle(tint).frame(width: 26)
@@ -108,6 +112,12 @@ struct ProfileView: View {
                     Text(subtitle).font(.system(size: 11)).foregroundStyle(Color.muted)
                 }
                 Spacer()
+                if badge > 0 {
+                    Text(verbatim: "\(badge)")
+                        .font(.system(size: 11, weight: .bold)).foregroundStyle(.white)
+                        .padding(.horizontal, 7).padding(.vertical, 3)
+                        .background(Color.nPink, in: Capsule())
+                }
                 Image(systemName: "chevron.right").font(.system(size: 13, weight: .semibold)).foregroundStyle(Color.faint)
             }
             .padding(16)

@@ -21,6 +21,8 @@ struct RootTabView: View {
     @State private var diaryChoice: DiaryPayload?
     /// 交换日记收件的轻提示（自收自发 / 已交换过）。
     @State private var diaryNotice: String?
+    /// 动态中心：未读数上 Me tab 角标。
+    @ObservedObject private var noticeCenter = NoticeCenter.shared
     /// 新版本检测（A）。
     @ObservedObject private var updater = AppUpdateCheck.shared
     /// 当前选中 Tab（用于切换触觉反馈 D）。
@@ -52,6 +54,7 @@ struct RootTabView: View {
 
             ProfileView()
                 .tabItem { Label("我", systemImage: "person.fill") }.tag(3)
+                .badge(noticeCenter.unreadCount)      // 未读动态（0 自动隐藏）
         }
         .tint(Color.nPink)
         .preferredColorScheme(.dark)
@@ -134,6 +137,10 @@ struct RootTabView: View {
         markSeen(p.token)
         PostcardContacts.shared.record(p.sender, boxID: p.senderBox, avatarB64: p.senderAvatar,
                                        countryCode: p.senderCountry, sent: false)   // 攒「往来的人」(含档案+邮箱号)
+        NoticeCenter.shared.add(.postcard,
+                                title: p.sender.map { String(localized: "\($0) 寄来一张明信片") }
+                                    ?? String(localized: "收到一张明信片"),
+                                subtitle: p.place, targetID: fp.id.uuidString)
         WidgetSync.refresh(context)
         Haptics.success()                                       // D 收下明信片震动
         inbox.pending = nil
@@ -145,8 +152,12 @@ struct RootTabView: View {
         switch DiaryStore.attach(payload, context: context) {
         case .selfSent:
             diaryNotice = String(localized: "这是你自己封存的日记口令")
-        case .attached:
+        case .attached(let diary):
             markSeen(payload.token)
+            NoticeCenter.shared.add(.diary,
+                                    title: payload.sender.map { String(localized: "\($0) 的日记寄到了") }
+                                        ?? String(localized: "一本日记寄到了"),
+                                    subtitle: diary.title, targetID: diary.id.uuidString)
             Haptics.success()
         case .alreadyOpened:
             markSeen(payload.token)

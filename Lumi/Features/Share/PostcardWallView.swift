@@ -15,6 +15,9 @@ struct PostcardWallView: View {
     @State private var boxCopied = false
     /// 按联系人筛选：只看 Ta 寄来的（nil = 全部）。
     @State private var filterSender: String?
+    /// 长按删除确认目标。
+    @State private var pendingDelete: Footprint?
+    @Environment(\.modelContext) private var context
     /// 邮箱号分享卡渲染缓存（identity 就绪后渲一次）。
     @State private var mailboxImage: Image?
 
@@ -100,12 +103,14 @@ struct PostcardWallView: View {
                                             PostcardCell(footprint: row[0], landscape: true)
                                         }
                                         .buttonStyle(.plain)
+                                        .contextMenu { deleteMenu(row[0]) }
                                     } else {
                                         HStack(alignment: .top, spacing: 12) {
                                             ForEach(row) { fp in
                                                 Button { selected = fp } label: { PostcardCell(footprint: fp) }
                                                     .buttonStyle(.plain)
                                                     .frame(maxWidth: .infinity)
+                                                    .contextMenu { deleteMenu(fp) }
                                             }
                                             if row.count == 1 {   // 奇数收尾：占位半宽保持对齐
                                                 Color.clear.frame(maxWidth: .infinity)
@@ -144,6 +149,14 @@ struct PostcardWallView: View {
         .sheet(item: $selected) { ReceivedPostcardSheet(footprint: $0) }
         .sheet(item: $selectedContact) { c in
             ContactCardSheet(contact: c) { filterSender = $0.name }
+        }
+        .confirmationDialog("删除这张明信片？", isPresented: Binding(
+            get: { pendingDelete != nil }, set: { if !$0 { pendingDelete = nil } }),
+            titleVisibility: .visible) {
+            Button("删除", role: .destructive) { confirmDelete() }
+            Button("取消", role: .cancel) { pendingDelete = nil }
+        } message: {
+            Text("删除后同一张不会再收到。")
         }
         .sheet(isPresented: $showScanner) { ScannerSheet() }
     }
@@ -204,6 +217,21 @@ struct PostcardWallView: View {
         .padding(14)
         .background(Color.panel, in: RoundedRectangle(cornerRadius: 14))
         .overlay(RoundedRectangle(cornerRadius: 14).stroke(Color.line, lineWidth: 1))
+    }
+
+    @ViewBuilder
+    private func deleteMenu(_ fp: Footprint) -> some View {
+        Button(role: .destructive) { pendingDelete = fp } label: {
+            Label("删除这张明信片", systemImage: "trash")
+        }
+    }
+
+    private func confirmDelete() {
+        guard let fp = pendingDelete else { return }
+        context.delete(fp)               // Card 随 cascade 删除；token 已在去重集，不会重收
+        try? context.save()
+        pendingDelete = nil
+        Haptics.selection()
     }
 
     private var mailboxShareIcon: some View {
@@ -311,11 +339,13 @@ struct PostcardWallView: View {
 private struct ReceivedPostcardSheet: View {
     let footprint: Footprint
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var context
     @AppStorage("lumi.profile.name") private var holderName: String = ""
     @State private var flipped = false
     @State private var cover: UIImage?
     @State private var shareImage: Image?
     @State private var showReplyPicker = false
+    @State private var confirmDelete = false
 
     /// 寄卡人在「往来的人」里的档案（头像 / 国籍 / 邮箱号随卡攒下）。
     private var senderContact: PostcardContact? {
@@ -368,8 +398,27 @@ private struct ReceivedPostcardSheet: View {
                     } else {
                         ProgressView().tint(Color.nPink).padding(.vertical, 14)
                     }
+
+                    // 弱化的删除入口（不做成显眼按钮）
+                    Button { confirmDelete = true } label: {
+                        Text("删除这张明信片")
+                            .font(.system(size: 12))
+                            .foregroundStyle(Color.faint)
+                            .underline()
+                    }
+                    .padding(.top, 2)
                 }
                 .padding(20)
+            }
+            .alert("删除这张明信片？", isPresented: $confirmDelete) {
+                Button("删除", role: .destructive) {
+                    context.delete(footprint)     // Card 随 cascade；token 已在去重集，不会重收
+                    try? context.save()
+                    dismiss()
+                }
+                Button("取消", role: .cancel) {}
+            } message: {
+                Text("删除后同一张不会再收到。")
             }
             .background(Color.bg.ignoresSafeArea())
             .navigationTitle("明信片").navigationBarTitleDisplayMode(.inline)
