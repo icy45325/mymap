@@ -148,9 +148,9 @@ struct RootTabView: View {
         case .attached:
             markSeen(payload.token)
             Haptics.success()
-        case .alreadyExchanged:
+        case .alreadyOpened:
             markSeen(payload.token)
-            diaryNotice = String(localized: "这本日记已经交换过了")
+            diaryNotice = String(localized: "Ta 的日记你已经拆开过了")
         case .needsChoice:
             diaryChoice = payload           // markSeen 由选择 sheet 完成后回调
         }

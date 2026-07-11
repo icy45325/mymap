@@ -26,8 +26,7 @@ struct DiaryAttachSheet: View {
                         ForEach(candidates) { diary in
                             Button { attach(to: diary) } label: {
                                 actionRow("book.pages", Text(verbatim: diary.title),
-                                          diary.partnerName.isEmpty ? Text("还没有交换对象") : Text("与 \(diary.partnerName)"),
-                                          Color.nCyan)
+                                          partnersText(diary), Color.nCyan)
                             }
                         }
                     }
@@ -75,15 +74,22 @@ struct DiaryAttachSheet: View {
         .overlay(RoundedRectangle(cornerRadius: 15).stroke(Color.line, lineWidth: 1))
     }
 
+    private func partnersText(_ diary: ExchangeDiary) -> Text {
+        let names = diary.partners.map(\.name).filter { !$0.isEmpty }
+        guard let first = names.first else { return Text("还没有交换对象") }
+        return names.count == 1 ? Text("与 \(first)") : Text("与 \(first) 等 \(names.count) 人")
+    }
+
     private func createNew() {
         _ = DiaryStore.createFromPayload(payload, context: context)
         finish()
     }
 
     private func attach(to diary: ExchangeDiary) {
-        // 收进已有本：pairID 对齐成对方的，之后往来都自动命中
+        // 收进已有本：pairID 对齐成寄件组的，之后全组往来都自动命中
         diary.pairID = payload.pairID
-        DiaryStore.deposit(payload, into: diary)
+        let partner = DiaryStore.matchPartner(in: diary, payload: payload)
+        DiaryStore.deposit(payload, into: partner)
         try? context.save()
         finish()
     }

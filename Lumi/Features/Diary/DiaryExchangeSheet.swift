@@ -1,8 +1,8 @@
 import SwiftUI
 import SwiftData
 
-/// 寄出封存的日记：邮局直投（默认，有对方邮箱号时）/ 复制口令 / 二维码 / AirDrop。
-/// 口令在封存时已固化（`sealToken`），重寄永远同一口令 → 对端幂等。
+/// 寄出封存的日记：伙伴清单逐个直投（有邮箱号者）+ 复制口令 / 二维码 / AirDrop。
+/// 同一份口令全员通用（封存时固化 `sealToken`），重寄天然幂等。
 struct DiaryExchangeSheet: View {
 
     @Bindable var diary: ExchangeDiary
@@ -11,23 +11,27 @@ struct DiaryExchangeSheet: View {
     @Environment(\.modelContext) private var context
     @ObservedObject private var post = LumiPost.shared
 
-    @State private var boxInput: String = ""
-    @State private var sending = false
+    @State private var sendingID: UUID?
+    @State private var sentIDs: Set<UUID> = []
     @State private var sendResult: LocalizedStringKey?
     @State private var sendFailed = false
     @State private var copied = false
     @State private var showQR = false
 
     private var token: String { diary.sealToken ?? "" }
-    /// 二维码容量之下才提供扫码通道。
     private var qrOK: Bool { token.count <= DiaryToken.qrLimit }
+    private var sortedPartners: [DiaryPartner] {
+        diary.partners.sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+    }
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 14) {
                     summary
-                    if LumiPostConfig.isEnabled { postRow }
+                    if LumiPostConfig.isEnabled, sortedPartners.contains(where: { $0.boxID != nil }) {
+                        directList
+                    }
                     copyRow
                     if qrOK { qrRow } else {
                         Text("这本日记比较长，二维码装不下——用口令或邮局直投吧")
@@ -43,7 +47,7 @@ struct DiaryExchangeSheet: View {
                 .padding(22)
             }
             .background(Color.bg.ignoresSafeArea())
-            .navigationTitle("寄给对方")
+            .navigationTitle("寄给伙伴们")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("关闭") { dismiss() } }
@@ -52,7 +56,6 @@ struct DiaryExchangeSheet: View {
         }
         .preferredColorScheme(.dark)
         .tint(Color.nPink)
-        .onAppear { boxInput = diary.partnerBoxID ?? "" }
     }
 
     private var summary: some View {
@@ -60,7 +63,7 @@ struct DiaryExchangeSheet: View {
             Text(verbatim: diary.title).font(Typo.serif(19)).foregroundStyle(Color.text)
             Text("\(diary.entries.count) 条 · 封存于 \(diary.sealedAt?.formatted(.dateTime.month().day()) ?? "")")
                 .font(.system(size: 11)).foregroundStyle(Color.muted)
-            Text("对方收下后，等两边都封存就能互相拆开 ✦")
+            Text("同一份口令全员通用——发进群里，伙伴们都能收下 ✦")
                 .font(.system(size: 11)).foregroundStyle(Color.faint)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -69,66 +72,83 @@ struct DiaryExchangeSheet: View {
         .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.line, lineWidth: 1))
     }
 
-    // MARK: - 邮局直投
+    // MARK: - 邮局逐人直投
 
-    private var postRow: some View {
+    private var directList: some View {
         VStack(alignment: .leading, spacing: 10) {
             Label("Lumi 邮局直投", systemImage: "paperplane.fill")
                 .font(.system(size: 13, weight: .semibold)).foregroundStyle(Color.text)
-            TextField("", text: $boxInput,
-                      prompt: Text("对方邮箱号 LUMI-XXXXXX").foregroundStyle(Color.faint))
-                .font(.system(size: 14, design: .monospaced))
-                .foregroundStyle(Color.text)
-                .textInputAutocapitalization(.characters)
-                .autocorrectionDisabled()
-                .padding(11)
-                .background(Color.glass, in: RoundedRectangle(cornerRadius: 12))
-                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.line, lineWidth: 1))
-            Button { sendViaPost() } label: {
-                HStack {
-                    if sending { ProgressView().tint(.white) }
-                    (sending ? Text("寄送中…") : Text("直接寄到对方邮箱 ✦"))
-                        .font(.system(size: 13, weight: .bold)).foregroundStyle(.white)
+            ForEach(sortedPartners) { partner in
+                HStack(spacing: 10) {
+                    PersonAvatar.named(partner.name, size: 26)
+                    VStack(alignment: .leading, spacing: 1) {
+                        Text(verbatim: partner.name.isEmpty ? "…" : partner.name)
+                            .font(.system(size: 13, weight: .semibold)).foregroundStyle(Color.text)
+                        if let box = partner.boxID {
+                            Text(verbatim: box)
+                                .font(.system(size: 10, design: .monospaced)).foregroundStyle(Color.faint)
+                        } else {
+                            Text("没有邮箱号 · 用口令/二维码给 Ta")
+                                .font(.system(size: 10)).foregroundStyle(Color.faint)
+                        }
+                    }
+                    Spacer()
+                    if partner.boxID != nil {
+                        if sentIDs.contains(partner.id) || partner.sentAt != nil {
+                            HStack(spacing: 4) {
+                                Image(systemName: "checkmark").font(.system(size: 10, weight: .bold))
+                                Text("已寄").font(.system(size: 11, weight: .semibold))
+                            }
+                            .foregroundStyle(Color.nCyan)
+                        } else {
+                            Button { send(to: partner) } label: {
+                                if sendingID == partner.id {
+                                    ProgressView().tint(.white).scaleEffect(0.7)
+                                        .frame(width: 44, height: 26)
+                                } else {
+                                    Text("寄出 ✦").font(.system(size: 12, weight: .bold)).foregroundStyle(.white)
+                                        .padding(.horizontal, 12).padding(.vertical, 6)
+                                        .background(LinearGradient.neon, in: Capsule())
+                                }
+                            }
+                            .disabled(sendingID != nil)
+                        }
+                    }
                 }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 11)
-                .background(LinearGradient.neon, in: Capsule())
             }
-            .disabled(sending || boxInput.trimmingCharacters(in: .whitespaces).isEmpty)
-            .opacity(boxInput.trimmingCharacters(in: .whitespaces).isEmpty ? 0.5 : 1)
         }
         .padding(16)
         .background(Color.panel, in: RoundedRectangle(cornerRadius: 16))
         .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.nPink.opacity(0.35), lineWidth: 1))
     }
 
-    private func sendViaPost() {
-        let box = boxInput.trimmingCharacters(in: .whitespaces)
-        guard !box.isEmpty, !token.isEmpty else { return }
-        sending = true
+    private func send(to partner: DiaryPartner) {
+        guard let box = partner.boxID, !token.isEmpty else { return }
+        sendingID = partner.id
         sendResult = nil
         Task {
             do {
                 await post.ensureMailbox()
                 _ = try await post.send(payload: token, to: box)
-                diary.partnerBoxID = box
+                partner.sentAt = .now
+                sentIDs.insert(partner.id)
                 markSent()
                 sendFailed = false
-                sendResult = "已寄出——对方打开 App 就能收到 ✦"
+                sendResult = "已寄给 \(partner.name) ✦"
                 Haptics.success()
             } catch {
                 sendFailed = true
                 sendResult = "寄送失败：\(error.localizedDescription)"
             }
-            sending = false
+            sendingID = nil
         }
     }
 
-    // MARK: - 口令 / 二维码 / AirDrop
+    // MARK: - 口令 / 二维码 / AirDrop（全员同一份）
 
     private var copyRow: some View {
         channelRow(icon: "doc.on.doc", title: copied ? "已复制 ✓" : "复制口令",
-                   subtitle: "发到任何聊天工具，对方打开 App 自动收到") {
+                   subtitle: "发到任何聊天工具或群里，伙伴打开 App 自动收到") {
             UIPasteboard.general.string = token
             copied = true
             markSent()
@@ -138,7 +158,7 @@ struct DiaryExchangeSheet: View {
 
     private var qrRow: some View {
         channelRow(icon: "qrcode", title: "二维码",
-                   subtitle: "对方在明信片墙「扫码」即可收下") {
+                   subtitle: "伙伴在明信片墙「扫码」即可收下") {
             showQR = true
             markSent()
         }
@@ -149,7 +169,7 @@ struct DiaryExchangeSheet: View {
         if let fileURL = DiaryToken.writeDiaryFile(token) {
             ShareLink(item: fileURL) {
                 channelLabel(icon: "square.and.arrow.up", title: "AirDrop / 分享文件",
-                             subtitle: "对方用 Lumi 打开即收下")
+                             subtitle: "伙伴用 Lumi 打开即收下")
             }
             .simultaneousGesture(TapGesture().onEnded { markSent() })
         }
@@ -185,7 +205,7 @@ struct DiaryExchangeSheet: View {
                     .padding(12)
                     .background(.white, in: RoundedRectangle(cornerRadius: 18))
             }
-            Text("对方：明信片墙 → 扫码").font(.system(size: 12)).foregroundStyle(Color.muted)
+            Text("伙伴：明信片墙 → 扫码").font(.system(size: 12)).foregroundStyle(Color.muted)
             Spacer()
         }
         .frame(maxWidth: .infinity)
@@ -194,7 +214,7 @@ struct DiaryExchangeSheet: View {
         .preferredColorScheme(.dark)
     }
 
-    /// 任一通道出手即记「已寄出」（等待对方态）；口令封存时已 markShared，防剪贴板自弹。
+    /// 任一通道出手即记「已寄出」；口令封存时已 markShared，防剪贴板自弹。
     private func markSent() {
         if diary.sentAt == nil { diary.sentAt = .now }
         try? context.save()

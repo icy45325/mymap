@@ -8,6 +8,7 @@ struct FootprintDetailView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var showEdit = false
     @State private var showPostcard = false
+    @State private var showDiary = false
     @State private var heroPage = 0
     @State private var flipGen = 0      // 自动翻页「代」标记：只允许最新一代写入，杜绝双计时器跳页
     @State private var delivery: (sent: Int, delivered: Int)?   // v1.1 直寄回执（无记录 = nil 不渲染）
@@ -54,6 +55,11 @@ struct FootprintDetailView: View {
         }
         .sheet(isPresented: $showPostcard) {
             PostcardSheet(footprint: footprint)
+        }
+        .sheet(isPresented: $showDiary) {
+            NewDiarySheet(prefillTitle: diaryTitle,
+                          suggestedNames: footprint.companions,
+                          footprintID: footprint.id)
         }
         .task(id: showPostcard) {   // 打开时查一次；直寄弹窗关回来再查（拿到刚寄的那封）
             guard LumiPostConfig.isEnabled, !showPostcard else { return }
@@ -211,16 +217,34 @@ struct FootprintDetailView: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
                     ForEach(footprint.companions, id: \.self) { name in
-                        Label(name, systemImage: "person.fill")
-                            .font(.system(size: 12, weight: .medium))
-                            .foregroundStyle(Color.text)
-                            .padding(.vertical, 6).padding(.horizontal, 12)
-                            .background(Color.glass, in: Capsule())
-                            .overlay(Capsule().stroke(Color.nPurple.opacity(0.5), lineWidth: 1))
+                        HStack(spacing: 6) {
+                            PersonAvatar.named(name, size: 20)   // 往来的人命中真头像，手输名字首字母
+                            Text(verbatim: name)
+                                .font(.system(size: 12, weight: .medium))
+                                .foregroundStyle(Color.text)
+                        }
+                        .padding(.vertical, 5).padding(.horizontal, 10)
+                        .background(Color.glass, in: Capsule())
+                        .overlay(Capsule().stroke(Color.nPurple.opacity(0.5), lineWidth: 1))
                     }
                 }
             }
+            // 一个足迹=一段旅程：旅伴就在这里，直接开一本交换日记
+            Button { showDiary = true } label: {
+                Label("与旅伴交换日记", systemImage: "book.pages")
+                    .font(.system(size: 12, weight: .bold)).foregroundStyle(Color.nPink)
+                    .padding(.vertical, 8).padding(.horizontal, 14)
+                    .background(Color.panel, in: Capsule())
+                    .overlay(Capsule().stroke(Color.nPink.opacity(0.4), lineWidth: 1))
+            }
+            .padding(.top, 2)
         }
+    }
+
+    /// 交换日记预填标题：「地点 年份」。
+    private var diaryTitle: String {
+        let year = Calendar.current.component(.year, from: footprint.visitedAt)
+        return "\(footprint.title) \(String(year))"
     }
 
     private func infoRow(_ label: String, _ value: String) -> some View {

@@ -1,7 +1,7 @@
 import SwiftUI
 import SwiftData
 
-/// 日记本详情：我的条目时间轴 + 写一条 + 封存 + 交换区（五态状态机）。
+/// 日记本详情：我的条目时间轴 + 写一条 + 封存 + 交换区（伙伴状态清单，逐人拆开）。
 struct ExchangeDiaryDetailView: View {
 
     @Bindable var diary: ExchangeDiary
@@ -24,11 +24,14 @@ struct ExchangeDiaryDetailView: View {
     @State private var showExchange = false
     @State private var showReader = false
     @State private var confirmDelete = false
-    /// 拆开动效：短暂放大→跳阅读
-    @State private var unsealing = false
+    /// 拆开动效目标伙伴。
+    @State private var unsealing: DiaryPartner?
 
     private var sortedEntries: [DiaryEntry] {
         diary.entries.sorted { $0.date > $1.date }
+    }
+    private var sortedPartners: [DiaryPartner] {
+        diary.partners.sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
     }
 
     var body: some View {
@@ -71,6 +74,7 @@ struct ExchangeDiaryDetailView: View {
             diary.isExchanged ? Text("已交换的日记删了就找不回了（对方那本不受影响）。")
                               : Text("里面写的条目会一起删除。")
         }
+        .onAppear { DiaryStore.migrateIfNeeded(diary, context: context) }
         .preferredColorScheme(.dark)
         .tint(Color.nPink)
     }
@@ -79,12 +83,13 @@ struct ExchangeDiaryDetailView: View {
 
     private var headerCard: some View {
         HStack(spacing: 13) {
+            PartnerAvatarStack(names: sortedPartners.map(\.name), size: 26)
             VStack(alignment: .leading, spacing: 4) {
-                if !diary.partnerName.isEmpty {
-                    Text("与 \(diary.partnerName) 交换").font(.system(size: 13, weight: .semibold))
-                        .foregroundStyle(Color.text)
-                } else {
+                if sortedPartners.isEmpty {
                     Text("还没有交换对象").font(.system(size: 13)).foregroundStyle(Color.muted)
+                } else {
+                    Text("与 \(partnerNamesLine) 交换").font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(Color.text).lineLimit(1)
                 }
                 Text("开始于 \(diary.createdAt.formatted(.dateTime.year().month().day()))")
                     .font(.system(size: 11)).foregroundStyle(Color.faint)
@@ -98,67 +103,109 @@ struct ExchangeDiaryDetailView: View {
         .padding(.horizontal, 22)
     }
 
-    // MARK: - 交换区（五态）
+    private var partnerNamesLine: String {
+        sortedPartners.map(\.name).filter { !$0.isEmpty }.joined(separator: "、")
+    }
+
+    // MARK: - 交换区（我方状态 + 伙伴清单）
 
     @ViewBuilder
     private var exchangeZone: some View {
         VStack(alignment: .leading, spacing: 12) {
+            // 我方：封存 / 寄出
+            myStateCard
+            // 伙伴清单：每人一行状态
+            if !sortedPartners.isEmpty, diary.status == .sealed || sortedPartners.contains(where: { $0.shellToken != nil }) {
+                partnersCard
+            }
             if diary.isExchanged {
-                // 终态：已交换 → 阅读
-                zoneCard(icon: "envelope.open.fill", tint: Color(hex: 0xC9A24B),
-                         title: Text("已和 \(diary.partnerName) 交换 ✦"),
-                         subtitle: Text("拆开于 \(diary.exchangedAt!.formatted(.dateTime.month().day()))")) {
-                    zoneButton("一起读", prominent: true) { showReader = true }
-                }
-            } else {
-                switch (diary.status, diary.partnerToken != nil) {
-                case (.draft, false):
-                    // ① 手记中：引导封存
-                    zoneCard(icon: "lock.open", tint: Color.nCyan,
-                             title: Text("写完这段旅程就封存"),
-                             subtitle: Text("封存后不能再改，才能与对方交换")) {
-                        zoneButton("封存这本日记", prominent: false, disabled: diary.entries.isEmpty) { confirmSeal = true }
-                    }
-                case (.draft, true):
-                    // ② 对方先寄到：壳在等
-                    zoneCard(icon: "lock.fill", tint: Color.nPurple,
-                             title: Text("\(diary.partnerName) 的日记已寄到"),
-                             subtitle: Text("密封着呢——先封存你的，才能拆开 ✦")) {
-                        zoneButton("封存这本日记", prominent: true, disabled: diary.entries.isEmpty) { confirmSeal = true }
-                    }
-                case (.sealed, false):
-                    if diary.sentAt == nil {
-                        // ③ 已封存未寄
-                        zoneCard(icon: "paperplane.fill", tint: Color.nPink,
-                                 title: Text("封存好了，寄给对方吧"),
-                                 subtitle: Text("口令 / 二维码 / AirDrop / 邮局直投都行")) {
-                            zoneButton("寄给\(diary.partnerName.isEmpty ? String(localized: "对方") : diary.partnerName) ✦", prominent: true) { showExchange = true }
-                        }
-                    } else {
-                        // ④ 已寄出等待对方
-                        zoneCard(icon: "hourglass", tint: Color.muted,
-                                 title: Text("等 \(diary.partnerName) 封存寄回…"),
-                                 subtitle: Text("寄出于 \(diary.sentAt!.formatted(.dateTime.month().day()))；对方的日记寄到后就能拆")) {
-                            zoneButton("再寄一次", prominent: false) { showExchange = true }
-                        }
-                    }
-                case (.sealed, true):
-                    // ⑤ 双方就绪：拆开
-                    zoneCard(icon: "envelope.badge.fill", tint: Color(hex: 0xC9A24B),
-                             title: Text("\(diary.partnerName) 的日记在这里"),
-                             subtitle: Text(diary.sentAt == nil ? "别忘了把你的也寄给对方" : "两边都封存了——可以拆开了")) {
-                        HStack(spacing: 10) {
-                            if diary.sentAt == nil {
-                                zoneButton("先寄我的", prominent: false) { showExchange = true }
-                            }
-                            zoneButton("拆开对方的日记 ✦", prominent: true) { unseal() }
-                        }
-                    }
-                    .scaleEffect(unsealing ? 1.04 : 1)
-                }
+                zoneButton("一起读 ✦", prominent: true) { showReader = true }
+                    .frame(maxWidth: .infinity)
+            } else if !diary.openedPartners.isEmpty {
+                zoneButton("读已拆开的 ✦", prominent: false) { showReader = true }
+                    .frame(maxWidth: .infinity)
             }
         }
         .padding(.horizontal, 22).padding(.top, 12)
+    }
+
+    @ViewBuilder
+    private var myStateCard: some View {
+        switch diary.status {
+        case .draft:
+            let shellsWaiting = sortedPartners.contains { $0.shellToken != nil }
+            zoneCard(icon: shellsWaiting ? "lock.fill" : "lock.open",
+                     tint: shellsWaiting ? Color.nPurple : Color.nCyan,
+                     title: shellsWaiting ? Text("伙伴的日记已寄到") : Text("写完这段旅程就封存"),
+                     subtitle: shellsWaiting ? Text("密封着呢——先封存你的，才能拆开 ✦")
+                                             : Text("封存后不能再改，才能与对方交换")) {
+                zoneButton("封存这本日记", prominent: shellsWaiting, disabled: diary.entries.isEmpty) {
+                    confirmSeal = true
+                }
+            }
+        case .sealed:
+            zoneCard(icon: "paperplane.fill", tint: Color.nPink,
+                     title: diary.sentAt == nil ? Text("封存好了，寄给伙伴们吧") : Text("已寄出，可随时再寄"),
+                     subtitle: Text("同一份口令全员通用：口令 / 二维码 / AirDrop / 邮局直投都行")) {
+                zoneButton(diary.sentAt == nil ? "寄出我的日记 ✦" : "再寄一次", prominent: diary.sentAt == nil) {
+                    showExchange = true
+                }
+            }
+        }
+    }
+
+    private var partnersCard: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("交换伙伴").font(.system(size: 12, weight: .semibold)).foregroundStyle(Color.muted)
+            ForEach(sortedPartners) { partner in
+                partnerRow(partner)
+            }
+        }
+        .padding(16)
+        .background(Color.panel, in: RoundedRectangle(cornerRadius: 16))
+        .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.line, lineWidth: 1))
+    }
+
+    private func partnerRow(_ partner: DiaryPartner) -> some View {
+        HStack(spacing: 10) {
+            PersonAvatar.named(partner.name, size: 30)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(verbatim: partner.name.isEmpty ? "…" : partner.name)
+                    .font(.system(size: 13, weight: .semibold)).foregroundStyle(Color.text)
+                partnerStateText(partner)
+                    .font(.system(size: 10.5)).foregroundStyle(Color.muted)
+            }
+            Spacer()
+            if partner.unsealedAt != nil {
+                Image(systemName: "envelope.open.fill")
+                    .font(.system(size: 14)).foregroundStyle(Color(hex: 0xC9A24B))
+            } else if partner.shellToken != nil {
+                if diary.status == .sealed {
+                    Button {
+                        unseal(partner)
+                    } label: {
+                        Text("拆开 ✦").font(.system(size: 12, weight: .bold)).foregroundStyle(.white)
+                            .padding(.horizontal, 13).padding(.vertical, 7)
+                            .background(LinearGradient.neon, in: Capsule())
+                    }
+                    .scaleEffect(unsealing?.id == partner.id ? 1.08 : 1)
+                } else {
+                    Image(systemName: "lock.fill").font(.system(size: 13)).foregroundStyle(Color.nPurple)
+                }
+            } else {
+                Image(systemName: "hourglass").font(.system(size: 13)).foregroundStyle(Color.faint)
+            }
+        }
+    }
+
+    private func partnerStateText(_ partner: DiaryPartner) -> Text {
+        if let at = partner.unsealedAt {
+            return Text("已拆开 · \(at.formatted(.dateTime.month().day()))")
+        }
+        if partner.shellToken != nil {
+            return diary.status == .sealed ? Text("已寄到 · 可以拆开") : Text("已寄到 · 先封存你的")
+        }
+        return Text("等待 Ta 封存寄来…")
     }
 
     private func zoneCard<Actions: View>(icon: String, tint: Color, title: Text, subtitle: Text,
@@ -229,19 +276,19 @@ struct ExchangeDiaryDetailView: View {
 
     private func seal() {
         Task {
-            // 邮局可用时顺手开箱，把自己的邮箱号封进口令（对方好回寄）
+            // 邮局可用时顺手开箱，把自己的邮箱号封进口令（伙伴好回寄）
             let box = await post.ensureMailbox()?.boxID
             DiaryStore.seal(diary, senderName: holderName, senderBox: box, context: context)
             Haptics.success()
         }
     }
 
-    private func unseal() {
-        withAnimation(.spring(duration: 0.35)) { unsealing = true }
+    private func unseal(_ partner: DiaryPartner) {
+        withAnimation(.spring(duration: 0.35)) { unsealing = partner }
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
-            _ = DiaryStore.unseal(diary, context: context)
+            _ = DiaryStore.unseal(partner, of: diary, context: context)
             Haptics.success()
-            unsealing = false
+            unsealing = nil
             showReader = true
         }
     }

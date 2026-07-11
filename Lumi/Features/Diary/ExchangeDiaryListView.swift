@@ -1,16 +1,22 @@
 import SwiftUI
 import SwiftData
 
-/// 交换日记列表：进行中 / 已交换两节 + 空态引导 + 新建。
+/// 交换日记列表：日记本卡片（书脊色条 + 旅途信息 + 伙伴头像 + 状态）。
 struct ExchangeDiaryListView: View {
 
+    @Environment(\.modelContext) private var context
     @Query(sort: \ExchangeDiary.createdAt, order: .reverse)
     private var diaries: [ExchangeDiary]
+    @Query private var footprints: [Footprint]
 
     @State private var showNew = false
 
     private var ongoing: [ExchangeDiary] { diaries.filter { !$0.isExchanged } }
     private var exchanged: [ExchangeDiary] { diaries.filter(\.isExchanged) }
+
+    private var footprintByID: [UUID: Footprint] {
+        Dictionary(uniqueKeysWithValues: footprints.map { ($0.id, $0) })
+    }
 
     var body: some View {
         ScrollView {
@@ -18,11 +24,11 @@ struct ExchangeDiaryListView: View {
                 if diaries.isEmpty { emptyState }
                 if !ongoing.isEmpty {
                     sectionTitle("进行中")
-                    ForEach(ongoing) { row($0) }
+                    ForEach(ongoing) { card($0) }
                 }
                 if !exchanged.isEmpty {
                     sectionTitle("已交换")
-                    ForEach(exchanged) { row($0) }
+                    ForEach(exchanged) { card($0) }
                 }
                 Color.clear.frame(height: 24)
             }
@@ -37,6 +43,7 @@ struct ExchangeDiaryListView: View {
             }
         }
         .sheet(isPresented: $showNew) { NewDiarySheet() }
+        .onAppear { diaries.forEach { DiaryStore.migrateIfNeeded($0, context: context) } }
         .preferredColorScheme(.dark)
         .tint(Color.nPink)
     }
@@ -47,33 +54,67 @@ struct ExchangeDiaryListView: View {
             .padding(.horizontal, 26).padding(.top, 18).padding(.bottom, 4)
     }
 
-    private func row(_ diary: ExchangeDiary) -> some View {
+    private func spineColor(_ diary: ExchangeDiary) -> Color {
+        diary.isExchanged ? Color(hex: 0xC9A24B) : (diary.status == .sealed ? Color.nPurple : Color.nCyan)
+    }
+
+    /// 日记本卡片：书脊色条 + 标题 + 旅途信息 + 伙伴头像 + 状态。
+    private func card(_ diary: ExchangeDiary) -> some View {
         NavigationLink { ExchangeDiaryDetailView(diary: diary) } label: {
-            HStack(spacing: 14) {
-                Image(systemName: diary.isExchanged ? "book.pages.fill" : (diary.status == .sealed ? "lock.fill" : "pencil.line"))
-                    .font(.system(size: 20))
-                    .foregroundStyle(diary.isExchanged ? Color(hex: 0xC9A24B) : (diary.status == .sealed ? Color.nPurple : Color.nCyan))
-                    .frame(width: 26)
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(verbatim: diary.title)
-                        .font(.system(size: 15, weight: .semibold)).foregroundStyle(Color.text)
-                    HStack(spacing: 6) {
-                        if !diary.partnerName.isEmpty {
-                            Text("与 \(diary.partnerName)").font(.system(size: 11)).foregroundStyle(Color.muted)
-                        }
+            HStack(spacing: 0) {
+                RoundedRectangle(cornerRadius: 2.5)
+                    .fill(spineColor(diary))
+                    .frame(width: 5)
+                    .padding(.vertical, 14)
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack(alignment: .top) {
+                        Text(verbatim: diary.title)
+                            .font(Typo.serif(17)).foregroundStyle(Color.text)
+                            .lineLimit(1)
+                        Spacer()
+                        DiaryStatusChip(diary: diary)
+                    }
+                    tripLine(diary)
+                    HStack(spacing: 8) {
+                        PartnerAvatarStack(names: diary.partners.map(\.name), size: 22)
+                        Text(partnersLabel(diary))
+                            .font(.system(size: 12)).foregroundStyle(Color.muted)
+                            .lineLimit(1)
+                        Spacer()
                         Text("\(diary.entries.count) 条").font(.system(size: 11)).foregroundStyle(Color.faint)
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 12, weight: .semibold)).foregroundStyle(Color.faint)
                     }
                 }
-                Spacer()
-                DiaryStatusChip(diary: diary)
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 13, weight: .semibold)).foregroundStyle(Color.faint)
+                .padding(.vertical, 14).padding(.horizontal, 14)
             }
-            .padding(16)
             .background(Color.panel, in: RoundedRectangle(cornerRadius: 16))
             .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.line, lineWidth: 1))
         }
         .padding(.horizontal, 26).padding(.top, 10)
+    }
+
+    /// 旅途信息：关联足迹的 国旗+地点+日期；无关联回退开始日期。
+    @ViewBuilder
+    private func tripLine(_ diary: ExchangeDiary) -> some View {
+        if let fpID = diary.footprintID, let fp = footprintByID[fpID] {
+            HStack(spacing: 5) {
+                Text(fp.flag).font(.system(size: 12))
+                Text(verbatim: fp.title).font(.system(size: 12)).foregroundStyle(Color.muted).lineLimit(1)
+                Text(fp.visitedAt.formatted(.dateTime.year().month(.abbreviated).day()))
+                    .font(.system(size: 11)).foregroundStyle(Color.faint)
+            }
+        } else {
+            Text("开始于 \(diary.createdAt.formatted(.dateTime.year().month().day()))")
+                .font(.system(size: 11)).foregroundStyle(Color.faint)
+        }
+    }
+
+    private func partnersLabel(_ diary: ExchangeDiary) -> String {
+        let names = diary.partners.map(\.name).filter { !$0.isEmpty }
+        guard let first = names.first else { return String(localized: "还没有交换对象") }
+        if names.count == 1 { return String(localized: "与 \(first)") }
+        return String(localized: "与 \(first) 等 \(names.count) 人")
     }
 
     private var emptyState: some View {
@@ -97,68 +138,97 @@ struct ExchangeDiaryListView: View {
     }
 }
 
-/// 状态角标：手记中 / 已封存·待交换 / 已交换。
+/// 伙伴头像堆叠：≤3 个重叠排列，多出的显示 +N。
+struct PartnerAvatarStack: View {
+    let names: [String]
+    var size: CGFloat = 22
+
+    var body: some View {
+        let shown = Array(names.prefix(3))
+        HStack(spacing: -size * 0.28) {
+            ForEach(Array(shown.enumerated()), id: \.offset) { _, name in
+                PersonAvatar.named(name, size: size)
+                    .overlay(Circle().stroke(Color.bg, lineWidth: 1.5))
+            }
+            if names.count > 3 {
+                ZStack {
+                    Circle().fill(Color.panel).frame(width: size, height: size)
+                        .overlay(Circle().stroke(Color.line, lineWidth: 1))
+                    Text(verbatim: "+\(names.count - 3)")
+                        .font(.system(size: size * 0.38, weight: .bold)).foregroundStyle(Color.muted)
+                }
+            }
+        }
+    }
+}
+
+/// 状态角标：手记中 / 已封存（群本显示拆开进度）/ 已交换。
 struct DiaryStatusChip: View {
     let diary: ExchangeDiary
 
     var body: some View {
-        let (key, tint): (LocalizedStringKey, Color) =
-            diary.isExchanged ? ("已交换", Color(hex: 0xC9A24B))
-            : diary.status == .sealed ? ("已封存", Color.nPurple)
-            : ("手记中", Color.nCyan)
-        Text(key)
+        let opened = diary.openedPartners.count
+        let total = diary.partners.count
+        let (text, tint): (Text, Color) =
+            diary.isExchanged ? (Text("已交换"), Color(hex: 0xC9A24B))
+            : diary.status == .sealed
+                ? (opened > 0 && total > 1 ? Text("已拆 \(opened)/\(total)") : Text("已封存"), Color.nPurple)
+                : (Text("手记中"), Color.nCyan)
+        text
             .font(.system(size: 10, weight: .bold)).foregroundStyle(tint)
             .padding(.horizontal, 8).padding(.vertical, 4)
             .background(tint.opacity(0.14), in: Capsule())
     }
 }
 
-/// 新建一本：标题 + 交换对象（手输，或从「往来的人」点选带出邮箱号）。
-private struct NewDiarySheet: View {
+/// 新建一本：标题 + 交换伙伴（多选：旅伴建议 chips / 往来的人 chips / 手输 tag 追加）。
+/// 从足迹发起时传 prefill*（标题、旅伴建议默认全选、footprintID 关联旅途）。
+struct NewDiarySheet: View {
+
+    var prefillTitle: String = ""
+    var suggestedNames: [String] = []       // 足迹旅伴（默认全选）
+    var footprintID: UUID? = nil
 
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var context
     @ObservedObject private var contacts = PostcardContacts.shared
 
     @State private var title = ""
-    @State private var partnerName = ""
-
-    /// 名字与「往来的人」对上时带出其邮箱号（手输改名后自然失配置空，不需要额外状态）。
-    private var resolvedBox: String? {
-        let name = partnerName.trimmingCharacters(in: .whitespaces)
-        return contacts.recent.first { $0.name.caseInsensitiveCompare(name) == .orderedSame }?.boxID
-    }
+    /// 已选伙伴（保序）。
+    @State private var partnerNames: [String] = []
+    @State private var draft = ""
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 18) {
                     field("日记标题", text: $title, prompt: "如：2026 冰岛")
-                    field("和谁交换", text: $partnerName, prompt: "对方昵称")
-                    if !contacts.recent.isEmpty {
-                        Text("从往来的人里选").font(.system(size: 12)).foregroundStyle(Color.muted)
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 10) {
-                                ForEach(contacts.recent.prefix(12)) { c in
-                                    Button {
-                                        partnerName = c.name
-                                    } label: {
-                                        HStack(spacing: 6) {
-                                            PostcardWallView.avatar(c, size: 22)
-                                            Text(verbatim: c.name)
-                                                .font(.system(size: 12, weight: .semibold))
-                                                .foregroundStyle(Color.text)
-                                        }
-                                        .padding(.horizontal, 10).padding(.vertical, 7)
-                                        .background(Color.panel, in: Capsule())
-                                        .overlay(Capsule().stroke(
-                                            partnerName == c.name ? Color.nPink : Color.line, lineWidth: 1))
-                                    }
-                                }
+
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("和谁交换（可多选）").font(.system(size: 12)).foregroundStyle(Color.muted)
+                        if !partnerNames.isEmpty { selectedChips }
+                        HStack(spacing: 8) {
+                            TextField("", text: $draft,
+                                      prompt: Text("输入旅伴昵称").foregroundStyle(Color.faint))
+                                .font(.system(size: 14)).foregroundStyle(Color.text)
+                                .onSubmit(addDraft)
+                            Button(action: addDraft) {
+                                Image(systemName: "plus.circle.fill")
+                                    .font(.system(size: 20)).foregroundStyle(Color.nPink)
                             }
+                            .disabled(draft.trimmingCharacters(in: .whitespaces).isEmpty)
                         }
+                        .padding(11)
+                        .background(Color.panel, in: RoundedRectangle(cornerRadius: 12))
+                        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.line, lineWidth: 1))
                     }
-                    Text("你们各写各的，对方看不到；两边都封存并互寄后才能拆开。")
+
+                    if !suggestionChipsSource.isEmpty {
+                        Text("从旅伴 / 往来的人里选").font(.system(size: 12)).foregroundStyle(Color.muted)
+                        suggestionChips
+                    }
+
+                    Text("你们各写各的，互相看不到；每个人封存并互寄后，才能逐个拆开。")
                         .font(.system(size: 11)).foregroundStyle(Color.faint)
                 }
                 .padding(22)
@@ -169,21 +239,104 @@ private struct NewDiarySheet: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("取消") { dismiss() } }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("创建") {
-                        let d = ExchangeDiary(title: title.trimmingCharacters(in: .whitespaces),
-                                              partnerName: partnerName.trimmingCharacters(in: .whitespaces),
-                                              partnerBoxID: resolvedBox)
-                        context.insert(d)
-                        try? context.save()
-                        Haptics.success()
-                        dismiss()
-                    }
-                    .disabled(title.trimmingCharacters(in: .whitespaces).isEmpty)
+                    Button("创建") { create() }
+                        .disabled(title.trimmingCharacters(in: .whitespaces).isEmpty || allNames.isEmpty)
                 }
+            }
+            .onAppear {
+                if title.isEmpty { title = prefillTitle }
+                if partnerNames.isEmpty { partnerNames = suggestedNames }   // 足迹旅伴默认全选
             }
         }
         .preferredColorScheme(.dark)
         .tint(Color.nPink)
+    }
+
+    /// 已选 + 未提交草稿。
+    private var allNames: [String] {
+        var names = partnerNames
+        let d = draft.trimmingCharacters(in: .whitespaces)
+        if !d.isEmpty, !names.contains(where: { $0.caseInsensitiveCompare(d) == .orderedSame }) {
+            names.append(d)
+        }
+        return names
+    }
+
+    /// 建议 chips：足迹旅伴在前、往来的人在后（去重）。
+    private var suggestionChipsSource: [String] {
+        var seen = Set<String>(), out: [String] = []
+        for n in suggestedNames + contacts.recent.prefix(12).map(\.name) {
+            let key = n.lowercased()
+            if !n.isEmpty, !seen.contains(key) { seen.insert(key); out.append(n) }
+        }
+        return out
+    }
+
+    private var selectedChips: some View {
+        FlexWrap(items: partnerNames) { name in
+            HStack(spacing: 6) {
+                PersonAvatar.named(name, size: 20)
+                Text(verbatim: name).font(.system(size: 12, weight: .semibold)).foregroundStyle(Color.text)
+                Button { remove(name) } label: {
+                    Image(systemName: "xmark").font(.system(size: 8, weight: .bold)).foregroundStyle(Color.faint)
+                }
+            }
+            .padding(.horizontal, 9).padding(.vertical, 6)
+            .background(Color.nPink.opacity(0.12), in: Capsule())
+            .overlay(Capsule().stroke(Color.nPink.opacity(0.4), lineWidth: 1))
+        }
+    }
+
+    private var suggestionChips: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 10) {
+                ForEach(suggestionChipsSource, id: \.self) { name in
+                    let picked = partnerNames.contains { $0.caseInsensitiveCompare(name) == .orderedSame }
+                    Button { picked ? remove(name) : partnerNames.append(name) } label: {
+                        HStack(spacing: 6) {
+                            PersonAvatar.named(name, size: 22)
+                            Text(verbatim: name)
+                                .font(.system(size: 12, weight: .semibold)).foregroundStyle(Color.text)
+                            if picked {
+                                Image(systemName: "checkmark").font(.system(size: 9, weight: .bold))
+                                    .foregroundStyle(Color.nPink)
+                            }
+                        }
+                        .padding(.horizontal, 10).padding(.vertical, 7)
+                        .background(Color.panel, in: Capsule())
+                        .overlay(Capsule().stroke(picked ? Color.nPink : Color.line, lineWidth: 1))
+                    }
+                }
+            }
+        }
+    }
+
+    private func addDraft() {
+        let d = draft.trimmingCharacters(in: .whitespaces)
+        guard !d.isEmpty else { return }
+        if !partnerNames.contains(where: { $0.caseInsensitiveCompare(d) == .orderedSame }) {
+            partnerNames.append(d)
+        }
+        draft = ""
+    }
+
+    private func remove(_ name: String) {
+        partnerNames.removeAll { $0.caseInsensitiveCompare(name) == .orderedSame }
+    }
+
+    private func create() {
+        let d = ExchangeDiary(title: title.trimmingCharacters(in: .whitespaces),
+                              footprintID: footprintID)
+        context.insert(d)
+        for name in allNames {
+            let p = DiaryPartner(name: name,
+                                 boxID: PostcardContacts.shared.contact(named: name)?.boxID)
+            p.diary = d
+            d.partners.append(p)
+        }
+        try? context.save()
+        Haptics.success()
+        dismiss()
     }
 
     private func field(_ label: LocalizedStringKey, text: Binding<String>, prompt: LocalizedStringKey) -> some View {
@@ -195,6 +348,19 @@ private struct NewDiarySheet: View {
                 .padding(13)
                 .background(Color.panel, in: RoundedRectangle(cornerRadius: 14))
                 .overlay(RoundedRectangle(cornerRadius: 14).stroke(Color.line, lineWidth: 1))
+        }
+    }
+}
+
+/// 简易换行流式布局（已选伙伴 chips 用）。
+struct FlexWrap<Item: Hashable, Content: View>: View {
+    let items: [Item]
+    @ViewBuilder var content: (Item) -> Content
+
+    var body: some View {
+        // 数量少（≤ 六七个），直接横向滚动即可；避免自定义 Layout 的复杂度
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) { ForEach(items, id: \.self) { content($0) } }
         }
     }
 }

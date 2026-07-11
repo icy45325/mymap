@@ -26,6 +26,13 @@ final class PostcardContacts: ObservableObject {
     /// 近期往来（按最近一次时间倒序）。
     var recent: [PostcardContact] { contacts.sorted { $0.lastAt > $1.lastAt } }
 
+    /// 按名字查联系人（忽略大小写）——旅伴/日记伙伴与「往来的人」的弱关联入口。
+    func contact(named name: String) -> PostcardContact? {
+        let n = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !n.isEmpty else { return nil }
+        return contacts.first { $0.name.caseInsensitiveCompare(n) == .orderedSame }
+    }
+
     /// 记一笔往来：寄出（sent）或收到（!sent）。同名（忽略大小写）合并计数；
     /// 带 `boxID`（直寄邮箱号）/ `avatarB64` / `countryCode`（随收到的卡传来）则记住 / 更新。
     func record(_ rawName: String?, boxID: String? = nil, avatarB64: String? = nil,

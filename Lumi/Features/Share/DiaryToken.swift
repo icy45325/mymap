@@ -6,18 +6,26 @@ import UIKit
 struct DiaryPayload: Codable {
     var v: Int = 1
     let token: String            // 幂等标识（封存时生成一次，固化在 ExchangeDiary.sealToken）
-    let pairID: String           // 配对码：对方寄回时凭它自动对上发起方的日记本
+    let pairID: String           // 配对码：全组共用，伙伴寄回时凭它自动对上这本日记
     let diaryID: String          // 寄件方日记 id（自收自发检测）
     let title: String
     let sender: String?          // 寄件人昵称
     let senderBox: String?       // 寄件人 Lumi 邮箱号（收件方回寄用）
     let sealedAt: Date
     let entries: [Entry]
+    /// 群本成员名单（除寄件人外的其他伙伴；旧口令无此字段解出 nil）。
+    /// 收件端建本时用它零配置得到全组（过滤掉自己）。
+    var others: [Member]? = nil
 
     struct Entry: Codable {
         let d: Date              // 条目日期
         let t: String            // 正文
         var m: String? = nil     // 心情 emoji
+    }
+
+    struct Member: Codable {
+        let n: String            // 名字
+        var b: String? = nil     // Lumi 邮箱号
     }
 }
 
@@ -34,14 +42,17 @@ enum DiaryToken {
         let items = diary.entries
             .sorted { $0.date < $1.date }
             .map { DiaryPayload.Entry(d: $0.date, t: $0.text, m: $0.mood) }
+        // 群本：带上我方视角的伙伴名单（收件人自己会在建本时被过滤掉）
+        let members = diary.partners.map { DiaryPayload.Member(n: $0.name, b: $0.boxID) }
         let p = DiaryPayload(token: token, pairID: diary.pairID, diaryID: diary.id.uuidString,
                              title: diary.title, sender: sender, senderBox: senderBox,
-                             sealedAt: diary.sealedAt ?? .now, entries: items)
+                             sealedAt: diary.sealedAt ?? .now, entries: items,
+                             others: members.isEmpty ? nil : members)
         guard let data = try? JSONEncoder().encode(p) else { return "" }
         return prefix + data.base64EncodedString()
     }
 
-    /// 把解码后的载荷还原成口令字符串（收件落壳存 `partnerToken` 用；token 原样保留）。
+    /// 把解码后的载荷还原成口令字符串（收件落壳存 `DiaryPartner.shellToken` 用；token 原样保留）。
     static func reencode(_ p: DiaryPayload) -> String {
         guard let data = try? JSONEncoder().encode(p) else { return "" }
         return prefix + data.base64EncodedString()

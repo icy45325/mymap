@@ -373,6 +373,11 @@ private struct TimelineItem: View {
                                 .background(.black.opacity(0.42), in: Capsule())
                                 .overlay(Capsule().stroke(.white.opacity(0.16), lineWidth: 1))
                         }
+                        Spacer(minLength: 0)
+                        if !footprint.companions.isEmpty {
+                            // 旅伴头像：往来的人命中真头像；手输名字首字母默认头像
+                            PartnerAvatarStack(names: footprint.companions, size: 20)
+                        }
                     }
                 }
                 .padding(16)

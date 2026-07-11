@@ -148,20 +148,9 @@ struct PostcardWallView: View {
         .sheet(isPresented: $showScanner) { ScannerSheet() }
     }
 
-    /// 联系人头像：有随卡传来的头像图就用，否则霓虹底 + 首字母。
-    @ViewBuilder
+    /// 联系人头像：转调通用 PersonAvatar（有随卡传来的头像图就用，否则霓虹底 + 首字母）。
     static func avatar(_ c: PostcardContact, size: CGFloat) -> some View {
-        if let b64 = c.avatarB64, let data = Data(base64Encoded: b64), let ui = UIImage(data: data) {
-            Image(uiImage: ui).resizable().scaledToFill()
-                .frame(width: size, height: size).clipShape(Circle())
-                .overlay(Circle().stroke(Color.line, lineWidth: 1))
-        } else {
-            ZStack {
-                Circle().fill(LinearGradient.neon).frame(width: size, height: size)
-                    .overlay(Circle().stroke(Color.line, lineWidth: 1))
-                Text(String(c.name.prefix(1))).font(Typo.serif(size * 0.4)).foregroundStyle(.white)
-            }
-        }
+        PersonAvatar(name: c.name, avatarB64: c.avatarB64, size: size)
     }
     private func contactAvatar(_ c: PostcardContact, size: CGFloat) -> some View {
         Self.avatar(c, size: size)

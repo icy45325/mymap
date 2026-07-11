@@ -14960,6 +14960,710 @@
           }
         }
       }
+    },
+    "和谁交换（可多选）": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "和谁交换（可多选）"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Exchange with (pick several)"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "التبادل مع (اختر عدة)"
+          }
+        }
+      }
+    },
+    "输入旅伴昵称": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "输入旅伴昵称"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Type a travel mate's name"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "اكتب اسم رفيق السفر"
+          }
+        }
+      }
+    },
+    "从旅伴 / 往来的人里选": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "从旅伴 / 往来的人里选"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pick from travel mates / correspondents"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "اختر من رفاق السفر / المراسلين"
+          }
+        }
+      }
+    },
+    "你们各写各的，互相看不到；每个人封存并互寄后，才能逐个拆开。": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你们各写各的，互相看不到；每个人封存并互寄后，才能逐个拆开。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You each write privately; once everyone seals and sends, you unseal them one by one."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "كلٌ يكتب على حدة؛ بعد أن يختم الجميع ويتبادلوا، تُفتح الدفاتر واحداً واحداً."
+          }
+        }
+      }
+    },
+    "与 %@ 等 %lld 人": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "与 %@ 等 %lld 人"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "With %@ and %lld others"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "مع %@ و%lld آخرين"
+          }
+        }
+      }
+    },
+    "已拆 %lld/%lld": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已拆 %lld/%lld"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opened %lld/%lld"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "فُتح %lld/%lld"
+          }
+        }
+      }
+    },
+    "Ta 的日记你已经拆开过了": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ta 的日记你已经拆开过了"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You've already unsealed their diary"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "لقد فتحت دفترهم من قبل"
+          }
+        }
+      }
+    },
+    "与旅伴交换日记": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "与旅伴交换日记"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Exchange diaries with travel mates"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تبادل اليوميات مع رفاق السفر"
+          }
+        }
+      }
+    },
+    "伙伴的日记已寄到": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "伙伴的日记已寄到"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A companion's diary has arrived"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "وصل دفتر أحد الرفاق"
+          }
+        }
+      }
+    },
+    "封存好了，寄给伙伴们吧": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "封存好了，寄给伙伴们吧"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sealed — send it to your companions"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تم الختم — أرسله إلى رفاقك"
+          }
+        }
+      }
+    },
+    "已寄出，可随时再寄": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已寄出，可随时再寄"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sent — you can send again anytime"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أُرسل — يمكنك الإرسال مجدداً في أي وقت"
+          }
+        }
+      }
+    },
+    "同一份口令全员通用：口令 / 二维码 / AirDrop / 邮局直投都行": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "同一份口令全员通用：口令 / 二维码 / AirDrop / 邮局直投都行"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "One code works for everyone: code, QR, AirDrop or Lumi Post"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "رمز واحد يعمل للجميع: رمز أو QR أو AirDrop أو بريد لومي"
+          }
+        }
+      }
+    },
+    "寄出我的日记 ✦": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "寄出我的日记 ✦"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send my diary ✦"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أرسل يومياتي ✦"
+          }
+        }
+      }
+    },
+    "一起读 ✦": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "一起读 ✦"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Read together ✦"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "اقرؤوها معاً ✦"
+          }
+        }
+      }
+    },
+    "读已拆开的 ✦": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "读已拆开的 ✦"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Read the opened ones ✦"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "اقرأ ما فُتح ✦"
+          }
+        }
+      }
+    },
+    "交换伙伴": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "交换伙伴"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Exchange companions"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "رفاق التبادل"
+          }
+        }
+      }
+    },
+    "已拆开 · %@": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已拆开 · %@"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opened · %@"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "فُتح · %@"
+          }
+        }
+      }
+    },
+    "已寄到 · 可以拆开": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已寄到 · 可以拆开"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arrived · ready to unseal"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "وصل · جاهز للفتح"
+          }
+        }
+      }
+    },
+    "已寄到 · 先封存你的": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已寄到 · 先封存你的"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arrived · seal yours first"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "وصل · اختم دفترك أولاً"
+          }
+        }
+      }
+    },
+    "等待 Ta 封存寄来…": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "等待 Ta 封存寄来…"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Waiting for them to seal and send…"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "بانتظار أن يختموا ويرسلوا…"
+          }
+        }
+      }
+    },
+    "拆开 ✦": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "拆开 ✦"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unseal ✦"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "افتح ✦"
+          }
+        }
+      }
+    },
+    "寄给伙伴们": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "寄给伙伴们"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send to companions"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أرسل إلى الرفاق"
+          }
+        }
+      }
+    },
+    "同一份口令全员通用——发进群里，伙伴们都能收下 ✦": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "同一份口令全员通用——发进群里，伙伴们都能收下 ✦"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "One code for everyone — drop it in the group chat and all can accept ✦"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "رمز واحد للجميع — أرسله في المجموعة ليستلمه الكل ✦"
+          }
+        }
+      }
+    },
+    "没有邮箱号 · 用口令/二维码给 Ta": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "没有邮箱号 · 用口令/二维码给 Ta"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No mailbox no. · use code/QR instead"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "لا رقم صندوق · استخدم الرمز/QR"
+          }
+        }
+      }
+    },
+    "已寄": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已寄"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sent"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أُرسل"
+          }
+        }
+      }
+    },
+    "寄出 ✦": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "寄出 ✦"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send ✦"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أرسل ✦"
+          }
+        }
+      }
+    },
+    "已寄给 %@ ✦": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已寄给 %@ ✦"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sent to %@ ✦"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أُرسل إلى %@ ✦"
+          }
+        }
+      }
+    },
+    "发到任何聊天工具或群里，伙伴打开 App 自动收到": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "发到任何聊天工具或群里，伙伴打开 App 自动收到"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Paste into any chat or group — their app picks it up automatically"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أرسله في أي دردشة أو مجموعة — سيلتقطه تطبيقهم تلقائياً"
+          }
+        }
+      }
+    },
+    "伙伴在明信片墙「扫码」即可收下": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "伙伴在明信片墙「扫码」即可收下"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Companions can scan it from the postcard wall"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "يمكن للرفاق مسحه من جدار البطاقات"
+          }
+        }
+      }
+    },
+    "伙伴用 Lumi 打开即收下": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "伙伴用 Lumi 打开即收下"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opens right into Lumi"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "يُفتح مباشرة في لومي"
+          }
+        }
+      }
+    },
+    "伙伴：明信片墙 → 扫码": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "伙伴：明信片墙 → 扫码"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Companions: Postcard wall → Scan"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الرفاق: جدار البطاقات ← مسح"
+          }
+        }
+      }
+    },
+    "只看我": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "只看我"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mine only"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "يومياتي فقط"
+          }
+        }
+      }
     }
   },
   "version": "1.0"
