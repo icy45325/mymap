@@ -25,8 +25,6 @@ struct ProfileView: View {
                 VStack(alignment: .leading, spacing: 0) {
                     profileTop
                     levelBar
-                    entryCard("bell.fill", "动态", "收到的明信片 · 日记更新", Color.nCyan,
-                              badge: noticeCenter.unreadCount) { NoticeListView() }
                     entryCard("book.closed.fill", "我的护照本",
                               "去过 \(stats.countries) 国 · 翻开看看出入境章", Color(hex: 0xC9A24B)) { PassportView() }
                     entryCard("rectangle.stack", "明信片墙", "收到的明信片都在这", Color.nPink) { PostcardWallView() }
@@ -67,9 +65,28 @@ struct ProfileView: View {
             }
             Spacer()
             if post.identity != nil { mailboxMenu }
+            updatesButton
             NavigationLink { SettingsView() } label: { topIcon("gearshape") }
         }
         .padding(.horizontal, 26)
+    }
+
+    /// 动态入口（右上角小图标，未读数角标）。
+    private var updatesButton: some View {
+        NavigationLink { NoticeListView() } label: {
+            topIcon("bell")
+                .overlay(alignment: .topTrailing) {
+                    if noticeCenter.unreadCount > 0 {
+                        Text(verbatim: "\(min(noticeCenter.unreadCount, 99))")
+                            .font(.system(size: 9, weight: .bold)).foregroundStyle(.white)
+                            .padding(.horizontal, 4.5).padding(.vertical, 2)
+                            .background(Color.nPink, in: Capsule())
+                            .overlay(Capsule().stroke(Color.bg, lineWidth: 1.5))
+                            .offset(x: 4, y: -3)
+                    }
+                }
+        }
+        .accessibilityLabel(Text("动态"))
     }
 
     /// 快速分享我的邮箱号：复制号码 / 分享带品牌的图（与明信片墙分享同款）。

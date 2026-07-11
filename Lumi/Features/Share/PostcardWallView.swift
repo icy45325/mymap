@@ -186,14 +186,14 @@ struct PostcardWallView: View {
                         UIPasteboard.general.string = identity.boxID
                         boxCopied = true; Haptics.selection()
                     } label: {
-                        Label(boxCopied ? "已复制" : "复制邮箱号",
-                              systemImage: boxCopied ? "checkmark" : "doc.on.doc")
-                            .font(.system(size: 11, weight: .semibold)).foregroundStyle(Color.nCyan)
-                            .padding(.vertical, 7).padding(.horizontal, 12)
-                            .background(Color.bg, in: Capsule())
-                            .overlay(Capsule().stroke(Color.nCyan.opacity(0.5), lineWidth: 1))
+                        Image(systemName: boxCopied ? "checkmark" : "doc.on.doc")
+                            .font(.system(size: 13, weight: .semibold)).foregroundStyle(Color.nCyan)
+                            .padding(8)
+                            .background(Color.bg, in: Circle())
+                            .overlay(Circle().stroke(Color.nCyan.opacity(0.5), lineWidth: 1))
                     }
                     .buttonStyle(.plain)
+                    .accessibilityLabel(Text("复制邮箱号"))
                     // 分享一张带品牌的邮箱号卡图（渲染完成前兜底纯文本）
                     if let img = mailboxImage {
                         ShareLink(item: img, preview: SharePreview("Lumi", image: img)) { mailboxShareIcon }
