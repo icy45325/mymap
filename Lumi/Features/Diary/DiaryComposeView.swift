@@ -95,9 +95,11 @@ struct DiaryComposeView: View {
             WaxSeal(size: 64, glow: true)
             Text(asOwner ? "已封存 🔒" : "写好了，封存 🔒")
                 .font(Typo.serif(22)).foregroundStyle(Color.text)
-            Text(asOwner ? "等 \(book.partnerName) 写完后，一起拆封 ✦"
-                         : "把手机交还给主人吧 ✦")
+            Text(!asOwner ? "把手机交还给主人吧 ✦"
+                 : (book.isRemote ? "回到本子，把封存的半页寄给 \(book.partnerName) ✦"
+                                  : "等 \(book.partnerName) 写完后，一起拆封 ✦"))
                 .font(.system(size: 13)).foregroundStyle(Color.muted)
+                .multilineTextAlignment(.center)
             Spacer()
             Button { onDone() } label: {
                 Text("完成")
@@ -167,9 +169,10 @@ struct DiaryComposeView: View {
     private var otherHalfHint: some View {
         VStack(spacing: 7) {
             WaxSeal(size: 36)
-            Text(asOwner
-                 ? "\(book.partnerName) 的那半页\n等你写完后\n把手机递给 Ta"
-                 : "主人的半页\n已封存，拆封时再看")
+            Text(!asOwner
+                 ? "主人的半页\n已封存，拆封时再看"
+                 : (book.isRemote ? "\(book.partnerName) 的那半页\nTa 在自己的 App 里写"
+                                  : "\(book.partnerName) 的那半页\n等你写完后\n把手机递给 Ta"))
                 .font(.system(size: 9.5, weight: .bold)).foregroundStyle(Color.muted)
                 .multilineTextAlignment(.center).lineSpacing(3)
         }

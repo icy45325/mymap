@@ -9,13 +9,16 @@ enum DiaryBookStore {
     /// 成书：候选旅程 + 交换对象 + 选中的足迹页 → DiaryBook（封面全自动）。
     /// 返回的书已含按时间正序的页；调用方应直接进入第一页写作页（≤3 击落笔）。
     static func createBook(from candidate: TripCandidate, partnerName: String,
-                           selectedFootprints: [Footprint], context: ModelContext) -> DiaryBook {
+                           selectedFootprints: [Footprint], mode: String = "remote",
+                           context: ModelContext) -> DiaryBook {
         let trip = TripSuggest.materialize(candidate, context: context)
         let books = (try? context.fetch(FetchDescriptor<DiaryBook>())) ?? []
         // 书脊配色轮转（同架不同色）
         let hex = DiaryBook.spinePalette[books.count % DiaryBook.spinePalette.count]
         let book = DiaryBook(title: candidate.title, tripID: trip.id,
-                             partnerName: partnerName, spineColorHex: hex)
+                             partnerName: partnerName, spineColorHex: hex,
+                             mode: mode,
+                             partnerBoxID: PostcardContacts.shared.contact(named: partnerName)?.boxID)
         context.insert(book)
         for (i, fp) in selectedFootprints.sorted(by: { $0.visitedAt < $1.visitedAt }).enumerated() {
             let page = DiaryPage(orderIndex: i, footprintID: fp.id,
@@ -82,6 +85,76 @@ enum DiaryBookStore {
     /// 删本（允许；已写内容一并删除——调用方需先确认）。
     static func deleteBook(_ book: DiaryBook, context: ModelContext) {
         context.delete(book)
+        try? context.save()
+    }
+
+    // MARK: - 远程交换（App 内交换：邀请镜像本 / 互发半页）
+
+    /// 收到邀请 → 生成镜像本（同 pairID、同页结构；partner=发起者，视角对调）。幂等：同 pairID 已有本则复用。
+    static func mirrorBook(from p: DiaryLinkPayload, context: ModelContext) -> DiaryBook {
+        let books = (try? context.fetch(FetchDescriptor<DiaryBook>())) ?? []
+        if let hit = books.first(where: { $0.pairID == p.pairID }) { return hit }
+        // 镜像本不绑本地 Trip（旅程在对方手机上）；tripID 用占位 UUID，不参与聚类
+        let book = DiaryBook(title: p.title ?? String(localized: "交换日记"),
+                             tripID: UUID(),
+                             partnerName: p.sender ?? "",
+                             spineColorHex: p.spineHex ?? DiaryBook.spinePalette[0],
+                             mode: "remote", pairID: p.pairID, partnerBoxID: p.senderBox)
+        book.inviteSentAt = .now                      // 镜像端视为已互通
+        context.insert(book)
+        for meta in (p.pages ?? []).sorted(by: { $0.i < $1.i }) {
+            let page = DiaryPage(orderIndex: meta.i, footprintID: nil,
+                                 titleSnapshot: meta.t, dateSnapshot: meta.d)
+            page.book = book
+            book.pages.append(page)
+        }
+        try? context.save()
+        PostcardContacts.shared.record(p.sender, boxID: p.senderBox,
+                                       avatarB64: nil, countryCode: nil, sent: false)
+        return book
+    }
+
+    /// 收到对方寄来的半页集 → 按 pairID+orderIndex 落到对应页的「对方半页」（直接封存态）。
+    /// 返回落进的本；找不到本（还没收邀请）返回 nil。
+    static func applyHalves(_ p: DiaryLinkPayload, context: ModelContext) -> DiaryBook? {
+        let books = (try? context.fetch(FetchDescriptor<DiaryBook>())) ?? []
+        guard let book = books.first(where: { $0.pairID == p.pairID }) else { return nil }
+        for h in p.halves ?? [] {
+            guard let page = book.pages.first(where: { $0.orderIndex == h.i }),
+                  page.revealedAt == nil else { continue }
+            let half = self.half(of: page, mine: false, context: context)
+            guard half.sealedAt == nil else { continue }       // 已收过这半页，幂等
+            half.text = h.t
+            half.drawingData = h.draw.flatMap { Data(base64Encoded: $0) }
+            half.voiceData = h.voice.flatMap { Data(base64Encoded: $0) }
+            half.voiceDuration = h.vd
+            half.sealedAt = h.sealedAt
+            half.updatedAt = .now
+            if page.state == .revealable {
+                NoticeCenter.shared.add(.diary,
+                                        title: String(localized: "与 \(book.partnerName) 的一页可以拆封了 ✦"),
+                                        subtitle: page.titleSnapshot,
+                                        targetID: book.id.uuidString)
+            }
+        }
+        if book.partnerBoxID == nil { book.partnerBoxID = p.senderBox }
+        try? context.save()
+        PostcardContacts.shared.record(p.sender, boxID: p.senderBox,
+                                       avatarB64: nil, countryCode: nil, sent: false)
+        return book
+    }
+
+    /// 已封存、还没寄给对方的半页（remote 发送打包用）。
+    static func pendingHalves(of book: DiaryBook) -> [(page: DiaryPage, half: DiaryHalf)] {
+        book.sortedPages.compactMap { page in
+            guard let half = page.myHalf, half.sealedAt != nil, half.syncedAt == nil else { return nil }
+            return (page, half)
+        }
+    }
+
+    /// 标记这批半页已寄出。
+    static func markSynced(_ halves: [(page: DiaryPage, half: DiaryHalf)], context: ModelContext) {
+        for item in halves { item.half.syncedAt = .now }
         try? context.save()
     }
 

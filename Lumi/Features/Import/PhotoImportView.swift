@@ -60,7 +60,7 @@ struct PhotoImportView: View {
         VStack(spacing: 16) {
             ProgressView().tint(Color.nPink).scaleEffect(1.3)
             Text(service.phase == .requesting ? "请求相册权限…" : "正在从相册识别去过的地方…")
-                .font(.subheadline).foregroundStyle(Color.muted)
+                .font(.system(size: 12.5)).foregroundStyle(Color.muted)
                 .multilineTextAlignment(.center)
 
             // 反向地理编码阶段：确定性进度 + 预计剩余时间
@@ -98,16 +98,16 @@ struct PhotoImportView: View {
     private var denied: some View {
         VStack(spacing: 12) {
             Image(systemName: "lock.fill").font(.system(size: 40)).foregroundStyle(Color.nPurple)
-            Text("无法访问相册").font(.headline).foregroundStyle(Color.text)
+            Text("无法访问相册").font(.system(size: 14, weight: .semibold)).foregroundStyle(Color.text)
             Text("到「设置 › 隐私 › 照片」允许 Lumi 读取相册后再试。")
-                .font(.subheadline).foregroundStyle(Color.muted)
+                .font(.system(size: 12.5)).foregroundStyle(Color.muted)
                 .multilineTextAlignment(.center).padding(.horizontal, 40)
             Button("打开设置") {
                 if let url = URL(string: UIApplication.openSettingsURLString) {
                     UIApplication.shared.open(url)
                 }
             }
-            .font(.subheadline.weight(.semibold)).foregroundStyle(Color.nPink).padding(.top, 4)
+            .font(.system(size: 13, weight: .semibold)).foregroundStyle(Color.nPink).padding(.top, 4)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
@@ -118,9 +118,9 @@ struct PhotoImportView: View {
         VStack(spacing: 12) {
             Image(systemName: "photo.on.rectangle.angled").font(.system(size: 40))
                 .foregroundStyle(Color.nPurple)
-            Text("没找到带位置的新照片").font(.headline).foregroundStyle(Color.text)
+            Text("没找到带位置的新照片").font(.system(size: 14, weight: .semibold)).foregroundStyle(Color.text)
             Text("相册里带定位信息的照片都已点亮，或暂时没有可识别的地点。")
-                .font(.subheadline).foregroundStyle(Color.muted)
+                .font(.system(size: 12.5)).foregroundStyle(Color.muted)
                 .multilineTextAlignment(.center).padding(.horizontal, 40)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -171,7 +171,7 @@ struct PhotoImportView: View {
                 HStack(spacing: 12) {
                     Text(c.flag).font(.system(size: 24))
                     VStack(alignment: .leading, spacing: 3) {
-                        Text(c.placeName).font(.system(size: 15, weight: .medium))
+                        Text(c.placeName).font(.system(size: 14, weight: .medium))
                             .foregroundStyle(Color.text).lineLimit(1)
                         HStack(spacing: 8) {
                             Text(c.date.formatted(Self.dateFormat))
@@ -247,7 +247,7 @@ struct PhotoImportView: View {
 
             Button(action: runImport) {
                 Text(service.selectedCount > 0 ? "导入 \(service.selectedCount) 个足迹 ✦" : "选择要导入的地点")
-                    .font(.headline)
+                    .font(.system(size: 15, weight: .semibold))
                     .frame(maxWidth: .infinity).padding(.vertical, 16)
                     .background(LinearGradient.neonH, in: Capsule())
                     .foregroundStyle(.white)

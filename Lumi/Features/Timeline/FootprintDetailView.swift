@@ -211,7 +211,7 @@ struct FootprintDetailView: View {
 
     private var companionsSection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("同行人").font(.subheadline).foregroundStyle(Color.muted)
+            Text("同行人").font(.system(size: 14, weight: .medium)).foregroundStyle(Color.muted)
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
                     ForEach(footprint.companions, id: \.self) { name in
@@ -253,8 +253,8 @@ struct FootprintDetailView: View {
 
     private func infoRow(_ label: String, _ value: String) -> some View {
         HStack(alignment: .top) {
-            Text(label.localized).font(.subheadline).foregroundStyle(Color.muted).frame(width: 64, alignment: .leading)
-            Text(value).font(.subheadline).foregroundStyle(Color.text)
+            Text(label.localized).font(.system(size: 14)).foregroundStyle(Color.muted).frame(width: 64, alignment: .leading)
+            Text(value).font(.system(size: 14)).foregroundStyle(Color.text)
             Spacer()
         }
     }

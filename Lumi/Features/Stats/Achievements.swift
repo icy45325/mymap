@@ -104,9 +104,15 @@ struct Highlight: Identifiable {
 // MARK: - 统计聚合（单一计算入口）
 
 /// 把 [Footprint] 聚合成各页所需的派生数据，保证 地图 / 星迹 / 成就 / 我 口径一致。
+/// **口径：足迹 = 自己去过的**——收到的明信片（isReceived）在此源头统一剔除，
+/// 不计入国/城/大洲/等级/徽章（收到的卡只出现在明信片墙 / 信封大头针 / 节日章）。
 struct LumiStats {
 
     let footprints: [Footprint]
+
+    init(footprints: [Footprint]) {
+        self.footprints = footprints.filter { !$0.isReceived }
+    }
 
     // —— 基础口径（§5.1 distinct）——
     var litCountryCodes: Set<String> { Set(footprints.compactMap { $0.countryCode }) }

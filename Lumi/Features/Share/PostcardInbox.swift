@@ -9,6 +9,8 @@ final class PostcardInbox: ObservableObject {
     private init() {}
 
     @Published var pending: PostcardPayload?
+    /// 交换日记远程模式（LUMID2 邀请 / 半页）。
+    @Published var pendingDiaryLink: DiaryLinkPayload?
 
     /// 接收来源：剪贴板是**被动**探测（要躲开自己刚分享的卡，免得自弹）；
     /// 扫码 / lumi:// / AirDrop 是**主动**意图（即便是自己寄的也允许收下——「自己发自己收」）。
@@ -18,10 +20,12 @@ final class PostcardInbox: ObservableObject {
     private let sharedKey = "lumi.sharedTokens"     // 本机分享出去的 → 仅剪贴板被动探测时跳过
 
     func handle(url: URL, source: Source = .active) {
-        if let p = PostcardToken.payload(from: url) { offer(p, source: source) }
+        if let p = PostcardToken.payload(from: url) { offer(p, source: source); return }
+        if let d = DiaryLink.payload(from: url) { offerDiary(d, source: source) }
     }
     func handle(text: String, source: Source = .active) {
-        if let p = PostcardToken.find(in: text) { offer(p, source: source) }
+        if let p = PostcardToken.find(in: text) { offer(p, source: source); return }
+        if let d = DiaryLink.find(in: text) { offerDiary(d, source: source) }
     }
 
     /// 记录「我从本机分享出去的」口令——剪贴板被动探测会跳过它，避免发送方被自己刚分享的卡反复弹窗。
@@ -35,6 +39,12 @@ final class PostcardInbox: ObservableObject {
         guard !tokens(seenKey).contains(p.token) else { return }           // 已收过，绝不重复
         if source == .clipboard, tokens(sharedKey).contains(p.token) { return }  // 自己刚分享的，剪贴板别弹
         pending = p
+    }
+
+    private func offerDiary(_ d: DiaryLinkPayload, source: Source) {
+        guard !tokens(seenKey).contains(d.token) else { return }
+        if source == .clipboard, tokens(sharedKey).contains(d.token) { return }
+        pendingDiaryLink = d
     }
 
     private func tokens(_ key: String) -> Set<String> {

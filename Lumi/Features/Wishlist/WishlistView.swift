@@ -34,13 +34,13 @@ struct WishlistView: View {
     private var emptyState: some View {
         VStack(spacing: 14) {
             Image(systemName: "heart.text.square").font(.system(size: 44)).foregroundStyle(Color.nPink)
-            Text("还没有心愿").font(.headline).foregroundStyle(Color.text)
+            Text("还没有心愿").font(.system(size: 14, weight: .semibold)).foregroundStyle(Color.text)
             Text("搜索添加想去的地方，或在地图上点选标记")
-                .font(.subheadline).foregroundStyle(Color.muted)
+                .font(.system(size: 12.5)).foregroundStyle(Color.muted)
                 .multilineTextAlignment(.center).padding(.horizontal, 40)
             Button { showAdd = true } label: {
                 Label("添加心愿", systemImage: "plus")
-                    .font(.headline).padding(.vertical, 13).padding(.horizontal, 22)
+                    .font(.system(size: 15, weight: .semibold)).padding(.vertical, 13).padding(.horizontal, 22)
                     .background(LinearGradient.neonH, in: Capsule())
                     .foregroundStyle(.white)
             }
@@ -188,7 +188,7 @@ private struct AddWishView: View {
         if suggestions.isEmpty {
             VStack(spacing: 10) {
                 Image(systemName: "globe.asia.australia.fill").font(.system(size: 38)).foregroundStyle(Color.nPurple)
-                Text("热门目的地都在你的清单里了 ✦").font(.subheadline).foregroundStyle(Color.muted)
+                Text("热门目的地都在你的清单里了 ✦").font(.system(size: 12.5)).foregroundStyle(Color.muted)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else {

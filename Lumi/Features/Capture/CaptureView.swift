@@ -123,7 +123,7 @@ struct CaptureView: View {
                             .font(.system(size: 30))
                             .foregroundStyle(Color.litGlow)
                         Text("加一张照片（可跳过）")
-                            .font(.subheadline)
+                            .font(.system(size: 14))
                             .foregroundStyle(Color.textSecondary)
                     }
                 }
@@ -224,7 +224,7 @@ struct CaptureView: View {
 
     private func dateRow<Picker: View>(_ label: LocalizedStringKey, @ViewBuilder _ picker: () -> Picker) -> some View {
         HStack {
-            Text(label).font(.subheadline).foregroundStyle(Color.textSecondary)
+            Text(label).font(.system(size: 14, weight: .medium)).foregroundStyle(Color.textSecondary)
             Spacer()
             picker()
                 .labelsHidden()
@@ -279,7 +279,7 @@ struct CaptureView: View {
                     HStack(spacing: 8) {
                         ForEach(companions, id: \.self) { name in
                             HStack(spacing: 6) {
-                                Text(name).font(.subheadline).foregroundStyle(Color.textPrimary)
+                                Text(name).font(.system(size: 14)).foregroundStyle(Color.textPrimary)
                                 Button { companions.removeAll { $0 == name } } label: {
                                     Image(systemName: "xmark.circle.fill").foregroundStyle(Color.textMuted)
                                 }
@@ -309,7 +309,7 @@ struct CaptureView: View {
     private var lightUpButton: some View {
         Button(action: lightUp) {
             Text("点亮这里 ✦")
-                .font(.headline)
+                .font(.system(size: 15, weight: .semibold))
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 16)
                 .background(LinearGradient.neonH, in: Capsule())
@@ -456,7 +456,7 @@ struct CaptureView: View {
     // MARK: - 小工具
     private func sectionLabel(_ title: String, systemImage: String) -> some View {
         Label(title.localized, systemImage: systemImage)
-            .font(.subheadline.weight(.semibold))
+            .font(.system(size: 14, weight: .semibold))
             .foregroundStyle(Color.textSecondary)
     }
 }

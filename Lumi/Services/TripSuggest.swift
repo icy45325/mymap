@@ -29,7 +29,9 @@ enum TripSuggest {
     private static let gapDays = 3
 
     /// 全部候选旅程（新→旧）。已挂 Trip 的足迹按其 Trip 原样成段。
-    static func candidates(from footprints: [Footprint]) -> [TripCandidate] {
+    /// 只聚自己去过的足迹（收到的明信片不构成旅程）。
+    static func candidates(from allFootprints: [Footprint]) -> [TripCandidate] {
+        let footprints = allFootprints.filter { !$0.isReceived }
         var out: [TripCandidate] = []
 
         // 1) 已有 Trip 的直接成段

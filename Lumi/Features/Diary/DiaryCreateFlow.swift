@@ -20,6 +20,8 @@ struct DiaryCreateFlow: View {
     @State private var partnerName = ""
     @State private var customPartner = ""
     @State private var selectedPages: Set<UUID> = []
+    /// 交换模式：remote（App 内交换，默认）/ handoff（本机传递，对方没装 App）。
+    @State private var mode = "remote"
     /// 成书后直达第一页写作页
     @State private var createdBook: DiaryBook?
     @State private var firstPage: DiaryPage?
@@ -130,7 +132,7 @@ struct DiaryCreateFlow: View {
                 .background(Color.panel, in: RoundedRectangle(cornerRadius: 12))
                 .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.line, lineWidth: 1))
 
-                Text("远程交换（各写各的手机）随好友体系上线；现在是本机传递——写完把手机递给 TA ✦")
+                Text("两个人各自在自己的 Lumi 里写；对方没装 App 也可以选「本机传递」把手机递给 Ta ✦")
                     .font(.system(size: 10.5)).foregroundStyle(Color.faint)
             }
             .padding(22)
@@ -159,10 +161,12 @@ struct DiaryCreateFlow: View {
                         .font(.system(size: 10)).foregroundStyle(Color.muted)
                 }
                 Spacer()
-                Text("📱 本机传递").font(.system(size: 9, weight: .heavy))
-                    .padding(.horizontal, 7).padding(.vertical, 3)
-                    .background(Color(hex: 0xFFD23E).opacity(0.9), in: Capsule())
-                    .foregroundStyle(Color(hex: 0x141109))
+                if PostcardContacts.shared.contact(named: name)?.boxID != nil {
+                    Text("📲 可直投").font(.system(size: 9, weight: .heavy))
+                        .padding(.horizontal, 7).padding(.vertical, 3)
+                        .background(Color.nCyan.opacity(0.85), in: Capsule())
+                        .foregroundStyle(Color(hex: 0x141109))
+                }
                 Image(systemName: "chevron.right").font(.system(size: 12, weight: .semibold)).foregroundStyle(Color.faint)
             }
             .padding(12)
@@ -193,6 +197,12 @@ struct DiaryCreateFlow: View {
                         .font(.system(size: 11, weight: .bold)).foregroundStyle(Color(hex: 0xC9A24B))
                         .frame(maxWidth: .infinity).padding(.vertical, 10)
                         .background(Color(hex: 0xC9A24B).opacity(0.1), in: RoundedRectangle(cornerRadius: 10))
+
+                    Text("怎么交换？").font(.system(size: 12)).foregroundStyle(Color.muted).padding(.top, 8)
+                    HStack(spacing: 8) {
+                        modeChip("remote", "📲 App 内交换", "各写各的手机，写完互寄")
+                        modeChip("handoff", "📱 本机传递", "Ta 没装 App，递手机给 Ta 写")
+                    }
                 }
                 .padding(22)
             }
@@ -235,11 +245,29 @@ struct DiaryCreateFlow: View {
         .buttonStyle(.plain)
     }
 
+    private func modeChip(_ value: String, _ title: LocalizedStringKey, _ subtitle: LocalizedStringKey) -> some View {
+        Button { mode = value; Haptics.selection() } label: {
+            VStack(alignment: .leading, spacing: 3) {
+                Text(title).font(.system(size: 12, weight: .heavy))
+                    .foregroundStyle(mode == value ? Color(hex: 0x141109) : Color.text)
+                Text(subtitle).font(.system(size: 9.5))
+                    .foregroundStyle(mode == value ? Color(hex: 0x141109).opacity(0.7) : Color.faint)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(10)
+            .background(mode == value ? Color(hex: 0xFFD23E) : Color.panel,
+                        in: RoundedRectangle(cornerRadius: 12))
+            .overlay(RoundedRectangle(cornerRadius: 12)
+                .stroke(mode == value ? Color(hex: 0xFFD23E) : Color.line, lineWidth: 1))
+        }
+        .buttonStyle(.plain)
+    }
+
     private func createBook() {
         guard let candidate else { return }
         let chosen = candidate.footprints.filter { selectedPages.contains($0.id) }
         let book = DiaryBookStore.createBook(from: candidate, partnerName: partnerName,
-                                             selectedFootprints: chosen, context: context)
+                                             selectedFootprints: chosen, mode: mode, context: context)
         createdBook = book
         Haptics.success()
         firstPage = book.sortedPages.first        // 直达第一页写作页（不停在空书）

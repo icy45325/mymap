@@ -20,6 +20,10 @@ func loadAssetUIImage(_ assetID: String?, targetSize: CGSize = CGSize(width: 144
 
 /// 按 PhotoKit 本地标识符加载相册图（v0 不拷贝原图，只引用）。
 /// 资源失效（用户从系统相册删了照片）→ 显示占位图，不崩溃（§7）。
+///
+/// 性能（2026-07-11 重写）：共享 `PHCachingImageManager` + `NSCache` 内存缓存；
+/// `.opportunistic` 低清先上、高清覆盖（缩略图秒出）；请求可取消（滚动不堆积）；
+/// `PHAsset.fetchAssets` 移出主线程。对外 API 不变。
 struct AssetImage: View {
 
     let assetID: String?
@@ -27,6 +31,14 @@ struct AssetImage: View {
 
     @State private var image: UIImage?
     @State private var failed = false
+    @State private var requestID: PHImageRequestID?
+
+    private static let manager = PHCachingImageManager()
+    private static let cache: NSCache<NSString, UIImage> = {
+        let c = NSCache<NSString, UIImage>()
+        c.countLimit = 400
+        return c
+    }()
 
     var body: some View {
         Group {
@@ -36,7 +48,9 @@ struct AssetImage: View {
                 placeholder
             }
         }
-        .task(id: assetID) { await load() }
+        .onAppear { start() }
+        .onChange(of: assetID) { _, _ in start() }
+        .onDisappear { cancel() }
     }
 
     private var placeholder: some View {
@@ -48,25 +62,48 @@ struct AssetImage: View {
         }
     }
 
-    private func load() async {
-        image = nil
+    private func cacheKey(_ id: String) -> NSString {
+        "\(id)@\(Int(targetSize.width))x\(Int(targetSize.height))" as NSString
+    }
+
+    private func start() {
+        cancel()
         failed = false
-        guard let assetID else { return }
-
-        let fetch = PHAsset.fetchAssets(withLocalIdentifiers: [assetID], options: nil)
-        guard let asset = fetch.firstObject else { failed = true; return }   // 照片已被删
-
-        let options = PHImageRequestOptions()
-        options.isNetworkAccessAllowed = true
-        options.deliveryMode = .highQualityFormat   // 单次回调，避免续体被多次 resume
-        options.resizeMode = .fast
-
-        let loaded: UIImage? = await withCheckedContinuation { cont in
-            PHImageManager.default().requestImage(
-                for: asset, targetSize: targetSize, contentMode: .aspectFill, options: options
-            ) { img, _ in cont.resume(returning: img) }
+        guard let assetID else { image = nil; return }
+        if let hit = Self.cache.object(forKey: cacheKey(assetID)) { image = hit; return }
+        image = nil
+        let size = targetSize
+        let key = cacheKey(assetID)
+        // fetchAssets 是同步磁盘调用——放到后台，避免列表滚动时主线程逐图卡顿
+        Task.detached(priority: .userInitiated) {
+            let fetch = PHAsset.fetchAssets(withLocalIdentifiers: [assetID], options: nil)
+            guard let asset = fetch.firstObject else {
+                await MainActor.run { failed = true }       // 照片已被删
+                return
+            }
+            let options = PHImageRequestOptions()
+            options.isNetworkAccessAllowed = true           // iCloud 优化存储的图仍能出
+            options.deliveryMode = .opportunistic           // 低清先上、高清覆盖（可能多次回调）
+            options.resizeMode = .fast
+            let id = Self.manager.requestImage(
+                for: asset, targetSize: size, contentMode: .aspectFill, options: options
+            ) { img, info in
+                let degraded = (info?[PHImageResultIsDegradedKey] as? Bool) ?? false
+                Task { @MainActor in
+                    if let img {
+                        image = img
+                        if !degraded { Self.cache.setObject(img, forKey: key) }
+                    } else if !degraded, image == nil {
+                        failed = true
+                    }
+                }
+            }
+            await MainActor.run { requestID = id }
         }
-        if loaded == nil { failed = true }
-        image = loaded
+    }
+
+    private func cancel() {
+        if let requestID { Self.manager.cancelImageRequest(requestID) }
+        requestID = nil
     }
 }

@@ -87,7 +87,7 @@ struct PostcardWallView: View {
                         if let who = filterSender { senderFilterChip(who) }
                         if items.isEmpty {
                             (filterSender == nil ? Text("还没有收到明信片") : Text("还没有收到 Ta 的明信片"))
-                                .font(.subheadline).foregroundStyle(Color.muted)
+                                .font(.system(size: 12.5)).foregroundStyle(Color.muted)
                                 .frame(maxWidth: .infinity).padding(.vertical, 28)
                         } else {
                             if items.count > 1 {
@@ -326,9 +326,9 @@ struct PostcardWallView: View {
     private var empty: some View {
         VStack(spacing: 14) {
             Image(systemName: "rectangle.stack").font(.system(size: 44)).foregroundStyle(Color.nPink)
-            Text("还没有收到明信片").font(.headline).foregroundStyle(Color.text)
+            Text("还没有收到明信片").font(.system(size: 14, weight: .semibold)).foregroundStyle(Color.text)
             Text("朋友用扫码 / 链接 / 隔空投送寄来的明信片，会收进这里")
-                .font(.subheadline).foregroundStyle(Color.muted)
+                .font(.system(size: 12.5)).foregroundStyle(Color.muted)
                 .multilineTextAlignment(.center).padding(.horizontal, 40)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -498,7 +498,7 @@ private struct ReplyFootprintPicker: View {
                     VStack(spacing: 10) {
                         Image(systemName: "mappin.slash").font(.system(size: 34)).foregroundStyle(Color.muted)
                         Text("还没有可回寄的足迹，先去点亮一个地方吧")
-                            .font(.subheadline).foregroundStyle(Color.muted)
+                            .font(.system(size: 12.5)).foregroundStyle(Color.muted)
                             .multilineTextAlignment(.center).padding(.horizontal, 40)
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)

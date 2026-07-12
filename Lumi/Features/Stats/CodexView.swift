@@ -12,7 +12,8 @@ struct CodexView: View {
     @ObservedObject private var plus = PlusStore.shared
     @State private var selected: CodexEntry?
 
-    private var litCodes: Set<String> { Set(footprints.compactMap { $0.countryCode }) }
+    /// 地区/典藏票按「去过的国」解锁——收到的明信片不算去过（节日章相反，只看收到的）。
+    private var litCodes: Set<String> { Set(footprints.filter { !$0.isReceived }.compactMap { $0.countryCode }) }
 
     /// 已收集的节日章：收到过贴着该章的明信片（`fest:` 前缀）；旧卡按 地区×日期 兜底判定。
     private var collectedFestivals: Set<Festival> {

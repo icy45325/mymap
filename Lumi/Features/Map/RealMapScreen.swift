@@ -24,8 +24,10 @@ struct RealMapScreen: View {
         var countryName: String { CountryInfo.localizedName(for: countryCode) ?? String(localized: "这个国家") }
     }
 
-    private var litCountryCodes: Set<String> { Set(footprints.compactMap { $0.countryCode }) }
-    private var litEmirateCodes: Set<String> { Set(footprints.compactMap { $0.subRegionCode }) }
+    /// 点亮着色只算自己去过的（收到的明信片以信封 pin 表达，不着色）。
+    private var visited: [Footprint] { footprints.filter { !$0.isReceived } }
+    private var litCountryCodes: Set<String> { Set(visited.compactMap { $0.countryCode }) }
+    private var litEmirateCodes: Set<String> { Set(visited.compactMap { $0.subRegionCode }) }
     /// 心愿国家（已点亮的不再算心愿，避免与点亮区重叠抢色）。
     private var wishCountryCodes: Set<String> {
         Set(wishes.compactMap { $0.countryCode }).subtracting(litCountryCodes)
@@ -433,7 +435,7 @@ private struct VisitPickerScreen: View {
             if !cities.isEmpty { citySection }
 
             Button { onConfirm(year, month, Array(selectedCities), means) } label: {
-                Text(buttonTitle).font(.headline)
+                Text(buttonTitle).font(.system(size: 15, weight: .semibold))
                     .frame(maxWidth: .infinity).padding(.vertical, 15)
                     .background(LinearGradient.neonH, in: Capsule())
                     .foregroundStyle(.white)
@@ -454,7 +456,7 @@ private struct VisitPickerScreen: View {
     /// 入境方式：三枚 icon 选项，默认空运。
     private var entryMeansPicker: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("交通方式").font(.subheadline).foregroundStyle(Color.muted).padding(.horizontal, 8)
+            Text("交通方式").font(.system(size: 14, weight: .medium)).foregroundStyle(Color.muted).padding(.horizontal, 8)
             HStack(spacing: 10) {
                 ForEach(PostcardStamp.allCases) { m in
                     let active = m == means
@@ -478,7 +480,7 @@ private struct VisitPickerScreen: View {
     /// 打卡城市：默认展开、开关多选；不选则以国家落点。
     private var citySection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("打卡城市（可选 · 可多选）").font(.subheadline).foregroundStyle(Color.muted)
+            Text("打卡城市（可选 · 可多选）").font(.system(size: 14, weight: .medium)).foregroundStyle(Color.muted)
                 .padding(.horizontal, 8)
             ScrollView {
                 VStack(spacing: 6) {

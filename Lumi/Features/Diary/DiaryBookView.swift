@@ -18,6 +18,8 @@ struct DiaryBookView: View {
     @State private var freePageTitle = ""
     /// 揭晓动画中的页。
     @State private var revealing: DiaryPage?
+    /// 远程交换寄送面板（邀请 / 半页）。
+    @State private var shareKind: DiaryShareSheet.Kind?
 
     private struct ComposeTarget: Identifiable {
         let page: DiaryPage
@@ -29,6 +31,7 @@ struct DiaryBookView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 6) {
                 header
+                if book.isRemote { remoteActions }
                 ForEach(book.sortedPages) { page in
                     pageTitleRow(page)
                     spread(page)
@@ -57,6 +60,9 @@ struct DiaryBookView: View {
             NavigationStack {
                 DiaryComposeView(book: book, page: t.page, asOwner: t.asOwner, onDone: { composeTarget = nil })
             }
+        }
+        .sheet(isPresented: Binding(get: { shareKind != nil }, set: { if !$0 { shareKind = nil } })) {
+            if let kind = shareKind { DiaryShareSheet(book: book, kind: kind) }
         }
         .alert("加一张自由页", isPresented: $showFreePage) {
             TextField("给这一页起个名（可空）", text: $freePageTitle)
@@ -91,6 +97,57 @@ struct DiaryBookView: View {
             Spacer()
         }
         .padding(.bottom, 8)
+    }
+
+    /// 远程交换动作条：未邀请 → 邀请 Ta 加入；有已封存未寄的半页 → 寄给 Ta。
+    @ViewBuilder
+    private var remoteActions: some View {
+        let pendingCount = DiaryBookStore.pendingHalves(of: book).count
+        VStack(spacing: 8) {
+            if book.inviteSentAt == nil {
+                remoteButton("✦ 邀请 \(book.partnerName) 加入这本日记",
+                             subtitle: "Ta 在自己的 Lumi 里打开同一本", prominent: true) {
+                    shareKind = .invite
+                }
+            }
+            if pendingCount > 0 {
+                remoteButton("把 \(pendingCount) 个已封存的半页寄给 \(book.partnerName) ✦",
+                             subtitle: "寄到后 Ta 那边对应页就能拆", prominent: book.inviteSentAt != nil) {
+                    shareKind = .halves
+                }
+            }
+        }
+        .padding(.bottom, 10)
+    }
+
+    private func remoteButton(_ title: LocalizedStringKey, subtitle: LocalizedStringKey,
+                              prominent: Bool, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack(spacing: 10) {
+                WaxSeal(size: 26)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(title).font(.system(size: 12.5, weight: .bold))
+                        .foregroundStyle(prominent ? .white : Color.text)
+                        .multilineTextAlignment(.leading)
+                    Text(subtitle).font(.system(size: 10))
+                        .foregroundStyle(prominent ? .white.opacity(0.8) : Color.muted)
+                }
+                Spacer()
+                Image(systemName: "chevron.right").font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(prominent ? .white.opacity(0.8) : Color.faint)
+            }
+            .padding(12)
+            .background {
+                if prominent {
+                    RoundedRectangle(cornerRadius: 14).fill(LinearGradient.neonH)
+                } else {
+                    RoundedRectangle(cornerRadius: 14).fill(Color.panel)
+                }
+            }
+            .overlay(RoundedRectangle(cornerRadius: 14)
+                .stroke(prominent ? Color.clear : Color.nPink.opacity(0.4), lineWidth: 1))
+        }
+        .buttonStyle(.plain)
     }
 
     private func pageTitleRow(_ page: DiaryPage) -> some View {
@@ -180,13 +237,18 @@ struct DiaryBookView: View {
             // 被 overlay 的整页封蜡盖住，这里放暗纹底
             sealedBox(text: "")
         case .waitingPartner:
-            // 我封了、TA 没写 → 递手机入口
-            Button { composeTarget = ComposeTarget(page: page, asOwner: false) } label: {
-                sealedShellContent(
-                    title: String(localized: "\(book.partnerName) 还没写"),
-                    subtitle: String(localized: "把手机递给 \(book.partnerName) ✍️"))
+            if book.isRemote {
+                // 远程：等对方在 Ta 的 App 里写完寄来
+                sealedBox(text: String(localized: "等 \(book.partnerName) 从 Ta 的 App 寄来…"))
+            } else {
+                // 本机传递：我封了、TA 没写 → 递手机入口
+                Button { composeTarget = ComposeTarget(page: page, asOwner: false) } label: {
+                    sealedShellContent(
+                        title: String(localized: "\(book.partnerName) 还没写"),
+                        subtitle: String(localized: "把手机递给 \(book.partnerName) ✍️"))
+                }
+                .buttonStyle(.plain)
             }
-            .buttonStyle(.plain)
         case .yourTurn:
             // TA 已封存等我 → 封印在 TA 半页上
             sealedBox(text: String(localized: "\(book.partnerName) 已封存\n你写完后一起拆封"))
@@ -195,12 +257,18 @@ struct DiaryBookView: View {
         }
     }
 
+    @ViewBuilder
     private func emptyTheirBox(_ page: DiaryPage) -> some View {
-        Button { composeTarget = ComposeTarget(page: page, asOwner: false) } label: {
+        if book.isRemote {
             sealedShellContent(title: String(localized: "\(book.partnerName) 的半页"),
-                               subtitle: String(localized: "递给 TA 写 →"))
+                               subtitle: String(localized: "Ta 在自己的 App 里写"))
+        } else {
+            Button { composeTarget = ComposeTarget(page: page, asOwner: false) } label: {
+                sealedShellContent(title: String(localized: "\(book.partnerName) 的半页"),
+                                   subtitle: String(localized: "递给 TA 写 →"))
+            }
+            .buttonStyle(.plain)
         }
-        .buttonStyle(.plain)
     }
 
     private func sealedShellContent(title: String, subtitle: String) -> some View {

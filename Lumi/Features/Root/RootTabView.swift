@@ -19,6 +19,8 @@ struct RootTabView: View {
     @ObservedObject private var inbox = PostcardInbox.shared
     /// 动态中心：未读数上 Me tab 角标。
     @ObservedObject private var noticeCenter = NoticeCenter.shared
+    /// 交换日记远程收件的轻提示（先收邀请等）。
+    @State private var diaryNotice: String?
     /// 新版本检测（A）。
     @ObservedObject private var updater = AppUpdateCheck.shared
     /// 当前选中 Tab（用于切换触觉反馈 D）。
@@ -71,6 +73,21 @@ struct RootTabView: View {
         } message: { payload in
             Text(payload.sender.map { "\($0) 寄来 · \(payload.place)" } ?? payload.place)
         }
+        .alert("收到交换日记 ✦",
+               isPresented: Binding(get: { inbox.pendingDiaryLink != nil }, set: { if !$0 { inbox.pendingDiaryLink = nil } }),
+               presenting: inbox.pendingDiaryLink) { payload in
+            Button("收下 ✦") { receiveDiaryLink(payload) }
+            Button("忽略", role: .cancel) { markSeen(payload.token); inbox.pendingDiaryLink = nil }
+        } message: { payload in
+            if payload.isInvite {
+                Text("\(payload.sender ?? "") 邀请你交换日记《\(payload.title ?? "")》")
+            } else {
+                Text("\(payload.sender ?? "") 寄来了 Ta 封存的几页")
+            }
+        }
+        .alert("交换日记", isPresented: Binding(get: { diaryNotice != nil }, set: { if !$0 { diaryNotice = nil } })) {
+            Button("好", role: .cancel) {}
+        } message: { Text(diaryNotice ?? "") }
         .alert("发现新版本 \(updater.available?.version ?? "")",      // A 非阻断更新提示
                isPresented: Binding(get: { updater.available != nil }, set: { if !$0 { updater.dismiss() } }),
                presenting: updater.available) { update in
@@ -126,6 +143,32 @@ struct RootTabView: View {
         WidgetSync.refresh(context)
         Haptics.success()                                       // D 收下明信片震动
         inbox.pending = nil
+    }
+
+    // MARK: - 交换日记远程收件（LUMID2：邀请 → 镜像本；半页 → 落页）
+
+    private func receiveDiaryLink(_ payload: DiaryLinkPayload) {
+        if payload.isInvite {
+            let book = DiaryBookStore.mirrorBook(from: payload, context: context)
+            markSeen(payload.token)
+            NoticeCenter.shared.add(.diary,
+                                    title: payload.sender.map { String(localized: "\($0) 邀请你交换日记") }
+                                        ?? String(localized: "收到一本交换日记邀请"),
+                                    subtitle: book.title, targetID: book.id.uuidString)
+            Haptics.success()
+        } else {
+            if let book = DiaryBookStore.applyHalves(payload, context: context) {
+                markSeen(payload.token)
+                NoticeCenter.shared.add(.diary,
+                                        title: String(localized: "\(book.partnerName) 封存的几页寄到了"),
+                                        subtitle: book.title, targetID: book.id.uuidString)
+                Haptics.success()
+            } else {
+                // 还没收到这本的邀请——不 markSeen，收完邀请可重收
+                diaryNotice = String(localized: "还没有这本日记——请先收下对方的邀请")
+            }
+        }
+        inbox.pendingDiaryLink = nil
     }
 
     // MARK: - 徽章点亮检测（添加足迹时，全 App 级弹庆祝）

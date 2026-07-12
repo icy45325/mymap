@@ -8,7 +8,9 @@ struct TimelineView: View {
     @Environment(\.modelContext) private var context
 
     @Query(sort: \Footprint.visitedAt, order: .reverse)
-    private var footprints: [Footprint]
+    private var allFootprints: [Footprint]
+    /// 足迹 = 自己去过的；收到的明信片不进星迹（只在明信片墙/信封大头针）。
+    private var footprints: [Footprint] { allFootprints.filter { !$0.isReceived } }
 
     /// 筛选（nil = 全部）；选项只列数据里实际出现过的大洲 / 年份。
     @State private var regionSel: Region?
@@ -222,9 +224,9 @@ struct TimelineView: View {
     private var emptyState: some View {
         VStack(spacing: 14) {
             Image(systemName: "sparkles").font(.system(size: 44)).foregroundStyle(Color.nPurple)
-            Text("还没有星迹").font(.headline).foregroundStyle(Color.text)
+            Text("还没有星迹").font(.system(size: 14, weight: .semibold)).foregroundStyle(Color.text)
             Text("从相册一键找回去过的地方，或回地图点亮第一个")
-                .font(.subheadline).foregroundStyle(Color.muted)
+                .font(.system(size: 12.5)).foregroundStyle(Color.muted)
                 .multilineTextAlignment(.center).padding(.horizontal, 40)
 
             Button {
@@ -232,7 +234,7 @@ struct TimelineView: View {
                 showImport = true
             } label: {
                 Label("从相册同步历史足迹", systemImage: "photo.badge.plus")
-                    .font(.headline)
+                    .font(.system(size: 15, weight: .semibold))
                     .padding(.vertical, 14).padding(.horizontal, 22)
                     .background(LinearGradient.neonH, in: Capsule())
                     .foregroundStyle(.white)

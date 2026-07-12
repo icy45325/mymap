@@ -26,21 +26,34 @@ final class DiaryBook {
     var partnerName: String
     /// 书脊配色（自动派生，可换色）。存 hex 字符串。
     var spineColorHex: String
-    /// 交换模式：v1 只有 handoff（本机传递）；remote 留社交阶段。
+    /// 交换模式：`remote`（App 内交换，主推——双方各自 App 操作，好友关系的前提）/
+    /// `handoff`（本机传递——对方没装 App 的亲子/长辈场景）。
     var modeRaw: String = "handoff"
+    /// 配对码：镜像本两端一致（remote 模式经邀请口令传给对方）。
+    var pairID: String = ""
+    /// 对方 Lumi 邮箱号（remote 直投用；也是好友关系雏形）。
+    var partnerBoxID: String? = nil
+    /// 邀请已寄出的时刻（remote；nil = 还没邀请对方）。
+    var inviteSentAt: Date? = nil
     var createdAt: Date
 
     @Relationship(deleteRule: .cascade, inverse: \DiaryPage.book)
     var pages: [DiaryPage] = []
 
-    init(title: String, tripID: UUID, partnerName: String, spineColorHex: String) {
+    init(title: String, tripID: UUID, partnerName: String, spineColorHex: String,
+         mode: String = "remote", pairID: String? = nil, partnerBoxID: String? = nil) {
         self.id = UUID()
         self.title = title
         self.tripID = tripID
         self.partnerName = partnerName
         self.spineColorHex = spineColorHex
+        self.modeRaw = mode
+        self.pairID = pairID ?? "P-" + UUID().uuidString.prefix(8).uppercased()
+        self.partnerBoxID = partnerBoxID
         self.createdAt = .now
     }
+
+    var isRemote: Bool { modeRaw == "remote" }
 
     var sortedPages: [DiaryPage] { pages.sorted { $0.orderIndex < $1.orderIndex } }
 
@@ -138,6 +151,8 @@ final class DiaryHalf {
     @Attribute(.externalStorage) var voiceData: Data? = nil
     var voiceDuration: Double = 0
     var sealedAt: Date? = nil
+    /// remote：这半页已寄给对方的时刻（nil = 封存了还没寄）。
+    var syncedAt: Date? = nil
     var createdAt: Date
     var updatedAt: Date
 

@@ -35,7 +35,7 @@ struct PassportView: View {
     private var stamps: [PassportStamp] {
         var seen = Set<String>()
         var out: [PassportStamp] = []
-        for fp in footprints {                       // 已按 visitedAt 升序 → 首次出现即最早
+        for fp in footprints where !fp.isReceived {  // 已按 visitedAt 升序 → 首次出现即最早；收到的卡不盖入境章
             guard let cc = fp.countryCode, !cc.isEmpty, !seen.contains(cc) else { continue }
             seen.insert(cc)
             let i = out.count

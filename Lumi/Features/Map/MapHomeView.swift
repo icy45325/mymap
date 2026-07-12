@@ -11,7 +11,9 @@ struct MapHomeView: View {
     @Environment(\.modelContext) private var context
 
     @Query(sort: \Footprint.visitedAt, order: .reverse)
-    private var footprints: [Footprint]
+    private var allFootprints: [Footprint]
+    /// 足迹 = 自己去过的；收到的明信片不点亮首页（LumiStats 内部同口径二次兜底）。
+    private var footprints: [Footprint] { allFootprints.filter { !$0.isReceived } }
 
     /// 底图 provider —— 固定 MapKit。换 Mapbox / 高德只改这一行。
     private let mapProvider: MapProvider = MapKitProvider()
