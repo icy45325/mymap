@@ -82,23 +82,23 @@ struct NoticeListView: View {
         .buttonStyle(.plain)
     }
 
-    /// 跳转目标：明信片 → 明信片墙；日记 → 对应日记本（查不到回列表）。
+    /// 跳转目标：明信片 → 明信片墙；日记 → 对应日记本（查不到回书架）。
     @ViewBuilder
     private func destination(_ notice: Notice) -> some View {
         switch notice.kind {
         case .postcard:
             PostcardWallView()
         case .diary:
-            if let uuid = UUID(uuidString: notice.targetID), let diary = fetchDiary(uuid) {
-                ExchangeDiaryDetailView(diary: diary)
+            if let uuid = UUID(uuidString: notice.targetID), let book = fetchBook(uuid) {
+                DiaryBookView(book: book)
             } else {
-                ExchangeDiaryListView()
+                DiaryShelfView()
             }
         }
     }
 
-    private func fetchDiary(_ id: UUID) -> ExchangeDiary? {
-        let all = (try? context.fetch(FetchDescriptor<ExchangeDiary>())) ?? []
+    private func fetchBook(_ id: UUID) -> DiaryBook? {
+        let all = (try? context.fetch(FetchDescriptor<DiaryBook>())) ?? []
         return all.first { $0.id == id }
     }
 }

@@ -31,7 +31,7 @@ struct ProfileView: View {
                     entryCard("book.pages", "收集图鉴", "邮票 · 邮戳 · 节日章", Color.nPurple) { CodexView() }
                     entryCard("bag.fill", "商店", "邮票包 · 邮戳包 · 更多装扮", Color.nOrange) { StoreView() }
                     entryCard("heart.fill", "心愿单", "想去的地方", Color.nCyan) { WishlistView() }
-                    entryCard("book.pages.fill", "交换日记", "两个人各写各的 · 交换才能拆开", Color(hex: 0xC9A24B)) { ExchangeDiaryListView() }
+                    entryCard("book.pages.fill", "交换日记", "各自写，都写完才能拆封", Color(hex: 0xC9A24B)) { DiaryShelfView() }
                     Color.clear.frame(height: 24)
                 }
                 .padding(.top, 16)

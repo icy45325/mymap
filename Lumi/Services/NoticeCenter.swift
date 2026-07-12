@@ -9,7 +9,7 @@ struct Notice: Codable, Identifiable, Equatable {
     var title: String
     var subtitle: String
     var date: Date = .now
-    /// 跳转目标：postcard = Footprint.id / diary = ExchangeDiary.id（uuidString）。
+    /// 跳转目标：postcard = Footprint.id / diary = DiaryBook.id（uuidString）。
     var targetID: String
     var read: Bool = false
 

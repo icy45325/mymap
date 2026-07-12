@@ -57,9 +57,7 @@ struct FootprintDetailView: View {
             PostcardSheet(footprint: footprint)
         }
         .sheet(isPresented: $showDiary) {
-            NewDiarySheet(prefillTitle: diaryTitle,
-                          suggestedNames: footprint.companions,
-                          footprintID: footprint.id)
+            DiaryCreateFlow(source: "footprint", prefillFootprint: footprint)
         }
         .task(id: showPostcard) {   // 打开时查一次；直寄弹窗关回来再查（拿到刚寄的那封）
             guard LumiPostConfig.isEnabled, !showPostcard else { return }
@@ -229,22 +227,28 @@ struct FootprintDetailView: View {
                     }
                 }
             }
-            // 一个足迹=一段旅程：旅伴就在这里，直接开一本交换日记
+            // PRD 主推入口：邀请卡（旅伴信息已在场，火漆封印 + 一句话机制说明）
             Button { showDiary = true } label: {
-                Label("与旅伴交换日记", systemImage: "book.pages")
-                    .font(.system(size: 12, weight: .bold)).foregroundStyle(Color.nPink)
-                    .padding(.vertical, 8).padding(.horizontal, 14)
-                    .background(Color.panel, in: Capsule())
-                    .overlay(Capsule().stroke(Color.nPink.opacity(0.4), lineWidth: 1))
+                HStack(spacing: 10) {
+                    WaxSeal(size: 30)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("和 \(footprint.companions.first ?? "") 一起写这段旅程 →")
+                            .font(.system(size: 12.5, weight: .bold)).foregroundStyle(Color.text)
+                            .lineLimit(1)
+                        Text("各自写，都写完才能拆封")
+                            .font(.system(size: 10)).foregroundStyle(Color.muted)
+                    }
+                    Spacer()
+                }
+                .padding(11)
+                .background(Color(hex: 0xC9A24B).opacity(0.08), in: RoundedRectangle(cornerRadius: 13))
+                .overlay(RoundedRectangle(cornerRadius: 13)
+                    .stroke(WaxSeal.wax.opacity(0.55), style: StrokeStyle(lineWidth: 1.4, dash: [6, 4])))
             }
-            .padding(.top, 2)
+            .buttonStyle(.plain)
+            .padding(.top, 4)
+            .onAppear { Analytics.log(.diaryEntryPointShown) }
         }
-    }
-
-    /// 交换日记预填标题：「地点 年份」。
-    private var diaryTitle: String {
-        let year = Calendar.current.component(.year, from: footprint.visitedAt)
-        return "\(footprint.title) \(String(year))"
     }
 
     private func infoRow(_ label: String, _ value: String) -> some View {

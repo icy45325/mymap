@@ -30,3 +30,27 @@ extension PersonAvatar {
         PersonAvatar(name: name, avatarB64: PostcardContacts.shared.contact(named: name)?.avatarB64, size: size)
     }
 }
+
+/// 头像堆叠：≤3 个重叠排列，多出的显示 +N（时间线旅伴 / 日记书架共用）。
+struct PartnerAvatarStack: View {
+    let names: [String]
+    var size: CGFloat = 22
+
+    var body: some View {
+        let shown = Array(names.prefix(3))
+        HStack(spacing: -size * 0.28) {
+            ForEach(Array(shown.enumerated()), id: \.offset) { _, name in
+                PersonAvatar.named(name, size: size)
+                    .overlay(Circle().stroke(Color.bg, lineWidth: 1.5))
+            }
+            if names.count > 3 {
+                ZStack {
+                    Circle().fill(Color.panel).frame(width: size, height: size)
+                        .overlay(Circle().stroke(Color.line, lineWidth: 1))
+                    Text(verbatim: "+\(names.count - 3)")
+                        .font(.system(size: size * 0.38, weight: .bold)).foregroundStyle(Color.muted)
+                }
+            }
+        }
+    }
+}

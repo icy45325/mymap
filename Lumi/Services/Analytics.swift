@@ -17,6 +17,14 @@ enum Analytics {
         case statsViewed(totalLit: Int, percent: Int)
         case photoImportOpened                               // 打开「从相册同步」
         case photoImportCompleted(imported: Int)             // 导入完成
+        // 交换日记 v3（PRD §9）；北极星 = diary_page_revealed 与 days_to_reveal 中位数
+        case diaryEntryPointShown                            // 足迹详情展示邀请卡
+        case diaryCreateStarted(source: String)              // footprint / me
+        case diaryCreateAbandoned(lastStep: String)
+        case diaryBookCreated(pageCount: Int)
+        case diaryEntrySealed(inputType: String)             // text / draw / voice
+        case diaryHandoffStarted
+        case diaryPageRevealed(daysToReveal: Int)            // ← 核心
 
         var name: String {
             switch self {
@@ -29,6 +37,13 @@ enum Analytics {
             case .statsViewed:          return "stats_viewed"
             case .photoImportOpened:    return "photo_import_opened"
             case .photoImportCompleted: return "photo_import_completed"
+            case .diaryEntryPointShown: return "diary_entry_point_shown"
+            case .diaryCreateStarted:   return "diary_create_started"
+            case .diaryCreateAbandoned: return "diary_create_abandoned"
+            case .diaryBookCreated:     return "diary_book_created"
+            case .diaryEntrySealed:     return "diary_entry_sealed"
+            case .diaryHandoffStarted:  return "diary_handoff_started"
+            case .diaryPageRevealed:    return "diary_page_revealed"
             }
         }
 
@@ -54,6 +69,18 @@ enum Analytics {
                 return [:]
             case let .photoImportCompleted(imported):
                 return ["imported": "\(imported)"]
+            case .diaryEntryPointShown, .diaryHandoffStarted:
+                return [:]
+            case let .diaryCreateStarted(source):
+                return ["source": source]
+            case let .diaryCreateAbandoned(lastStep):
+                return ["last_step": lastStep]
+            case let .diaryBookCreated(pageCount):
+                return ["page_count": "\(pageCount)"]
+            case let .diaryEntrySealed(inputType):
+                return ["input_type": inputType]
+            case let .diaryPageRevealed(daysToReveal):
+                return ["days_to_reveal": "\(daysToReveal)"]
             }
         }
     }
