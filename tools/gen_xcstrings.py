@@ -909,6 +909,29 @@ S = [
  ("Ta 没装 App，递手机给 Ta 写","No app? Hand them your phone","لا تطبيق؟ سلّمهم هاتفك"),
  ("📲 可直投","📲 Direct send","📲 إرسال مباشر"),
  ("两个人各自在自己的 Lumi 里写；对方没装 App 也可以选「本机传递」把手机递给 Ta ✦","You each write in your own Lumi; if they don't have the app, choose hand-off and pass the phone ✦","كلٌ يكتب في تطبيقه؛ وإن لم يكن لديهم التطبيق اختر التسليم ومرّر الهاتف ✦"),
+
+ # —— 第七批：邮票收藏册（收到口径）——
+ ("邮票收藏册","Stamp Collection","ألبوم الطوابع"),
+ ("收到的明信片上的邮票","Stamps from postcards you've received","طوابع من البطاقات التي استلمتها"),
+ ("收到的明信片上的邮票，都收进这本收藏册","Every stamp on a postcard you receive is collected here","كل طابع على بطاقة تستلمها يُجمع هنا"),
+ ("普通邮票 · 收到贴有此票的明信片即收集","Standard stamps · collected when a received postcard bears one","طوابع عادية · تُجمع عند استلام بطاقة تحملها"),
+ ("地区特色 · 收到贴有此票的明信片即收集","Regional designs · collected when a received postcard bears one","تصاميم إقليمية · تُجمع عند استلام بطاقة تحملها"),
+ ("典藏邮票","Premium Stamps","طوابع مميزة"),
+ ("手绘典藏 · 收到贴有此票的明信片即收集","Hand-drawn premium · collected when a received postcard bears one","طوابع مرسومة يدويًا · تُجمع عند استلام بطاقة تحملها"),
+ ("资源包邮票","Pack Stamps","طوابع الحزم"),
+ ("商店扩充包 · 收到贴有此票的明信片即收集","Store packs · collected when a received postcard bears one","حزم المتجر · تُجمع عند استلام بطاقة تحملها"),
+ ("节日前后 5 天限时流通 · 收到贴此章的明信片即收集","In circulation ±5 days around each festival · collected when a received postcard bears one","متداولة ±5 أيام حول المهرجان · تُجمع عند استلام بطاقة تحملها"),
+ ("收到贴有此票的明信片即收集","Receive a postcard bearing this stamp to collect it","استلم بطاقة تحمل هذا الطابع لتجمعه"),
+ ("流通条件","Circulation","شروط التداول"),
+ ("收到任意一张明信片即收集","Collected upon receiving any postcard","يُجمع عند استلام أي بطاقة بريدية"),
+
+ # —— 第七批：商店节日票窗口 & 地图本地视图 ——
+ ("虚位以待","Saving a spot","مكان محجوز"),
+ ("世界 World","World","العالم"),
+ ("本地 Local","Local","محلي"),
+ ("本地热点","Local Spots","أماكن محلية"),
+ ("本地热点推荐 · 敬请期待","Local picks · stay tuned","توصيات محلية · قريبًا"),
+ ("平台推荐的附近打卡热点将在这里出现","Editor-picked nearby spots will appear here","ستظهر هنا الأماكن القريبة المختارة"),
 ]
 
 # Resolve duplicate "国家" (Country vs Countries): keep two distinct? They share key -> can't.

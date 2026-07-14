@@ -1,6 +1,7 @@
 import SwiftUI
 import SwiftData
 import CoreLocation
+import MapKit
 
 /// 世界地图主页（核心页）· 暗夜霓虹 v2。
 ///
@@ -24,6 +25,13 @@ struct MapHomeView: View {
     @State private var counterPulse = false
     @State private var barFraction: Double = 0
 
+    /// World / 本地 视图切换（每次进入默认 world，不持久化）。
+    private enum MapScope { case world, local }
+    @State private var scope: MapScope = .world
+    @State private var localCamera: MapCameraPosition = .automatic
+    @StateObject private var location = LocationService()
+    @ObservedObject private var localSpots = LocalHighlights.shared
+
     private var stats: LumiStats { LumiStats(footprints: footprints) }
 
     var body: some View {
@@ -40,29 +48,50 @@ struct MapHomeView: View {
         ZStack(alignment: .top) {
             Color.bg.ignoresSafeArea()
 
-            // 默认底图：点阵光点地图（展示用）。放大后才是真实 MapKit 地图。
-            DotMatrixBackground(footprints: footprints)
-                .ignoresSafeArea()
+            if scope == .world {
+                // 默认底图：点阵光点地图（展示用）。放大后才是真实 MapKit 地图。
+                DotMatrixBackground(footprints: footprints)
+                    .ignoresSafeArea()
 
-            // 顶部 HUD 渐隐到地图
-            LinearGradient(colors: [Color.bg.opacity(0.92), .clear],
-                           startPoint: .top, endPoint: .bottom)
-                .frame(height: 230)
-                .ignoresSafeArea()
-                .allowsHitTesting(false)
+                // 顶部 HUD 渐隐到地图
+                LinearGradient(colors: [Color.bg.opacity(0.92), .clear],
+                               startPoint: .top, endPoint: .bottom)
+                    .frame(height: 230)
+                    .ignoresSafeArea()
+                    .allowsHitTesting(false)
 
-            VStack(spacing: 0) {
-                hud
-                Spacer()
-                bottomPanel
+                VStack(spacing: 0) {
+                    scopeSwitch
+                    hud
+                    Spacer()
+                    bottomPanel
+                }
+            } else {
+                VStack(spacing: 0) {
+                    scopeSwitch
+                    localMapCard
+                    localPanel
+                }
             }
         }
         .overlay(alignment: .topTrailing) {
-            HStack(spacing: 10) {
-                scanButton
-                immersiveButton
+            if scope == .world {
+                HStack(spacing: 10) {
+                    scanButton
+                    immersiveButton
+                }
+                .padding(.trailing, 22).padding(.top, 8)
             }
-            .padding(.trailing, 22).padding(.top, 8)
+        }
+        .task(id: scope == .local) {
+            guard scope == .local else { return }
+            // 中心：当前定位 → 最近足迹 → 系统默认；运营位内容同时刷新
+            if let c = await location.requestOnce() {
+                localCamera = .region(MKCoordinateRegion(center: c, latitudinalMeters: 24_000, longitudinalMeters: 24_000))
+            } else if let fp = footprints.first {
+                localCamera = .region(MKCoordinateRegion(center: fp.coordinate, latitudinalMeters: 24_000, longitudinalMeters: 24_000))
+            }
+            await LocalHighlights.shared.refresh()
         }
         .preferredColorScheme(.dark)
         .sheet(isPresented: $showCapture) {
@@ -104,6 +133,103 @@ struct MapHomeView: View {
 
     private var percentText: String {
         String(format: "%.1f%%", stats.worldPercent)
+    }
+
+    // MARK: - World / 本地 切换
+
+    private var scopeSwitch: some View {
+        HStack(spacing: 8) {
+            scopeChip("世界 World", .world)
+            scopeChip("本地 Local", .local)
+            Spacer()
+        }
+        .padding(.horizontal, 26)
+        .padding(.top, 6)
+    }
+
+    private func scopeChip(_ label: LocalizedStringKey, _ s: MapScope) -> some View {
+        Button {
+            withAnimation(.easeInOut(duration: 0.2)) { scope = s }
+            Haptics.selection()
+        } label: {
+            Text(label)
+                .font(.system(size: 12, weight: .heavy))
+                .foregroundStyle(scope == s ? .white : Color.muted)
+                .padding(.vertical, 6).padding(.horizontal, 14)
+                .background(scope == s ? AnyShapeStyle(LinearGradient.neonH)
+                                       : AnyShapeStyle(Color.panel.opacity(0.62)),
+                            in: Capsule())
+                .overlay(Capsule().stroke(scope == s ? Color.clear : Color.line, lineWidth: 1))
+        }
+        .buttonStyle(.plain)
+    }
+
+    // MARK: - 本地视图（上半真实地图 + 下半运营位热点）
+
+    /// 上半：真实 MapKit 地图，中心=当前定位（拿不到退最近足迹）。
+    private var localMapCard: some View {
+        Map(position: $localCamera) { UserAnnotation() }
+            .mapStyle(.standard(elevation: .flat, pointsOfInterest: .excludingAll))
+            .containerRelativeFrame(.vertical) { len, _ in len * 0.5 }
+            .clipShape(RoundedRectangle(cornerRadius: 18))
+            .overlay(RoundedRectangle(cornerRadius: 18).stroke(Color.line, lineWidth: 1))
+            .padding(.horizontal, 18)
+            .padding(.top, 12)
+    }
+
+    /// 下半：本地热点（服务下发；未上架时是「敬请期待」空态）。
+    private var localPanel: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 8) {
+                Text("本地热点").font(.system(size: 13, weight: .semibold)).foregroundStyle(Color.text)
+                Text("HIGHLIGHTS").font(.system(size: 11)).tracking(1.2).foregroundStyle(Color.faint)
+            }
+            if localSpots.items.isEmpty {
+                localEmptyCard
+            } else {
+                ScrollView {
+                    VStack(spacing: 10) {
+                        ForEach(localSpots.items) { spotRow($0) }
+                    }
+                }
+            }
+            Spacer(minLength: 0)
+        }
+        .padding(.horizontal, 26)
+        .padding(.top, 16)
+    }
+
+    private var localEmptyCard: some View {
+        VStack(spacing: 8) {
+            Text(verbatim: "✦").font(.system(size: 22)).foregroundStyle(Color.faint)
+            Text("本地热点推荐 · 敬请期待").font(.system(size: 13, weight: .semibold)).foregroundStyle(Color.muted)
+            Text("平台推荐的附近打卡热点将在这里出现").font(.system(size: 11)).foregroundStyle(Color.faint)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 28)
+        .background(Color.panel.opacity(0.5), in: RoundedRectangle(cornerRadius: 18))
+        .overlay(RoundedRectangle(cornerRadius: 18)
+            .stroke(Color.line, style: StrokeStyle(lineWidth: 1, dash: [5, 4])))
+    }
+
+    private func spotRow(_ item: LocalHighlights.Item) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: "mappin.and.ellipse")
+                .font(.system(size: 15)).foregroundStyle(Color.nPink)
+                .frame(width: 34, height: 34)
+                .background(Color.panel, in: RoundedRectangle(cornerRadius: 10))
+            VStack(alignment: .leading, spacing: 3) {
+                Text(verbatim: item.title)
+                    .font(.system(size: 13, weight: .semibold)).foregroundStyle(Color.text)
+                if let sub = item.subtitle {
+                    Text(verbatim: sub).font(.system(size: 11)).foregroundStyle(Color.muted)
+                }
+            }
+            Spacer()
+        }
+        .padding(12)
+        .background(Color.panel.opacity(0.7), in: RoundedRectangle(cornerRadius: 14))
+        .overlay(RoundedRectangle(cornerRadius: 14).stroke(Color.line, lineWidth: 1))
     }
 
     /// 右上角：放大查看真实 MapKit 地图（全屏）。

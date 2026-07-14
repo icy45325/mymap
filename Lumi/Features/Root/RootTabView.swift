@@ -19,8 +19,6 @@ struct RootTabView: View {
     @ObservedObject private var inbox = PostcardInbox.shared
     /// 动态中心：未读数上 Me tab 角标。
     @ObservedObject private var noticeCenter = NoticeCenter.shared
-    /// 交换日记远程收件的轻提示（先收邀请等）。
-    @State private var diaryNotice: String?
     /// 新版本检测（A）。
     @ObservedObject private var updater = AppUpdateCheck.shared
     /// 当前选中 Tab（用于切换触觉反馈 D）。
@@ -58,36 +56,25 @@ struct RootTabView: View {
         .preferredColorScheme(.dark)
         .sensoryFeedback(.selection, trigger: selectedTab)            // D 切 Tab 震动
         .sensoryFeedback(.success, trigger: celebrateBadges.count)    // D 徽章庆祝弹出即震
-        .onAppear { checkClipboardForPostcard(); detectNewUnlocks(); checkWhatsNew() }
+        .onAppear {
+            checkClipboardForPostcard(); detectNewUnlocks(); checkWhatsNew()
+            // 视图建立前就到达的收件（冷启动 onOpenURL）在这里补收
+            if let p = inbox.pending { receive(p) }
+            if let d = inbox.pendingDiaryLink { receiveDiaryLink(d) }
+        }
         .task { await updater.check() }                              // A 启动查新版本
         .onChange(of: scenePhase) { _, phase in
             if phase == .active { checkClipboardForPostcard() }
         }
         .onChange(of: footprints.count) { _, _ in detectNewUnlocks() }   // 添加足迹即判断是否点亮新徽章
         .overlay { if !celebrateBadges.isEmpty { UnlockCelebration(badges: celebrateBadges) { celebrateBadges = [] } } }
-        .alert("收到一张明信片 ✦",
-               isPresented: Binding(get: { inbox.pending != nil }, set: { if !$0 { inbox.pending = nil } }),
-               presenting: inbox.pending) { payload in
-            Button("收下 ✦") { receive(payload) }
-            Button("忽略", role: .cancel) { markSeen(payload.token); inbox.pending = nil }
-        } message: { payload in
-            Text(payload.sender.map { "\($0) 寄来 · \(payload.place)" } ?? payload.place)
+        // 自动收件：明信片/日记到达即静默入库 + 未读上角标（Me tab & 铃铛），无需确认
+        .onChange(of: inbox.pending?.token) { _, _ in
+            if let p = inbox.pending { receive(p) }
         }
-        .alert("收到交换日记 ✦",
-               isPresented: Binding(get: { inbox.pendingDiaryLink != nil }, set: { if !$0 { inbox.pendingDiaryLink = nil } }),
-               presenting: inbox.pendingDiaryLink) { payload in
-            Button("收下 ✦") { receiveDiaryLink(payload) }
-            Button("忽略", role: .cancel) { markSeen(payload.token); inbox.pendingDiaryLink = nil }
-        } message: { payload in
-            if payload.isInvite {
-                Text("\(payload.sender ?? "") 邀请你交换日记《\(payload.title ?? "")》")
-            } else {
-                Text("\(payload.sender ?? "") 寄来了 Ta 封存的几页")
-            }
+        .onChange(of: inbox.pendingDiaryLink?.token) { _, _ in
+            if let d = inbox.pendingDiaryLink { receiveDiaryLink(d) }
         }
-        .alert("交换日记", isPresented: Binding(get: { diaryNotice != nil }, set: { if !$0 { diaryNotice = nil } })) {
-            Button("好", role: .cancel) {}
-        } message: { Text(diaryNotice ?? "") }
         .alert("发现新版本 \(updater.available?.version ?? "")",      // A 非阻断更新提示
                isPresented: Binding(get: { updater.available != nil }, set: { if !$0 { updater.dismiss() } }),
                presenting: updater.available) { update in
@@ -155,6 +142,8 @@ struct RootTabView: View {
                                     title: payload.sender.map { String(localized: "\($0) 邀请你交换日记") }
                                         ?? String(localized: "收到一本交换日记邀请"),
                                     subtitle: book.title, targetID: book.id.uuidString)
+            // 半页先于邀请到达的暂存 → 建本后自动补落
+            DiaryBookStore.drainStash(context: context)
             Haptics.success()
         } else {
             if let book = DiaryBookStore.applyHalves(payload, context: context) {
@@ -164,8 +153,9 @@ struct RootTabView: View {
                                         subtitle: book.title, targetID: book.id.uuidString)
                 Haptics.success()
             } else {
-                // 还没收到这本的邀请——不 markSeen，收完邀请可重收
-                diaryNotice = String(localized: "还没有这本日记——请先收下对方的邀请")
+                // 还没收到这本的邀请——暂存，邀请一到自动补落（全程无需用户操作）
+                DiaryBookStore.stashHalves(payload)
+                markSeen(payload.token)
             }
         }
         inbox.pendingDiaryLink = nil

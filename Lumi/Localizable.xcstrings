@@ -18194,6 +18194,424 @@
           }
         }
       }
+    },
+    "邮票收藏册": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "邮票收藏册"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stamp Collection"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ألبوم الطوابع"
+          }
+        }
+      }
+    },
+    "收到的明信片上的邮票": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "收到的明信片上的邮票"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stamps from postcards you've received"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "طوابع من البطاقات التي استلمتها"
+          }
+        }
+      }
+    },
+    "收到的明信片上的邮票，都收进这本收藏册": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "收到的明信片上的邮票，都收进这本收藏册"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Every stamp on a postcard you receive is collected here"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "كل طابع على بطاقة تستلمها يُجمع هنا"
+          }
+        }
+      }
+    },
+    "普通邮票 · 收到贴有此票的明信片即收集": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "普通邮票 · 收到贴有此票的明信片即收集"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Standard stamps · collected when a received postcard bears one"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "طوابع عادية · تُجمع عند استلام بطاقة تحملها"
+          }
+        }
+      }
+    },
+    "地区特色 · 收到贴有此票的明信片即收集": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "地区特色 · 收到贴有此票的明信片即收集"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Regional designs · collected when a received postcard bears one"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تصاميم إقليمية · تُجمع عند استلام بطاقة تحملها"
+          }
+        }
+      }
+    },
+    "典藏邮票": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "典藏邮票"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Premium Stamps"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "طوابع مميزة"
+          }
+        }
+      }
+    },
+    "手绘典藏 · 收到贴有此票的明信片即收集": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "手绘典藏 · 收到贴有此票的明信片即收集"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hand-drawn premium · collected when a received postcard bears one"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "طوابع مرسومة يدويًا · تُجمع عند استلام بطاقة تحملها"
+          }
+        }
+      }
+    },
+    "资源包邮票": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "资源包邮票"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pack Stamps"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "طوابع الحزم"
+          }
+        }
+      }
+    },
+    "商店扩充包 · 收到贴有此票的明信片即收集": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "商店扩充包 · 收到贴有此票的明信片即收集"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Store packs · collected when a received postcard bears one"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "حزم المتجر · تُجمع عند استلام بطاقة تحملها"
+          }
+        }
+      }
+    },
+    "节日前后 5 天限时流通 · 收到贴此章的明信片即收集": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "节日前后 5 天限时流通 · 收到贴此章的明信片即收集"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In circulation ±5 days around each festival · collected when a received postcard bears one"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "متداولة ±5 أيام حول المهرجان · تُجمع عند استلام بطاقة تحملها"
+          }
+        }
+      }
+    },
+    "收到贴有此票的明信片即收集": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "收到贴有此票的明信片即收集"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Receive a postcard bearing this stamp to collect it"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "استلم بطاقة تحمل هذا الطابع لتجمعه"
+          }
+        }
+      }
+    },
+    "流通条件": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "流通条件"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Circulation"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "شروط التداول"
+          }
+        }
+      }
+    },
+    "收到任意一张明信片即收集": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "收到任意一张明信片即收集"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Collected upon receiving any postcard"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "يُجمع عند استلام أي بطاقة بريدية"
+          }
+        }
+      }
+    },
+    "虚位以待": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "虚位以待"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saving a spot"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "مكان محجوز"
+          }
+        }
+      }
+    },
+    "世界 World": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "世界 World"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "World"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "العالم"
+          }
+        }
+      }
+    },
+    "本地 Local": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "本地 Local"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Local"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "محلي"
+          }
+        }
+      }
+    },
+    "本地热点": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "本地热点"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Local Spots"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أماكن محلية"
+          }
+        }
+      }
+    },
+    "本地热点推荐 · 敬请期待": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "本地热点推荐 · 敬请期待"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Local picks · stay tuned"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "توصيات محلية · قريبًا"
+          }
+        }
+      }
+    },
+    "平台推荐的附近打卡热点将在这里出现": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "平台推荐的附近打卡热点将在这里出现"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Editor-picked nearby spots will appear here"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ستظهر هنا الأماكن القريبة المختارة"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

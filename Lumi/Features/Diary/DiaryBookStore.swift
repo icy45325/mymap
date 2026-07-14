@@ -158,6 +158,36 @@ enum DiaryBookStore {
         try? context.save()
     }
 
+    // MARK: - 半页暂存（半页先于邀请到达 → 排队，镜像本建好后自动补落，全程无需用户操作）
+
+    private static let stashKey = "lumi.diary.halfStash"
+
+    /// 半页找不到对应的本（邀请还在路上）→ 原样暂存进 UserDefaults 队列。
+    static func stashHalves(_ p: DiaryLinkPayload) {
+        guard let data = try? JSONEncoder().encode(p),
+              let json = String(data: data, encoding: .utf8) else { return }
+        var queue = UserDefaults.standard.stringArray(forKey: stashKey) ?? []
+        guard !queue.contains(json) else { return }        // 同包幂等
+        queue.append(json)
+        UserDefaults.standard.set(queue, forKey: stashKey)
+    }
+
+    /// 建镜像本后遍历暂存队列逐条补落；落成的移除，仍没对上的留队等下一本。
+    static func drainStash(context: ModelContext) {
+        let queue = UserDefaults.standard.stringArray(forKey: stashKey) ?? []
+        guard !queue.isEmpty else { return }
+        var remaining: [String] = []
+        for json in queue {
+            if let data = json.data(using: .utf8),
+               let p = try? JSONDecoder().decode(DiaryLinkPayload.self, from: data),
+               applyHalves(p, context: context) != nil {
+                continue                                   // 落成，出队
+            }
+            remaining.append(json)
+        }
+        UserDefaults.standard.set(remaining, forKey: stashKey)
+    }
+
     /// 足迹被删后的降级检查：对应页保留为自由页（快照兜底，内容不丢）。
     static func degradeOrphanPages(context: ModelContext) {
         let books = (try? context.fetch(FetchDescriptor<DiaryBook>())) ?? []

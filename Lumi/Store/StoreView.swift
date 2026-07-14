@@ -134,12 +134,16 @@ struct PackDetailSheet: View {
                 VStack(alignment: .leading, spacing: 18) {
                     LazyVGrid(columns: cols, spacing: 14) {
                         ForEach(pack.items) { item in
-                            VStack(spacing: 6) {
-                                PackItemStampView(packID: pack.id, itemID: item.id)
-                                    .frame(width: 54, height: 64)
-                                Text(verbatim: item.localizedName)
-                                    .font(.system(size: 10)).foregroundStyle(Color.muted)
-                                    .lineLimit(1)
+                            if let f = outOfWindowFestival(item) {
+                                seasonalPlaceholder(f)
+                            } else {
+                                VStack(spacing: 6) {
+                                    PackItemStampView(packID: pack.id, itemID: item.id)
+                                        .frame(width: 54, height: 64)
+                                    Text(verbatim: item.localizedName)
+                                        .font(.system(size: 10)).foregroundStyle(Color.muted)
+                                        .lineLimit(1)
+                                }
                             }
                         }
                     }
@@ -173,6 +177,29 @@ struct PackDetailSheet: View {
         .preferredColorScheme(.dark)
         .presentationDetents([.medium, .large])
         .sheet(isPresented: $showPaywall) { PaywallView() }
+    }
+
+    /// 节日/季节性条目（legacyRaw `fest:`）在流通窗口外 → 返回该节日以显示「虚位以待」占位。
+    /// 地域性票（cc:/prem:/pack 手绘）恒常展示，不受影响。
+    private func outOfWindowFestival(_ item: PackItem) -> Festival? {
+        guard let raw = item.legacyRaw, raw.hasPrefix("fest:"),
+              let f = Festival(rawValue: String(raw.dropFirst(5))),
+              !f.isInWindowNow else { return nil }
+        return f
+    }
+
+    /// 「虚位以待」占位：虚线框 + 日期窗——季节/节日一到自动换回真票。
+    private func seasonalPlaceholder(_ f: Festival) -> some View {
+        VStack(spacing: 6) {
+            ZStack {
+                RoundedRectangle(cornerRadius: 10)
+                    .stroke(Color.line, style: StrokeStyle(lineWidth: 1.2, dash: [4, 3]))
+                Text(verbatim: "✦").font(.system(size: 18)).foregroundStyle(Color.faint)
+            }
+            .frame(width: 54, height: 64)
+            Text("虚位以待").font(.system(size: 10)).foregroundStyle(Color.faint).lineLimit(1)
+            Text(verbatim: f.windowText).font(.system(size: 8.5)).foregroundStyle(Color.faint)
+        }
     }
 
     @ViewBuilder

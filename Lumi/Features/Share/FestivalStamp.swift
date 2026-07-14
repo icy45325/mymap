@@ -81,6 +81,13 @@ enum Festival: String, CaseIterable, Identifiable {
         return v >= lo && v <= hi   // 所有窗口都不跨年，直接比较
     }
 
+    /// 今天是否落在该节日的流通窗口（±5 天）内——不限地区（商店「虚位以待」展示用）。
+    var isInWindowNow: Bool {
+        let comps = Calendar.current.dateComponents([.month, .day], from: .now)
+        guard let m = comps.month, let d = comps.day else { return false }
+        return contains(month: m, day: d)
+    }
+
     // MARK: - 匹配
 
     /// 中东（伊斯兰 / 阿拉伯）地区国家码。
