@@ -932,6 +932,12 @@ S = [
  ("本地热点","Local Spots","أماكن محلية"),
  ("本地热点推荐 · 敬请期待","Local picks · stay tuned","توصيات محلية · قريبًا"),
  ("平台推荐的附近打卡热点将在这里出现","Editor-picked nearby spots will appear here","ستظهر هنا الأماكن القريبة المختارة"),
+
+ # —— 第八批：相册权限（limited 引导 / denied 自动重扫）——
+ ("Lumi 目前只能访问部分照片，可能漏掉一些足迹","Lumi can only access some of your photos — a few footprints may be missed","لا يستطيع Lumi الوصول إلا لبعض الصور — قد تفوته بعض البصمات"),
+ ("选择更多照片","Select more photos","اختيار المزيد من الصور"),
+ ("允许访问全部","Allow full access","السماح بالوصول الكامل"),
+ ("到「设置 › 隐私 › 照片」选择「所有照片」或「部分照片」，回来后会自动重新扫描。","In Settings › Privacy › Photos, choose \"All Photos\" or \"Limited Access\" — scanning resumes automatically when you return.","في الإعدادات › الخصوصية › الصور اختر \"كل الصور\" أو \"وصول محدود\" — يُستأنف الفحص تلقائيًا عند عودتك."),
 ]
 
 # Resolve duplicate "国家" (Country vs Countries): keep two distinct? They share key -> can't.

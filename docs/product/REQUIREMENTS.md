@@ -156,6 +156,8 @@
 | 商店节日票「虚位以待」 | 商店节日包详情：节日章仅在**流通窗口（±5 天）内**彩色展示，窗口外为虚线「虚位以待+日期窗」占位；地域性票恒常展示 | ✅ | ICY 07-14；`StoreView.PackDetailSheet` |
 | 地图 World / 本地视图 | 地图页顶部「世界 World / 本地 Local」切换（默认 World）：本地=上半真实地图（当前定位→最近足迹兜底）+ 下半**服务下发**的本地热点运营位（Supabase Storage `highlights/local.json`，未上架时空态「敬请期待」） | ✅ 客户端就绪 / 📋 运营内容下发 | ICY 07-14；`LocalHighlights.swift` |
 | 自动收件 + 未读角标 | 明信片/日记（邀请、半页）到达即**免确认自动入库**；未读直接上 Me tab 角标与铃铛，动态列表跳转；半页先于邀请到达自动暂存补落 | ✅ | ICY 07-14（七批①）；`RootTabView` / `NoticeCenter` |
+| 手选照片本地落地（相册权限解耦） | PhotosPicker 手选的足迹照片/头像**拷贝进 App 沙盒**（降采样 JPEG，`local:` 前缀 id 与 PHAsset id 共存，模型零迁移）——「部分照片/无权限」下也能正常显示；启动清孤儿文件；相册导入流仍引用 PHAsset | ✅ | ICY 07-15（八批）；`LocalPhotoStore.swift` |
+| Sync 权限引导 | 从相册同步：denied → 提示去设置、**回 App 自动重扫**；limited → 顶部受限横幅（「选择更多照片」弹系统选集选择器后自动重扫 /「允许访问全部」跳设置）；渲染失败且权限不足显示锁形占位 | ✅ | ICY 07-15（八批）；`PhotoImportView` |
 
 ## 10. 护照本（模拟出入境章）
 

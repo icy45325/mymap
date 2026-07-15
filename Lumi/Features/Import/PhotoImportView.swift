@@ -1,6 +1,8 @@
 import SwiftUI
 import SwiftData
 import UIKit
+import Photos
+import PhotosUI
 
 /// 「从相册同步历史足迹」评审页：扫描相册位置 → 列出候选地点 → 勾选导入。
 struct PhotoImportView: View {
@@ -10,6 +12,7 @@ struct PhotoImportView: View {
 
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.scenePhase) private var scenePhase
     @StateObject private var service = PhotoImportService()
     @State private var includePhotos = true   // 默认同时导入照片，丰富时间线
 
@@ -47,6 +50,46 @@ struct PhotoImportView: View {
         .preferredColorScheme(.dark)
         .tint(Color.nPink)
         .task { await service.start(existing: existing) }
+        // 去系统设置改完相册权限切回来 → 自动重扫，不用关掉重开
+        .onChange(of: scenePhase) { _, phase in
+            if phase == .active && service.phase == .denied {
+                Task { await service.restart(existing: existing) }
+            }
+        }
+    }
+
+    // MARK: - limited（部分照片）扩权引导
+
+    /// 「部分照片」授权提示条：结果可能不全，可扩选集或放开全部。
+    private var limitedBanner: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Label("Lumi 目前只能访问部分照片，可能漏掉一些足迹", systemImage: "exclamationmark.triangle.fill")
+                .font(.system(size: 11.5)).foregroundStyle(Color.nOrange)
+            HStack(spacing: 14) {
+                Button("选择更多照片") { presentLimitedPicker() }
+                Button("允许访问全部") {
+                    if let url = URL(string: UIApplication.openSettingsURLString) {
+                        UIApplication.shared.open(url)
+                    }
+                }
+            }
+            .font(.system(size: 12, weight: .semibold)).foregroundStyle(Color.nPink)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(12)
+        .background(Color.nOrange.opacity(0.09), in: RoundedRectangle(cornerRadius: 13))
+        .overlay(RoundedRectangle(cornerRadius: 13).stroke(Color.nOrange.opacity(0.3), lineWidth: 1))
+        .padding(.horizontal, 20).padding(.top, 10)
+    }
+
+    /// 弹系统「选择更多照片」选择器；关闭后自动重扫。
+    private func presentLimitedPicker() {
+        guard let vc = UIApplication.shared.connectedScenes
+            .compactMap({ ($0 as? UIWindowScene)?.keyWindow })
+            .first?.rootViewController?.topmost else { return }
+        PHPhotoLibrary.shared().presentLimitedLibraryPicker(from: vc) { _ in
+            Task { @MainActor in await service.restart(existing: existing) }
+        }
     }
 
     private var allSelected: Bool {
@@ -99,7 +142,7 @@ struct PhotoImportView: View {
         VStack(spacing: 12) {
             Image(systemName: "lock.fill").font(.system(size: 40)).foregroundStyle(Color.nPurple)
             Text("无法访问相册").font(.system(size: 14, weight: .semibold)).foregroundStyle(Color.text)
-            Text("到「设置 › 隐私 › 照片」允许 Lumi 读取相册后再试。")
+            Text("到「设置 › 隐私 › 照片」选择「所有照片」或「部分照片」，回来后会自动重新扫描。")
                 .font(.system(size: 12.5)).foregroundStyle(Color.muted)
                 .multilineTextAlignment(.center).padding(.horizontal, 40)
             Button("打开设置") {
@@ -115,15 +158,18 @@ struct PhotoImportView: View {
     // MARK: - 没有可导入的
 
     private var empty: some View {
-        VStack(spacing: 12) {
-            Image(systemName: "photo.on.rectangle.angled").font(.system(size: 40))
-                .foregroundStyle(Color.nPurple)
-            Text("没找到带位置的新照片").font(.system(size: 14, weight: .semibold)).foregroundStyle(Color.text)
-            Text("相册里带定位信息的照片都已点亮，或暂时没有可识别的地点。")
-                .font(.system(size: 12.5)).foregroundStyle(Color.muted)
-                .multilineTextAlignment(.center).padding(.horizontal, 40)
+        VStack(spacing: 0) {
+            if service.limited { limitedBanner }
+            VStack(spacing: 12) {
+                Image(systemName: "photo.on.rectangle.angled").font(.system(size: 40))
+                    .foregroundStyle(Color.nPurple)
+                Text("没找到带位置的新照片").font(.system(size: 14, weight: .semibold)).foregroundStyle(Color.text)
+                Text("相册里带定位信息的照片都已点亮，或暂时没有可识别的地点。")
+                    .font(.system(size: 12.5)).foregroundStyle(Color.muted)
+                    .multilineTextAlignment(.center).padding(.horizontal, 40)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     // MARK: - 候选列表
@@ -134,6 +180,7 @@ struct PhotoImportView: View {
 
     private var list: some View {
         VStack(spacing: 0) {
+            if service.limited { limitedBanner }
             SegmentBar(items: ImportGranularity.allCases.map { (value: $0, label: $0.label) },
                        selection: granularityBinding)
                 .padding(.top, 10).padding(.bottom, 2)
@@ -266,5 +313,12 @@ struct PhotoImportView: View {
         Haptics.success()
         Analytics.log(.photoImportCompleted(imported: count))
         dismiss()
+    }
+}
+
+private extension UIViewController {
+    /// 沿 presented 链找到最顶层可见 VC（在本 sheet 之上弹系统「选择更多照片」用）。
+    var topmost: UIViewController {
+        presentedViewController?.topmost ?? self
     }
 }

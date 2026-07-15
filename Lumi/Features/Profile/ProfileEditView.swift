@@ -97,7 +97,17 @@ struct ProfileEditView: View {
             .toolbarBackground(Color.bg, for: .navigationBar)
             .toolbarColorScheme(.dark, for: .navigationBar)
             .onChange(of: pickerItem) { _, item in
-                if let id = item?.itemIdentifier { avatarID = id }
+                guard let item else { return }
+                Task {
+                    // 拷贝进沙盒（不依赖相册权限）；换图即删旧沙盒文件；失败回退相册引用
+                    if let data = try? await item.loadTransferable(type: Data.self),
+                       let id = LocalPhotoStore.save(data) {
+                        if avatarID.hasPrefix(LocalPhotoStore.prefix) { LocalPhotoStore.delete(avatarID) }
+                        avatarID = id
+                    } else if let id = item.itemIdentifier {
+                        avatarID = id
+                    }
+                }
             }
             .sheet(isPresented: $showNationalityPicker) {
                 NationalityPickerSheet(selected: $nationality)

@@ -61,6 +61,11 @@ struct RootTabView: View {
             // 视图建立前就到达的收件（冷启动 onOpenURL）在这里补收
             if let p = inbox.pending { receive(p) }
             if let d = inbox.pendingDiaryLink { receiveDiaryLink(d) }
+            // 沙盒照片孤儿清理（删足迹/取消编辑遗留的 local: 文件，启动兜底一次）
+            var kept = Set(footprints.flatMap(\.photoAssetIDs).filter { $0.hasPrefix(LocalPhotoStore.prefix) })
+            if let avatar = UserDefaults.standard.string(forKey: "lumi.profile.avatarID"),
+               avatar.hasPrefix(LocalPhotoStore.prefix) { kept.insert(avatar) }
+            Task.detached(priority: .utility) { LocalPhotoStore.purgeOrphans(keeping: kept) }
         }
         .task { await updater.check() }                              // A 启动查新版本
         .onChange(of: scenePhase) { _, phase in

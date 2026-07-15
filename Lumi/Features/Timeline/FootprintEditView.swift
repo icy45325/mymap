@@ -200,14 +200,19 @@ struct FootprintEditView: View {
             Text("最多 \(Footprint.maxPhotos) 张 · 已选 \(photoIDs.count)")
                 .font(.system(size: 11)).foregroundStyle(Color.textSecondary)
         }
-        .onChange(of: pickerItems) { _, items in mergePicked(items) }
+        .onChange(of: pickerItems) { _, items in Task { await mergePicked(items) } }
     }
 
-    /// 把刚选的照片并入（去重 + 不超过上限），随后清空选择器。
-    private func mergePicked(_ items: [PhotosPickerItem]) {
+    /// 把刚选的照片并入（不超过上限），随后清空选择器。
+    /// 照片**拷贝进 App 沙盒**（LocalPhotoStore）——不依赖相册权限，limited 下也能显示；
+    /// 拿不到数据时回退存相册引用。删除/取消编辑产生的孤儿文件由启动清理兜底。
+    private func mergePicked(_ items: [PhotosPickerItem]) async {
         guard !items.isEmpty else { return }
-        for id in items.compactMap(\.itemIdentifier)
-        where !photoIDs.contains(id) && photoIDs.count < Footprint.maxPhotos {
+        for item in items {
+            guard photoIDs.count < Footprint.maxPhotos else { break }
+            let data = try? await item.loadTransferable(type: Data.self)
+            guard let id = data.flatMap({ LocalPhotoStore.save($0) }) ?? item.itemIdentifier,
+                  !photoIDs.contains(id) else { continue }
             photoIDs.append(id)
         }
         pickerItems = []

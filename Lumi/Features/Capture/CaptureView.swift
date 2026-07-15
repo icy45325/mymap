@@ -401,10 +401,14 @@ struct CaptureView: View {
 
     private func loadPhoto(_ item: PhotosPickerItem?) async {
         guard let item else { return }
-        photoAssetID = item.itemIdentifier
-        if let data = try? await item.loadTransferable(type: Data.self),
-           let uiImage = UIImage(data: data) {
-            photoPreview = Image(uiImage: uiImage)
+        if let data = try? await item.loadTransferable(type: Data.self) {
+            // 拷贝进 App 沙盒（不依赖相册权限，limited/denied 下也能显示）；失败回退存相册引用
+            photoAssetID = LocalPhotoStore.save(data) ?? item.itemIdentifier
+            if let uiImage = UIImage(data: data) {
+                photoPreview = Image(uiImage: uiImage)
+            }
+        } else {
+            photoAssetID = item.itemIdentifier
         }
     }
 

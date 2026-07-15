@@ -28,6 +28,8 @@ final class PhotoImportService: ObservableObject {
     @Published var candidates: [ImportCandidate] = []
     @Published private(set) var resolving = false
     @Published private(set) var granularity: ImportGranularity = .city
+    /// 当前是「部分照片」授权（limited）——扫描结果可能不全，UI 显示扩权引导。
+    @Published private(set) var limited = false
 
     // 扫描进度（用于 UI 进度条 + 预计剩余时间）
     @Published private(set) var scanTotal: Int = 0     // 需反向地理编码的聚类数
@@ -54,6 +56,7 @@ final class PhotoImportService: ObservableObject {
         guard phase == .idle else { return }   // 只跑一次
         phase = .requesting
         let status = await requestAuthorization()
+        limited = (status == .limited)
         guard status == .authorized || status == .limited else { phase = .denied; return }
 
         phase = .scanning
@@ -67,6 +70,17 @@ final class PhotoImportService: ObservableObject {
         await buildResults()    // loading 期间一次性算好两套去重结果
         candidates = (granularity == .city) ? cityResult : countryResult
         phase = (cityResult.isEmpty && countryResult.isEmpty) ? .empty : .ready
+    }
+
+    /// 重扫：权限变化后（去设置改了权限 / limited 选集扩了照片）从头再来。
+    /// nameCache 保留——反向地理编码结果与权限无关，重扫可秒复用。
+    func restart(existing: [Footprint]) async {
+        phase = .idle
+        candidates = []
+        points = []
+        cityResult = []; countryResult = []
+        scanTotal = 0; scanDone = 0; etaSeconds = 0
+        await start(existing: existing)
     }
 
     /// 切换粒度：即时换已算好的结果，不重新扫描/过滤。

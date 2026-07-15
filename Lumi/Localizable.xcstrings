@@ -18612,6 +18612,94 @@
           }
         }
       }
+    },
+    "Lumi 目前只能访问部分照片，可能漏掉一些足迹": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lumi 目前只能访问部分照片，可能漏掉一些足迹"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lumi can only access some of your photos — a few footprints may be missed"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "لا يستطيع Lumi الوصول إلا لبعض الصور — قد تفوته بعض البصمات"
+          }
+        }
+      }
+    },
+    "选择更多照片": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "选择更多照片"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Select more photos"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "اختيار المزيد من الصور"
+          }
+        }
+      }
+    },
+    "允许访问全部": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "允许访问全部"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allow full access"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "السماح بالوصول الكامل"
+          }
+        }
+      }
+    },
+    "到「设置 › 隐私 › 照片」选择「所有照片」或「部分照片」，回来后会自动重新扫描。": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "到「设置 › 隐私 › 照片」选择「所有照片」或「部分照片」，回来后会自动重新扫描。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In Settings › Privacy › Photos, choose \"All Photos\" or \"Limited Access\" — scanning resumes automatically when you return."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "في الإعدادات › الخصوصية › الصور اختر \"كل الصور\" أو \"وصول محدود\" — يُستأنف الفحص تلقائيًا عند عودتك."
+          }
+        }
+      }
     }
   },
   "version": "1.0"
