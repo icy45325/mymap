@@ -75,7 +75,7 @@ struct FootprintDetailView: View {
             if d.delivered >= d.sent {
                 Text("已送达 ✓").font(.system(size: 12, weight: .semibold)).foregroundStyle(Color.nCyan)
             } else {
-                Text("已寄出 · 等待送达").font(.system(size: 12)).foregroundStyle(Color.muted)
+                Text("已寄出 · 对方打开 App 后送达").font(.system(size: 12)).foregroundStyle(Color.muted)
             }
             if d.sent > 1 {
                 Text(verbatim: "\(d.delivered)/\(d.sent)")

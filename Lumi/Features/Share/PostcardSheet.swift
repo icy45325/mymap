@@ -497,6 +497,8 @@ struct PostcardSheet: View {
             let mailID = try await LumiPost.shared.send(payload: tokenString, to: target)
             LumiPost.shared.recordSent(footprintID: footprint.id.uuidString, mailID: mailID)
             PostcardInbox.shared.markShared(token)   // 防剪贴板被动探测自弹
+            // 自寄自收：寄给自己的信立即拉回触发自动入库+角标（寄给他人时是无新信的 no-op）
+            Task { await LumiPost.shared.refreshInbox() }
             let name = recipient.trimmingCharacters(in: .whitespaces)
             contacts.record(name.isEmpty ? target : name, boxID: target, sent: true)
             sentOK = true

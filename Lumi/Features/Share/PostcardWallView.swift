@@ -44,35 +44,8 @@ struct PostcardWallView: View {
         }
     }
 
-    /// 封面横竖判定（解码一次后缓存；无图默认竖版）。
-    private static var orientCache: [UUID: Bool] = [:]
-    private func isLandscape(_ fp: Footprint) -> Bool {
-        if let hit = Self.orientCache[fp.id] { return hit }
-        var v = false
-        if let d = fp.receivedCoverData, let ui = UIImage(data: d) {
-            v = ui.size.width > ui.size.height
-        }
-        Self.orientCache[fp.id] = v
-        return v
-    }
-
-    /// 流式行：横版卡独占一行（宽 16:10 限高），竖版卡两两一行（3:4）。
-    private var wallRows: [[Footprint]] {
-        var rows: [[Footprint]] = []
-        var pending: Footprint?
-        for fp in items {
-            if isLandscape(fp) {
-                if let p = pending { rows.append([p]); pending = nil }
-                rows.append([fp])
-            } else if let p = pending {
-                rows.append([p, fp]); pending = nil
-            } else {
-                pending = fp
-            }
-        }
-        if let p = pending { rows.append([p]) }
-        return rows
-    }
+    /// 明信片墙统一两列网格（横竖版一律 3:4 居中裁切）。
+    private let wallCols = [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)]
 
     var body: some View {
         Group {
@@ -96,27 +69,11 @@ struct PostcardWallView: View {
                                 }
                                 .pickerStyle(.segmented)
                             }
-                            LazyVStack(spacing: 12) {
-                                ForEach(Array(wallRows.enumerated()), id: \.offset) { _, row in
-                                    if row.count == 1 && isLandscape(row[0]) {
-                                        Button { selected = row[0] } label: {
-                                            PostcardCell(footprint: row[0], landscape: true)
-                                        }
+                            LazyVGrid(columns: wallCols, spacing: 12) {
+                                ForEach(items) { fp in
+                                    Button { selected = fp } label: { PostcardCell(footprint: fp) }
                                         .buttonStyle(.plain)
-                                        .contextMenu { deleteMenu(row[0]) }
-                                    } else {
-                                        HStack(alignment: .top, spacing: 12) {
-                                            ForEach(row) { fp in
-                                                Button { selected = fp } label: { PostcardCell(footprint: fp) }
-                                                    .buttonStyle(.plain)
-                                                    .frame(maxWidth: .infinity)
-                                                    .contextMenu { deleteMenu(fp) }
-                                            }
-                                            if row.count == 1 {   // 奇数收尾：占位半宽保持对齐
-                                                Color.clear.frame(maxWidth: .infinity)
-                                            }
-                                        }
-                                    }
+                                        .contextMenu { deleteMenu(fp) }
                                 }
                             }
                         }
@@ -634,14 +591,13 @@ private struct ContactCardSheet: View {
 }
 
 /// 明信片墙单元：封面（照片或霓虹渐变）+ 手写寄语片段 + 地点；收到的标「✦ 收到」。
-/// 竖版 3:4；横版卡（封面宽>高）16:10 独占整行。
+/// 统一 3:4 竖版格，两列等宽；横版封面 scaledToFill 居中裁成 3:4。
 private struct PostcardCell: View {
     let footprint: Footprint
-    var landscape: Bool = false
 
     private var style: PostcardStyle { PostcardStyle(rawValue: footprint.postcardStyle) ?? .vintage }
     private var stamp: StampKind { StampKind(raw: footprint.stampStyle) }
-    private var aspect: CGFloat { landscape ? 16.0/10.0 : 3.0/4.0 }
+    private let aspect: CGFloat = 3.0/4.0
 
     var body: some View {
         ZStack(alignment: .bottomLeading) {

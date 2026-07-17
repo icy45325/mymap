@@ -938,6 +938,10 @@ S = [
  ("选择更多照片","Select more photos","اختيار المزيد من الصور"),
  ("允许访问全部","Allow full access","السماح بالوصول الكامل"),
  ("到「设置 › 隐私 › 照片」选择「所有照片」或「部分照片」，回来后会自动重新扫描。","In Settings › Privacy › Photos, choose \"All Photos\" or \"Limited Access\" — scanning resumes automatically when you return.","في الإعدادات › الخصوصية › الصور اختر \"كل الصور\" أو \"وصول محدود\" — يُستأنف الفحص تلقائيًا عند عودتك."),
+
+ # —— 第九批：Updates 兜底文案 / 送达状态措辞 ——
+ ("收到一张明信片","You received a postcard","وصلتك بطاقة بريدية"),
+ ("已寄出 · 对方打开 App 后送达","Sent · delivered once they open Lumi","أُرسلت · تصل عندما يفتحون Lumi"),
 ]
 
 # Resolve duplicate "国家" (Country vs Countries): keep two distinct? They share key -> can't.
