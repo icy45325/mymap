@@ -2,15 +2,29 @@
 
 > 上架首版**还差什么**集中一页。**打包/后台逐项怎么配见 [`BUILD-CONFIG.md`](BUILD-CONFIG.md)**。
 > 逐批排期见 [`MVP-PLAN.md`](MVP-PLAN.md)，逐条台账见 [`REQUIREMENTS.md`](../product/REQUIREMENTS.md)。
-> 图例：✅ 完成 · 🚧 进行中 · 🔲 未开始。最后更新 **2026-07-02**。
+> 图例：✅ 完成 · 🚧 进行中 · 🔲 未开始。最后更新 **2026-07-15**（重新规划 MVP 首发范围）。
 
-## 一句话现状
+## 一句话现状（2026-07-15 重规划）
 
-功能侧（点亮回路 / 时间线 / 成就+统计报告 / 心愿单 / 相册导入 / 小组件 / 明信片收发+样式邮票+**节日限定章** / 护照 / 三语徽章 / Sign in with Apple 登录）**已就绪**，代码全部在分支 `claude/project-docs-progress-xncg1m`。
-付费开发者账号**已开通**（B1✅）。**关键路径只剩 3 件**：① 真机系统化回归 + 复验（见 [`ACCEPTANCE.md`](ACCEPTANCE.md) 与下方「本轮新增待验收」）→ ② **能力/变现配置**（Xcode 能力 + StoreKit + ASC 终身买断一档，见下「🔴」/`BUILD-CONFIG.md`）→ ③ 截图/元数据/法务页 + 提审。
+代码早已到「**MVP++**」：核心集邮回路 / 时间线 / 成就+报告 / 心愿单 / 相册导入 / 小组件 / 明信片收发+样式邮票+节日章 / 护照 / 三语 / **Lumi 邮局直投**（v1.1）/ **资源商店**（v1.15）/ **账号+云同步**（v1.2）/ **交换日记 v3+远程交换** / 邮票收藏册 / 地图 World·本地 全部落地。
+**全部代码在分支 `claude/v1.1-lumi-post`（领先 main 224 提交、0 落后）**——正开 PR 首次合入 main。付费开发者账号已开通（B1✅）。
+
+> **⭐ MVP 首发范围（ICY 2026-07-15 拍板）＝「核心 + Lumi 邮局」**
+> 第一版提审只把 **核心集邮回路 + 护照/成就 + Plus + Lumi 邮局直投** 作为「必须能用、必须 QA、必须配齐后端」的范围（邮局后端已就绪，「真的能寄到」是最强钩子）。
+> **资源商店 / 账号云同步 / 交换日记** 代码保留在包内、**优雅降级**（无 ASC pack SKU → 商店只陈列不可购；未登录 → 纯本地照跑；日记走本地+邮局），**不作为首发提审的门槛**，作为 **v1.1（商店上架）/ v1.2（账号同步）快跟**。降级/隐藏细节见下「D. 首发降级门控」。
 
 > **变现模型已定：终身会员（早鸟）一次性买断**，`com.lumi.plus.lifetime` @9.9（USD/CNY/AED），**非订阅、不自动续费**，解锁后续所有功能迭代。`Lumi.storekit` 已改为 Non-Consumable。
 > **App Group 已从 `group.com.lumi.v0`（全球被占用、描述文件不支持）改为 `group.com.lumi.fun`**——两个 target 的 Capability 都要勾它、去掉旧的。
+
+## 关键路径（首发提审前，按顺序）
+
+1. **PR 合并到 main** 🚧 进行中（v1.1-lumi-post → main；合完官网 Pages 跟 main 生效）
+2. **能力/变现配置（Xcode + ASC）** 🔲：App Groups(两 target `group.com.lumi.fun`) + Sign in with Apple + In-App Purchase；scheme 指 `Lumi.storekit`；ASC 建 App + 终身买断一档 + 价格分层；沙盒/真机购买+恢复（B2–B5）
+3. **恢复 Sign in with Apple（C4）** 🔲：entitlement 键 + `signInEnabled=true` + **付费团队签名**（含 Xcode developer 账号更新到位）
+4. **邮局后端就绪** 🔲：Supabase 生产可用（RLS/限量）+ **pg_cron 30 天 TTL 启用**；Info.plist `LumiPostURL/AnonKey` 已配（已就绪）
+5. **官网上线** 🔲：Pages 绑 **lumilight.fun** + HTTPS（`docs/CNAME` 已置）；上线后切 App 内 4 处 URL；`APPSTORE_URL` 回填
+6. **三语系统化回归 + 各批验收** 🔲（C1/C2，照 `QA-REGRESSION.md` + `ACCEPTANCE.md` A–Z 区）
+7. **截图/元数据 + TestFlight → 提审**（B7/B8）
 
 ---
 
@@ -44,7 +58,7 @@
 | B3 | scheme 设 StoreKit Configuration（本地看到套餐） | 🔲 |
 | B4 | App Store Connect 建 App + **终身买断（非消耗型）**一档 `com.lumi.plus.lifetime` @9.9（USD/CNY/AED）+ 价格分层 | 🔲 |
 | B5 | 沙盒/真机购买 + 恢复购买验证 | 🔲 |
-| B6 | 开 GitHub Pages 托管法务页（paywall 已指向） | 🔲 |
+| B6 | 开 GitHub Pages（Settings→Pages→main `/docs`）+ 绑定 **lumilight.fun**（custom domain + Enforce HTTPS；`docs/CNAME` 已置）+ DNS A 记录（185.199.108–111.153）；法务页/官网可访问 | 🔲 |
 | B7 | 截图（6.7"/6.1" 三语）+ 元数据 | 🔲 |
 | B8 | TestFlight → 提审（隐私 Data Not Collected，4+） | 🔲 |
 
@@ -57,11 +71,25 @@
 | C3 | 英文/中文系统语言已修复（zh-Hans 根因），清装复验一次 | ⚠️ 待复验 |
 | C4 | **恢复 Sign in with Apple（上线前）**：`Lumi.entitlements` 恢复 `com.apple.developer.applesignin` 键（注释里备着）+ `SettingsView.signInEnabled = true` + **付费团队签名**验证登录可用。日常调试用个人团队不支持该 capability，已临时摘除并隐藏入口（2026-07-07） | 🔲 上线前 |
 
+## D. 首发降级门控（「核心+邮局」范围外功能怎么处理）
+
+> 目标：第一版提审时，**范围外功能不出现「死路 / 需未就绪后端」**，reviewer 不踩空；同时代码保留，快跟版本一键放开。
+
+| 功能 | 首发处理 | 放开时机 |
+|---|---|---|
+| **Lumi 邮局直投** | ✅ **首发开**（后端就绪 + pg_cron TTL）——直寄/收信/回执/回寄/邮箱号 | 首发 |
+| **资源商店** | 陈列可看、**pack SKU 未在 ASC 建品 → 购买按钮走「未上架」态**（`PackStore` 无产品即禁购，已有降级）；确认无死按钮 | v1.1 建 pack SKU 后 |
+| **账号 + 云同步** | 登录**永远可选、不挡本地**；C4 未恢复 SIWA 前入口隐藏（`signInEnabled=false`）；免费用户本就只存本地 | v1.2（SIWA 恢复 + 同步验收）|
+| **交换日记** | 本地写作 + 远程交换（LUMID2 走邮局通道）可用；若邮局关则仅剩本机传递 | 随邮局；站内版 v1.3 |
+| **地图本地视图** | World 默认；本地热点 `highlights/local.json` 未下发 → 空态「敬请期待」（已实现） | 运营内容就绪 |
+
+> 落地校验：提审前按 D 表逐项确认「范围外功能无死路」，其余照 `ACCEPTANCE.md` 各区。
+
 ---
 
-## ⭐ 本轮新增 / 变更（代码已入库，⚠️ **全部待真机 Clean Build 验收**）
+## ⭐ 已入库变更（代码在 `claude/v1.1-lumi-post`，⚠️ **全部待真机 Clean Build 验收**）
 
-> 均在分支 `claude/project-docs-progress-xncg1m`。Linux 端无法编译，需 ICY 在 Mac 上 Clean Build（改了 entitlements 需删机重装）逐项确认。
+> Linux 端无法编译，需 ICY 在 Mac 上 Clean Build（改了 entitlements / schema 需删机重装）逐项确认。下表 N1–N24 为早期批次；此后又叠加 v1.1 邮局 / v1.15 商店 / v1.2 账号 / 交换日记 v3 / 验收三~八批（详见 `ACCEPTANCE.md` M–Z 区）。
 
 | # | 变更 | 关键验收点 |
 |---|------|-----------|

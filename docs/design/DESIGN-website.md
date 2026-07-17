@@ -1,6 +1,7 @@
 # 官网设计（docs/index.html · GitHub Pages）
 
 > 2026-07-08 重做版。单文件自包含（无外链 CDN），三语（zh/en/ar 含 RTL），Pages 跟 main 分支。
+> **自定义域名（2026-07-15）**：已购 **lumilight.fun**，`docs/CNAME` 已置；Pages 设 custom domain + Enforce HTTPS，DNS 配 A 记录（185.199.108–111.153）。上线后把 App 内 4 处 `icy45325.github.io/mymap` 换成 `https://lumilight.fun/`（`ShareCard.swift:34` 二维码、`SettingsView.swift:174` 推荐、`PaywallView.swift:194-195` 法务页）。
 
 ## 灵感参考（ICY 2026-07-08 提供）
 

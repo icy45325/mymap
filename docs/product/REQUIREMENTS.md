@@ -118,6 +118,7 @@
 | 一键回寄 | 收到的明信片详情页「寄卡人」档案卡 +「回寄明信片」：从自己足迹挑一张，收件人/邮箱号预填直寄 | ✅ | ICY 07-08 |
 | 推荐给朋友（Tell a friend） | Settings 增分享入口：纯文本一句话 + 官网链接，唤起系统分享 | ✅ | ICY 07-08 |
 | 官网落地页 | `docs/index.html` 三语（中/英/阿含 RTL）：核心功能介绍 + App Store 下载（上架后填链接）+ Android 虚位以待；分享成图底部二维码指向官网；**Pages 跟 main，需合并后上线** | ✅ 待合 main | ICY 07-08 |
+| 官网自定义域名 | 绑定 **lumilight.fun**（已购）：`docs/CNAME` 已置 → Pages 设 custom domain + Enforce HTTPS；DNS 配 A 记录到 GitHub Pages（185.199.108–111.153）或 apex+www CNAME。**域名解析生效后**再把 App 内 4 处硬编码 `icy45325.github.io/mymap` 换成 `https://lumilight.fun/`（分享图二维码 `ShareCard.swift:34`、推荐给朋友 `SettingsView.swift:174`、Paywall 隐私/条款 `PaywallView.swift:194-195`） | 🚧 CNAME 已置 / DNS+切链接待上线 | ICY 07-15 |
 | 好友分享（真好友体系） | 好友列表 / 加好友 / 好友共享；**依赖账号 + BaaS**，留 v1/v2 | 💡 | ICY 06-24；设计见 [DESIGN-accounts-and-exchange](../design/DESIGN-accounts-and-exchange.md) |
 | 通讯录邀请好友 | 获取通讯录权限，通过通讯录邀请好友加入 App | 💡 | ICY 06-24 |
 | App 内分享地点/店铺（IM） | 用户间分享旅行地点 / 好店铺；并能从谷歌地图把店铺分享进 Lumi，形成闭环 | 💡 | ICY 06-25；设计见 [DESIGN-accounts-and-exchange §5](../design/DESIGN-accounts-and-exchange.md#5-im-即时通讯--内容分享icy-说的接-im) |

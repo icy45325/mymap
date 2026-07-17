@@ -1,8 +1,11 @@
 # Lumi MVP 执行计划（上架首版排期）
 
-> MVP 范围与定位见 [`ROADMAP.md` MVP 章节](../product/ROADMAP.md#mvp--上架首版ios--纯本地--无账号)。
-> 本文把 MVP 拆成可执行批次、定先后与依赖。**状态随推进更新，最后更新 2026-06-27。**
+> MVP 范围与定位见 [`ROADMAP.md` MVP 章节](../product/ROADMAP.md)。
+> 本文把 MVP 拆成可执行批次、定先后与依赖。**状态随推进更新，最后更新 2026-07-15。**
 > 产品概览见 [`PRODUCT-OVERVIEW.md`](../product/PRODUCT-OVERVIEW.md)，逐条进度见 [`REQUIREMENTS.md`](../product/REQUIREMENTS.md)，**上架前遗留清单见 [`MVP-REMAINING.md`](MVP-REMAINING.md)**。
+
+> **⭐ 2026-07-15 重规划**：代码已到「MVP++」——v1.1 邮局 / v1.15 商店 / v1.2 账号 / 交换日记 v3 全部落地，均在分支 **`claude/v1.1-lumi-post`**（领先 main 224 提交，正开 PR 首次合入 main）。
+> **首发范围收敛为「核心集邮回路 + 护照/成就 + Plus + Lumi 邮局直投」**；商店/账号/交换日记随包但**优雅降级、不作提审门槛**（降级门控见 [`MVP-REMAINING.md` D 区](MVP-REMAINING.md)），作 v1.1/v1.2 快跟。下方 06-27 的批次盘点为历史底稿，最新关键路径以 `MVP-REMAINING.md`「关键路径」为准。
 
 ## 现状盘点（2026-06-27）
 
