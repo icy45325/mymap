@@ -183,6 +183,35 @@
   .hex-badge .inner .e { font-size:30px; }
   .hex-badge .inner .n { font-size:9px; color:var(--muted); letter-spacing:.08em; }
 
+  /* 护照 · 展开跨页（真实界面可替换：把 .pp-shot 换成 <img>）*/
+  .passport-open { position:relative; display:flex; width:min(540px,100%);
+    border-radius:14px; overflow:hidden; border:1px solid #6B5325;
+    box-shadow:0 20px 52px rgba(0,0,0,.6), inset 0 0 60px rgba(201,162,75,.10); }
+  .pp-page { flex:1 1 0; min-width:0; padding:16px 15px; position:relative;
+    background:linear-gradient(150deg,#3A2C14,#241A0C 62%,#332510); }
+  .pp-right { background:linear-gradient(210deg,#33270F,#241A0C 62%,#2C2010); }
+  .pp-spine { position:absolute; inset-block:0; inset-inline-start:50%; width:3px;
+    transform:translateX(-50%); background:linear-gradient(#0000,#0009,#0000);
+    box-shadow:0 0 16px 7px rgba(0,0,0,.5); pointer-events:none; }
+  .pp-head { display:flex; align-items:center; gap:9px; margin-bottom:12px; }
+  .pp-head .crest { font-size:26px; filter:sepia(.4) saturate(.7); }
+  .pp-photo { width:60px; height:74px; border-radius:6px; font-size:34px;
+    display:flex; align-items:center; justify-content:center; margin-bottom:12px;
+    background:rgba(201,162,75,.10); border:1px solid rgba(201,162,75,.32); }
+  .pp-fields { display:flex; flex-direction:column; gap:7px; }
+  .pp-fields > div { display:flex; flex-direction:column; }
+  .pp-fields span { font-size:7.5px; letter-spacing:.14em; color:#8A6F35; }
+  .pp-fields b { font-size:12px; color:#D8BC7A; font-family:ui-monospace,Menlo,monospace; }
+  .pp-seals { position:relative; height:100%; min-height:196px; }
+  .pp-seals .seal { position:absolute; }
+  /* 入境章释义 */
+  .entry-legend { display:flex; flex-direction:column; gap:9px; width:min(272px,100%); }
+  .entry-legend .lg-t { font-size:11px; letter-spacing:.14em; color:#C9A24B; font-weight:700; }
+  .entry-legend .row { display:flex; align-items:flex-start; gap:9px; font-size:11px;
+    color:var(--muted); line-height:1.55; }
+  .entry-legend .row b { color:var(--text); font-weight:700; }
+  .entry-legend .dot { width:11px; height:11px; border-radius:50%; margin-top:3px; flex:0 0 auto; }
+
   /* 邮局卡 */
   .mailbox-card { background:var(--panel2); border:1px solid var(--line); border-radius:16px;
     padding:16px 18px; min-width:min(320px,86vw); }
@@ -268,13 +297,67 @@
       <h2><span class="ico">📖</span><span data-i18n="f3t">护照与成就</span></h2>
       <p class="desc" data-i18n="f3p">按国籍生成写实护照本，每个国家盖一枚入境章；徽章、图鉴与大洲征服环，把旅程变成收藏。</p>
       <div class="feat-demo">
-        <div class="passport">
-          <div class="crest">🌐</div>
-          <div class="p-title">PASSPORT</div>
-          <div class="p-sub">LUMI · TRAVEL LOG</div>
-          <div class="entry-stamp" id="entryStamp"></div>
+        <!-- 展开的两页护照。真实界面截图就位后：删掉 .passport-open 内两个 .pp-page，
+             换成 <img class="pp-shot" src="assets/passport_spread.png" alt="护照展开"> 即可 -->
+        <div class="passport-open">
+          <div class="pp-page pp-left">
+            <div class="pp-head">
+              <span class="crest">🌐</span>
+              <div>
+                <div class="p-title">PASSPORT</div>
+                <div class="p-sub">LUMI · TRAVEL LOG</div>
+              </div>
+            </div>
+            <div class="pp-photo">🧑‍🚀</div>
+            <div class="pp-fields">
+              <div><span data-i18n="ppHolder">持有人 / HOLDER</span><b>ICY</b></div>
+              <div><span data-i18n="ppVisited">点亮国家 / VISITED</span><b>18</b></div>
+              <div><span data-i18n="ppNo">护照号 / NO.</span><b>LUMI·7F3K9Q</b></div>
+            </div>
+          </div>
+          <div class="pp-page pp-right">
+            <div class="pp-seals">
+              <div class="seal" style="top:1%; inset-inline-start:0; transform:rotate(-12deg)">
+                <svg width="102" height="102" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+                  <g fill="none" stroke="#D66B5E" stroke-width="2.6" opacity=".92"><circle cx="60" cy="60" r="52"/><circle cx="60" cy="60" r="41" stroke-width="1.2"/></g>
+                  <text x="60" y="33" text-anchor="middle" font-size="9" font-weight="800" letter-spacing="2" fill="#D66B5E">ADMITTED</text>
+                  <text x="60" y="72" text-anchor="middle" font-size="27">🐉</text>
+                  <text x="60" y="93" text-anchor="middle" font-size="9.5" font-weight="700" letter-spacing="1.4" fill="#D66B5E">CHINA · 2026</text></svg>
+              </div>
+              <div class="seal" style="top:6%; inset-inline-end:-4%; transform:rotate(9deg)">
+                <svg width="96" height="96" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+                  <g fill="none" stroke="#E086A6" stroke-width="2.6" opacity=".92"><circle cx="60" cy="60" r="52"/><circle cx="60" cy="60" r="41" stroke-width="1.2"/></g>
+                  <text x="60" y="33" text-anchor="middle" font-size="9" font-weight="800" letter-spacing="2" fill="#E086A6">ADMITTED</text>
+                  <text x="60" y="72" text-anchor="middle" font-size="27">🗻</text>
+                  <text x="60" y="93" text-anchor="middle" font-size="9.5" font-weight="700" letter-spacing="1.4" fill="#E086A6">JAPAN · 2026</text></svg>
+              </div>
+              <div class="seal" style="bottom:2%; inset-inline-start:6%; transform:rotate(6deg)">
+                <svg width="98" height="98" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+                  <g fill="none" stroke="#EBA25C" stroke-width="2.6" opacity=".92"><circle cx="60" cy="60" r="52"/><circle cx="60" cy="60" r="41" stroke-width="1.2"/></g>
+                  <text x="60" y="33" text-anchor="middle" font-size="9" font-weight="800" letter-spacing="2" fill="#EBA25C">ADMITTED</text>
+                  <text x="60" y="72" text-anchor="middle" font-size="27">🕌</text>
+                  <text x="60" y="93" text-anchor="middle" font-size="9" font-weight="700" letter-spacing="1.2" fill="#EBA25C">U.A.E · 2026</text></svg>
+              </div>
+              <div class="seal" style="bottom:8%; inset-inline-end:2%; transform:rotate(-8deg)">
+                <svg width="94" height="94" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+                  <g fill="none" stroke="#7FA6E4" stroke-width="2.6" opacity=".92"><circle cx="60" cy="60" r="52"/><circle cx="60" cy="60" r="41" stroke-width="1.2"/></g>
+                  <text x="60" y="33" text-anchor="middle" font-size="9" font-weight="800" letter-spacing="2" fill="#7FA6E4">ADMITTED</text>
+                  <text x="60" y="72" text-anchor="middle" font-size="27">🤠</text>
+                  <text x="60" y="93" text-anchor="middle" font-size="9.5" font-weight="700" letter-spacing="1.4" fill="#7FA6E4">USA · 2026</text></svg>
+              </div>
+            </div>
+          </div>
+          <div class="pp-spine"></div>
         </div>
-        <div class="hex-badge"><div class="inner"><div class="e">🌏</div><div class="n" data-i18n="f3b">ASIA STAR</div></div></div>
+        <!-- 入境章释义 -->
+        <div class="entry-legend">
+          <div class="lg-t" data-i18n="f3lg">入境章释义</div>
+          <div class="row"><i class="dot" style="background:#D66B5E"></i><span><b data-i18n="f3cnT">中国</b> · <span data-i18n="f3cn">长城巨龙印，落地即盖</span></span></div>
+          <div class="row"><i class="dot" style="background:#E086A6"></i><span><b data-i18n="f3jpT">日本</b> · <span data-i18n="f3jp">富士山与神奈川浪，抵达点亮</span></span></div>
+          <div class="row"><i class="dot" style="background:#EBA25C"></i><span><b data-i18n="f3aeT">阿联酋</b> · <span data-i18n="f3ae">哈利法塔天际线，沙漠之门</span></span></div>
+          <div class="row"><i class="dot" style="background:#7FA6E4"></i><span><b data-i18n="f3usT">美国</b> · <span data-i18n="f3us">西部拓荒印记，Forever 章</span></span></div>
+          <div class="hex-badge" style="margin-top:4px"><div class="inner"><div class="e">🌏</div><div class="n" data-i18n="f3b">ASIA STAR</div></div></div>
+        </div>
       </div>
     </div>
 
@@ -489,6 +572,7 @@ const T = {
   f1t:"点亮世界地图", f1p:"去过的国家一键点亮，离线判定、纯本地保存；主屏小组件晒出点亮战绩。", f1c:"个国家已点亮",
   f2t:"明信片与邮票", f2p:"基础海陆空邮票免费；点亮过的国家解锁地区特色票；节日前后限时出节日章；典藏票为会员专属。寄达后由 Lumi 邮局盖上邮戳——只有收件人看得到。",
   f3t:"护照与成就", f3p:"按国籍生成写实护照本，每个国家盖一枚入境章；徽章、图鉴与大洲征服环，把旅程变成收藏。", f3b:"亚洲之星",
+  f3lg:"入境章释义", f3cnT:"中国", f3cn:"长城巨龙印，落地即盖", f3jpT:"日本", f3jp:"富士山与神奈川浪，抵达点亮", f3aeT:"阿联酋", f3ae:"哈利法塔天际线，沙漠之门", f3usT:"美国", f3us:"西部拓荒印记，Forever 章", ppHolder:"持有人 / HOLDER", ppVisited:"点亮国家 / VISITED", ppNo:"护照号 / NO.",
   f4t:"Lumi 邮局 · 站内直投", f4p:"每个人有一个 Lumi 邮箱号。填上朋友的号码，明信片直接寄进 Ta 的 App——收下的那一刻，邮戳落下。",
   f4l:"我的 Lumi 邮箱号", f4d:"寄出 → 送达回执「已送达 ✓」",
   f5t:"三语 · 隐私优先", f5p:"中文 / English / العربية（含 RTL）。数据留在你的手机——Data Not Collected。",
@@ -508,6 +592,7 @@ const T = {
   f1t:"Light up the map", f1p:"One tap lights a country — offline detection, stored on device; widgets show off your score.", f1c:"COUNTRIES LIT",
   f2t:"Postcards & stamps", f2p:"Air/land/sea stamps are free; visiting a country unlocks its regional stamp; festival seals appear around holidays; collector stamps are member-only. The postmark lands on delivery — only the receiver sees it.",
   f3t:"Passport & awards", f3p:"A realistic passport by nationality with an entry stamp per country; badges, a codex and continent rings turn trips into a collection.", f3b:"ASIA STAR",
+  f3lg:"Entry stamps, explained", f3cnT:"China", f3cn:"Great Wall dragon seal — stamped on arrival", f3jpT:"Japan", f3jp:"Fuji & the Great Wave — lit on landing", f3aeT:"UAE", f3ae:"Burj Khalifa skyline — gate to the desert", f3usT:"USA", f3us:"Western frontier mark — a Forever seal", ppHolder:"HOLDER", ppVisited:"VISITED", ppNo:"PASSPORT NO.",
   f4t:"Lumi Post · direct delivery", f4p:"Everyone gets a Lumi mailbox number. Enter a friend's number and the postcard lands right in their app — postmarked the moment it's received.",
   f4l:"My Lumi mailbox", f4d:"Send → delivery receipt \"Delivered ✓\"",
   f5t:"Trilingual · privacy-first", f5p:"中文 / English / العربية (RTL included). Your data stays on your phone — Data Not Collected.",
@@ -527,6 +612,7 @@ const T = {
   f1t:"أضئ الخريطة", f1p:"أضئ الدولة بلمسة — تحديد دون اتصال وحفظ محلي؛ الودجات تعرض إنجازك.", f1c:"دولة أضيئت",
   f2t:"البطاقات والطوابع", f2p:"طوابع الجو والبر والبحر مجانية؛ زيارة الدولة تفتح طابعها المميز؛ أختام المواسم تظهر حول الأعياد؛ طوابع المقتنيات للأعضاء. ختم البريد يقع عند التسليم — يراه المستلم فقط.",
   f3t:"جواز السفر والإنجازات", f3p:"جواز واقعي حسب الجنسية مع ختم دخول لكل دولة؛ أوسمة وسجل وحلقات القارات.", f3b:"نجم آسيا",
+  f3lg:"دلالة أختام الدخول", f3cnT:"الصين", f3cn:"ختم تنين سور الصين، يُختم عند الوصول", f3jpT:"اليابان", f3jp:"جبل فوجي وموجة كاناغاوا، يُضاء عند الهبوط", f3aeT:"الإمارات", f3ae:"أفق برج خليفة، بوابة الصحراء", f3usT:"أمريكا", f3us:"ختم الحدود الغربية، ختم Forever", ppHolder:"الحامل", ppVisited:"الدول المُضاءة", ppNo:"رقم الجواز",
   f4t:"بريد Lumi · تسليم مباشر", f4p:"لكل شخص رقم صندوق Lumi. أدخل رقم صديقك وتصل البطاقة مباشرة إلى تطبيقه — وتُختم لحظة الاستلام.",
   f4l:"صندوق بريدي في Lumi", f4d:"أرسل → إيصال «تم التسليم ✓»",
   f5t:"ثلاث لغات · الخصوصية أولًا", f5p:"中文 / English / العربية (مع RTL). بياناتك تبقى على هاتفك.",
@@ -752,18 +838,15 @@ function startMini(){
 /* ── 功能区：邮票展柜 / 护照章 / 漂浮装饰 ── */
 function buildShelf(){
   const shelf = document.getElementById("shelf"); shelf.innerHTML = "";
+  // 统一高度，视觉尺寸一致（末尾 AIR MAIL / POSTMARK 已按需去除）
+  const H = 76;
   const items = [
-    { svg: '<img src="assets/stamp_cn_dragon.png" style="height:76px" alt="">', n:"CHINA" },
-    { svg: '<img src="assets/stamp_jp_wave.png" style="height:76px" alt="">', n:"JAPAN" },
-    { svg: '<img src="assets/stamp_ae_burj.png" style="height:76px" alt="">', n:"DUBAI" },
-    { svg: '<img src="assets/stamp_us_western.png" style="height:76px" alt="">', n:"USA" },
-    { svg: '<img src="assets/festival_china.png" style="height:64px" alt="">', n:"FESTIVAL" },
-    { svg: '<img src="assets/festival_christmas.png" style="height:64px" alt="">', n:"XMAS" },
-    { svg: stampSVG("#3D6FB4","✈️","AIR MAIL",52,64), n:"AIR MAIL" },
-    { svg: `<svg width="60" height="60" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
-        <g fill="none" stroke="#FF4FA3" stroke-width="2.4"><circle cx="40" cy="40" r="36"/><circle cx="40" cy="40" r="27" stroke-width="1.2"/></g>
-        <text x="40" y="36" text-anchor="middle" font-size="10" font-weight="800" letter-spacing="2" fill="#FF4FA3">LUMI</text>
-        <text x="40" y="52" text-anchor="middle" font-size="8" fill="#FF4FA3">✦ POST ✦</text></svg>`, n:"POSTMARK" },
+    { svg: `<img src="assets/stamp_cn_dragon.png" style="height:${H}px" alt="">`, n:"CHINA" },
+    { svg: `<img src="assets/stamp_jp_wave.png" style="height:${H}px" alt="">`, n:"JAPAN" },
+    { svg: `<img src="assets/stamp_ae_burj.png" style="height:${H}px" alt="">`, n:"DUBAI" },
+    { svg: `<img src="assets/stamp_us_western.png" style="height:${H}px" alt="">`, n:"USA" },
+    { svg: `<img src="assets/festival_china.png" style="height:${H}px" alt="">`, n:"FESTIVAL" },
+    { svg: `<img src="assets/festival_christmas.png" style="height:${H}px" alt="">`, n:"XMAS" },
   ];
   for (const it of items){
     const d = document.createElement("div");
@@ -771,13 +854,6 @@ function buildShelf(){
     d.innerHTML = `<div class="wiggle" style="display:inline-block">${it.svg}</div><span>${it.n}</span>`;
     shelf.appendChild(d);
   }
-}
-function buildDeco(){
-  document.getElementById("entryStamp").innerHTML = `<svg width="96" height="66" viewBox="0 0 120 82" xmlns="http://www.w3.org/2000/svg">
-    <rect x="2" y="2" width="116" height="78" rx="10" fill="none" stroke="#C05A6A" stroke-width="3"/>
-    <text x="60" y="26" text-anchor="middle" font-size="13" font-weight="800" letter-spacing="2" fill="#C05A6A">ADMITTED</text>
-    <text x="60" y="47" text-anchor="middle" font-size="10" fill="#C05A6A">TOKYO · ✈️</text>
-    <text x="60" y="66" text-anchor="middle" font-size="10" fill="#C05A6A">2026 · LUMI</text></svg>`;
 }
 
 /* ── 入场动效 ── */
@@ -811,7 +887,7 @@ document.querySelectorAll(".langs button").forEach(b => b.onclick = () => setLan
 
 /* ── boot ── */
 function boot(){
-  buildDeco(); buildShelf();
+  buildShelf();
   sizeMap(); drawMini();
   requestAnimationFrame(drawMap);
   document.querySelectorAll(".feat").forEach(el => io.observe(el));
