@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0E0B1A">
+<title>Lumi — 点亮你的世界地图</title>
+<meta name="description" content="Lumi：点亮世界地图，寄一张会盖邮戳的明信片。">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="apple-touch-icon" href="assets/logo.png">
+<style>
+  :root { --bg:#0E0B1A; --panel:#1A1530; --panel2:#221B3E; --line:rgba(255,255,255,.09);
+          --text:#F2EFFA; --muted:#8E87A3; --pink:#FF4FA3; --purple:#9B5DE5; --cyan:#4DD9FF;
+          --orange:#FFA94D; --cream:#F6EFDC; --ink:#4A3B2A; }
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html { scroll-behavior:smooth; overflow-x:clip; }
+  body { background:var(--bg); color:var(--text); overflow-x:clip;
+         font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Noto Sans",sans-serif; }
+  body::before { content:""; position:fixed; inset:0; pointer-events:none; z-index:0;
+    background:radial-gradient(700px 500px at 15% -5%, rgba(155,93,229,.30), transparent),
+               radial-gradient(600px 440px at 95% 30%, rgba(77,217,255,.14), transparent),
+               radial-gradient(500px 400px at 50% 110%, rgba(255,79,163,.12), transparent); }
+  .wrap { max-width:860px; margin:0 auto; padding:22px 20px 70px; position:relative; z-index:1; }
+  .hand { font-family:"Hannotate SC","Noteworthy","Segoe Script","Comic Sans MS",cursive; }
+  .serif { font-family:Georgia,"Songti SC",serif; }
+
+  /* ── header ── */
+  header { display:flex; align-items:center; justify-content:space-between; margin-bottom:34px; }
+  .brand-mini { font-weight:900; letter-spacing:.35em; font-size:14px;
+    background:linear-gradient(90deg,var(--pink),var(--purple),var(--cyan));
+    -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .langs button { background:none; border:1px solid var(--line); color:var(--muted); border-radius:999px;
+                  padding:5px 12px; font-size:12px; cursor:pointer; margin-inline-start:6px; }
+  .langs button.on { color:var(--text); border-color:var(--purple); }
+
+  /* ── hero ── */
+  .hero { text-align:center; position:relative; }
+  .app-logo { width:clamp(100px,24vw,150px); aspect-ratio:1; border-radius:22.5%;
+    filter:drop-shadow(0 0 30px rgba(155,93,229,.55)) drop-shadow(0 10px 24px rgba(0,0,0,.45));
+    animation:logoFloat 5.5s infinite ease-in-out; }
+  @keyframes logoFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+  .logo-word { margin-top:14px; font-weight:900; letter-spacing:.4em; font-size:clamp(17px,3.6vw,22px);
+    background:linear-gradient(100deg,var(--pink) 10%,var(--purple) 45%,var(--cyan) 90%);
+    -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .logo-word .logo-star { color:var(--orange); -webkit-text-fill-color:var(--orange); }
+  .tagline { font-size:clamp(17px,3.4vw,24px); margin-top:14px; }
+  .tagline em { font-style:normal; background:linear-gradient(90deg,var(--pink),var(--orange));
+    -webkit-background-clip:text; background-clip:text; color:transparent; font-weight:700; }
+  .sub { color:var(--muted); font-size:13.5px; line-height:1.8; max-width:36em; margin:12px auto 0; }
+
+  /* 漂浮装饰（参考 bahamabucks） */
+  .float { position:absolute; pointer-events:none; opacity:.85; will-change:transform; z-index:0; }
+  .app-logo, .logo-word, .tagline, .sub { position:relative; z-index:1; }
+  @keyframes drift1 { 0%,100%{transform:translateY(0) rotate(-8deg)} 50%{transform:translateY(-16px) rotate(-3deg)} }
+  @keyframes drift2 { 0%,100%{transform:translateY(0) rotate(6deg)}  50%{transform:translateY(14px) rotate(11deg)} }
+  @keyframes drift3 { 0%,100%{transform:translateY(0) rotate(-4deg)} 50%{transform:translateY(-11px) rotate(2deg)} }
+
+  /* ── 地图区 ── */
+  .map-card { margin-top:30px; background:rgba(26,21,48,.55); border:1px solid var(--line);
+    border-radius:22px; padding:16px 14px 12px; backdrop-filter:blur(6px); position:relative; }
+  #map { width:100%; display:block; cursor:pointer; border-radius:12px; }
+  .map-hint { display:flex; align-items:center; justify-content:center; gap:7px;
+    color:var(--muted); font-size:12.5px; padding:10px 0 4px; }
+  .map-hint b { color:var(--pink); font-weight:600; }
+  .pulse-hint { width:8px; height:8px; border-radius:50%; background:var(--pink);
+    box-shadow:0 0 10px var(--pink); animation:hintPulse 1.6s infinite; }
+  @keyframes hintPulse { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.7);opacity:.5} }
+
+  /* ── CTA ── */
+  .cta { display:flex; gap:12px; flex-wrap:wrap; justify-content:center; margin-top:26px; }
+  .btn { display:inline-flex; align-items:center; gap:8px; border-radius:999px; padding:13px 26px;
+         font-size:14.5px; font-weight:700; text-decoration:none; }
+  .btn.ios { color:#fff; background:linear-gradient(90deg,var(--pink),var(--purple));
+             box-shadow:0 8px 30px rgba(155,93,229,.4); }
+  .btn.android { color:var(--muted); border:1px dashed var(--line); cursor:default; }
+
+  /* ── 明信片编辑弹窗 ── */
+  .overlay { position:fixed; inset:0; background:rgba(8,6,18,.72); backdrop-filter:blur(4px);
+    display:none; align-items:center; justify-content:center; z-index:50; padding:18px; }
+  .overlay.show { display:flex; }
+  .composer { width:min(400px,94vw); background:var(--panel); border:1px solid var(--line);
+    border-radius:22px; padding:18px; position:relative; animation:popIn .3s cubic-bezier(.2,.9,.3,1.2); }
+  @keyframes popIn { from{transform:scale(.86) translateY(18px);opacity:0} to{transform:scale(1);opacity:1} }
+  .composer h3 { font-size:14px; margin-bottom:12px; color:var(--muted); font-weight:600; }
+  .composer h3 b { color:var(--text); }
+  .close-x { position:absolute; top:12px; inset-inline-end:12px; width:30px; height:30px; border-radius:50%;
+    border:1px solid var(--line); background:var(--panel2); color:var(--muted); font-size:13px; cursor:pointer; }
+
+  /* 卡片翻面 */
+  .flip-scene { perspective:1100px; }
+  .flip-card { position:relative; width:100%; aspect-ratio:16/10.6; transform-style:preserve-3d;
+    transition:transform .65s cubic-bezier(.35,.9,.3,1); }
+  .flip-card.flipped { transform:rotateY(180deg); }
+  .face { position:absolute; inset:0; backface-visibility:hidden; border-radius:14px; overflow:hidden;
+    box-shadow:0 14px 34px rgba(0,0,0,.5); }
+  .face.back { transform:rotateY(180deg); }
+
+  /* 正面：城市渐变 + 地标 */
+  .front-inner { width:100%; height:100%; display:flex; flex-direction:column; justify-content:flex-end;
+    padding:14px; position:relative; }
+  .front-emoji { position:absolute; top:8px; inset-inline-start:12px; font-size:56px;
+    filter:drop-shadow(0 4px 8px rgba(0,0,0,.35)); }
+  .front-lumi { position:absolute; top:12px; inset-inline-end:14px; font-size:10px; font-weight:900;
+    letter-spacing:.3em; color:rgba(255,255,255,.85); }
+  .front-city { color:#fff; font-size:21px; text-shadow:0 2px 8px rgba(0,0,0,.45); }
+  .front-date { color:rgba(255,255,255,.82); font-size:11px; margin-top:2px; }
+
+  /* 背面：奶油信纸 + 邮票 + 寄语 */
+  .back-inner { width:100%; height:100%; background:var(--cream); color:var(--ink);
+    display:flex; padding:12px; gap:10px; }
+  .back-write { flex:1.25; display:flex; flex-direction:column; }
+  .back-write textarea { flex:1; border:none; outline:none; background:transparent; resize:none;
+    color:var(--ink); font-size:16px; line-height:1.55; }   /* ≥16px：iOS 聚焦不触发页面缩放 */
+  .back-to { font-size:10px; color:#8A7A62; border-top:1px solid #D8CCB4; padding-top:6px; }
+  .back-side { flex:1; border-inline-start:1px dashed #C9BC9F; padding-inline-start:10px;
+    display:flex; flex-direction:column; align-items:flex-end; justify-content:space-between; }
+  .postmark-slot { width:74px; height:74px; position:relative; }
+
+  .btn-send { margin-top:14px; width:100%; border:none; cursor:pointer; color:#fff; font-size:15px;
+    font-weight:800; padding:14px; border-radius:999px;
+    background:linear-gradient(90deg,var(--pink),var(--purple)); box-shadow:0 8px 24px rgba(255,79,163,.35); }
+  .btn-flip { margin-top:10px; width:100%; background:none; border:1px solid var(--line); color:var(--muted);
+    border-radius:999px; padding:9px; font-size:12.5px; cursor:pointer; }
+
+  /* 飞卡动画 */
+  .fly-card { position:fixed; z-index:60; border-radius:8px; pointer-events:none;
+    box-shadow:0 10px 30px rgba(255,79,163,.5); transition:all 1.05s cubic-bezier(.5,.05,.6,1); }
+
+  /* 收件通知 */
+  .notify { position:fixed; top:16px; inset-inline-end:16px; z-index:70; display:flex; gap:10px; align-items:center;
+    background:var(--panel); border:1px solid rgba(255,79,163,.5); border-radius:16px; padding:12px 16px;
+    box-shadow:0 10px 34px rgba(255,79,163,.28); cursor:pointer;
+    transform:translateY(-90px); opacity:0; transition:all .5s cubic-bezier(.2,.9,.3,1.2); max-width:88vw; }
+  .notify.show { transform:translateY(0); opacity:1; }
+  .notify .emoji { font-size:22px; }
+  .notify .t1 { font-size:13px; font-weight:700; }
+  .notify .t2 { font-size:11px; color:var(--muted); }
+
+  /* 邮戳 */
+  @keyframes stampIn { 0%{transform:scale(2.1) rotate(-18deg);opacity:0}
+    60%{transform:scale(.94) rotate(-11deg);opacity:1} 100%{transform:scale(1) rotate(-12deg);opacity:.92} }
+  .postmark-anim { animation:stampIn .5s .55s both cubic-bezier(.2,.9,.3,1.3); }
+
+  /* ── 功能区 ── */
+  .features { margin-top:74px; display:flex; flex-direction:column; gap:18px; }
+  .feat { background:rgba(26,21,48,.55); border:1px solid var(--line); border-radius:22px;
+    padding:22px 20px; opacity:0; transform:translateY(26px); transition:all .7s cubic-bezier(.2,.8,.3,1); }
+  .feat.in { opacity:1; transform:none; }
+  .feat h2 { font-size:19px; margin-bottom:6px; }
+  .feat h2 .ico { margin-inline-end:8px; }
+  .feat p.desc { color:var(--muted); font-size:12.5px; line-height:1.8; margin-bottom:16px; }
+  .feat-demo { display:flex; flex-wrap:wrap; gap:14px; align-items:center; justify-content:center; }
+
+  /* 小地图 + 计数 */
+  #minimap { width:min(430px,100%); border-radius:10px; }
+  .counter { text-align:center; }
+  .counter .num { font-size:44px; font-family:Georgia,serif;
+    background:linear-gradient(90deg,var(--pink),var(--orange));
+    -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .counter .lbl { font-size:11px; color:var(--muted); letter-spacing:.1em; }
+
+  /* 邮票展柜 */
+  .stamp-shelf { display:flex; gap:12px; flex-wrap:wrap; justify-content:center; }
+  .shelf-item { display:flex; flex-direction:column; align-items:center; gap:6px; }
+  .shelf-item span { font-size:10.5px; color:var(--muted); }
+  .wiggle:hover { transform:rotate(-5deg) scale(1.12); }
+  .shelf-item > div, .shelf-item > svg { transition:transform .25s; }
+
+  /* 护照 */
+  .passport { width:200px; aspect-ratio:3/4.1; border-radius:12px; position:relative;
+    background:linear-gradient(150deg,#3A2C14,#241A0C 60%,#332510); border:1px solid #6B5325;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px;
+    box-shadow:0 14px 34px rgba(0,0,0,.55), inset 0 0 40px rgba(201,162,75,.12); }
+  .passport .crest { font-size:34px; filter:sepia(.4) saturate(.7); }
+  .passport .p-title { color:#C9A24B; font-size:13px; letter-spacing:.42em; font-weight:700; }
+  .passport .p-sub { color:#8A6F35; font-size:9px; letter-spacing:.2em; }
+  .entry-stamp { position:absolute; bottom:14px; inset-inline-end:-26px; transform:rotate(-14deg); }
+  .hex-badge { width:104px; height:118px; clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);
+    background:conic-gradient(from 210deg,#FF4FA3,#FFA94D,#4DD9FF,#9B5DE5,#FF4FA3);
+    display:flex; align-items:center; justify-content:center; position:relative; }
+  .hex-badge .inner { width:96px; height:110px; clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);
+    background:#221B3E; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; }
+  .hex-badge .inner .e { font-size:30px; }
+  .hex-badge .inner .n { font-size:9px; color:var(--muted); letter-spacing:.08em; }
+
+  /* 邮局卡 */
+  .mailbox-card { background:var(--panel2); border:1px solid var(--line); border-radius:16px;
+    padding:16px 18px; min-width:min(320px,86vw); }
+  .mailbox-card .lbl2 { font-size:11px; color:var(--muted); display:flex; gap:6px; align-items:center; }
+  .mailbox-card .no { font-family:ui-monospace,Menlo,monospace; font-size:24px; font-weight:800;
+    letter-spacing:.08em; margin:8px 0 4px;
+    background:linear-gradient(90deg,var(--orange),var(--pink));
+    -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .deliver-line { display:flex; align-items:center; gap:8px; margin-top:10px; font-size:11.5px; color:var(--muted); }
+  .deliver-line .plane { animation:planeGo 2.6s infinite ease-in-out; }
+  @keyframes planeGo { 0%{transform:translateX(0)} 55%{transform:translateX(46px)} 100%{transform:translateX(0);opacity:.4} }
+
+  footer { margin-top:60px; color:var(--muted); font-size:12px; display:flex; gap:16px; flex-wrap:wrap;
+    border-top:1px solid var(--line); padding-top:18px; }
+  footer a { color:var(--muted); }
+  [dir="rtl"] .logo-big, [dir="rtl"] .brand-mini { letter-spacing:.12em; }
+
+  /* ── 移动端 ── */
+  @media (max-width: 560px) {
+    .wrap { padding:16px 14px 56px; }
+    .float { transform:scale(.62); opacity:.55; }
+    #deco1 { top:-26px !important; inset-inline-start:-3% !important; }
+    #deco2 { top:-18px !important; inset-inline-end:-4% !important; }
+    .map-card { padding:10px 8px 8px; border-radius:16px; }
+    .map-hint { font-size:11.5px; }
+    .composer { padding:14px; border-radius:18px; }
+    .notify { top:calc(10px + env(safe-area-inset-top)); inset-inline-end:10px; padding:10px 13px; }
+    .passport { width:170px; }
+    .feat { padding:18px 15px; }
+  }
+  [dir="rtl"] .fly-card { transition:all 1.05s cubic-bezier(.5,.05,.6,1); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand-mini" style="display:flex; align-items:center; gap:8px;">
+      <img src="assets/favicon.png" alt="" style="width:24px; height:24px; border-radius:6px;">LUMI ✦</div>
+    <nav class="langs">
+      <button data-l="zh" class="on">中文</button><button data-l="en">EN</button><button data-l="ar">عربي</button>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <!-- 漂浮装饰 -->
+    <div class="float" style="top:6px; inset-inline-start:4%; animation:drift1 7s infinite ease-in-out; font-size:30px;">✈️</div>
+    <div class="float" style="top:44px; inset-inline-end:5%; animation:drift2 8.5s infinite ease-in-out; font-size:28px;">🚢</div>
+    <div class="float" style="top:170px; inset-inline-start:7%; animation:drift3 6.5s infinite ease-in-out; font-size:26px;">🚄</div>
+
+    <img class="app-logo" src="assets/logo.png" alt="Lumi App">
+    <div class="logo-word">LUMI<span class="logo-star"> ✦</span></div>
+    <div class="tagline" data-i18n="tagline">把去过的世界，<em>点亮</em>成一本会寄信的护照</div>
+    <p class="sub" data-i18n="sub">在世界地图上点亮足迹，收集邮票与入境章，把旅途做成一张会盖邮戳的明信片，直接寄进朋友的 App。</p>
+
+    <div class="map-card">
+      <canvas id="map"></canvas>
+      <div class="map-hint"><span class="pulse-hint"></span><span data-i18n="hint">点一个<b>亮起的城市</b>，寄一张明信片试试 ✦</span></div>
+    </div>
+
+    <div class="cta">
+      <a class="btn ios" id="ios-link" href="#" data-i18n="ios">📱 App Store 下载（即将上架）</a>
+      <span class="btn android" data-i18n="android">🤖 Android · 虚位以待</span>
+    </div>
+  </section>
+
+  <section class="features">
+    <div class="feat" id="f-map">
+      <h2><span class="ico">🗺️</span><span data-i18n="f1t">点亮世界地图</span></h2>
+      <p class="desc" data-i18n="f1p">去过的国家一键点亮，离线判定、纯本地保存；主屏小组件晒出点亮战绩。</p>
+      <div class="feat-demo">
+        <canvas id="minimap"></canvas>
+        <div class="counter"><div class="num" id="cnum">0</div><div class="lbl" data-i18n="f1c">COUNTRIES LIT</div></div>
+      </div>
+    </div>
+
+    <div class="feat" id="f-stamp">
+      <h2><span class="ico">💌</span><span data-i18n="f2t">明信片与邮票</span></h2>
+      <p class="desc" data-i18n="f2p">基础海陆空邮票免费；点亮过的国家解锁地区特色票；节日前后限时出节日章；典藏票为会员专属。寄达后由 Lumi 邮局盖上邮戳——只有收件人看得到。</p>
+      <div class="feat-demo stamp-shelf" id="shelf"></div>
+    </div>
+
+    <div class="feat" id="f-passport">
+      <h2><span class="ico">📖</span><span data-i18n="f3t">护照与成就</span></h2>
+      <p class="desc" data-i18n="f3p">按国籍生成写实护照本，每个国家盖一枚入境章；徽章、图鉴与大洲征服环，把旅程变成收藏。</p>
+      <div class="feat-demo">
+        <div class="passport">
+          <div class="crest">🌐</div>
+          <div class="p-title">PASSPORT</div>
+          <div class="p-sub">LUMI · TRAVEL LOG</div>
+          <div class="entry-stamp" id="entryStamp"></div>
+        </div>
+        <div class="hex-badge"><div class="inner"><div class="e">🌏</div><div class="n" data-i18n="f3b">ASIA STAR</div></div></div>
+      </div>
+    </div>
+
+    <div class="feat" id="f-post">
+      <h2><span class="ico">📮</span><span data-i18n="f4t">Lumi 邮局 · 站内直投</span></h2>
+      <p class="desc" data-i18n="f4p">每个人有一个 Lumi 邮箱号。填上朋友的号码，明信片直接寄进 Ta 的 App——收下的那一刻，邮戳落下。</p>
+      <div class="feat-demo">
+        <div class="mailbox-card">
+          <div class="lbl2">📮 <span data-i18n="f4l">我的 Lumi 邮箱号</span></div>
+          <div class="no">LUMI-7F3K9Q</div>
+          <div class="deliver-line"><span class="plane">✈️</span><span data-i18n="f4d">寄出 → 送达回执「已送达 ✓」</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="feat" id="f-i18n">
+      <h2><span class="ico">🌐</span><span data-i18n="f5t">三语 · 隐私优先</span></h2>
+      <p class="desc" data-i18n="f5p">中文 / English / العربية（含 RTL）。数据留在你的手机——Data Not Collected。</p>
+    </div>
+  </section>
+
+  <footer>
+    <span>© 2026 Lumi</span>
+    <a href="legal/privacy.html" data-i18n="privacy">隐私政策</a>
+    <a href="legal/terms.html" data-i18n="terms">使用条款</a>
+    <a href="legal/support.html" data-i18n="support">支持</a>
+  </footer>
+</div>
+
+<!-- 明信片编辑弹窗 -->
+<div class="overlay" id="composerOv">
+  <div class="composer">
+    <button class="close-x" onclick="closeComposer()">✕</button>
+    <h3 data-i18n="cTitle">给远方的朋友，寄一张 <b id="cCity"></b> 的明信片</h3>
+    <div class="flip-scene">
+      <div class="flip-card" id="editCard">
+        <div class="face front" id="editFront">
+          <div class="front-inner">
+            <div class="front-emoji" id="fEmoji"></div>
+            <div class="front-lumi">LUMI ✦</div>
+            <div class="front-city serif" id="fCity"></div>
+            <div class="front-date" id="fDate"></div>
+          </div>
+        </div>
+        <div class="face back">
+          <div class="back-inner">
+            <div class="back-write">
+              <textarea id="msg" class="hand" maxlength="80"></textarea>
+              <div class="back-to" data-i18n="cTo">TO · 远方的你</div>
+            </div>
+            <div class="back-side">
+              <div id="chosenStamp"></div>
+              <div class="postmark-slot"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <button class="btn-flip" id="flipBtn" onclick="toggleFlip()" data-i18n="cFlip">翻面写寄语 ✍️</button>
+    <button class="btn-send" onclick="sendCard()" data-i18n="cSend">寄出 ✦</button>
+  </div>
+</div>
+
+<!-- 收件通知 -->
+<div class="notify" id="notify" onclick="openReceived()">
+  <div class="emoji">📮</div>
+  <div><div class="t1" data-i18n="nTitle">你收到一张明信片！</div><div class="t2" id="nFrom"></div></div>
+</div>
+
+<!-- 收到的明信片查看 -->
+<div class="overlay" id="receivedOv">
+  <div class="composer">
+    <button class="close-x" onclick="closeReceived()">✕</button>
+    <h3 data-i18n="rTitle">来自远方的明信片 · <b data-i18n="rPostmark">邮局已盖戳</b></h3>
+    <div class="flip-scene">
+      <div class="flip-card" id="rcvCard">
+        <div class="face front" id="rcvFront">
+          <div class="front-inner">
+            <div class="front-emoji" id="rEmoji"></div>
+            <div class="front-lumi">LUMI ✦</div>
+            <div class="front-city serif" id="rCity"></div>
+            <div class="front-date" id="rDate"></div>
+          </div>
+        </div>
+        <div class="face back">
+          <div class="back-inner">
+            <div class="back-write">
+              <div id="rMsg" class="hand" style="flex:1; font-size:15px; line-height:1.6;"></div>
+              <div class="back-to" data-i18n="cTo">TO · 远方的你</div>
+            </div>
+            <div class="back-side">
+              <div id="rStamp"></div>
+              <div class="postmark-slot" id="rPostmark"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <button class="btn-flip" onclick="toggleRcvFlip()" data-i18n="rFlip">翻面看寄语与邮戳 ✦</button>
+  </div>
+</div>
+
+<script>
+"use strict";
+const APPSTORE_URL = "";   // 上架后填 App Store 链接
+
+/* ── 点阵地图数据（tools/gen_web_dots.py 生成：128×64，lon±180，lat 75..-58） ── */
+const DOTS = [
+"00000c03000fff8000001801ff000000",
+"00001bacf80fff00000030fffffc3800",
+"03fc6bf60f07ff0001f000ffffffff86",
+"87ffffbfe387f00007fcffdfffffffff",
+"efffffffc347c1e00f73ffffffffffff",
+"11ffffff438380001effffffffffffff",
+"07fffffe0e0380003cffffffffffff7c",
+"0383fffc0e0000003c7ffffffffffa40",
+"0040fffe07c000021c7fffffffffc0c0",
+"02007fffcfe0000200ffffffffff01c0",
+"00003fffeff000073fffffffffffe180",
+"00001fffffe000037fffffffffffc000",
+"00001fffff980001ffffffffffffe000",
+"00000fffff800001fffbffffffffa000",
+"00000fffff400000f7c7bfffffffa000",
+"00000ffffe0000078bc19ffffffe2000",
+"00000ffffc000007057fdffffffc0000",
+"00000ffff8000007017f9fffffcc0000",
+"000007fff8000000f037ffffffe4c000",
+"000007fff0000003f007ffffffe18000",
+"000003ffe0000007f90fffffffe20000",
+"000000ff60000007ffffffffffe00000",
+"000001fc0000000fffffbfffffe00000",
+"000000781800001ffff7cfffffe00000",
+"000000380000003ffffbd0ffffc00000",
+"000000381000003ffffbf87f7f000000",
+"0000003c8800003ffffbf83e7c000000",
+"0000000f8800003ffffdf03c3c000000",
+"000000014000003ffffde0381e000000",
+"00000000c000003fffff80181e100000",
+"000000004200003ffffe001006180000",
+"0000000025c0001ffffe401804000000",
+"000000000fe0000fffffc00810180000",
+"000000000ff800073fff800008400000",
+"000000000ffc00001fff800008c00000",
+"000000000ffc00001fff000011c40000",
+"000000001ffe00001ffe000009f10000",
+"000000000fffc0000ffc00000da1c000",
+"000000001fffe0000ffc000004207000",
+"000000000ffff00007fc000003007000",
+"000000000fffe00007fc000000080800",
+"000000000fffe00007fc000000000000",
+"0000000007ffc0000ffc400000032000",
+"0000000007ffc0000ffc4000000f3000",
+"0000000001ffc0000ff8c000001ff000",
+"0000000001ffc00007f88000001ff000",
+"0000000001ff800007f98000007ff800",
+"0000000001ff000007f8800000fffc00",
+"0000000001fe000007f00000007ffc00",
+"0000000001fe000003f00000007ffe00",
+"0000000001fc000003e00000007ffc00",
+"0000000001fc000003c00000007dfc00",
+"0000000003f800000100000000607c00",
+"0000000003f000000000000000003800",
+"0000000003e000000000000000002002",
+"0000000003c000000000000000000002",
+"00000000038000000000000000000804",
+"00000000038000000000000000000008",
+"00000000070000000000000000000000",
+"00000000070000000000000000000000",
+"00000000060000000000000000000000",
+"00000000030000000000000000000000",
+"00000000018000000000000000000000",
+"00000000000000000000000000000000",
+];
+
+const GRID_W = 128, GRID_H = 64, LON0=-180, LON1=180, LAT0=75, LAT1=-58;
+function cellOf(lat, lon){
+  return { x: (lon - LON0) / (LON1 - LON0) * GRID_W, y: (lat - LAT0) / (LAT1 - LAT0) * GRID_H };
+}
+function landAt(gx, gy){
+  if (gx<0||gy<0||gx>=GRID_W||gy>=GRID_H) return false;
+  const row = DOTS[gy|0]; if (!row) return false;
+  const nib = parseInt(row[(gx/4)|0], 16);
+  return !!(nib & (8 >> (gx % 4)));
+}
+
+/* ── 城市（预点亮） ── */
+const CITIES = [   // stamp = 该城默认邮票（真实典藏票美术；null = 基础航空票）
+  { id:"tokyo",    lat:35.68, lon:139.69, emoji:"🗻", g:["#B03A5B","#E86A92"], cc:"JP", stamp:"assets/stamp_jp_wave.png" },
+  { id:"beijing",  lat:39.90, lon:116.40, emoji:"🏮", g:["#A8281E","#E0763C"], cc:"CN", stamp:"assets/stamp_cn_dragon.png" },
+  { id:"paris",    lat:48.85, lon:2.35,   emoji:"🗼", g:["#26418F","#7E9BEA"], cc:"FR", stamp:null },
+  { id:"dubai",    lat:25.20, lon:55.27,  emoji:"🌴", g:["#B8641B","#F0A860"], cc:"AE", stamp:"assets/stamp_ae_burj.png" },
+  { id:"nyc",      lat:40.71, lon:-74.0,  emoji:"🗽", g:["#24457A","#5E8BD8"], cc:"US", stamp:"assets/stamp_us_western.png" },
+  { id:"singapore",lat:1.35,  lon:103.82, emoji:"🦁", g:["#9A2B4A","#E06A8C"], cc:"SG", stamp:null },
+  { id:"istanbul", lat:41.0,  lon:28.97,  emoji:"🎈", g:["#7A3FA0","#B98AE0"], cc:"TR", stamp:null },
+];
+/// 该城的默认票：真实美术图，或基础航空票（SVG，与 App 海陆空基础票同型）
+function cityStampHTML(c, h){
+  return c.stamp ? `<img src="${c.stamp}" style="height:${h}px" alt="stamp">`
+                 : stampSVG("#3D6FB4","✈️","AIR MAIL", Math.round(h*0.78), h);
+}
+
+/* ── i18n ── */
+const T = {
+ zh: { title:"Lumi — 点亮你的世界地图",
+  tagline:"把去过的世界，<em>点亮</em>成一本会寄信的护照",
+  sub:"在世界地图上点亮足迹，收集邮票与入境章，把旅途做成一张会盖邮戳的明信片，直接寄进朋友的 App。",
+  hint:"点一个<b>亮起的城市</b>，寄一张明信片试试 ✦",
+  ios: APPSTORE_URL ? "📱 App Store 下载" : "📱 App Store 下载（即将上架）",
+  android:"🤖 Android · 虚位以待",
+  f1t:"点亮世界地图", f1p:"去过的国家一键点亮，离线判定、纯本地保存；主屏小组件晒出点亮战绩。", f1c:"个国家已点亮",
+  f2t:"明信片与邮票", f2p:"基础海陆空邮票免费；点亮过的国家解锁地区特色票；节日前后限时出节日章；典藏票为会员专属。寄达后由 Lumi 邮局盖上邮戳——只有收件人看得到。",
+  f3t:"护照与成就", f3p:"按国籍生成写实护照本，每个国家盖一枚入境章；徽章、图鉴与大洲征服环，把旅程变成收藏。", f3b:"亚洲之星",
+  f4t:"Lumi 邮局 · 站内直投", f4p:"每个人有一个 Lumi 邮箱号。填上朋友的号码，明信片直接寄进 Ta 的 App——收下的那一刻，邮戳落下。",
+  f4l:"我的 Lumi 邮箱号", f4d:"寄出 → 送达回执「已送达 ✓」",
+  f5t:"三语 · 隐私优先", f5p:"中文 / English / العربية（含 RTL）。数据留在你的手机——Data Not Collected。",
+  privacy:"隐私政策", terms:"使用条款", support:"支持",
+  cTitle:"给远方的朋友，寄一张 <b id=\"cCity\"></b> 的明信片", cTo:"TO · 远方的你",
+  cFlip:"翻面写寄语 ✍️", cFlipBack:"翻回正面 🖼", cSend:"寄出 ✦",
+  nTitle:"你收到一张明信片！", nFrom:"来自 {city} · 点击查看",
+  rTitle:"来自远方的明信片 · <b>邮局已盖戳</b>", rFlip:"翻面看寄语与邮戳 ✦", rPostmark:"邮局已盖戳",
+  msgDefault:"想把{city}的这一刻寄给你 ✦",
+  cities:{ tokyo:"东京", beijing:"北京", paris:"巴黎", dubai:"迪拜", nyc:"纽约", singapore:"新加坡", istanbul:"伊斯坦布尔" } },
+ en: { title:"Lumi — Light Up Your World Map",
+  tagline:"Turn everywhere you've been into a passport that <em>mails</em> postcards",
+  sub:"Light up your footprints on the world map, collect stamps and entry seals, and send postmarked postcards straight into a friend's app.",
+  hint:"Tap a <b>glowing city</b> to send a postcard ✦",
+  ios: APPSTORE_URL ? "📱 Download on the App Store" : "📱 App Store (coming soon)",
+  android:"🤖 Android · coming later",
+  f1t:"Light up the map", f1p:"One tap lights a country — offline detection, stored on device; widgets show off your score.", f1c:"COUNTRIES LIT",
+  f2t:"Postcards & stamps", f2p:"Air/land/sea stamps are free; visiting a country unlocks its regional stamp; festival seals appear around holidays; collector stamps are member-only. The postmark lands on delivery — only the receiver sees it.",
+  f3t:"Passport & awards", f3p:"A realistic passport by nationality with an entry stamp per country; badges, a codex and continent rings turn trips into a collection.", f3b:"ASIA STAR",
+  f4t:"Lumi Post · direct delivery", f4p:"Everyone gets a Lumi mailbox number. Enter a friend's number and the postcard lands right in their app — postmarked the moment it's received.",
+  f4l:"My Lumi mailbox", f4d:"Send → delivery receipt \"Delivered ✓\"",
+  f5t:"Trilingual · privacy-first", f5p:"中文 / English / العربية (RTL included). Your data stays on your phone — Data Not Collected.",
+  privacy:"Privacy", terms:"Terms", support:"Support",
+  cTitle:"Send a postcard from <b id=\"cCity\"></b>", cTo:"TO · someone far away",
+  cFlip:"Flip to write ✍️", cFlipBack:"Back to front 🖼", cSend:"Send ✦",
+  nTitle:"You've got a postcard!", nFrom:"From {city} · tap to open",
+  rTitle:"A postcard from afar · <b>postmarked</b>", rFlip:"Flip for the note & postmark ✦", rPostmark:"postmarked",
+  msgDefault:"Wish you were here in {city} ✦",
+  cities:{ tokyo:"Tokyo", beijing:"Beijing", paris:"Paris", dubai:"Dubai", nyc:"New York", singapore:"Singapore", istanbul:"Istanbul" } },
+ ar: { title:"Lumi — أضئ خريطة عالمك",
+  tagline:"حوّل الأماكن التي زرتها إلى جواز سفر <em>يرسل</em> البطاقات",
+  sub:"أضئ آثارك على خريطة العالم، واجمع الطوابع وأختام الدخول، وأرسل بطاقات مختومة مباشرة إلى تطبيق صديقك.",
+  hint:"المس <b>مدينة مضيئة</b> لإرسال بطاقة ✦",
+  ios: APPSTORE_URL ? "📱 حمّل من App Store" : "📱 App Store (قريبًا)",
+  android:"🤖 أندرويد · قريبًا",
+  f1t:"أضئ الخريطة", f1p:"أضئ الدولة بلمسة — تحديد دون اتصال وحفظ محلي؛ الودجات تعرض إنجازك.", f1c:"دولة أضيئت",
+  f2t:"البطاقات والطوابع", f2p:"طوابع الجو والبر والبحر مجانية؛ زيارة الدولة تفتح طابعها المميز؛ أختام المواسم تظهر حول الأعياد؛ طوابع المقتنيات للأعضاء. ختم البريد يقع عند التسليم — يراه المستلم فقط.",
+  f3t:"جواز السفر والإنجازات", f3p:"جواز واقعي حسب الجنسية مع ختم دخول لكل دولة؛ أوسمة وسجل وحلقات القارات.", f3b:"نجم آسيا",
+  f4t:"بريد Lumi · تسليم مباشر", f4p:"لكل شخص رقم صندوق Lumi. أدخل رقم صديقك وتصل البطاقة مباشرة إلى تطبيقه — وتُختم لحظة الاستلام.",
+  f4l:"صندوق بريدي في Lumi", f4d:"أرسل → إيصال «تم التسليم ✓»",
+  f5t:"ثلاث لغات · الخصوصية أولًا", f5p:"中文 / English / العربية (مع RTL). بياناتك تبقى على هاتفك.",
+  privacy:"الخصوصية", terms:"الشروط", support:"الدعم",
+  cTitle:"أرسل بطاقة من <b id=\"cCity\"></b>", cTo:"إلى · شخص بعيد",
+  cFlip:"اقلب لتكتب ✍️", cFlipBack:"عُد للواجهة 🖼", cSend:"أرسل ✦",
+  nTitle:"وصلتك بطاقة بريدية!", nFrom:"من {city} · المس للفتح",
+  rTitle:"بطاقة من بعيد · <b>مختومة</b>", rFlip:"اقلب للرسالة والختم ✦", rPostmark:"مختومة",
+  msgDefault:"ليتك هنا في {city} ✦",
+  cities:{ tokyo:"طوكيو", beijing:"بكين", paris:"باريس", dubai:"دبي", nyc:"نيويورك", singapore:"سنغافورة", istanbul:"إسطنبول" } },
+};
+let LANG = "zh";
+const tt = () => T[LANG];
+
+/* ── SVG 邮票（复刻 App 白框齿孔 + 主题色内芯） ── */
+function stampSVG(color, glyph, caption, w=46, h=56){
+  const perf = [];
+  const mid = `m${color.replace('#','')}_${w}x${h}`;   // 同色不同尺寸的票 mask 不串
+  for (let x=4; x<w; x+=6) { perf.push(`<circle cx="${x}" cy="0" r="1.7"/><circle cx="${x}" cy="${h}" r="1.7"/>`); }
+  for (let y=4; y<h; y+=6) { perf.push(`<circle cx="0" cy="${y}" r="1.7"/><circle cx="${w}" cy="${y}" r="1.7"/>`); }
+  return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
+    <defs><mask id="${mid}"><rect width="${w}" height="${h}" fill="#fff"/>
+      <g fill="#000">${perf.join('')}</g></mask></defs>
+    <g mask="url(#${mid})">
+      <rect width="${w}" height="${h}" rx="2" fill="#F4F1E8"/>
+      <rect x="4" y="4" width="${w-8}" height="${h-8}" fill="${color}"/>
+      <rect x="6.5" y="6.5" width="${w-13}" height="${h-13}" fill="none" stroke="rgba(255,255,255,.55)" stroke-dasharray="2.5 2" stroke-width=".8"/>
+      <text x="${w/2}" y="${h/2+1}" text-anchor="middle" font-size="15">${glyph}</text>
+      <text x="${w/2}" y="${h-11}" text-anchor="middle" font-size="4.6" font-weight="700" letter-spacing=".5" fill="#fff">${caption}</text>
+      <text x="${w/2}" y="${h-6.5}" text-anchor="middle" font-size="3.6" fill="rgba(255,255,255,.85)">LUMI POST</text>
+    </g></svg>`;
+}
+/* 邮戳（收件后浮现） */
+function postmarkSVG(city, size=74){
+  const d = new Date(); const ds = `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
+  return `<svg width="${size}" height="${size}" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg" style="opacity:.92">
+    <g fill="none" stroke="#7A4A3A" stroke-width="2"><circle cx="40" cy="40" r="36"/><circle cx="40" cy="40" r="27" stroke-width="1"/></g>
+    <text x="40" y="24" text-anchor="middle" font-size="8.5" font-weight="800" letter-spacing="2" fill="#7A4A3A">LUMI</text>
+    <text x="40" y="44" text-anchor="middle" font-size="7.5" font-weight="700" fill="#7A4A3A">${city.toUpperCase()}</text>
+    <text x="40" y="56" text-anchor="middle" font-size="6.5" fill="#7A4A3A">${ds}</text>
+    <text x="40" y="68" text-anchor="middle" font-size="7" fill="#7A4A3A">✦ ✦ ✦</text></svg>`;
+}
+
+
+/* ── 首屏地图渲染 ── */
+const canvas = document.getElementById("map");
+const ctx = canvas.getContext("2d");
+let MW = 0, MH = 0, DPR = Math.min(2, window.devicePixelRatio || 1);
+function sizeMap(){
+  MW = canvas.parentElement.clientWidth - 0;
+  MH = MW * (GRID_H / GRID_W);
+  canvas.width = MW * DPR; canvas.height = MH * DPR;
+  canvas.style.height = MH + "px";
+}
+function cityPx(c){ const p = cellOf(c.lat, c.lon); return { x: p.x / GRID_W * MW, y: p.y / GRID_H * MH }; }
+let t0 = performance.now();
+function drawMap(now){
+  const t = (now - t0) / 1000;
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+  ctx.clearRect(0,0,MW,MH);
+  const cw = MW / GRID_W;
+  // 陆地点
+  ctx.fillStyle = "#332A55";
+  for (let gy=0; gy<GRID_H; gy++){
+    for (let gx=0; gx<GRID_W; gx++){
+      if (!landAt(gx,gy)) continue;
+      ctx.beginPath();
+      ctx.arc(gx*cw + cw/2, gy*cw + cw/2, cw*0.26, 0, 7);
+      ctx.fill();
+    }
+  }
+  // 点亮城市：呼吸光晕
+  for (const c of CITIES){
+    const p = cityPx(c);
+    const pulse = 0.72 + 0.28 * Math.sin(t*2.2 + p.x);
+    const R = Math.max(cw * 1.9, 5.5) * pulse;   // 小屏城市点不至于太小
+    const grad = ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,R*2.4);
+    grad.addColorStop(0, "rgba(255,79,163,.55)");
+    grad.addColorStop(1, "rgba(255,79,163,0)");
+    ctx.fillStyle = grad;
+    ctx.beginPath(); ctx.arc(p.x,p.y,R*2.4,0,7); ctx.fill();
+    ctx.fillStyle = "#FF4FA3";
+    ctx.beginPath(); ctx.arc(p.x,p.y,Math.max(cw*0.62,2.4),0,7); ctx.fill();
+    ctx.fillStyle = "#FFD9EA";
+    ctx.beginPath(); ctx.arc(p.x,p.y,Math.max(cw*0.26,1.1),0,7); ctx.fill();
+  }
+  requestAnimationFrame(drawMap);
+}
+canvas.addEventListener("click", e => {
+  const r = canvas.getBoundingClientRect();
+  const x = e.clientX - r.left, y = e.clientY - r.top;
+  let best = null, bd = 1e9;
+  for (const c of CITIES){
+    const p = cityPx(c);
+    const d = Math.hypot(p.x-x, p.y-y);
+    if (d < bd){ bd = d; best = c; }
+  }
+  if (best && bd < Math.max(34, MW/14)) openComposer(best);   // 手指目标 ≥34px
+});
+
+/* ── 明信片编辑 ── */
+let curCity = null, flipped = false;
+function cityName(c){ return tt().cities[c.id]; }
+function openComposer(c){
+  curCity = c; flipped = false;
+  document.getElementById("editCard").classList.remove("flipped");
+  const f = document.getElementById("editFront");
+  f.querySelector(".front-inner").style.background = `linear-gradient(140deg, ${c.g[0]}, ${c.g[1]})`;
+  document.getElementById("fEmoji").textContent = c.emoji;
+  document.getElementById("fCity").textContent = cityName(c);
+  document.getElementById("fDate").textContent = new Date().toLocaleDateString(LANG==="zh"?"zh-CN":LANG==="ar"?"ar":"en-US",{year:"numeric",month:"short",day:"numeric"});
+  const ct = document.getElementById("cCity"); if (ct) ct.textContent = cityName(c);
+  document.getElementById("msg").value = tt().msgDefault.replace("{city}", cityName(c));
+  document.getElementById("chosenStamp").innerHTML = cityStampHTML(c, 60);   // 按城市默认配票
+  setFlipLabel();
+  document.getElementById("composerOv").classList.add("show");
+}
+function setFlipLabel(){
+  document.getElementById("flipBtn").textContent = flipped ? tt().cFlipBack : tt().cFlip;
+}
+function toggleFlip(){
+  flipped = !flipped;
+  document.getElementById("editCard").classList.toggle("flipped", flipped);
+  setFlipLabel();
+}
+function closeComposer(){ document.getElementById("composerOv").classList.remove("show"); }
+
+/* ── 寄出 → 飞卡 → 收到 ── */
+let sentMsg = "", sentCity = null;
+function sendCard(){
+  sentMsg = document.getElementById("msg").value || tt().msgDefault.replace("{city}", cityName(curCity));
+  sentCity = curCity;
+  // 飞卡动画：克隆正面卡飞向地图另一端
+  const cardEl = document.getElementById("editCard");
+  const cr = cardEl.getBoundingClientRect();
+  const fly = document.createElement("div");
+  fly.className = "fly-card";
+  fly.style.cssText += `left:${cr.left}px; top:${cr.top}px; width:${cr.width}px; height:${cr.height}px;` +
+    `background:linear-gradient(140deg, ${sentCity.g[0]}, ${sentCity.g[1]});`;
+  document.body.appendChild(fly);
+  closeComposer();
+  const mr = canvas.getBoundingClientRect();
+  const target = CITIES[(CITIES.indexOf(sentCity)+3) % CITIES.length];
+  const tp = cityPx(target);
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    fly.style.left = (mr.left + tp.x - 8) + "px";
+    fly.style.top  = (mr.top + tp.y - 5) + "px";
+    fly.style.width = "16px"; fly.style.height = "10px";
+    fly.style.opacity = "0.15";
+    fly.style.transform = "rotate(540deg)";
+  }));
+  setTimeout(() => fly.remove(), 1200);
+  setTimeout(showNotify, 1400);
+}
+function showNotify(){
+  document.getElementById("nFrom").textContent = tt().nFrom.replace("{city}", cityName(sentCity));
+  document.getElementById("notify").classList.add("show");
+}
+function openReceived(){
+  document.getElementById("notify").classList.remove("show");
+  const c = sentCity || CITIES[0];
+  document.getElementById("rcvCard").classList.remove("flipped");
+  const f = document.getElementById("rcvFront");
+  f.querySelector(".front-inner").style.background = `linear-gradient(140deg, ${c.g[0]}, ${c.g[1]})`;
+  document.getElementById("rEmoji").textContent = c.emoji;
+  document.getElementById("rCity").textContent = cityName(c);
+  document.getElementById("rDate").textContent = new Date().toLocaleDateString(LANG==="zh"?"zh-CN":LANG==="ar"?"ar":"en-US",{year:"numeric",month:"short",day:"numeric"});
+  document.getElementById("rMsg").textContent = sentMsg || tt().msgDefault.replace("{city}", cityName(c));
+  document.getElementById("rStamp").innerHTML = cityStampHTML(c, 60);
+  document.getElementById("rPostmark").innerHTML = "";
+  document.getElementById("receivedOv").classList.add("show");
+  // 翻到背面时邮戳落下
+  setTimeout(() => {
+    document.getElementById("rcvCard").classList.add("flipped");
+    const pm = document.getElementById("rPostmark");
+    pm.innerHTML = `<div class="postmark-anim" style="margin-top:-30px; margin-inline-start:-14px;">${postmarkSVG(cityName(c))}</div>`;
+  }, 900);
+}
+function toggleRcvFlip(){ document.getElementById("rcvCard").classList.toggle("flipped"); }
+function closeReceived(){ document.getElementById("receivedOv").classList.remove("show"); }
+
+/* ── 功能区：小地图自动点亮 + 计数 ── */
+const mini = document.getElementById("minimap");
+const mctx = mini.getContext("2d");
+let miniLit = 0, miniStarted = false;
+function drawMini(){
+  const w = mini.clientWidth || 400;
+  const h = w * (GRID_H/GRID_W);
+  mini.width = w * DPR; mini.height = h * DPR;
+  mini.style.height = h + "px";
+  mctx.setTransform(DPR,0,0,DPR,0,0);
+  mctx.clearRect(0,0,w,h);
+  const cw = w / GRID_W;
+  mctx.fillStyle = "#2C2447";
+  for (let gy=0; gy<GRID_H; gy++) for (let gx=0; gx<GRID_W; gx++){
+    if (!landAt(gx,gy)) continue;
+    mctx.beginPath(); mctx.arc(gx*cw+cw/2, gy*cw+cw/2, cw*0.26, 0, 7); mctx.fill();
+  }
+  for (let i=0; i<miniLit && i<CITIES.length; i++){
+    const p = cellOf(CITIES[i].lat, CITIES[i].lon);
+    const x = p.x/GRID_W*w, y = p.y/GRID_H*h;
+    const grad = mctx.createRadialGradient(x,y,0,x,y,cw*4);
+    grad.addColorStop(0,"rgba(255,169,77,.5)"); grad.addColorStop(1,"rgba(255,169,77,0)");
+    mctx.fillStyle = grad; mctx.beginPath(); mctx.arc(x,y,cw*4,0,7); mctx.fill();
+    mctx.fillStyle = "#FFA94D"; mctx.beginPath(); mctx.arc(x,y,cw*0.7,0,7); mctx.fill();
+  }
+}
+function startMini(){
+  if (miniStarted) return; miniStarted = true;
+  const step = () => {
+    if (miniLit < CITIES.length){
+      miniLit++;
+      document.getElementById("cnum").textContent = miniLit;
+      drawMini();
+      setTimeout(step, 550);
+    } else {
+      setTimeout(() => { miniLit = 0; document.getElementById("cnum").textContent = 0; drawMini(); setTimeout(step, 700); }, 2400);
+    }
+  };
+  step();
+}
+
+/* ── 功能区：邮票展柜 / 护照章 / 漂浮装饰 ── */
+function buildShelf(){
+  const shelf = document.getElementById("shelf"); shelf.innerHTML = "";
+  const items = [
+    { svg: '<img src="assets/stamp_cn_dragon.png" style="height:76px" alt="">', n:"CHINA" },
+    { svg: '<img src="assets/stamp_jp_wave.png" style="height:76px" alt="">', n:"JAPAN" },
+    { svg: '<img src="assets/stamp_ae_burj.png" style="height:76px" alt="">', n:"DUBAI" },
+    { svg: '<img src="assets/stamp_us_western.png" style="height:76px" alt="">', n:"USA" },
+    { svg: '<img src="assets/festival_china.png" style="height:64px" alt="">', n:"FESTIVAL" },
+    { svg: '<img src="assets/festival_christmas.png" style="height:64px" alt="">', n:"XMAS" },
+    { svg: stampSVG("#3D6FB4","✈️","AIR MAIL",52,64), n:"AIR MAIL" },
+    { svg: `<svg width="60" height="60" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+        <g fill="none" stroke="#FF4FA3" stroke-width="2.4"><circle cx="40" cy="40" r="36"/><circle cx="40" cy="40" r="27" stroke-width="1.2"/></g>
+        <text x="40" y="36" text-anchor="middle" font-size="10" font-weight="800" letter-spacing="2" fill="#FF4FA3">LUMI</text>
+        <text x="40" y="52" text-anchor="middle" font-size="8" fill="#FF4FA3">✦ POST ✦</text></svg>`, n:"POSTMARK" },
+  ];
+  for (const it of items){
+    const d = document.createElement("div");
+    d.className = "shelf-item";
+    d.innerHTML = `<div class="wiggle" style="display:inline-block">${it.svg}</div><span>${it.n}</span>`;
+    shelf.appendChild(d);
+  }
+}
+function buildDeco(){
+  document.getElementById("entryStamp").innerHTML = `<svg width="96" height="66" viewBox="0 0 120 82" xmlns="http://www.w3.org/2000/svg">
+    <rect x="2" y="2" width="116" height="78" rx="10" fill="none" stroke="#C05A6A" stroke-width="3"/>
+    <text x="60" y="26" text-anchor="middle" font-size="13" font-weight="800" letter-spacing="2" fill="#C05A6A">ADMITTED</text>
+    <text x="60" y="47" text-anchor="middle" font-size="10" fill="#C05A6A">TOKYO · ✈️</text>
+    <text x="60" y="66" text-anchor="middle" font-size="10" fill="#C05A6A">2026 · LUMI</text></svg>`;
+}
+
+/* ── 入场动效 ── */
+const io = new IntersectionObserver(es => {
+  for (const e of es){
+    if (e.isIntersecting){
+      e.target.classList.add("in");
+      if (e.target.id === "f-map") startMini();
+    }
+  }
+}, { threshold: 0.18 });
+
+/* ── 语言 ── */
+function setLang(l){
+  LANG = T[l] ? l : "zh";
+  const t = tt();
+  document.documentElement.lang = LANG === "zh" ? "zh-Hans" : LANG;
+  document.documentElement.dir = LANG === "ar" ? "rtl" : "ltr";
+  document.title = t.title;
+  document.querySelectorAll("[data-i18n]").forEach(el => {
+    const v = t[el.dataset.i18n]; if (v == null) return;
+    if (["tagline","cTitle","rTitle","hint"].includes(el.dataset.i18n)) el.innerHTML = v;
+    else el.textContent = v;
+  });
+  document.querySelectorAll(".langs button").forEach(b => b.classList.toggle("on", b.dataset.l === LANG));
+  const ios = document.getElementById("ios-link");
+  if (APPSTORE_URL) ios.href = APPSTORE_URL; else { ios.removeAttribute("href"); ios.style.opacity = .8; }
+  try { localStorage.setItem("lumi.lang", LANG); } catch(e){}
+}
+document.querySelectorAll(".langs button").forEach(b => b.onclick = () => setLang(b.dataset.l));
+
+/* ── boot ── */
+function boot(){
+  buildDeco(); buildShelf();
+  sizeMap(); drawMini();
+  requestAnimationFrame(drawMap);
+  document.querySelectorAll(".feat").forEach(el => io.observe(el));
+  let saved = null; try { saved = localStorage.getItem("lumi.lang"); } catch(e){}
+  const nav = (navigator.language || "zh").toLowerCase();
+  setLang(saved || (nav.startsWith("zh") ? "zh" : nav.startsWith("ar") ? "ar" : "en"));
+  window.addEventListener("resize", () => { sizeMap(); drawMini(); });
+}
+boot();
+</script>
+</body>
+</html>

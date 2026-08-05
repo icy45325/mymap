@@ -1,0 +1,622 @@
+{
+  "sourceLanguage": "zh-Hans",
+  "strings": {
+    "点亮战绩": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "点亮战绩"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lit Stats"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الإحصاءات"
+          }
+        }
+      }
+    },
+    "去年今日": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "去年今日"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On This Day"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "في مثل هذا اليوم"
+          }
+        }
+      }
+    },
+    "个国家被你点亮 · 全球 %@": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "个国家被你点亮 · 全球 %@"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "countries lit · %@ of the world"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "دولة أضأتها · %@ من العالم"
+          }
+        }
+      }
+    },
+    "国 · 全球 %@": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "国 · 全球 %@"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "countries · %@"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "دولة · %@"
+          }
+        }
+      }
+    },
+    "✦ 已点亮 %lld 国": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ 已点亮 %lld 国"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ %lld countries lit"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ أضأت %lld دولة"
+          }
+        }
+      }
+    },
+    "全球 %@ · %lld 城": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "全球 %@ · %lld 城"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ of world · %lld cities"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ من العالم · %lld مدينة"
+          }
+        }
+      }
+    },
+    "✦ 点亮 %lld 国 · 全球 %@": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ 点亮 %lld 国 · 全球 %@"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ %lld countries · %@"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ %lld دولة · %@"
+          }
+        }
+      }
+    },
+    "上次你在 %@ ✦": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上次你在 %@ ✦"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Last in %@ ✦"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "آخر مرة في %@ ✦"
+          }
+        }
+      }
+    },
+    "这一天还没有回忆": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "这一天还没有回忆"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No memory on this day"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "لا ذكرى في هذا اليوم"
+          }
+        }
+      }
+    },
+    "去点亮一个足迹，明年今日就有得回看了 ✦": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "去点亮一个足迹，明年今日就有得回看了 ✦"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Light a footprint — next year you'll revisit it ✦"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أضئ بصمة — وستتذكرها في العام القادم ✦"
+          }
+        }
+      }
+    },
+    "去年此刻，你在 %@ ✦": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "去年此刻，你在 %@ ✦"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A year ago you were in %@ ✦"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "قبل عام كنت في %@ ✦"
+          }
+        }
+      }
+    },
+    "%lld 年前的今天，你在 %@ ✦": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld 年前的今天，你在 %@ ✦"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld years ago today you were in %2$@ ✦"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "قبل %1$lld أعوام كنت في %2$@ ✦"
+          }
+        }
+      }
+    },
+    "%lld 年前今日": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld 年前今日"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld years ago today"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "قبل %lld أعوام اليوم"
+          }
+        }
+      }
+    },
+    "✦ 去年今日": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ 去年今日"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ On This Day"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ في مثل هذا اليوم"
+          }
+        }
+      }
+    },
+    "还没有足迹，去点亮一个": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "还没有足迹，去点亮一个"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No footprints yet — light one"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "لا بصمات بعد — أضئ واحدة"
+          }
+        }
+      }
+    },
+    "✦ %@你在 %@": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ %@你在 %@"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ %1$@ you were in %2$@"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ %1$@ كنت في %2$@"
+          }
+        }
+      }
+    },
+    "✦ 去年今日 · 去点亮一个足迹": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ 去年今日 · 去点亮一个足迹"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ On This Day · light a footprint"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ في مثل هذا اليوم · أضئ بصمة"
+          }
+        }
+      }
+    },
+    "去过的国旗": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "去过的国旗"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flags Visited"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الأعلام"
+          }
+        }
+      }
+    },
+    "展示你去过国家的国旗集合（最多 5 个）。": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "展示你去过国家的国旗集合（最多 5 个）。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flags of the countries you've visited (up to 5)."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أعلام الدول التي زرتها (حتى 5)."
+          }
+        }
+      }
+    },
+    "还没有点亮国家": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "还没有点亮国家"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No countries lit yet"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "لا دول مضاءة بعد"
+          }
+        }
+      }
+    },
+    "已点亮 %lld 国": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已点亮 %lld 国"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld countries lit"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld دولة مضاءة"
+          }
+        }
+      }
+    },
+    "已点亮 %lld 国 · %lld 城": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已点亮 %lld 国 · %lld 城"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld countries · %2$lld cities"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld دولة · %2$lld مدينة"
+          }
+        }
+      }
+    },
+    "世界正被你逐一点亮 ✦": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "世界正被你逐一点亮 ✦"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lighting up the world, one by one ✦"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تُضيء العالم واحدًا تلو الآخر ✦"
+          }
+        }
+      }
+    },
+    "展示去过国家的国旗集合。": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "展示去过国家的国旗集合。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flags of the countries you've visited."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أعلام الدول التي زرتها."
+          }
+        }
+      }
+    },
+    "已点亮 %lld 国 · +%lld": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已点亮 %lld 国 · +%lld"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld lit · +%2$lld"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld مضاءة · +%2$lld"
+          }
+        }
+      }
+    },
+    "Lumi Plus 专属": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lumi Plus 专属"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lumi Plus exclusive"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "حصري لـ Lumi Plus"
+          }
+        }
+      }
+    },
+    "打开 Lumi 解锁": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打开 Lumi 解锁"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open Lumi to unlock"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "افتح Lumi للفتح"
+          }
+        }
+      }
+    },
+    "成为终身会员，把旅行进度放上主屏": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "成为终身会员，把旅行进度放上主屏"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Become a lifetime member to put your journey on the Home Screen"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "كن عضوًا مدى الحياة لعرض رحلتك على الشاشة الرئيسية"
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

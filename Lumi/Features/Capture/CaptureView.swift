@@ -57,7 +57,9 @@ struct CaptureView: View {
     @State private var photoPreview: Image?
     @State private var photoAssetID: String?
     @State private var visitedAt: Date = .now
+    @State private var endedAt: Date = .now
     @State private var mood: String = ""
+    @State private var entryMeans: PostcardStamp = .air      // 入境方式（默认空运）
     @State private var companions: [String] = []
     @State private var companionDraft: String = ""
 
@@ -76,6 +78,7 @@ struct CaptureView: View {
                     photoSection
                     placeSection
                     dateSection
+                    entryMeansSection
                     moodSection
                     companionsSection
                     Color.clear.frame(height: 80)   // 给底部主按钮留白
@@ -84,7 +87,10 @@ struct CaptureView: View {
             }
             .background(Color.ink.ignoresSafeArea())
             .scrollDismissesKeyboard(.interactively)
-            .safeAreaInset(edge: .bottom) { lightUpButton }
+            .safeAreaInset(edge: .bottom) {
+                lightUpButton
+                    .ignoresSafeArea(.keyboard, edges: .bottom)   // 键盘弹出不顶起主按钮
+            }
             .navigationTitle("新足迹")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -102,31 +108,30 @@ struct CaptureView: View {
         .onDisappear(perform: onDisappear)
     }
 
-    // MARK: - 照片
+    // MARK: - 照片（16:9 中心裁剪，不溢出）
     private var photoSection: some View {
         PhotosPicker(selection: $photoItem, matching: .images, photoLibrary: .shared()) {
             ZStack {
-                RoundedRectangle(cornerRadius: Metrics.radius)
-                    .fill(Color.panel)
-                    .overlay(RoundedRectangle(cornerRadius: Metrics.radius).stroke(Color.line, lineWidth: 1))
+                Color.panel
                 if let photoPreview {
                     photoPreview
                         .resizable()
-                        .scaledToFill()
-                        .clipShape(RoundedRectangle(cornerRadius: Metrics.radius))
+                        .scaledToFill()          // 中心裁剪填满 16:9 框，溢出由容器 clip
                 } else {
                     VStack(spacing: 8) {
                         Image(systemName: "photo.badge.plus")
                             .font(.system(size: 30))
                             .foregroundStyle(Color.litGlow)
                         Text("加一张照片（可跳过）")
-                            .font(.subheadline)
+                            .font(.system(size: 14))
                             .foregroundStyle(Color.textSecondary)
                     }
                 }
             }
-            .frame(height: 200)
             .frame(maxWidth: .infinity)
+            .aspectRatio(16.0 / 9.0, contentMode: .fit)
+            .clipShape(RoundedRectangle(cornerRadius: Metrics.radius))
+            .overlay(RoundedRectangle(cornerRadius: Metrics.radius).stroke(Color.line, lineWidth: 1))
         }
         .onChange(of: photoItem) { _, item in
             Task { await loadPhoto(item) }
@@ -196,14 +201,60 @@ struct CaptureView: View {
         .background(Color.panel, in: RoundedRectangle(cornerRadius: Metrics.radius))
     }
 
-    // MARK: - 日期
+    // MARK: - 日期（开始 / 结束，可选一段时间）
     private var dateSection: some View {
         VStack(alignment: .leading, spacing: 10) {
             sectionLabel("日期", systemImage: "calendar")
-            DatePicker("", selection: $visitedAt, in: ...Date.now, displayedComponents: .date)
+            VStack(spacing: 10) {
+                dateRow("开始") {
+                    DatePicker("", selection: $visitedAt, in: ...Date.now, displayedComponents: .date)
+                        .onChange(of: visitedAt) { _, start in
+                            if endedAt < start { endedAt = start }   // 结束不早于开始
+                        }
+                }
+                Divider().overlay(Color.lineSoft)
+                dateRow("结束") {
+                    DatePicker("", selection: $endedAt, in: visitedAt...Date.now, displayedComponents: .date)
+                }
+            }
+            .padding(12)
+            .background(Color.panel, in: RoundedRectangle(cornerRadius: Metrics.radius))
+        }
+    }
+
+    private func dateRow<Picker: View>(_ label: LocalizedStringKey, @ViewBuilder _ picker: () -> Picker) -> some View {
+        HStack {
+            Text(label).font(.system(size: 14, weight: .medium)).foregroundStyle(Color.textSecondary)
+            Spacer()
+            picker()
                 .labelsHidden()
                 .datePickerStyle(.compact)
                 .tint(Color.litGlow)
+        }
+    }
+
+    // MARK: - 入境方式（图标选择，默认空运）
+    private var entryMeansSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            sectionLabel("交通方式", systemImage: "stamp")
+            HStack(spacing: 10) {
+                ForEach(PostcardStamp.allCases) { m in
+                    let active = m == entryMeans
+                    Button { entryMeans = m; Haptics.selection() } label: {
+                        VStack(spacing: 5) {
+                            Image(systemName: m.motif).font(.system(size: 18, weight: .semibold))
+                            Text(m.label).font(.system(size: 11, weight: .semibold))
+                        }
+                        .foregroundStyle(active ? .white : Color.textSecondary)
+                        .frame(maxWidth: .infinity).padding(.vertical, 10)
+                        .background(active ? AnyShapeStyle(LinearGradient.neonH) : AnyShapeStyle(Color.panel),
+                                    in: RoundedRectangle(cornerRadius: Metrics.radius))
+                        .overlay(RoundedRectangle(cornerRadius: Metrics.radius)
+                            .stroke(active ? Color.clear : Color.lineSoft, lineWidth: 1))
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
         }
     }
 
@@ -228,7 +279,7 @@ struct CaptureView: View {
                     HStack(spacing: 8) {
                         ForEach(companions, id: \.self) { name in
                             HStack(spacing: 6) {
-                                Text(name).font(.subheadline).foregroundStyle(Color.textPrimary)
+                                Text(name).font(.system(size: 14)).foregroundStyle(Color.textPrimary)
                                 Button { companions.removeAll { $0 == name } } label: {
                                     Image(systemName: "xmark.circle.fill").foregroundStyle(Color.textMuted)
                                 }
@@ -258,17 +309,13 @@ struct CaptureView: View {
     private var lightUpButton: some View {
         Button(action: lightUp) {
             Text("点亮这里 ✦")
-                .font(.headline)
+                .font(.system(size: 15, weight: .semibold))
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 16)
-                .background(
-                    LinearGradient(colors: [Color.litGlow, Color.litGlow2],
-                                   startPoint: .leading, endPoint: .trailing),
-                    in: Capsule()
-                )
-                .foregroundStyle(Color.ink)
+                .background(LinearGradient.neonH, in: Capsule())
+                .foregroundStyle(.white)
                 .opacity(canLightUp ? 1 : 0.4)
-                .shadow(color: Color.litGlow.opacity(0.5), radius: 12)
+                .shadow(color: Color.nPurple.opacity(0.5), radius: 12)
         }
         .disabled(!canLightUp)
         .padding(.horizontal, Metrics.pad)
@@ -354,10 +401,14 @@ struct CaptureView: View {
 
     private func loadPhoto(_ item: PhotosPickerItem?) async {
         guard let item else { return }
-        photoAssetID = item.itemIdentifier
-        if let data = try? await item.loadTransferable(type: Data.self),
-           let uiImage = UIImage(data: data) {
-            photoPreview = Image(uiImage: uiImage)
+        if let data = try? await item.loadTransferable(type: Data.self) {
+            // 拷贝进 App 沙盒（不依赖相册权限，limited/denied 下也能显示）；失败回退存相册引用
+            photoAssetID = LocalPhotoStore.save(data) ?? item.itemIdentifier
+            if let uiImage = UIImage(data: data) {
+                photoPreview = Image(uiImage: uiImage)
+            }
+        } else {
+            photoAssetID = item.itemIdentifier
         }
     }
 
@@ -368,25 +419,38 @@ struct CaptureView: View {
         // 点亮前的已有国家集合，用于判断"新国家"（§5.1）
         let priorCodes = Set(footprints.compactMap { $0.countryCode })
 
+        // 合并未提交的同行人草稿（用户打了字但没点「+」/回车也不丢）
+        let pending = companionDraft.trimmingCharacters(in: .whitespaces)
+        let finalCompanions = (companions + (pending.isEmpty ? [] : [pending]))
+            .reduce(into: [String]()) { acc, name in if !acc.contains(name) { acc.append(name) } }
+
         let footprint = Footprint(
             placeName: selected.name,
             coordinate: selected.coordinate,
             cityName: selected.cityName,
             visitedAt: visitedAt,
+            endedAt: endedAt > visitedAt ? endedAt : nil,   // 仅多天时记录结束日
             mood: mood.trimmingCharacters(in: .whitespaces),
-            companions: companions,
+            companions: finalCompanions,
             photoAssetIDs: photoAssetID.map { [$0] } ?? []
         )
         footprint.countryCode = selected.countryCode
         footprint.subRegionCode = selected.subRegionCode
+        footprint.entryMeans = entryMeans.rawValue       // 入境方式（默认空运）
         context.insert(footprint)
         context.insert(Card(footprint: footprint))     // §4.2：同步持久化一张明信片卡
         try? context.save()
 
+        Haptics.success()                               // 点亮震动反馈
+        WidgetSync.refresh(context)                     // 点亮后对齐主屏小组件计数
+        if (footprint.countryCode ?? "").isEmpty {      // 离线缝隙没判定到国家 → 在线兜底补全
+            Task { await FootprintRepair.backfillMissingCountries(context) }
+        }
+
         saved = true
         Analytics.log(.footprintCreated(countryCode: footprint.countryCode,
                                         hasPhoto: photoAssetID != nil,
-                                        companionsCount: companions.count))
+                                        companionsCount: finalCompanions.count))
         if let code = footprint.countryCode, !priorCodes.contains(code) {
             Analytics.log(.countryLit(countryCode: code, totalLit: priorCodes.count + 1))
         }
@@ -395,8 +459,8 @@ struct CaptureView: View {
 
     // MARK: - 小工具
     private func sectionLabel(_ title: String, systemImage: String) -> some View {
-        Label(title, systemImage: systemImage)
-            .font(.subheadline.weight(.semibold))
+        Label(title.localized, systemImage: systemImage)
+            .font(.system(size: 14, weight: .semibold))
             .foregroundStyle(Color.textSecondary)
     }
 }

@@ -1,0 +1,324 @@
+import SwiftUI
+import SwiftData
+import UIKit
+import Photos
+import PhotosUI
+
+/// 「从相册同步历史足迹」评审页：扫描相册位置 → 列出候选地点 → 勾选导入。
+struct PhotoImportView: View {
+
+    /// 已有足迹（用于跳过重复网格）。
+    let existing: [Footprint]
+
+    @Environment(\.modelContext) private var context
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.scenePhase) private var scenePhase
+    @StateObject private var service = PhotoImportService()
+    @State private var includePhotos = true   // 默认同时导入照片，丰富时间线
+
+    private static let dateFormat: Date.FormatStyle = .dateTime.year().month(.abbreviated).day()
+
+    var body: some View {
+        NavigationStack {
+            Group {
+                switch service.phase {
+                case .idle, .requesting, .scanning: scanning
+                case .denied:                       denied
+                case .empty:                        empty
+                case .ready:                        list
+                }
+            }
+            .background(Color.bg.ignoresSafeArea())
+            .navigationTitle("同步历史足迹")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("关闭") { dismiss() }.foregroundStyle(Color.muted)
+                }
+                if service.phase == .ready {
+                    ToolbarItem(placement: .primaryAction) {
+                        Button(allSelected ? "全不选" : "全选") {
+                            service.toggleAll(!allSelected)
+                        }
+                        .foregroundStyle(Color.nPink)
+                    }
+                }
+            }
+            .toolbarBackground(Color.bg, for: .navigationBar)
+            .toolbarColorScheme(.dark, for: .navigationBar)
+        }
+        .preferredColorScheme(.dark)
+        .tint(Color.nPink)
+        .task { await service.start(existing: existing) }
+        // 去系统设置改完相册权限切回来 → 自动重扫，不用关掉重开
+        .onChange(of: scenePhase) { _, phase in
+            if phase == .active && service.phase == .denied {
+                Task { await service.restart(existing: existing) }
+            }
+        }
+    }
+
+    // MARK: - limited（部分照片）扩权引导
+
+    /// 「部分照片」授权提示条：结果可能不全，可扩选集或放开全部。
+    private var limitedBanner: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Label("Lumi 目前只能访问部分照片，可能漏掉一些足迹", systemImage: "exclamationmark.triangle.fill")
+                .font(.system(size: 11.5)).foregroundStyle(Color.nOrange)
+            HStack(spacing: 14) {
+                Button("选择更多照片") { presentLimitedPicker() }
+                Button("允许访问全部") {
+                    if let url = URL(string: UIApplication.openSettingsURLString) {
+                        UIApplication.shared.open(url)
+                    }
+                }
+            }
+            .font(.system(size: 12, weight: .semibold)).foregroundStyle(Color.nPink)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(12)
+        .background(Color.nOrange.opacity(0.09), in: RoundedRectangle(cornerRadius: 13))
+        .overlay(RoundedRectangle(cornerRadius: 13).stroke(Color.nOrange.opacity(0.3), lineWidth: 1))
+        .padding(.horizontal, 20).padding(.top, 10)
+    }
+
+    /// 弹系统「选择更多照片」选择器；关闭后自动重扫。
+    private func presentLimitedPicker() {
+        guard let vc = UIApplication.shared.connectedScenes
+            .compactMap({ ($0 as? UIWindowScene)?.keyWindow })
+            .first?.rootViewController?.topmost else { return }
+        PHPhotoLibrary.shared().presentLimitedLibraryPicker(from: vc) { _ in
+            Task { @MainActor in await service.restart(existing: existing) }
+        }
+    }
+
+    private var allSelected: Bool {
+        let selectable = service.candidates.filter { !$0.alreadyImported }
+        return !selectable.isEmpty && selectable.allSatisfy(\.selected)
+    }
+
+    // MARK: - 扫描中
+
+    private var scanning: some View {
+        VStack(spacing: 16) {
+            ProgressView().tint(Color.nPink).scaleEffect(1.3)
+            Text(service.phase == .requesting ? "请求相册权限…" : "正在从相册识别去过的地方…")
+                .font(.system(size: 12.5)).foregroundStyle(Color.muted)
+                .multilineTextAlignment(.center)
+
+            // 反向地理编码阶段：确定性进度 + 预计剩余时间
+            if service.phase == .scanning && service.scanTotal > 0 {
+                VStack(spacing: 8) {
+                    NeonBar(fraction: service.scanProgress, height: 8)
+                    HStack {
+                        Text("已识别 \(service.scanDone) / \(service.scanTotal) 处")
+                            .font(.system(size: 11)).foregroundStyle(Color.muted)
+                        Spacer()
+                        Text(etaText).font(.system(size: 11, weight: .medium)).foregroundStyle(Color.nCyan)
+                    }
+                }
+                .frame(maxWidth: 260)
+                .transition(.opacity)
+            }
+        }
+        .padding(.horizontal, 40)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .animation(.easeInOut(duration: 0.25), value: service.scanDone)
+    }
+
+    /// 预计剩余时间文案：>60s 用分钟，临近完成提示「即将完成」。
+    private var etaText: String {
+        let s = service.etaSeconds
+        if s <= 0 { return String(localized: "即将完成…") }
+        if s >= 60 {
+            return String(format: String(localized: "预计还需约 %lld 分钟"), (s + 59) / 60)
+        }
+        return String(format: String(localized: "预计还需约 %lld 秒"), s)
+    }
+
+    // MARK: - 无权限
+
+    private var denied: some View {
+        VStack(spacing: 12) {
+            Image(systemName: "lock.fill").font(.system(size: 40)).foregroundStyle(Color.nPurple)
+            Text("无法访问相册").font(.system(size: 14, weight: .semibold)).foregroundStyle(Color.text)
+            Text("到「设置 › 隐私 › 照片」选择「所有照片」或「部分照片」，回来后会自动重新扫描。")
+                .font(.system(size: 12.5)).foregroundStyle(Color.muted)
+                .multilineTextAlignment(.center).padding(.horizontal, 40)
+            Button("打开设置") {
+                if let url = URL(string: UIApplication.openSettingsURLString) {
+                    UIApplication.shared.open(url)
+                }
+            }
+            .font(.system(size: 13, weight: .semibold)).foregroundStyle(Color.nPink).padding(.top, 4)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    // MARK: - 没有可导入的
+
+    private var empty: some View {
+        VStack(spacing: 0) {
+            if service.limited { limitedBanner }
+            VStack(spacing: 12) {
+                Image(systemName: "photo.on.rectangle.angled").font(.system(size: 40))
+                    .foregroundStyle(Color.nPurple)
+                Text("没找到带位置的新照片").font(.system(size: 14, weight: .semibold)).foregroundStyle(Color.text)
+                Text("相册里带定位信息的照片都已点亮，或暂时没有可识别的地点。")
+                    .font(.system(size: 12.5)).foregroundStyle(Color.muted)
+                    .multilineTextAlignment(.center).padding(.horizontal, 40)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+    }
+
+    // MARK: - 候选列表
+
+    private var granularityBinding: Binding<ImportGranularity> {
+        Binding(get: { service.granularity }, set: { service.setGranularity($0) })
+    }
+
+    private var list: some View {
+        VStack(spacing: 0) {
+            if service.limited { limitedBanner }
+            SegmentBar(items: ImportGranularity.allCases.map { (value: $0, label: $0.label) },
+                       selection: granularityBinding)
+                .padding(.top, 10).padding(.bottom, 2)
+
+            HStack {
+                Text("识别到 \(service.candidates.count) 处地点")
+                    .font(.system(size: 12)).foregroundStyle(Color.muted)
+                if service.resolving {
+                    ProgressView().tint(Color.muted).scaleEffect(0.7).padding(.leading, 4)
+                }
+                Spacer()
+            }
+            .padding(.horizontal, 20).padding(.top, 8).padding(.bottom, 4)
+
+            ScrollView {
+                LazyVStack(spacing: 8) {
+                    ForEach($service.candidates) { $candidate in
+                        row($candidate)
+                    }
+                    Color.clear.frame(height: 90)
+                }
+                .padding(.horizontal, 16).padding(.top, 4)
+            }
+        }
+        .safeAreaInset(edge: .bottom) { importBar }
+    }
+
+    private func row(_ candidate: Binding<ImportCandidate>) -> some View {
+        let c = candidate.wrappedValue
+        return Button {
+            candidate.wrappedValue.selected.toggle()
+            Haptics.selection()
+        } label: {
+            VStack(alignment: .leading, spacing: 9) {
+                HStack(spacing: 12) {
+                    Text(c.flag).font(.system(size: 24))
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text(c.placeName).font(.system(size: 14, weight: .medium))
+                            .foregroundStyle(Color.text).lineLimit(1)
+                        HStack(spacing: 8) {
+                            Text(c.date.formatted(Self.dateFormat))
+                                .font(.system(size: 11)).foregroundStyle(Color.muted)
+                            if let country = c.countryName, country != c.placeName {
+                                Text(country).font(.system(size: 11)).foregroundStyle(Color.faint)
+                            }
+                            Label("\(c.photoCount)", systemImage: "photo")
+                                .font(.system(size: 11)).foregroundStyle(Color.faint)
+                        }
+                    }
+                    Spacer()
+                    Image(systemName: c.selected ? "checkmark.circle.fill" : "circle")
+                        .font(.system(size: 22))
+                        .foregroundStyle(c.selected ? Color.nPink : Color.line)
+                }
+                photoStrip(c)
+            }
+            .padding(12)
+            .background(Color.panel, in: RoundedRectangle(cornerRadius: 14))
+            .overlay(RoundedRectangle(cornerRadius: 14)
+                .stroke(c.selected ? Color.nPink.opacity(0.4) : Color.line, lineWidth: 1))
+        }
+        .buttonStyle(.plain)
+    }
+
+    /// 将随足迹导入的照片预览（每地点 ≤3 张，拍摄顺序）；点单张缩略图去勾选/恢复。
+    @ViewBuilder
+    private func photoStrip(_ c: ImportCandidate) -> some View {
+        if !c.assetIDs.isEmpty {
+            HStack(spacing: 8) {
+                ForEach(c.assetIDs, id: \.self) { id in
+                    let excluded = c.excludedPhotoIDs.contains(id)
+                    Button {
+                        service.togglePhoto(id, of: c.id)
+                        Haptics.selection()
+                    } label: {
+                        AssetImage(assetID: id, targetSize: CGSize(width: 160, height: 160))
+                            .frame(width: 46, height: 46)
+                            .clipShape(RoundedRectangle(cornerRadius: 9))
+                            .opacity(excluded ? 0.35 : 1)
+                            .overlay(RoundedRectangle(cornerRadius: 9)
+                                .stroke(excluded ? Color.line : Color.nPink.opacity(0.5), lineWidth: 1))
+                            .overlay(alignment: .topTrailing) {
+                                Image(systemName: excluded ? "circle" : "checkmark.circle.fill")
+                                    .font(.system(size: 13))
+                                    .foregroundStyle(excluded ? Color.faint : Color.nPink)
+                                    .background(Circle().fill(.black.opacity(0.45)))
+                                    .offset(x: 4, y: -4)
+                            }
+                    }
+                    .buttonStyle(.plain)
+                }
+                Spacer(minLength: 0)
+            }
+            .padding(.leading, 36)   // 与地名列对齐（旗 24 + 间距 12）
+            .opacity(includePhotos && c.selected ? 1 : 0.35)
+            .disabled(!includePhotos || !c.selected)
+        }
+    }
+
+    private var importBar: some View {
+        VStack(spacing: 10) {
+            Toggle(isOn: $includePhotos) {
+                VStack(alignment: .leading, spacing: 1) {
+                    Text("同时导入照片").font(.system(size: 13, weight: .medium)).foregroundStyle(Color.text)
+                    Text("把识别到的照片一并加入足迹，丰富时间线")
+                        .font(.system(size: 11)).foregroundStyle(Color.muted)
+                }
+            }
+            .tint(Color.nPink)
+            .padding(.horizontal, 4)
+
+            Button(action: runImport) {
+                Text(service.selectedCount > 0 ? "导入 \(service.selectedCount) 个足迹 ✦" : "选择要导入的地点")
+                    .font(.system(size: 15, weight: .semibold))
+                    .frame(maxWidth: .infinity).padding(.vertical, 16)
+                    .background(LinearGradient.neonH, in: Capsule())
+                    .foregroundStyle(.white)
+                    .opacity(service.selectedCount > 0 ? 1 : 0.4)
+                    .shadow(color: Color.nPurple.opacity(0.5), radius: 12)
+            }
+            .disabled(service.selectedCount == 0)
+        }
+        .padding(.horizontal, 16).padding(.bottom, 8)
+    }
+
+    private func runImport() {
+        let count = service.importSelected(into: context, includePhotos: includePhotos)
+        guard count > 0 else { return }
+        WidgetSync.refresh(context)
+        Haptics.success()
+        Analytics.log(.photoImportCompleted(imported: count))
+        dismiss()
+    }
+}
+
+private extension UIViewController {
+    /// 沿 presented 链找到最顶层可见 VC（在本 sheet 之上弹系统「选择更多照片」用）。
+    var topmost: UIViewController {
+        presentedViewController?.topmost ?? self
+    }
+}

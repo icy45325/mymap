@@ -84,6 +84,14 @@ final class Boundaries {
         return result
     }
 
+    /// 全部国家的外环（世界地图底图用：画全部国家、再把已点亮的着色）。
+    /// 缓存一次，避免重复展开多边形。
+    private(set) lazy var allCountryRings: [LitRegion] =
+        countries.map { LitRegion(id: $0.id, rings: outerRings(of: $0)) }
+
+    /// UN 会员国数（汇总「X / 193」用）。territory/属地不计入，故与 totalCountryCount 不同。
+    let unMemberCount = 193
+
     /// 取每个多边形的外环用于着色（v0 不挖洞，飞地洞口忽略，集邮够用）。
     private func outerRings(of region: Region) -> [[CLLocationCoordinate2D]] {
         region.polygons.compactMap { $0.first }
@@ -117,12 +125,17 @@ final class Boundaries {
     // MARK: - GeoJSON 加载
 
     private static func load(_ resource: String, idKey: String) -> [Region] {
-        guard let url = Bundle.main.url(forResource: resource, withExtension: "geojson"),
-              let data = try? Data(contentsOf: url),
-              let root = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+        // 数据内嵌在 BoundaryData（base64 常量），不依赖任何资源打包。
+        let data: Data
+        switch resource {
+        case "admin0":        data = BoundaryData.admin0
+        case "uae_emirates":  data = BoundaryData.uaeEmirates
+        default:              data = Data()
+        }
+        guard let root = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
               let features = root["features"] as? [[String: Any]]
         else {
-            assertionFailure("边界资源缺失或解析失败: \(resource).geojson")
+            assertionFailure("边界数据解析失败: \(resource)")
             return []
         }
 

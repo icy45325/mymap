@@ -1,84 +1,286 @@
 import SwiftUI
 import SwiftData
 
-/// 足迹时间轴（§4.3）：倒序卡片流，回顾入口。支持删除（§10③）。
+/// 星迹时间轴（§4.3）· 暗夜霓虹 v2。
+/// 倒序卡片流 + 筛选菜单（大洲 / 年份）+ 年份分组；支持删除（§10③，长按卡片）。
 struct TimelineView: View {
 
     @Environment(\.modelContext) private var context
 
-    /// 倒序（visitedAt desc）。
     @Query(sort: \Footprint.visitedAt, order: .reverse)
-    private var footprints: [Footprint]
+    private var allFootprints: [Footprint]
+    /// 足迹 = 自己去过的；收到的明信片不进星迹（只在明信片墙/信封大头针）。
+    private var footprints: [Footprint] { allFootprints.filter { !$0.isReceived } }
 
+    /// 筛选（nil = 全部）；选项只列数据里实际出现过的大洲 / 年份。
+    @State private var regionSel: Region?
+    @State private var yearSel: Int?
     @State private var pendingDelete: Footprint?
-
-    private static let dateFormat: Date.FormatStyle =
-        .dateTime.year().month(.abbreviated).day()
+    @State private var showImport = false
+    @State private var showCapture = false
 
     var body: some View {
         NavigationStack {
             Group {
-                if footprints.isEmpty {
-                    emptyState
-                } else {
-                    list
-                }
+                if footprints.isEmpty { emptyState }
+                else { content }
             }
-            .background(Color.ink.ignoresSafeArea())
-            .navigationTitle("足迹")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbarBackground(Color.ink, for: .navigationBar)
-            .toolbarColorScheme(.dark, for: .navigationBar)
+            .background(Color.bg.ignoresSafeArea())
+            .navigationTitle("")
+            .toolbar(.hidden, for: .navigationBar)
         }
         .preferredColorScheme(.dark)
-        .tint(Color.litGlow)
+        .tint(Color.nPink)
         .onAppear { Analytics.log(.timelineViewed(footprintCount: footprints.count)) }
         .confirmationDialog("删除这条足迹？", isPresented: showDeleteDialog, titleVisibility: .visible) {
             Button("删除", role: .destructive) { confirmDelete() }
             Button("取消", role: .cancel) { pendingDelete = nil }
         }
+        .sheet(isPresented: $showImport) {
+            PhotoImportView(existing: footprints)
+        }
+        .sheet(isPresented: $showCapture) {
+            CaptureView(source: "timeline", prefilledCoordinate: nil)
+        }
     }
 
-    // MARK: - 列表
+    /// 顶部「点亮新足迹」入口（icon 形式）。
+    private var newFootprintButton: some View {
+        Button { showCapture = true } label: {
+            Image(systemName: "plus")
+                .font(.system(size: 17, weight: .bold)).foregroundStyle(.white)
+                .frame(width: 38, height: 38)
+                .background(LinearGradient.neonH, in: Circle())
+                .shadow(color: Color.nPurple.opacity(0.5), radius: 8)
+        }
+        .accessibilityLabel(Text("点亮新足迹"))
+    }
 
-    private var list: some View {
-        List {
-            Section {
-                ForEach(footprints) { footprint in
-                    NavigationLink {
-                        FootprintDetailView(footprint: footprint)
-                    } label: {
-                        TimelineRow(footprint: footprint, dateFormat: Self.dateFormat)
-                    }
-                    .listRowBackground(Color.panel)
-                    .listRowSeparatorTint(Color.lineSoft)
-                    .swipeActions(edge: .trailing) {
-                        Button(role: .destructive) { pendingDelete = footprint } label: {
-                            Label("删除", systemImage: "trash")
-                        }
-                    }
-                }
-            } header: {
-                Text(statLine).font(Typo.mono(12)).foregroundStyle(Color.textSecondary)
+    /// 从相册同步历史足迹的入口按钮（顶部用；icon-only，与筛选/新建按钮同规格）。
+    private var importButton: some View {
+        Button {
+            Analytics.log(.photoImportOpened)
+            showImport = true
+        } label: {
+            Image(systemName: "photo.badge.plus")
+                .font(.system(size: 16, weight: .semibold))
+                .foregroundStyle(Color.nPink)
+                .frame(width: 38, height: 38)
+                .background(Color.panel, in: Circle())
+                .overlay(Circle().stroke(Color.nPink.opacity(0.4), lineWidth: 1))
+        }
+        .accessibilityLabel(Text("从相册同步"))
+    }
+
+    // MARK: - 内容
+
+    private var content: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 0) {
+                header
+                yearStatCard
+                if filterActive { activeFilterChips }
+                timeline
+                Color.clear.frame(height: 24)
             }
         }
-        .scrollContentBackground(.hidden)
-        .listStyle(.plain)
+    }
+
+    private var header: some View {
+        HStack(alignment: .center) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text("星迹").font(Typo.serif(27))
+                Text(statLine).font(.system(size: 11)).tracking(1.2).foregroundStyle(Color.faint)
+            }
+            Spacer()
+            HStack(spacing: 10) {
+                filterMenu
+                importButton
+                newFootprintButton
+            }
+        }
+        .padding(.horizontal, 26).padding(.top, 16)
+    }
+
+    // MARK: - 筛选（大洲 / 年份）
+
+    private var filterActive: Bool { regionSel != nil || yearSel != nil }
+
+    private var filterMenu: some View {
+        Menu {
+            Picker("大洲", selection: $regionSel) {
+                Text("全部大洲").tag(Region?.none)
+                ForEach(presentRegions, id: \.self) { r in
+                    Text(verbatim: r.displayName.localized).tag(Region?.some(r))
+                }
+            }
+            .pickerStyle(.menu)
+            Picker("年份", selection: $yearSel) {
+                Text("全部年份").tag(Int?.none)
+                ForEach(presentYears, id: \.self) { y in
+                    Text(verbatim: String(y)).tag(Int?.some(y))
+                }
+            }
+            .pickerStyle(.menu)
+            if filterActive {
+                Button(role: .destructive) { regionSel = nil; yearSel = nil } label: {
+                    Label("清除筛选", systemImage: "xmark.circle")
+                }
+            }
+        } label: {
+            Image(systemName: filterActive ? "line.3.horizontal.decrease.circle.fill"
+                                           : "line.3.horizontal.decrease.circle")
+                .font(.system(size: 18, weight: .semibold))
+                .foregroundStyle(filterActive ? Color.nPink : Color.text)
+                .frame(width: 38, height: 38)
+                .background(Color.panel, in: Circle())
+                .overlay(Circle().stroke(filterActive ? Color.nPink.opacity(0.5) : Color.line, lineWidth: 1))
+        }
+        .accessibilityLabel(Text("筛选"))
+    }
+
+    /// 激活中的筛选小 chip（点 ✕ 清除单项）。
+    private var activeFilterChips: some View {
+        HStack(spacing: 8) {
+            if let r = regionSel {
+                filterChip(r.displayName.localized) { regionSel = nil }
+            }
+            if let y = yearSel {
+                filterChip(String(y)) { yearSel = nil }
+            }
+            Spacer()
+        }
+        .padding(.horizontal, 26).padding(.top, 12)
+    }
+
+    private func filterChip(_ label: String, clear: @escaping () -> Void) -> some View {
+        Button(action: clear) {
+            HStack(spacing: 5) {
+                Text(verbatim: label).font(.system(size: 12, weight: .semibold))
+                Image(systemName: "xmark").font(.system(size: 9, weight: .bold))
+            }
+            .foregroundStyle(Color.nPink)
+            .padding(.vertical, 6).padding(.horizontal, 11)
+            .background(Color.nPink.opacity(0.12), in: Capsule())
+            .overlay(Capsule().stroke(Color.nPink.opacity(0.4), lineWidth: 1))
+        }
+    }
+
+    /// 今年的足迹统计（国家 & 城市）。
+    private var yearStatCard: some View {
+        let cal = Calendar.current
+        let yr = cal.component(.year, from: .now)
+        let fps = footprints.filter { cal.component(.year, from: $0.visitedAt) == yr }
+        let countries = Set(fps.compactMap { $0.countryCode }).count
+        let cities = Set(fps.compactMap { $0.cityName }).count
+        return HStack(spacing: 14) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text("\(String(yr)) 年").font(Typo.serif(20)).foregroundStyle(Color.text)
+                Text("今年的足迹").font(.system(size: 10)).foregroundStyle(Color.muted)
+            }
+            Spacer()
+            yearStatBox("\(countries)", "国")
+            yearStatBox("\(cities)", "城")
+        }
+        .padding(.vertical, 12).padding(.horizontal, 16)
+        .background(LinearGradient(colors: [Color.nPurple.opacity(0.18), Color.nPink.opacity(0.1)],
+                                   startPoint: .leading, endPoint: .trailing),
+                    in: RoundedRectangle(cornerRadius: 16))
+        .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.line, lineWidth: 1))
+        .padding(.horizontal, 22).padding(.top, 14)
+    }
+
+    private func yearStatBox(_ value: String, _ unit: LocalizedStringKey) -> some View {
+        HStack(alignment: .firstTextBaseline, spacing: 3) {
+            Text(value).font(Typo.serif(24)).foregroundStyle(Color.nPink)
+            Text(unit).font(.system(size: 11)).foregroundStyle(Color.muted)
+        }
+    }
+
+    /// 时间线主体：按年份分组，每条带发光节点。
+    private var timeline: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            ForEach(groupedYears, id: \.year) { group in
+                Text(String(group.year))
+                    .font(Typo.serif(15)).foregroundStyle(Color.muted)
+                    .padding(.leading, 26).padding(.top, 16).padding(.bottom, 10)
+                ForEach(group.items) { fp in
+                    TimelineItem(footprint: fp,
+                                 isLatest: fp.id == footprints.first?.id,
+                                 onDelete: { pendingDelete = fp })
+                        .padding(.horizontal, 22)
+                        .padding(.bottom, 20)
+                        // 入场微动效：滚动进入视口时渐显 + 轻微上浮
+                        .scrollTransition(.animated(.easeOut(duration: 0.3))) { content, phase in
+                            content
+                                .opacity(phase.isIdentity ? 1 : 0.25)
+                                .offset(y: phase == .bottomTrailing ? 14 : 0)
+                        }
+                }
+            }
+        }
     }
 
     private var emptyState: some View {
-        VStack(spacing: 12) {
-            Image(systemName: "map").font(.system(size: 44)).foregroundStyle(Color.textMuted)
-            Text("还没有足迹").font(.headline).foregroundStyle(Color.textSecondary)
-            Text("回地图点亮第一个地方").font(.subheadline).foregroundStyle(Color.textMuted)
+        VStack(spacing: 14) {
+            Image(systemName: "sparkles").font(.system(size: 44)).foregroundStyle(Color.nPurple)
+            Text("还没有星迹").font(.system(size: 14, weight: .semibold)).foregroundStyle(Color.text)
+            Text("从相册一键找回去过的地方，或回地图点亮第一个")
+                .font(.system(size: 12.5)).foregroundStyle(Color.muted)
+                .multilineTextAlignment(.center).padding(.horizontal, 40)
+
+            Button {
+                Analytics.log(.photoImportOpened)
+                showImport = true
+            } label: {
+                Label("从相册同步历史足迹", systemImage: "photo.badge.plus")
+                    .font(.system(size: 15, weight: .semibold))
+                    .padding(.vertical, 14).padding(.horizontal, 22)
+                    .background(LinearGradient.neonH, in: Capsule())
+                    .foregroundStyle(.white)
+                    .shadow(color: Color.nPurple.opacity(0.5), radius: 12)
+            }
+            .padding(.top, 6)
+
+            Button { showCapture = true } label: {
+                Label("点亮新足迹", systemImage: "plus")
+                    .font(.system(size: 14, weight: .semibold)).foregroundStyle(Color.nPink)
+                    .padding(.vertical, 10).padding(.horizontal, 18)
+                    .background(Color.panel, in: Capsule())
+                    .overlay(Capsule().stroke(Color.nPink.opacity(0.4), lineWidth: 1))
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
-    /// 顶部统计行：`{年份} · 已记录 {n} 段`（§11 #9）。
+    // MARK: - 派生
+
+    private var filtered: [Footprint] {
+        let cal = Calendar.current
+        return footprints.filter { fp in
+            (regionSel == nil || fp.region == regionSel)
+                && (yearSel == nil || cal.component(.year, from: fp.visitedAt) == yearSel)
+        }
+    }
+
+    private var groupedYears: [(year: Int, items: [Footprint])] {
+        let cal = Calendar.current
+        let groups = Dictionary(grouping: filtered) { cal.component(.year, from: $0.visitedAt) }
+        return groups.keys.sorted(by: >).map { (year: $0, items: groups[$0] ?? []) }
+    }
+
+    /// 筛选选项：只列数据里实际出现过的大洲 / 年份。
+    private var presentRegions: [Region] {
+        Region.allCases.filter { r in footprints.contains { $0.region == r } }
+    }
+    private var presentYears: [Int] {
+        let cal = Calendar.current
+        return Set(footprints.map { cal.component(.year, from: $0.visitedAt) }).sorted(by: >)
+    }
+
     private var statLine: String {
         let year = Calendar.current.component(.year, from: footprints.first?.visitedAt ?? .now)
-        return "\(year) · 已记录 \(footprints.count) 段"
+        return String(localized: "\(year) · 已记录 \(footprints.count) 段")
     }
 
     // MARK: - 删除
@@ -86,43 +288,106 @@ struct TimelineView: View {
     private var showDeleteDialog: Binding<Bool> {
         Binding(get: { pendingDelete != nil }, set: { if !$0 { pendingDelete = nil } })
     }
-
     private func confirmDelete() {
-        guard let footprint = pendingDelete else { return }
-        context.delete(footprint)        // Card 随 cascade 一并删除
-        try? context.save()              // 地图着色与计数随 @Query 自动同步（§10③）
+        guard let fp = pendingDelete else { return }
+        context.delete(fp)               // Card 随 cascade 删除
+        try? context.save()
         pendingDelete = nil
     }
 }
 
-// MARK: - 行
+// MARK: - 时间线条目
 
-private struct TimelineRow: View {
+private struct TimelineItem: View {
     let footprint: Footprint
-    let dateFormat: Date.FormatStyle
+    let isLatest: Bool
+    let onDelete: () -> Void
+
+    private static let dateFormat: Date.FormatStyle = .dateTime.year().month(.abbreviated).day()
 
     var body: some View {
-        HStack(spacing: 12) {
-            AssetImage(assetID: footprint.photoAssetIDs.first, targetSize: CGSize(width: 140, height: 140))
-                .frame(width: 56, height: 56)
-                .clipShape(RoundedRectangle(cornerRadius: 10))
+        HStack(alignment: .top, spacing: 0) {
+            // 节点 + 竖线
+            VStack(spacing: 0) {
+                ZStack {
+                    if isLatest {
+                        Circle().fill(Color.nPink).frame(width: 13, height: 13)
+                            .shadow(color: .nPink, radius: 8)
+                    } else {
+                        Circle().stroke(Color.nPurple, lineWidth: 2).frame(width: 13, height: 13)
+                            .background(Circle().fill(Color.bg))
+                    }
+                }
+                .padding(.top, 6)
+                Rectangle().fill(Color.line).frame(width: 2).frame(maxHeight: .infinity)
+            }
+            .frame(width: 13)
+            .padding(.trailing, 16)
 
-            VStack(alignment: .leading, spacing: 4) {
-                Text(footprint.placeName)
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(Color.textPrimary)
-                    .lineLimit(1)
-                Text(footprint.visitedAt.formatted(dateFormat))
-                    .font(.caption).foregroundStyle(Color.textSecondary)
-                if !footprint.companions.isEmpty {
-                    Label(footprint.companions.joined(separator: "、"),
-                          systemImage: "person.2")
-                        .font(.caption2).foregroundStyle(Color.textMuted)
-                        .lineLimit(1)
+            NavigationLink {
+                FootprintDetailView(footprint: footprint)
+            } label: {
+                card
+            }
+            .buttonStyle(.plain)
+            // 长按：选中卡片高亮浮于系统变暗蒙层之上（preview 用不透明底，避免发虚）
+            .contextMenu {
+                Button(role: .destructive, action: onDelete) {
+                    Label("删除", systemImage: "trash")
+                }
+            } preview: {
+                card
+                    .frame(width: 320)
+                    .padding(12)
+                    .background(Color.panel)
+            }
+        }
+    }
+
+    private var card: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 8) {
+                Text(footprint.visitSpanText(Self.dateFormat))
+                    .font(.system(size: 11)).foregroundStyle(Color.muted)
+                if isLatest {
+                    Text("最新").font(.system(size: 9, weight: .bold)).tracking(1)
+                        .foregroundStyle(Color.nPink)
                 }
             }
-            Spacer()
+            ZStack(alignment: .bottomLeading) {
+                AssetImage(assetID: footprint.photoAssetIDs.first,
+                           targetSize: CGSize(width: 700, height: 500))
+                    .frame(maxWidth: .infinity).frame(height: 172).clipped()
+                LinearGradient(colors: [.clear, Color.bg.opacity(0.86)],
+                               startPoint: .center, endPoint: .bottom)
+                VStack(alignment: .leading, spacing: 6) {
+                    HStack(spacing: 8) {
+                        Text(footprint.flag).font(.system(size: 16))
+                        Text(footprint.title).font(Typo.serif(19)).foregroundStyle(.white)
+                    }
+                    HStack(spacing: 10) {
+                        Text(footprint.locationSubtitle)
+                            .font(.system(size: 11)).foregroundStyle(Color(hex: 0xC9C2D6))
+                        if footprint.photoCount > 0 {
+                            Label("\(footprint.photoCount)", systemImage: "camera.fill")
+                                .font(.system(size: 11)).foregroundStyle(.white)
+                                .padding(.vertical, 4).padding(.horizontal, 10)
+                                .background(.black.opacity(0.42), in: Capsule())
+                                .overlay(Capsule().stroke(.white.opacity(0.16), lineWidth: 1))
+                        }
+                        Spacer(minLength: 0)
+                        if !footprint.companions.isEmpty {
+                            // 旅伴头像：往来的人命中真头像；手输名字首字母默认头像
+                            PartnerAvatarStack(names: footprint.companions, size: 20)
+                        }
+                    }
+                }
+                .padding(16)
+            }
+            .frame(height: 172)
+            .clipShape(RoundedRectangle(cornerRadius: 20))
+            .overlay(RoundedRectangle(cornerRadius: 20)
+                .stroke(isLatest ? Color.nPink.opacity(0.5) : Color.line, lineWidth: 1))
         }
-        .padding(.vertical, 4)
     }
 }

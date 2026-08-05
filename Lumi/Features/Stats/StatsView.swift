@@ -1,181 +1,627 @@
 import SwiftUI
 import SwiftData
+import UIKit
 
-/// 点亮成就（§4.4）：大数字 + 各洲进度 + 里程碑徽章。集邮满足感。
+/// 点亮成就（§4.4）· 暗夜霓虹 v2。
+/// 环形概览 + 蜂巢徽章 + 分类筛选 + 大洲征服环。
 struct StatsView: View {
 
     @Query private var footprints: [Footprint]
 
-    /// 大洲展示顺序与中文名。
-    private static let continents: [(key: String, name: String)] = [
-        ("Asia", "亚洲"), ("Europe", "欧洲"), ("Africa", "非洲"),
-        ("North America", "北美洲"), ("South America", "南美洲"), ("Oceania", "大洋洲"),
-    ]
+    @State private var categoryFilter: CatFilter = .all
+    @State private var selectedBadge: Badge?
+    @State private var reportImage: Image?
+    @State private var showReport = false
+
+    private enum CatFilter: Hashable { case all, category(BadgeCategory), rare }
+
+    private var stats: LumiStats { LumiStats(footprints: footprints) }
+    private var board: BadgeBoard { stats.badgeBoard }
 
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(alignment: .leading, spacing: 28) {
-                    headline
-                    badgesSection
-                    continentsSection
+                VStack(alignment: .leading, spacing: 24) {
+                    header
+                    // —— 统计在上 ——
+                    statsSummary
+                    conquestSection
+                    // —— 徽章墙在下（整体一张卡片）——
+                    badgeWallCard
+                    Color.clear.frame(height: 20)
                 }
-                .padding(Metrics.pad)
+                .padding(.top, 16)
             }
-            .background(Color.ink.ignoresSafeArea())
-            .navigationTitle("成就")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbarBackground(Color.ink, for: .navigationBar)
-            .toolbarColorScheme(.dark, for: .navigationBar)
+            .background(Color.bg.ignoresSafeArea())
+            .toolbar(.hidden, for: .navigationBar)
         }
         .preferredColorScheme(.dark)
-        .tint(Color.litGlow)
-        .onAppear { Analytics.log(.statsViewed(totalLit: litCount, percent: percent)) }
+        .tint(Color.nPink)
+        .onAppear {
+            Analytics.log(.statsViewed(totalLit: stats.countries, percent: Int(stats.worldPercent.rounded())))
+        }
+        .sheet(item: $selectedBadge) { BadgeSheet(badge: $0) }
+        .sheet(isPresented: $showReport) { reportShareSheet }
     }
 
-    // MARK: - 数据（与地图同源：distinct countryCode，§10④ 一致性）
-
-    private var litCountryCodes: Set<String> { Set(footprints.compactMap { $0.countryCode }) }
-    private var litCount: Int { litCountryCodes.count }
-    private var cityCount: Int { Set(footprints.compactMap { $0.cityName }).count }
-
-    private var percent: Int {
-        let total = Boundaries.shared.totalCountryCount
-        guard total > 0 else { return 0 }
-        return Int((Double(litCount) / Double(total) * 100).rounded())
-    }
-
-    // MARK: - 大数字
-
-    private var headline: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            HStack(alignment: .firstTextBaseline, spacing: 8) {
-                Text("\(litCount)")
-                    .font(Typo.display(64))
-                    .foregroundStyle(Color.litGlow)
-                Text("个国家被你点亮")    // §11 #10
-                    .font(.headline)
-                    .foregroundStyle(Color.textSecondary)
+    /// 成就数据报告分享：预览 + 分享/保存。
+    private var reportShareSheet: some View {
+        VStack(spacing: 18) {
+            Capsule().fill(Color.line).frame(width: 40, height: 4).padding(.top, 11)
+            Text("分享成就报告").font(Typo.serif(20)).foregroundStyle(Color.text)
+            ScrollView {
+                if let reportImage {
+                    reportImage.resizable().scaledToFit()
+                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                        .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.line, lineWidth: 1))
+                        .padding(.horizontal, 26)
+                } else {
+                    ProgressView().tint(Color.nPink).padding(40)
+                }
             }
-            Text("全球 \(percent)% · \(cityCount) 座城市")
-                .font(Typo.mono(13))
-                .foregroundStyle(Color.textSecondary)
+            if let reportImage {
+                HStack(spacing: 10) {
+                    ShareLink(item: reportImage,
+                              preview: SharePreview("Lumi", image: reportImage)) {
+                        Label("分享", systemImage: "square.and.arrow.up")
+                            .font(.headline).foregroundStyle(.white)
+                            .frame(maxWidth: .infinity, minHeight: 52)
+                            .background(LinearGradient.neonH, in: Capsule())
+                    }
+                    InstagramShareButton { ShareRender.uiImage(StatsReportCard(stats: stats), scale: 4) }
+                }
+                .padding(.horizontal, 26).padding(.bottom, 20)
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .background(Color(hex: 0x0F0F1B).ignoresSafeArea())
+        .presentationDetents([.large])
+        .preferredColorScheme(.dark)
+        .task {
+            guard reportImage == nil else { return }
+            await Task.yield()      // 先让面板+spinner 出来，再渲染（世界地图 Canvas 较重）
+            reportImage = ShareRender.image(StatsReportCard(stats: stats), scale: 2)
+        }
+    }
+
+    // MARK: - 头部 / 环形概览
+
+    private var header: some View {
+        HStack(alignment: .center) {
+            Text("成就").font(Typo.serif(27))
+            Spacer()
+            shareButton
+        }
+        .padding(.horizontal, 26)
+    }
+
+    private var shareButton: some View {
+        Button {
+            reportImage = nil          // 即刻开面板（显示 spinner），渲染异步进行，避免卡点击
+            showReport = true
+        } label: {
+            Label("分享", systemImage: "square.and.arrow.up")
+                .font(.system(size: 12, weight: .semibold)).foregroundStyle(Color.nCyan)
+                .padding(.vertical, 7).padding(.horizontal, 14)
+                .background(Color.panel, in: Capsule())
+                .overlay(Capsule().stroke(Color.nCyan.opacity(0.4), lineWidth: 1))
+        }
+        .buttonStyle(.plain)
+    }
+
+    /// 徽章收集环（与大洲征服环同规格，放在徽章墙标题行右侧）。
+    private var collectionRing: some View {
+        RingProgress(fraction: board.total > 0 ? Double(board.unlockedCount) / Double(board.total) : 0,
+                     size: 56, lineWidth: 5) {
+            Text("\(Int((board.total > 0 ? Double(board.unlockedCount) / Double(board.total) : 0) * 100))%")
+                .font(Typo.serif(13)).foregroundStyle(Color.text)
+        }
+    }
+
+    // MARK: - 统计汇总（页面顶部）
+
+    private var statsSummary: some View {
+        HStack(spacing: 10) {
+            summaryCard("\(stats.countries)", "国家", "/ \(stats.worldTotal)")
+            summaryCard("\(stats.cities)", "城市", nil)
+            summaryCard("\(stats.continentsCovered)", "大洲", "/ 7")
+        }
+        .padding(.horizontal, 26)
+    }
+
+    private func summaryCard(_ value: String, _ label: String, _ sub: String?) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(label.localized).font(.system(size: 10, weight: .semibold)).tracking(0.5)
+                .foregroundStyle(Color.muted).textCase(.uppercase)
+            HStack(alignment: .firstTextBaseline, spacing: 3) {
+                Text(value).font(Typo.serif(19)).foregroundStyle(Color.nPink)   // 主题高亮色（随主题切换）
+                if let sub { Text(sub).font(.system(size: 10)).foregroundStyle(Color.faint) }
+            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.vertical, 10).padding(.horizontal, 11)
+        .panelCard(14)
     }
 
-    // MARK: - 徽章
+    /// 徽章墙整卡：标题行（右侧收藏环）+ 已点亮网格 + 更多入口，框进同一张面板卡。
+    private var badgeWallCard: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            HStack {
+                Text("徽章墙").font(.system(size: 13, weight: .semibold)).tracking(1)
+                    .foregroundStyle(Color.muted)
+                Spacer()
+                collectionRing
+            }
+            honeycomb
+            moreEntry
+        }
+        .padding(16)
+        .panelCard(16)
+        .padding(.horizontal, 22)
+    }
 
-    private var badgesSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            sectionTitle("里程碑徽章")
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 12) {
-                    ForEach(badges) { badge in
-                        BadgeChip(badge: badge, unlocked: badge.isUnlocked(litCountryCodes))
+    // MARK: - 徽章墙（3 列网格，给插画徽章更大展示空间）
+
+    /// 主页徽章墙只放**已点亮**的；进行中 / 未解锁收进二级页（见 moreEntry）。
+    private var litBadges: [Badge] { sortedBadges.filter { $0.state == .lit } }
+
+    private var honeycomb: some View {
+        let cols = Array(repeating: GridItem(.flexible(), spacing: 14), count: 3)
+        return Group {
+            if litBadges.isEmpty {
+                Text("还没点亮徽章 · 去点亮第一个地方")
+                    .font(.system(size: 12)).foregroundStyle(Color.muted)
+                    .frame(maxWidth: .infinity).padding(.vertical, 24)
+            } else {
+                LazyVGrid(columns: cols, spacing: 18) {
+                    ForEach(litBadges) { b in
+                        badgeCell(b)
+                            // 入场微动效：滚动进入视口时轻缩放渐显
+                            .scrollTransition(.animated(.spring(response: 0.4, dampingFraction: 0.8))) { content, phase in
+                                content
+                                    .opacity(phase.isIdentity ? 1 : 0.3)
+                                    .scaleEffect(phase.isIdentity ? 1 : 0.86)
+                            }
                     }
                 }
             }
         }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 4)
     }
 
-    /// v0 示例徽章（§4.4「如…」）。
-    private var badges: [Badge] {
-        [
-            Badge(id: "first", icon: "flag.fill", title: "第一步") { !$0.isEmpty },
-            Badge(id: "desert", icon: "sun.max.fill", title: "沙漠之国") { $0.contains("AE") },
-            Badge(id: "overseas", icon: "airplane", title: "首个海外国家") { $0.subtracting(["AE"]).count >= 1 },
-            Badge(id: "five", icon: "globe.asia.australia.fill", title: "环游五国") { $0.count >= 5 },
-            Badge(id: "ten", icon: "star.circle.fill", title: "环游十国") { $0.count >= 10 },
-        ]
-    }
-
-    // MARK: - 各洲进度
-
-    private var continentsSection: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            sectionTitle("各大洲进度")
-            ForEach(Self.continents, id: \.key) { continent in
-                let total = Boundaries.shared.countriesPerContinent[continent.key] ?? 0
-                let lit = litCountryCodes.filter {
-                    Boundaries.shared.continent(forCountryCode: $0) == continent.key
-                }.count
-                ContinentBar(name: continent.name, lit: lit, total: total)
+    /// 二级页入口：进行中 + 未解锁的数量，点进去分两类展示。
+    private var moreEntry: some View {
+        let prog = board.badges.filter { $0.state == .prog }.count
+        let locked = board.badges.filter { $0.state == .locked }.count
+        return Group {
+            if prog + locked > 0 {
+                NavigationLink {
+                    BadgeMoreView(board: board)
+                } label: {
+                    HStack(spacing: 12) {
+                        Image(systemName: "square.grid.2x2.fill").font(.system(size: 17))
+                            .foregroundStyle(Color.nPurple).frame(width: 28)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("查看更多徽章").font(.system(size: 14, weight: .semibold)).foregroundStyle(Color.text)
+                            Text("\(prog) 进行中 · \(locked) 未解锁")
+                                .font(.system(size: 11)).foregroundStyle(Color.muted)
+                        }
+                        Spacer()
+                        Image(systemName: "chevron.right").font(.system(size: 13, weight: .semibold))
+                            .foregroundStyle(Color.faint).flipsForRightToLeftLayoutDirection(true)
+                    }
+                    .padding(14).panelCard(14)
+                }
+                .buttonStyle(.plain)
+                .padding(.horizontal, 22)
             }
         }
     }
 
-    // MARK: - 小工具
-
-    private func sectionTitle(_ text: String) -> some View {
-        Text(text).font(.subheadline.weight(.semibold)).foregroundStyle(Color.textSecondary)
-    }
-}
-
-// MARK: - 徽章模型与视图
-
-private struct Badge: Identifiable {
-    let id: String
-    let icon: String
-    let title: String
-    let isUnlocked: (Set<String>) -> Bool
-}
-
-private struct BadgeChip: View {
-    let badge: Badge
-    let unlocked: Bool
-
-    var body: some View {
-        VStack(spacing: 8) {
-            Image(systemName: badge.icon)
-                .font(.system(size: 26))
-                .foregroundStyle(unlocked ? Color.ink : Color.textMuted)
-                .frame(width: 64, height: 64)
-                .background(
-                    Circle().fill(unlocked
-                        ? AnyShapeStyle(LinearGradient(colors: [Color.litGlow, Color.litGlow2],
-                                                       startPoint: .top, endPoint: .bottom))
-                        : AnyShapeStyle(Color.panel))
-                )
-                .overlay(Circle().stroke(unlocked ? Color.litGlow : Color.line, lineWidth: 1))
-            Text(badge.title)
-                .font(.caption2)
-                .foregroundStyle(unlocked ? Color.textPrimary : Color.textMuted)
-        }
-        .frame(width: 84)
-        .opacity(unlocked ? 1 : 0.55)
-    }
-}
-
-// MARK: - 大洲进度条
-
-private struct ContinentBar: View {
-    let name: String
-    let lit: Int
-    let total: Int
-
-    private var fraction: Double {
-        guard total > 0 else { return 0 }
-        return Double(lit) / Double(total)
-    }
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            HStack {
-                Text(name).font(.subheadline).foregroundStyle(Color.textPrimary)
-                Spacer()
-                Text("\(lit) / \(total)").font(Typo.mono(12)).foregroundStyle(Color.textSecondary)
+    /// 排序：已点亮在最前 → 进行中按点亮进度从高到低 → 完全未解锁在最后；同档保持原顺序。
+    private var sortedBadges: [Badge] {
+        func rank(_ b: Badge) -> Double {
+            switch b.state {
+            case .lit:    return 100                 // 已点亮最前
+            case .prog:   return b.progress ?? 0     // 进行中按进度 0…1
+            case .locked: return -1                  // 完全未解锁最后
             }
-            GeometryReader { geo in
-                ZStack(alignment: .leading) {
-                    Capsule().fill(Color.panel)
-                    Capsule()
-                        .fill(LinearGradient(colors: [Color.litGlow, Color.litGlow2],
-                                             startPoint: .leading, endPoint: .trailing))
-                        .frame(width: max(6, geo.size.width * fraction) * (lit > 0 ? 1 : 0))
+        }
+        return board.badges.enumerated()
+            .sorted { a, b in
+                let ra = rank(a.element), rb = rank(b.element)
+                return ra != rb ? ra > rb : a.offset < b.offset
+            }
+            .map(\.element)
+    }
+
+    /// 单元：徽章 + 名称。点击看「是什么 / 怎么得到」。插画徽章自带名字，不再重复文字。
+    private func badgeCell(_ b: Badge) -> some View {
+        VStack(spacing: 6) {
+            HexBadge(badge: b, size: 88, dimmed: !matches(b))
+            if b.imageName == nil {
+                Text(b.name.localized)
+                    .font(.system(size: 10, weight: .medium))
+                    .foregroundStyle(matches(b) ? Color.muted : Color.faint)
+                    .lineLimit(1).minimumScaleFactor(0.75)
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .contentShape(Rectangle())
+        .onTapGesture { selectedBadge = b }
+    }
+
+    private func matches(_ b: Badge) -> Bool {
+        switch categoryFilter {
+        case .all: return true
+        case .category(let c): return b.category == c
+        case .rare: return b.rarity == .epic || b.rarity == .legendary
+        }
+    }
+
+    /// 只列出**已点亮**徽章里实际存在的分类，避免主页空筛选。
+    private var segmentItems: [(value: CatFilter, label: String)] {
+        let lit = litBadges
+        var items: [(value: CatFilter, label: String)] = [(.all, "全部")]
+        for cat in [BadgeCategory.continent, .milestone, .streak]
+        where lit.contains(where: { $0.category == cat }) {
+            items.append((.category(cat), cat.displayName))
+        }
+        if lit.contains(where: { $0.rarity == .epic || $0.rarity == .legendary }) {
+            items.append((.rare, "稀有"))
+        }
+        return items
+    }
+
+    // MARK: - 即将解锁
+
+    private func nextUpSection(_ b: Badge) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("即将解锁 Next up").font(.system(size: 13, weight: .semibold)).foregroundStyle(Color.muted)
+                .padding(.horizontal, 26)
+            Button { selectedBadge = b } label: {     // 进行中：开详情看条件，不弹点亮效果
+                HStack(spacing: 13) {
+                    HexBadge(badge: b, size: 46)
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("\(b.name.localized) · \(b.rarity.tierName.localized)").font(.system(size: 14, weight: .semibold))
+                            .foregroundStyle(Color.text)
+                        Text("即将解锁 · \(b.progressText ?? "")").font(.system(size: 10.5))
+                            .foregroundStyle(Color.muted)
+                        NeonBar(fraction: b.progress ?? 0, height: 8)
+                    }
+                    Spacer()
+                }
+                .padding(13).panelCard(16)
+            }
+            .buttonStyle(.plain)
+            .padding(.horizontal, 22)
+        }
+    }
+
+    // MARK: - 大洲征服
+
+    private var conquestSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("大洲征服 Conquest").font(.system(size: 13, weight: .semibold)).tracking(1).foregroundStyle(Color.muted)
+                .padding(.horizontal, 26)
+            HStack(alignment: .top, spacing: 8) {
+                ForEach(stats.conquest) { c in
+                    VStack(spacing: 7) {
+                        RingProgress(fraction: Double(c.percent) / 100, size: 56, lineWidth: 5,
+                                     colors: [c.region.color, c.region.color.opacity(0.5)]) {
+                            Text("\(c.percent)%").font(Typo.serif(13)).foregroundStyle(Color.text)
+                        }
+                        Text(c.region.displayName.localized).font(.system(size: 10)).foregroundStyle(Color.muted)
+                    }
+                    .frame(maxWidth: .infinity)
                 }
             }
-            .frame(height: 8)
+            .padding(.horizontal, 24)
         }
+    }
+}
+
+// MARK: - 更多徽章（二级页：进行中 / 未解锁）
+
+private struct BadgeMoreView: View {
+    let board: BadgeBoard
+    @State private var selectedBadge: Badge?
+
+    private var inProgress: [Badge] {
+        board.badges.filter { $0.state == .prog }.sorted { ($0.progress ?? 0) > ($1.progress ?? 0) }
+    }
+    private var locked: [Badge] { board.badges.filter { $0.state == .locked } }
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 22) {
+                if !inProgress.isEmpty { section("进行中", inProgress, dimmed: false) }
+                if !locked.isEmpty { section("未解锁", locked, dimmed: true) }
+                if inProgress.isEmpty && locked.isEmpty {
+                    Text("全部徽章已点亮 ✦").font(.system(size: 13)).foregroundStyle(Color.muted)
+                        .frame(maxWidth: .infinity).padding(.vertical, 40)
+                }
+                Color.clear.frame(height: 20)
+            }
+            .padding(.top, 14)
+        }
+        .background(Color.bg.ignoresSafeArea())
+        .navigationTitle("更多徽章")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar(.hidden, for: .tabBar)
+        .toolbarBackground(Color.bg, for: .navigationBar)
+        .toolbarColorScheme(.dark, for: .navigationBar)
+        .preferredColorScheme(.dark)
+        .sheet(item: $selectedBadge) { BadgeSheet(badge: $0) }
+    }
+
+    private func section(_ title: LocalizedStringKey, _ badges: [Badge], dimmed: Bool) -> some View {
+        let cols = Array(repeating: GridItem(.flexible(), spacing: 14), count: 3)
+        return VStack(alignment: .leading, spacing: 10) {
+            Text(title).font(.system(size: 13, weight: .semibold)).tracking(1)
+                .foregroundStyle(Color.muted).padding(.horizontal, 22)
+            LazyVGrid(columns: cols, spacing: 18) {
+                ForEach(badges) { b in
+                    VStack(spacing: 6) {
+                        HexBadge(badge: b, size: 96, dimmed: dimmed)
+                        if b.imageName == nil {
+                            Text(b.name.localized).font(.system(size: 10, weight: .medium))
+                                .foregroundStyle(Color.faint).lineLimit(1).minimumScaleFactor(0.75)
+                        }
+                        if let p = b.progressText {
+                            Text(p).font(.system(size: 9, weight: .semibold)).foregroundStyle(Color.nCyan)
+                                .lineLimit(1).minimumScaleFactor(0.7)
+                        }
+                    }
+                    .frame(maxWidth: .infinity)
+                    .contentShape(Rectangle())
+                    .onTapGesture { selectedBadge = b }
+                }
+            }
+            .padding(.horizontal, 22)
+        }
+    }
+}
+
+// MARK: - 徽章详情 Sheet
+
+private struct BadgeSheet: View {
+    let badge: Badge
+
+    @State private var shareImage: Image?
+
+    private static let dateFormat: Date.FormatStyle = .dateTime.year().month().day()
+
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 0) {
+                Capsule().fill(Color.line).frame(width: 40, height: 4).padding(.top, 11)
+
+                // ——— 主角：放大的徽章，光晕只作底部基座（不再整圈罩在大图上）———
+                ZStack(alignment: .bottom) {
+                    Ellipse()
+                        .fill(RadialGradient(colors: [badge.color.opacity(badge.state == .lit ? 0.6 : 0.2), .clear],
+                                             center: .center, startRadius: 2, endRadius: 130))
+                        .frame(width: 250, height: 100)
+                        .blur(radius: 24)
+                        .offset(y: -6)
+                    // 用 HexBadge（无全息流光）展示大图，去掉徽章上层炫光，只保留底部光晕
+                    HexBadge(badge: badge, size: 200)
+                }
+                .frame(height: 290)
+                .padding(.top, 2)
+
+                Text(badge.name.localized).font(Typo.serif(30)).foregroundStyle(Color.text)
+                    .multilineTextAlignment(.center).padding(.horizontal, 24)
+                Text("\(badge.rarity.tierName.localized) · \(badge.rarity.rawValue.uppercased())")
+                    .font(.system(size: 11, weight: .heavy)).tracking(1.8)
+                    .foregroundStyle(badge.rarity.color).padding(.top, 6)
+
+                // ——— 操作：分享，小按钮一排（仅已解锁）———
+                if badge.state == .lit {
+                    HStack(spacing: 10) {
+                        if let shareImage {
+                            ShareLink(item: shareImage,
+                                      preview: SharePreview(badge.name.localized, image: shareImage)) {
+                                compactAction("分享", systemImage: "square.and.arrow.up",
+                                              tint: Color.nCyan, filled: false)
+                            }
+                        }
+                        if InstagramShare.isAvailable {
+                            Button {
+                                if let ui = ShareRender.uiImage(BadgeShareCard(badge: badge), scale: 4) {
+                                    InstagramShare.share(ui)
+                                }
+                            } label: {
+                                HStack(spacing: 6) {
+                                    InstagramGlyph().stroke(.white, lineWidth: 1.8).frame(width: 15, height: 15)
+                                    Text(verbatim: "Instagram").font(.system(size: 12.5, weight: .semibold))
+                                        .foregroundStyle(.white)
+                                }
+                                .padding(.vertical, 9).padding(.horizontal, 16)
+                                .background(
+                                    LinearGradient(colors: [Color(hex: 0x515BD4), Color(hex: 0x8134AF),
+                                                            Color(hex: 0xDD2A7B), Color(hex: 0xF58529)],
+                                                   startPoint: .bottomLeading, endPoint: .topTrailing),
+                                    in: Capsule())
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                    .padding(.top, 16)
+                }
+
+                // ——— 次要内容：解锁条件 + 数据（更安静）———
+                VStack(spacing: 10) {
+                    Text((badge.state == .lit ? "已解锁" : "解锁条件").localized)
+                        .font(.system(size: 10, weight: .bold)).tracking(1.5)
+                        .foregroundStyle(badge.state == .lit ? Color.grn : Color.nCyan)
+                    Text(badge.desc.localized).font(.system(size: 12.5)).foregroundStyle(Color.muted)
+                        .multilineTextAlignment(.center)
+                    if badge.state == .prog, let p = badge.progress {
+                        NeonBar(fraction: p, height: 7).frame(height: 7)
+                        Text(badge.progressText ?? "").font(.system(size: 11)).foregroundStyle(Color.muted)
+                    }
+                    HStack(spacing: 10) {
+                        statBox(badge.ownership, "全球持有率")
+                        statBox(stateValue, stateLabel)
+                    }
+                    .padding(.top, 4)
+                }
+                .padding(.top, 22).padding(.horizontal, 26).padding(.bottom, 30)
+            }
+            .frame(maxWidth: .infinity)
+        }
+        .background(Color(hex: 0x0F0F1B).ignoresSafeArea())
+        .onAppear {
+            if badge.state == .lit, shareImage == nil {
+                shareImage = ShareRender.image(BadgeShareCard(badge: badge))
+            }
+        }
+        .presentationDetents([.large])
+        .presentationDragIndicator(.hidden)
+        .preferredColorScheme(.dark)
+    }
+
+    /// 小号操作按钮（按内容自适应宽度，pin/share 并排用）。
+    private func compactAction(_ title: LocalizedStringKey, systemImage: String,
+                               tint: Color, filled: Bool) -> some View {
+        Label(title, systemImage: systemImage)
+            .font(.system(size: 12.5, weight: .semibold))
+            .foregroundStyle(filled ? .white : tint)
+            .padding(.vertical, 9).padding(.horizontal, 18)
+            .background(filled ? AnyShapeStyle(LinearGradient.neonH) : AnyShapeStyle(Color.panel), in: Capsule())
+            .overlay(Capsule().stroke(filled ? Color.clear : tint.opacity(0.5), lineWidth: 1))
+    }
+
+    private var stateValue: String {
+        switch badge.state {
+        case .lit:    return badge.unlockedAt?.formatted(Self.dateFormat) ?? "已获得".localized
+        case .prog:   return badge.progressText ?? "进行中".localized
+        case .locked: return "未解锁".localized
+        }
+    }
+    private var stateLabel: String {
+        switch badge.state {
+        case .lit: return "获得时间".localized; case .prog: return "当前进度".localized; case .locked: return "状态".localized
+        }
+    }
+
+    private func statBox(_ v: String, _ l: String) -> some View {
+        VStack(spacing: 3) {
+            Text(v).font(.system(size: 15, weight: .semibold)).foregroundStyle(Color.text)
+            Text(l.localized).font(.system(size: 9)).foregroundStyle(Color.muted)
+        }
+        .frame(maxWidth: .infinity).padding(.vertical, 13).panelCard(13)
+    }
+}
+
+// MARK: - 解锁庆祝
+
+struct UnlockCelebration: View {
+    let badges: [Badge]
+    let onDismiss: () -> Void
+
+    init(badge: Badge, onDismiss: @escaping () -> Void) {
+        self.badges = [badge]; self.onDismiss = onDismiss
+    }
+    init(badges: [Badge], onDismiss: @escaping () -> Void) {
+        self.badges = badges; self.onDismiss = onDismiss
+    }
+
+    @State private var shown = false
+    @State private var shareImage: Image?
+
+    private var isMulti: Bool { badges.count > 1 }
+    /// 用首枚的颜色驱动背景/粒子（多枚时取一个主色即可）。
+    private var accent: Color { badges.first?.color ?? .nPink }
+
+    var body: some View {
+        ZStack {
+            // 背景遮罩调暗、收紧光晕，避免与下层内容混在一起
+            RadialGradient(colors: [accent.opacity(0.22), Color.bg.opacity(0.985)],
+                           center: .center, startRadius: 10, endRadius: 300)
+                .ignoresSafeArea()
+            Color.bg.opacity(0.55).ignoresSafeArea()
+            // 粒子迸发（在徽章后方扩散）
+            UnlockBurst(color: accent)
+                .frame(width: 360, height: 360)
+                .opacity(shown ? 0.85 : 0)
+
+            content
+                .padding(.vertical, 36).padding(.horizontal, 30)
+                // 内容卡片底：把徽章与文字托在一张半透明卡上，与粒子背景分层
+                .background(
+                    RoundedRectangle(cornerRadius: 28, style: .continuous)
+                        .fill(Color.bg.opacity(0.72))
+                        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 28, style: .continuous))
+                        .overlay(RoundedRectangle(cornerRadius: 28, style: .continuous)
+                            .stroke(accent.opacity(0.45), lineWidth: 1))
+                        .shadow(color: accent.opacity(0.35), radius: 30, y: 8)
+                )
+                .padding(.horizontal, isMulti ? 28 : 40)
+                .scaleEffect(shown ? 1 : 0.5).opacity(shown ? 1 : 0)
+
+            VStack {
+                Spacer()
+                Text("点击任意处继续").font(.system(size: 11)).foregroundStyle(Color.faint).padding(.bottom, 42)
+            }
+        }
+        .contentShape(Rectangle())
+        .onTapGesture { onDismiss() }
+        .onAppear {
+            withAnimation(.spring(response: 0.6, dampingFraction: 0.55)) { shown = true }
+            UINotificationFeedbackGenerator().notificationOccurred(.success)
+            if !isMulti, let b = badges.first {
+                shareImage = ShareRender.image(BadgeShareCard(badge: b))
+            }
+        }
+    }
+
+    @ViewBuilder private var content: some View {
+        if isMulti { multiContent } else { singleContent }
+    }
+
+    // 单枚：大图 + 名称 + 稀有度 + 分享（保持原样）
+    @ViewBuilder private var singleContent: some View {
+        let badge = badges[0]
+        VStack(spacing: 9) {
+            HolographicBadge(badge: badge, size: 132).padding(.bottom, 16)
+            Text("成就解锁 · UNLOCKED").font(.system(size: 12, weight: .bold)).tracking(3)
+                .foregroundStyle(Color.nCyan)
+            Text(badge.name.localized).font(Typo.serif(33)).foregroundStyle(Color.text)
+            Text("\(badge.rarity.tierName.localized) · \(badge.rarity.rawValue.uppercased())")
+                .font(.system(size: 11.5, weight: .heavy)).tracking(1.8)
+                .foregroundStyle(badge.color)
+            if let shareImage {
+                ShareLink(item: shareImage,
+                          preview: SharePreview(badge.name.localized, image: shareImage)) {
+                    Label("分享", systemImage: "square.and.arrow.up")
+                        .font(.system(size: 13, weight: .semibold)).foregroundStyle(.white)
+                        .padding(.vertical, 11).padding(.horizontal, 26)
+                        .background(LinearGradient.neonH, in: Capsule())
+                }
+                .padding(.top, 18)
+            }
+        }
+    }
+
+    // 多枚：汇总「点亮了 N 个徽章」+ 徽章拼在一起，不展示具体名字
+    @ViewBuilder private var multiContent: some View {
+        let cols = min(badges.count, 3)
+        let size: CGFloat = badges.count <= 4 ? 92 : (badges.count <= 6 ? 78 : 66)
+        let grid = Array(repeating: GridItem(.flexible(), spacing: 12), count: cols)
+        VStack(spacing: 14) {
+            Text("成就解锁 · UNLOCKED").font(.system(size: 12, weight: .bold)).tracking(3)
+                .foregroundStyle(Color.nCyan)
+            LazyVGrid(columns: grid, spacing: 14) {
+                ForEach(badges) { b in HexBadge(badge: b, size: size) }
+            }
+            Text("点亮了 \(badges.count) 个徽章")
+                .font(Typo.serif(27)).foregroundStyle(Color.text)
+                .multilineTextAlignment(.center)
+        }
+        .frame(maxWidth: 320)
     }
 }

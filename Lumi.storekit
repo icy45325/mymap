@@ -1,0 +1,43 @@
+{
+  "identifier" : "3E1B2C4D-7A5F-4E2B-9C11-0D6A84F1B203",
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
+    {
+      "displayPrice" : "9.99",
+      "familyShareable" : false,
+      "internalID" : "A1B2C3D4-0001-4000-9000-000000000001",
+      "localizations" : [
+        {
+          "description" : "One-time purchase. All future features & regular content packs.",
+          "displayName" : "Lumi Plus · Lifetime (Early Bird)",
+          "locale" : "en_US"
+        },
+        {
+          "description" : "一次性买断，含后续所有功能迭代与常规内容包。",
+          "displayName" : "Lumi Plus · 终身会员（早鸟）",
+          "locale" : "zh_CN"
+        }
+      ],
+      "productID" : "com.lumi.plus.lifetime",
+      "referenceName" : "Lifetime Plus (Early Bird)",
+      "type" : "NonConsumable"
+    }
+  ],
+  "settings" : {
+    "_failTransactionsEnabled" : false,
+    "_locale" : "en_US",
+    "_storefront" : "USA",
+    "_storeKitErrors" : [
+
+    ]
+  },
+  "subscriptionGroups" : [
+
+  ],
+  "version" : {
+    "major" : 3,
+    "minor" : 0
+  }
+}
