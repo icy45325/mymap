@@ -14,6 +14,7 @@ struct RealMapScreen: View {
 
     @Query(sort: \Footprint.visitedAt, order: .reverse) private var footprints: [Footprint]
     @Query private var wishes: [Wish]
+    @Query(sort: \Leg.departAt) private var legs: [Leg]
 
     @State private var tapped: TappedPlace?
 
@@ -50,10 +51,38 @@ struct RealMapScreen: View {
                                                   emirateCodes: litEmirateCodes),
             wishRegions: Boundaries.shared.regions(forCountryCodes: wishCountryCodes,
                                                    emirateCodes: []),
+            routes: routeLegs,
             pins: footprints.filter { !$0.isReceived }   // 收到的卡用信封 pin 表达，不再重复圆点
                             .map { MapPin(id: $0.id, coordinate: $0.coordinate) },
             postcardPins: postcardPins,
             onTapCoordinate: handleTap)
+    }
+
+    /// 要画的航线：有航段数据就用 `Leg`；否则用「按时间连起已点亮城市」派生一条示意轨迹，
+    /// 让航线在真实地图上立刻可见（航段录入流程落地后，此回退可移除）。
+    private var routeLegs: [RouteLeg] {
+        if !legs.isEmpty {
+            return legs.map { RouteLeg(id: $0.id, from: $0.fromCoordinate,
+                                       to: $0.toCoordinate, mode: $0.mode) }
+        }
+        return derivedRoutes()
+    }
+
+    /// v0 回退：把自己点亮、有城市名的足迹按时间升序两两相连，
+    /// 每段的交通方式取「到达点」的入境方式（entryMeans）。
+    private func derivedRoutes() -> [RouteLeg] {
+        let pts = visited
+            .filter { $0.cityName != nil }
+            .sorted { $0.visitedAt < $1.visitedAt }
+        guard pts.count >= 2 else { return [] }
+        var out: [RouteLeg] = []
+        for i in 1..<pts.count {
+            let a = pts[i - 1], b = pts[i]
+            if a.latitude == b.latitude && a.longitude == b.longitude { continue }
+            out.append(RouteLeg(id: b.id, from: a.coordinate, to: b.coordinate,
+                                mode: TransportMode.from(entryMeans: b.entryMeans)))
+        }
+        return out
     }
 
     var body: some View {

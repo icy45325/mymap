@@ -9,10 +9,10 @@ import SwiftData
 /// 也保证两边永远指向同一个本地库文件（§10 数据与稳定性）。
 enum LumiStore {
 
-    /// 实体 schema（足迹 / 行程 / 卡片 / 心愿 / 交换日记 v3：本-页-半页）。新增实体走 SwiftData 轻量自动迁移。
+    /// 实体 schema（足迹 / 行程 / 卡片 / 心愿 / 交换日记 v3：本-页-半页 / 航段 Leg）。新增实体走 SwiftData 轻量自动迁移。
     /// v3 重构（2026-07-11）移除了旧 ExchangeDiary/DiaryEntry/DiaryPartner——开发期无迁移承诺，删 App 重装即可。
     static let schema = Schema([Footprint.self, Trip.self, Card.self, Wish.self,
-                                DiaryBook.self, DiaryPage.self, DiaryHalf.self])
+                                DiaryBook.self, DiaryPage.self, DiaryHalf.self, Leg.self])
 
     /// 进程级共享容器。杀进程重启数据不丢；冷启动失败直接 fatal（与原入口一致）。
     static let shared: ModelContainer = {

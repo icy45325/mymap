@@ -45,6 +45,13 @@ private struct LumiMapView: View {
                             .stroke(skin.litStroke.opacity(0.9), lineWidth: 1)
                     }
                 }
+                // ②.5 航线：真实底图上的大圆弧（geodesic），按交通方式着色/线型
+                ForEach(state.routes) { r in
+                    MapPolyline(coordinates: [r.from, r.to], contourStyle: .geodesic)
+                        .stroke(Self.routeColor(r.mode),
+                                style: StrokeStyle(lineWidth: 2.4, lineCap: .round,
+                                                   lineJoin: .round, dash: Self.routeDash(r.mode)))
+                }
                 // ③ 足迹点：发光琥珀圆点
                 ForEach(state.pins) { pin in
                     Annotation("", coordinate: pin.coordinate, anchor: .center) {
@@ -69,6 +76,28 @@ private struct LumiMapView: View {
                     state.onTapCoordinate(coordinate)
                 }
             }
+        }
+    }
+
+    // MARK: 航线样式（按交通方式）
+
+    /// 交通方式配色（与官网航线地球仪一致）。
+    static func routeColor(_ m: TransportMode) -> Color {
+        switch m {
+        case .flight: return Color(hex: 0x4FE3FF)   // 青
+        case .train:  return Color(hex: 0xEBA25C)   // 琥珀
+        case .sea:    return Color(hex: 0x2FB6A3)   // 蓝绿
+        case .car:    return Color(hex: 0xE0709A)   // 品红
+        }
+    }
+
+    /// 交通方式线型（虚实/点划）。空数组 = 实线。
+    static func routeDash(_ m: TransportMode) -> [CGFloat] {
+        switch m {
+        case .flight: return [6, 5]   // 航线：长虚线
+        case .sea:    return [3, 4]   // 航行：波浪感短虚线
+        case .car:    return [1, 6]   // 自驾：圆点线
+        case .train:  return []       // 火车：实线
         }
     }
 }
