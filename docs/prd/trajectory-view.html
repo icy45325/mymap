@@ -1,0 +1,733 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lumi · 轨迹视图 PRD</title>
+<style>
+  :root{
+    --blue:#2563eb;  --blue-bg:#eff5ff;  --blue-border:#bfdbfe;
+    --green:#15803d; --green-bg:#f0fdf4; --green-border:#bbf7d0;
+    --yellow:#b45309;--yellow-bg:#fffbeb;--yellow-border:#fde68a;
+    --red:#dc2626;   --red-bg:#fef2f2;   --red-border:#fecaca;
+    --purple:#7c3aed;--purple-bg:#f5f3ff;--purple-border:#ddd6fe;
+    --surface:#fff; --surface2:#f3f4f8; --border:#dee2ed;
+    --text:#1a1f2e; --text-dim:#4a5468; --text-muted:#8a94a8;
+    /* 交通方式色（与 Lumi 霓虹取向一致）*/
+    --m-flight:#5AA9E6; --m-train:#EBA25C; --m-sea:#2FB6A3; --m-car:#E0709A;
+    --nav-w:248px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--surface2);color:var(--text);
+    font:14px/1.75 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB",sans-serif;}
+  code,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;}
+
+  /* 布局 */
+  .wrap{display:flex; align-items:flex-start;}
+  nav.side{position:sticky; top:0; height:100vh; width:var(--nav-w); flex:0 0 var(--nav-w);
+    background:#0f1424; color:#cdd5e6; overflow-y:auto; padding:22px 0 40px;}
+  nav.side .brand{padding:0 22px 16px; border-bottom:1px solid #1e2740; margin-bottom:12px;}
+  nav.side .brand b{color:#fff; font-size:16px; letter-spacing:.02em;}
+  nav.side .brand span{display:block; font-size:11px; color:#7c88a8; margin-top:3px; letter-spacing:.14em; text-transform:uppercase;}
+  nav.side a{display:block; padding:7px 22px 7px 20px; color:#aab4cc; text-decoration:none;
+    font-size:13px; border-inline-start:3px solid transparent;}
+  nav.side a:hover{background:#161d33; color:#fff;}
+  nav.side a.on{color:#fff; border-inline-start-color:var(--m-flight); background:#141b30;}
+  nav.side a .n{display:inline-block; width:22px; color:#5f6c8c; font-variant-numeric:tabular-nums;}
+  nav.side a.on .n{color:var(--m-flight);}
+
+  main{flex:1 1 auto; min-width:0; max-width:960px; margin:0 auto; padding:42px 44px 120px;}
+  header.doc{margin-bottom:34px;}
+  header.doc .tag{display:inline-block; font-size:11px; letter-spacing:.16em; text-transform:uppercase;
+    color:var(--m-flight); font-weight:700; margin-bottom:8px;}
+  header.doc h1{font-size:30px; margin:0 0 8px; letter-spacing:.01em;}
+  header.doc .meta{color:var(--text-muted); font-size:12.5px;}
+  header.doc .meta b{color:var(--text-dim); font-weight:600;}
+
+  h1.prd{font-size:22px; margin:52px 0 14px; padding-top:10px; display:flex; align-items:center; gap:12px; scroll-margin-top:20px;}
+  h1.prd .sq{display:inline-flex; align-items:center; justify-content:center; width:30px; height:30px;
+    border-radius:8px; background:var(--m-flight); color:#fff; font-size:15px; font-weight:800; flex:0 0 auto;}
+  h2.prd{font-size:16.5px; margin:30px 0 10px; color:var(--text);}
+  h3.prd{font-size:14px; margin:20px 0 8px; color:var(--text-dim); text-transform:none; letter-spacing:.02em;}
+  p{margin:10px 0;}
+  ul,ol{margin:10px 0; padding-inline-start:22px;} li{margin:5px 0;}
+
+  /* 表格 */
+  table.prd{width:100%; border-collapse:collapse; margin:14px 0; font-size:13px; background:var(--surface);
+    border:1px solid var(--border); border-radius:10px; overflow:hidden;}
+  table.prd th{background:#0f1424; color:#cbd4e8; font-family:ui-monospace,Menlo,monospace; font-size:11px;
+    letter-spacing:.06em; text-transform:uppercase; text-align:start; padding:9px 12px; font-weight:600;}
+  table.prd td{padding:9px 12px; border-top:1px solid var(--border); vertical-align:top;}
+  table.prd tr:nth-child(even) td{background:#fafbfe;}
+  table.prd td code{background:var(--surface2); padding:1px 5px; border-radius:4px; font-size:12px;}
+
+  /* Callout */
+  .call{border:1px solid; border-radius:10px; padding:12px 15px; margin:16px 0; font-size:13px;}
+  .call b.h{display:block; font-size:12px; text-transform:uppercase; letter-spacing:.08em; margin-bottom:4px;}
+  .call.blue{background:var(--blue-bg); border-color:var(--blue-border); color:#1e40af;}
+  .call.blue b.h{color:var(--blue);}
+  .call.red{background:var(--red-bg); border-color:var(--red-border); color:#991b1b;}
+  .call.red b.h{color:var(--red);}
+  .call.yellow{background:var(--yellow-bg); border-color:var(--yellow-border); color:#92400e;}
+  .call.yellow b.h{color:var(--yellow);}
+  .call.green{background:var(--green-bg); border-color:var(--green-border); color:#166534;}
+  .call.green b.h{color:var(--green);}
+
+  /* 标签 */
+  .badge{display:inline-block; padding:1px 8px; border-radius:999px; font-size:11px; font-weight:700;
+    border:1px solid; line-height:1.7; white-space:nowrap;}
+  .b-flight{color:var(--m-flight); border-color:var(--m-flight); background:#eef6fd;}
+  .b-train{color:#a9691f; border-color:var(--m-train); background:#fdf4e9;}
+  .b-sea{color:#12786c; border-color:var(--m-sea); background:#e9faf6;}
+  .b-car{color:#b5457a; border-color:var(--m-car); background:#fdeef4;}
+  .b-warn{color:var(--red); border-color:var(--red-border); background:var(--red-bg);}
+  .b-note{color:var(--yellow); border-color:var(--yellow-border); background:var(--yellow-bg);}
+  .b-ok{color:var(--green); border-color:var(--green-border); background:var(--green-bg);}
+  .b-info{color:var(--blue); border-color:var(--blue-border); background:var(--blue-bg);}
+
+  /* 横向流程（自绘，无 CDN 依赖，离线可看）*/
+  .flow{display:flex; flex-wrap:wrap; align-items:stretch; gap:0; margin:16px 0; overflow-x:auto; padding-bottom:6px;}
+  .flow .step{flex:0 0 auto; min-width:118px; max-width:150px; background:var(--surface); border:1.5px solid var(--border);
+    border-radius:10px; padding:10px 12px; position:relative;}
+  .flow .step .k{font-size:10px; letter-spacing:.08em; color:var(--m-flight); font-weight:700; text-transform:uppercase;}
+  .flow .step .t{font-size:13px; font-weight:600; margin-top:2px;}
+  .flow .step .d{font-size:11px; color:var(--text-muted); margin-top:3px; line-height:1.5;}
+  .flow .arw{flex:0 0 auto; align-self:center; color:#b3bcd2; padding:0 7px; font-size:17px;}
+
+  /* 状态机色块 */
+  .sm{display:flex; flex-wrap:wrap; align-items:center; gap:0; margin:16px 0; overflow-x:auto;}
+  .sm .st{flex:0 0 auto; border-radius:10px; padding:9px 14px; text-align:center; min-width:96px; border:1.5px solid;}
+  .sm .st .nm{font-weight:700; font-size:13px;} .sm .st .sub{font-size:10.5px; opacity:.8; margin-top:1px;}
+  .sm .arw{flex:0 0 auto; color:#aab; padding:0 8px; font-size:15px; white-space:nowrap;}
+  .st.draft{background:var(--surface2); border-color:var(--border); color:var(--text-dim);}
+  .st.saved{background:var(--green-bg); border-color:var(--green-border); color:var(--green);}
+  .st.edit{background:var(--blue-bg); border-color:var(--blue-border); color:var(--blue);}
+  .st.del{background:var(--red-bg); border-color:var(--red-border); color:var(--red);}
+
+  /* 交互原型容器 */
+  .protos{display:flex; flex-wrap:wrap; gap:26px; align-items:flex-start; margin:20px 0 8px;}
+  .proto{display:flex; flex-direction:column; align-items:center; gap:9px;}
+  .phone{width:240px; background:#141414; border-radius:28px; padding:16px 14px 18px;
+    box-shadow:0 14px 40px rgba(15,20,40,.28); border:1px solid #262626; position:relative;}
+  .phone .status{display:flex; justify-content:space-between; font-size:9px; color:#8a8f9c; padding:0 4px 8px;}
+  .proto-caption{font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--text-muted);
+    font-family:ui-monospace,Menlo,monospace;}
+  .proto-note{font-size:11.5px; color:var(--text-muted); max-width:240px; text-align:center; line-height:1.55;}
+
+  /* 原型内控件 */
+  .seg{display:flex; gap:5px; margin-bottom:10px;}
+  .seg .chip{flex:1; text-align:center; font-size:11px; color:#c7ccd8; background:#1e1e22; border:1px solid #2c2c33;
+    border-radius:8px; padding:5px 0; cursor:pointer; user-select:none; transition:.15s;}
+  .seg .chip.on{background:#2a2f45; border-color:#4a5aa0; color:#fff;}
+  .modebar{display:flex; gap:6px; margin:10px 2px 4px; flex-wrap:wrap;}
+  .modebar .m{font-size:10px; padding:3px 8px; border-radius:999px; cursor:pointer; user-select:none;
+    border:1px solid #333; color:#aeb4c2; background:#1b1b1f; display:flex; align-items:center; gap:4px; transition:.15s;}
+  .modebar .m .dot{width:8px; height:8px; border-radius:50%;}
+  .modebar .m.on{color:#fff; background:#26262c; border-color:#565b6b;}
+  .modebar .m.off{opacity:.4;}
+  .playbar{display:flex; align-items:center; gap:8px; margin-top:8px;}
+  .playbtn{width:30px; height:30px; border-radius:50%; background:#2a2f45; border:1px solid #4a5aa0; color:#fff;
+    display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:12px;}
+  .playbar .lbl{font-size:10px; color:#7c88a8;}
+
+  .field{margin-bottom:9px;}
+  .field .lab{font-size:9px; letter-spacing:.1em; text-transform:uppercase; color:#6c7488; margin-bottom:3px;}
+  .field .val{background:#1e1e22; border:1px solid #2c2c33; border-radius:8px; padding:7px 9px; font-size:12px; color:#e6e9f2;
+    display:flex; align-items:center; gap:7px;}
+  .field .val .pin{color:var(--m-flight);}
+  .modepick{display:flex; gap:6px;}
+  .modepick .mp{flex:1; text-align:center; padding:8px 0; border-radius:9px; background:#1b1b1f; border:1px solid #2c2c33;
+    cursor:pointer; font-size:16px; user-select:none; position:relative;}
+  .modepick .mp.on{background:#26262c; border-width:1.5px;}
+  .modepick .mp .cap{display:block; font-size:8px; color:#8a8f9c; margin-top:2px; letter-spacing:.04em;}
+  .sheetbtn{margin-top:12px; text-align:center; background:linear-gradient(90deg,#E0709A,#EBA25C); color:#141414;
+    font-weight:700; font-size:12px; border-radius:10px; padding:9px 0; cursor:pointer;}
+
+  .cb{display:inline-block; width:15px; height:15px; border:1.5px solid var(--m-flight); border-radius:4px;
+    margin-inline-end:9px; vertical-align:-2px;}
+  ul.qa{list-style:none; padding-inline-start:2px;} ul.qa li{margin:7px 0; font-size:13px;}
+  ul.qa .grp{font-weight:700; color:var(--text); margin:16px 0 6px; font-size:13.5px;}
+
+  .legend-line{display:flex; align-items:center; gap:10px; margin:7px 0; font-size:13px;}
+  .legend-line svg{flex:0 0 auto;}
+  .rtl{direction:rtl; text-align:right; font-family:"Geeza Pro","Noto Naskh Arabic",serif;}
+  hr.sec{border:0; border-top:1px solid var(--border); margin:40px 0 0;}
+  @media(max-width:860px){
+    nav.side{display:none;}
+    main{padding:26px 18px 90px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <nav class="side" id="toc">
+    <div class="brand"><b>轨迹视图</b><span>Lumi · PRD</span></div>
+    <a href="#s1"><i class="n">01</i>背景与目标</a>
+    <a href="#s2"><i class="n">02</i>功能范围矩阵</a>
+    <a href="#s3"><i class="n">03</i>数据模型 · Leg 航段</a>
+    <a href="#s4"><i class="n">04</i>核心流程</a>
+    <a href="#s5"><i class="n">05</i>交通方式与线型</a>
+    <a href="#s6"><i class="n">06</i>轨迹视图</a>
+    <a href="#s7"><i class="n">07</i>航段录入</a>
+    <a href="#s8"><i class="n">08</i>里程与统计</a>
+    <a href="#s9"><i class="n">09</i>边界与异常</a>
+    <a href="#s10"><i class="n">10</i>平台适配与隐私</a>
+    <a href="#s11"><i class="n">11</i>验收 Checklist</a>
+    <a href="#s12"><i class="n">12</i>文案对照表</a>
+    <a href="#s13"><i class="n">13</i>待确认项</a>
+  </nav>
+
+  <main>
+    <header class="doc">
+      <span class="tag">Lumi Product Spec</span>
+      <h1>轨迹视图 · 航线 / 火车 / 航行 / 自驾</h1>
+      <div class="meta">
+        版本 <b>v0.1 草案</b> · 2026-08-29 · 作者 icy ·
+        载体 <b>Lumi iOS（SwiftUI + SwiftData，离线本地）</b> ·
+        状态 <span class="badge b-note">待评审</span>
+      </div>
+    </header>
+
+    <div class="call blue">
+      <b class="h">一句话</b>
+      在世界地图上，把一次旅程的各个地点按<strong>交通方式分段连成线</strong>——飞机走大圆弧、火车走轨线、轮船走海路、自驾走公路——形成可查看、可筛选、可播放的<strong>旅行轨迹</strong>。轨迹与既有的「点亮地图 / 护照入境章」共用足迹数据，是收藏体系的自然延伸。
+    </div>
+
+    <!-- ===================== 1 ===================== -->
+    <h1 class="prd" id="s1"><span class="sq">1</span>背景与目标</h1>
+
+    <h2 class="prd">1.1 现状与问题</h2>
+    <ul>
+      <li>Lumi 现有「点亮世界地图」把去过的地方渲染成一个个发光的<strong>点 / 面</strong>（<code>Footprint</code> 足迹点、国家着色），但<strong>点与点之间没有连接</strong>——用户看不到「我是怎么一路走过来的」。</li>
+      <li>护照的入境章已经区分 <code>entryMeans</code>（air / land / sea），说明「怎么到达」是产品已有的语义，但这个信息目前只体现在盖章图标上，<strong>没有在地图上被可视化</strong>。</li>
+      <li>用户对「旅行轨迹 / 航线图」有强收藏与晒图诉求（类似里程航线图、火车旅行图），这正是 Lumi「把旅程变成收藏」的延伸。</li>
+    </ul>
+
+    <h2 class="prd">1.2 目标</h2>
+    <table class="prd">
+      <tr><th>目标</th><th>衡量</th><th>优先级</th></tr>
+      <tr><td>把足迹连成按交通方式区分的轨迹线</td><td>4 种方式各有独立线型/颜色/图标，可在地图上区分</td><td><span class="badge b-warn">P0</span></td></tr>
+      <tr><td>独立轨迹视图，可按交通方式切换/筛选</td><td>顶部切换「全部 / 航线 / 火车 / 航行 / 自驾」，即时显隐对应线</td><td><span class="badge b-warn">P0</span></td></tr>
+      <tr><td>手动录入一段航段（起终点 + 方式 + 日期）</td><td>3 步内完成一段录入并即时上图</td><td><span class="badge b-warn">P0</span></td></tr>
+      <tr><td>轨迹播放动画（图标沿线移动）</td><td>点播放，标记沿可见轨迹依次滑行一遍</td><td><span class="badge b-note">P1</span></td></tr>
+      <tr><td>里程 / 段数统计，接入成就</td><td>按方式累计总里程与段数，展示在轨迹视图与成就页</td><td><span class="badge b-note">P1</span></td></tr>
+      <tr><td>纯离线、纯本地、不采集数据</td><td>无网络请求；数据存本地 SwiftData；Data Not Collected 不变</td><td><span class="badge b-warn">P0</span></td></tr>
+    </table>
+
+    <h2 class="prd">1.3 不包含（Out of Scope）</h2>
+    <table class="prd">
+      <tr><th>不做</th><th>原因</th></tr>
+      <tr><td>真实路网 / 铁路线 / 航道数据吸附</td><td>本期画线为<strong>示意性曲线</strong>（见 §5），离线优先，不接第三方路网/海图</td></tr>
+      <tr><td>GPS 实时轨迹自动记录 / 后台定位</td><td>与「本地 + 隐私优先 + 不常驻定位」定位冲突；本期为手动录入</td></tr>
+      <tr><td>多人轨迹叠加 / 好友同行合并</td><td>后续版本；本期只画自己的轨迹</td></tr>
+      <tr><td>轨迹导出为 GPX / 分享长图</td><td>P2，另立需求（可复用明信片/分享体系）</td></tr>
+      <tr><td>Android / Web 端</td><td>本期仅 iOS；跨端另议</td></tr>
+    </table>
+
+    <!-- ===================== 2 ===================== -->
+    <h1 class="prd" id="s2"><span class="sq">2</span>功能范围矩阵</h1>
+    <p>轨迹视图与航段录入是两条相对独立的能力，分别描述其 UI 与逻辑变更：</p>
+    <table class="prd">
+      <tr><th>场景</th><th>UI 变更</th><th>UI 变更内容</th><th>逻辑变更</th><th>逻辑变更内容</th></tr>
+      <tr>
+        <td><b>轨迹视图</b><br>（地图 Tab 子视图）</td>
+        <td><span class="badge b-ok">Y</span></td>
+        <td>地图顶部新增「点亮 / 轨迹」分段切换；轨迹态下方浮出交通方式筛选条、播放按钮、里程小结。</td>
+        <td><span class="badge b-ok">Y</span></td>
+        <td>读取 <code>Leg</code> 列表，按方式分组，用示意曲线算法生成路径并渲染；筛选=显隐图层，不改数据。</td>
+      </tr>
+      <tr>
+        <td><b>航段录入</b><br>（新增流程）</td>
+        <td><span class="badge b-ok">Y</span></td>
+        <td>新增录入 Sheet：起点 / 终点 / 交通方式（4 图标）/ 日期 / 备注。</td>
+        <td><span class="badge b-ok">Y</span></td>
+        <td>新增 <code>Leg</code> 实体的增删改；起终点可复用已点亮城市、搜索或地图选点。</td>
+      </tr>
+      <tr>
+        <td><b>入境章联动</b><br>（护照）</td>
+        <td><span class="badge b-note">N*</span></td>
+        <td>沿用现有入境章 UI；仅图标来源从 air/land/sea 细化到 4 类（见 §3.3）。</td>
+        <td><span class="badge b-ok">Y</span></td>
+        <td><code>entryMeans</code> 枚举从 3 值细化为 4 值（train / car 从 land 拆出），影响入境章图标映射。</td>
+      </tr>
+      <tr>
+        <td><b>成就统计</b></td>
+        <td><span class="badge b-ok">Y</span></td>
+        <td>成就页新增「里程 / 各方式段数」卡片。</td>
+        <td><span class="badge b-ok">Y</span></td>
+        <td>按 <code>Leg</code> 聚合累计里程与段数。</td>
+      </tr>
+    </table>
+    <p style="font-size:12px;color:var(--text-muted)">* N*：不新增界面，但复用界面的取值口径变化。</p>
+
+    <!-- ===================== 3 ===================== -->
+    <h1 class="prd" id="s3"><span class="sq">3</span>数据模型 · Leg 航段</h1>
+    <p>按评审结论：<strong>新增独立 <code>Leg</code>（航段）实体</strong>，与 <code>Footprint</code> 解耦——一段轨迹的交通方式属于「两点之间的这一程」，而非某个到达点。<code>Leg</code> 挂在 <code>Trip</code> 下，与现有实体并列。</p>
+
+    <h2 class="prd">3.1 实体关系</h2>
+    <div class="flow">
+      <div class="step"><div class="k">Trip</div><div class="t">行程</div><div class="d">一次旅行的容器（已存在）</div></div>
+      <div class="arw">→</div>
+      <div class="step"><div class="k">Footprint</div><div class="t">足迹点</div><div class="d">地点/点亮/入境章（已存在）</div></div>
+      <div class="arw">＋</div>
+      <div class="step" style="border-color:var(--m-flight)"><div class="k" style="color:var(--m-flight)">Leg · 新增</div><div class="t">航段</div><div class="d">起点→终点 + 交通方式 + 日期</div></div>
+    </div>
+    <p>一个 <code>Trip</code> 拥有一组 <code>Leg</code>（<code>trip.legs</code>），也拥有一组 <code>Footprint</code>。<code>Leg</code> 的起终点可<strong>可选关联</strong>到已有 <code>Footprint</code>（直接吸这个点的坐标与城市名），也可只存自身坐标（用户地图选点/搜索得到，不点亮）。</p>
+
+    <h2 class="prd">3.2 Leg 字段定义</h2>
+    <p>坐标一律以 <strong>WGS-84</strong> 存储（与 <code>Footprint</code> 一致）；显示前由 <code>MapProvider.displayCoordinate</code> 决定是否转 GCJ-02。产品层只关心以下字段：</p>
+    <table class="prd">
+      <tr><th>字段</th><th>类型</th><th>说明</th><th>约束</th></tr>
+      <tr><td><code>id</code></td><td>UUID</td><td>唯一标识</td><td>唯一</td></tr>
+      <tr><td><code>mode</code></td><td>String 枚举</td><td>交通方式：<code>flight</code> / <code>train</code> / <code>sea</code> / <code>car</code></td><td>必填</td></tr>
+      <tr><td><code>fromName</code></td><td>String</td><td>起点显示名（城市/地点）</td><td>必填</td></tr>
+      <tr><td><code>fromLat / fromLon</code></td><td>Double</td><td>起点坐标（WGS-84）</td><td>必填</td></tr>
+      <tr><td><code>toName</code></td><td>String</td><td>终点显示名</td><td>必填</td></tr>
+      <tr><td><code>toLat / toLon</code></td><td>Double</td><td>终点坐标（WGS-84）</td><td>必填</td></tr>
+      <tr><td><code>departAt</code></td><td>Date</td><td>出发日期（用于排序 / 播放顺序）</td><td>必填，默认今天</td></tr>
+      <tr><td><code>arriveAt</code></td><td>Date?</td><td>到达日期</td><td>可空；空=当日</td></tr>
+      <tr><td><code>note</code></td><td>String</td><td>一句备注（航班号/车次/心情，自由文本）</td><td>可空</td></tr>
+      <tr><td><code>fromFootprintID / toFootprintID</code></td><td>UUID?</td><td>可选关联的足迹点</td><td>可空</td></tr>
+      <tr><td><code>distanceKmCache</code></td><td>Double?</td><td>大圆距离缓存（统计用，见 §8）</td><td>派生，可空</td></tr>
+      <tr><td><code>createdAt / updatedAt</code></td><td>Date</td><td>创建/修改时间</td><td>带默认值 → SwiftData 轻量迁移</td></tr>
+    </table>
+
+    <div class="call green">
+      <b class="h">与现有 schema 的衔接</b>
+      <code>LumiStore.schema</code> 追加 <code>Leg.self</code>；<code>Trip</code> 增加 <code>@Relationship legs:[Leg]</code>（删 Trip 时 <code>.nullify</code>，Leg 不随之消失、只脱离归属）。新增实体走 SwiftData <strong>轻量自动迁移</strong>，无需数据搬运。
+    </div>
+
+    <h2 class="prd">3.3 entryMeans 枚举细化（护照联动）</h2>
+    <p>为让入境章也能区分火车 / 自驾，<code>Footprint.entryMeans</code> 由 <code>air/land/sea</code> 细化为与 <code>Leg.mode</code> 对齐的 4 值。旧数据 <code>land</code> 迁移为 <code>train</code> 还是 <code>car</code> 无法判断——</p>
+    <div class="call yellow">
+      <b class="h">迁移策略（待确认，见 §13-Q1）</b>
+      建议：旧 <code>land</code> 一律保留为一个兼容值 <code>land</code>（入境章仍显示🚆通用陆运图标），新数据才写 <code>train</code>/<code>car</code>；不强行猜测旧记录。<code>air→flight</code>、<code>sea→sea</code> 直接对齐。
+    </div>
+
+    <!-- ===================== 4 ===================== -->
+    <h1 class="prd" id="s4"><span class="sq">4</span>核心流程</h1>
+
+    <h2 class="prd">4.1 主流程 · 录入一段航段</h2>
+    <div class="flow">
+      <div class="step"><div class="k">Entry</div><div class="t">进入轨迹视图</div><div class="d">地图 Tab → 切「轨迹」</div></div>
+      <div class="arw">→</div>
+      <div class="step"><div class="k">＋</div><div class="t">新增航段</div><div class="d">点右下 ＋，弹录入 Sheet</div></div>
+      <div class="arw">→</div>
+      <div class="step"><div class="k">Mode</div><div class="t">选交通方式</div><div class="d">✈️/🚆/⛴️/🚗</div></div>
+      <div class="arw">→</div>
+      <div class="step"><div class="k">A→B</div><div class="t">选起点/终点</div><div class="d">已点亮城市 / 搜索 / 地图选点</div></div>
+      <div class="arw">→</div>
+      <div class="step"><div class="k">Meta</div><div class="t">日期·备注</div><div class="d">默认今天，可留空</div></div>
+      <div class="arw">→</div>
+      <div class="step" style="border-color:var(--green)"><div class="k" style="color:var(--green)">Save</div><div class="t">保存上图</div><div class="d">即时渲染该段曲线</div></div>
+    </div>
+
+    <h2 class="prd">4.2 Leg 状态机</h2>
+    <div class="sm">
+      <div class="st draft"><div class="nm">草稿</div><div class="sub">Sheet 编辑中</div></div>
+      <div class="arw">— 保存 →</div>
+      <div class="st saved"><div class="nm">已保存</div><div class="sub">上图可见</div></div>
+      <div class="arw">— 点按编辑 →</div>
+      <div class="st edit"><div class="nm">编辑中</div><div class="sub">改方式/点/日期</div></div>
+      <div class="arw">— 保存 →</div>
+      <div class="st saved"><div class="nm">已保存</div><div class="sub">重渲染</div></div>
+      <div class="arw">— 删除 →</div>
+      <div class="st del"><div class="nm">已删除</div><div class="sub">从图移除</div></div>
+    </div>
+    <p style="font-size:12px;color:var(--text-muted)">草稿态：起点或终点未选齐时「保存」置灰（见 §9 E1）。删除需二次确认（§9 E5）。</p>
+
+    <!-- ===================== 5 ===================== -->
+    <h1 class="prd" id="s5"><span class="sq">5</span>交通方式与线型规范</h1>
+    <p>本期<strong>示意性曲线</strong>：不吸附真实路网，用统一的几何规则表达「陆 / 空 / 海」的观感差异，纯离线可算。</p>
+    <table class="prd">
+      <tr><th>方式</th><th>mode</th><th>线型</th><th>颜色</th><th>曲线画法（示意）</th><th>图标</th></tr>
+      <tr><td><span class="badge b-flight">航线</span></td><td><code>flight</code></td><td>虚线渐隐弧</td><td><code>#5AA9E6</code></td><td>两点<strong>大圆弧</strong>，向外侧凸起；端点淡入淡出</td><td>✈️</td></tr>
+      <tr><td><span class="badge b-train">火车</span></td><td><code>train</code></td><td>实线 + 轨枕纹</td><td><code>#EBA25C</code></td><td>近似<strong>地面折线</strong>，轻微下坠弧（贴地感）</td><td>🚆</td></tr>
+      <tr><td><span class="badge b-sea">航行</span></td><td><code>sea</code></td><td>波浪虚线</td><td><code>#2FB6A3</code></td><td>贝塞尔<strong>海路弧</strong>，波浪抖动</td><td>⛴️</td></tr>
+      <tr><td><span class="badge b-car">自驾</span></td><td><code>car</code></td><td>圆点虚线</td><td><code>#E0709A</code></td><td>地面折线，圆点点缀（公路里程碑感）</td><td>🚗</td></tr>
+    </table>
+
+    <h3 class="prd">线型速览</h3>
+    <div style="background:#0f1424;border-radius:12px;padding:16px 18px;">
+      <div class="legend-line"><svg width="150" height="16"><path d="M4 12 Q75 -6 146 12" fill="none" stroke="#5AA9E6" stroke-width="2.4" stroke-dasharray="5 4" stroke-linecap="round"/></svg><span style="color:#cdd5e6">航线 · 大圆弧虚线 ✈️</span></div>
+      <div class="legend-line"><svg width="150" height="16"><path d="M4 9 Q75 15 146 9" fill="none" stroke="#EBA25C" stroke-width="2.8"/><g id="trainTies" stroke="#EBA25C" stroke-width="1.4"></g></svg><span style="color:#cdd5e6">火车 · 实线轨纹 🚆</span></div>
+      <div class="legend-line"><svg width="150" height="16"><path d="M4 8 q18 -6 36 0 t36 0 t36 0 t36 0" fill="none" stroke="#2FB6A3" stroke-width="2.4" stroke-dasharray="3 3"/></svg><span style="color:#cdd5e6">航行 · 波浪虚线 ⛴️</span></div>
+      <div class="legend-line"><svg width="150" height="16"><path d="M4 9 Q75 14 146 9" fill="none" stroke="#E0709A" stroke-width="2.6" stroke-dasharray="0.5 6" stroke-linecap="round"/></svg><span style="color:#cdd5e6">自驾 · 圆点虚线 🚗</span></div>
+    </div>
+
+    <div class="call blue">
+      <b class="h">跨越 180° 经线（换日线）</b>
+      如东京→洛杉矶这类跨太平洋航段，直接在等距投影上连线会「绕地球一整圈」。示意画法需判断经差 &gt; 180° 时<strong>走反向短弧</strong>（从右边界穿出、左边界穿入），画成两段。见 §9 E6。
+    </div>
+
+    <!-- ===================== 6 ===================== -->
+    <h1 class="prd" id="s6"><span class="sq">6</span>轨迹视图</h1>
+
+    <h2 class="prd">6.0 界面示意（可交互原型）</h2>
+    <div class="protos">
+      <div class="proto">
+        <div class="phone" id="protoView">
+          <div class="status"><span>9:41</span><span>Lumi</span></div>
+          <div class="seg">
+            <div class="chip" data-view="lit">点亮</div>
+            <div class="chip on" data-view="route">轨迹</div>
+          </div>
+          <svg id="mapSvg" width="212" height="150" viewBox="0 0 212 150" style="background:#0b1020;border-radius:12px;display:block">
+            <!-- 装饰经纬点阵 -->
+            <g fill="#1a2338"></g>
+          </svg>
+          <div class="modebar" id="modebar">
+            <div class="m on" data-m="all">全部</div>
+            <div class="m on" data-m="flight"><span class="dot" style="background:#5AA9E6"></span>✈️</div>
+            <div class="m on" data-m="train"><span class="dot" style="background:#EBA25C"></span>🚆</div>
+            <div class="m on" data-m="sea"><span class="dot" style="background:#2FB6A3"></span>⛴️</div>
+            <div class="m on" data-m="car"><span class="dot" style="background:#E0709A"></span>🚗</div>
+          </div>
+          <div class="playbar">
+            <div class="playbtn" id="playBtn">▶</div>
+            <div class="lbl" id="playLbl">播放轨迹 · 4 段 · 12,480 km</div>
+          </div>
+        </div>
+        <div class="proto-caption">Trajectory · Filter + Play</div>
+        <div class="proto-note">点上方交通方式可显隐对应轨迹；点 ▶ 让标记沿可见轨迹依次滑行。</div>
+      </div>
+
+      <div class="proto">
+        <div class="phone">
+          <div class="status"><span>9:41</span><span>New Leg</span></div>
+          <div style="font-size:13px;font-weight:700;color:#fff;margin:2px 2px 12px">新增航段</div>
+          <div class="field"><div class="lab">交通方式</div>
+            <div class="modepick" id="modepick">
+              <div class="mp on" data-m="flight" style="border-color:#5AA9E6">✈️<span class="cap">Flight</span></div>
+              <div class="mp" data-m="train" style="border-color:#2c2c33">🚆<span class="cap">Train</span></div>
+              <div class="mp" data-m="sea" style="border-color:#2c2c33">⛴️<span class="cap">Ferry</span></div>
+              <div class="mp" data-m="car" style="border-color:#2c2c33">🚗<span class="cap">Drive</span></div>
+            </div>
+          </div>
+          <div class="field"><div class="lab">起点 From</div><div class="val"><span class="pin">◉</span> Beijing</div></div>
+          <div class="field"><div class="lab">终点 To</div><div class="val"><span class="pin">◎</span> Dubai</div></div>
+          <div class="field"><div class="lab">日期 Date</div><div class="val">📅 2026-08-29</div></div>
+          <div class="field"><div class="lab">备注 Note（可选）</div><div class="val" style="color:#6c7488">航班号 / 一句心情…</div></div>
+          <div class="sheetbtn">保存航段 · Save</div>
+        </div>
+        <div class="proto-caption">New Leg Sheet</div>
+        <div class="proto-note">交通方式 4 选 1（点击切换高亮）；起终点支持已点亮城市 / 搜索 / 地图选点。</div>
+      </div>
+    </div>
+
+    <h2 class="prd">6.1 入口触发规则</h2>
+    <table class="prd">
+      <tr><th>编号</th><th>入口</th><th>触发</th><th>结果</th></tr>
+      <tr><td>R1</td><td>地图 Tab 顶部分段</td><td>点「轨迹」</td><td>地图从点亮态切到轨迹态，浮出筛选/播放条</td></tr>
+      <tr><td>R2</td><td>轨迹态右下 ＋</td><td>点按</td><td>弹出「新增航段」Sheet</td></tr>
+      <tr><td>R3</td><td>轨迹线 / 端点</td><td>点按某段</td><td>底部浮出该段详情（方式/起终点/日期/里程），可编辑或删除</td></tr>
+      <tr><td>R4</td><td>足迹点详情</td><td>已点亮城市详情内「从这里出发/到达」</td><td>预填该点为起点或终点，进入 R2</td></tr>
+    </table>
+
+    <h2 class="prd">6.2 展示与筛选</h2>
+    <ul>
+      <li><b>全部（默认）</b>：显示所有方式的轨迹，端点复用足迹点发光样式。</li>
+      <li><b>单方式筛选</b>：顶部方式 chip 可多选显隐（点「全部」= 一键全开/全关）；筛选<strong>只改显隐，不改数据</strong>。</li>
+      <li><b>空态</b>：无任何 <code>Leg</code> 时，地图中央提示「记录你的第一段旅程」+ 一个 ＋ 按钮（见 §9 E0）。</li>
+      <li><b>层级</b>：轨迹线在国家着色之上、足迹发光点之下，避免盖住点亮态。</li>
+    </ul>
+
+    <h2 class="prd">6.3 轨迹播放（P1）</h2>
+    <table class="prd">
+      <tr><th>项</th><th>规则</th></tr>
+      <tr><td>顺序</td><td>按 <code>departAt</code> 升序把<strong>当前可见</strong>的 Leg 串起来依次播放</td></tr>
+      <tr><td>标记</td><td>方式对应图标（✈️/🚆/⛴️/🚗）沿线滑行，尾迹渐隐</td></tr>
+      <tr><td>时长</td><td>整段约 6–10s（与段数相关，单段封顶）；可再点暂停</td></tr>
+      <tr><td>结束</td><td>停在终点，标记淡出；不改变筛选状态</td></tr>
+    </table>
+
+    <!-- ===================== 7 ===================== -->
+    <h1 class="prd" id="s7"><span class="sq">7</span>航段录入</h1>
+    <h2 class="prd">7.1 起终点来源</h2>
+    <table class="prd">
+      <tr><th>来源</th><th>说明</th><th>是否点亮</th></tr>
+      <tr><td>已点亮城市</td><td>从现有 <code>Footprint</code> 列表选，直接吸坐标+城市名，写 <code>fromFootprintID</code></td><td>已点亮</td></tr>
+      <tr><td>搜索地点</td><td>本地城市库检索（复用点亮流程的选点能力）</td><td>不自动点亮</td></tr>
+      <tr><td>地图选点</td><td>长按地图落点，反解城市/国家名</td><td>不自动点亮</td></tr>
+    </table>
+    <div class="call blue"><b class="h">录入航段是否顺带点亮起终点？</b>见 §13-Q2。建议：默认<strong>不</strong>自动点亮（轨迹与点亮解耦），但在 Sheet 底部给一个「同时点亮起终点」开关，默认关。</div>
+
+    <h2 class="prd">7.2 操作说明</h2>
+    <table class="prd">
+      <tr><th>操作</th><th>规则</th></tr>
+      <tr><td>选方式</td><td>4 图标单选，切换即高亮；决定线型与入境章图标（若联动点亮）</td></tr>
+      <tr><td>保存</td><td>起终点齐全才可点；保存后即时上图并定位到该段</td></tr>
+      <tr><td>编辑</td><td>点已有段 → 详情 → 编辑，复用同一 Sheet 预填</td></tr>
+      <tr><td>删除</td><td>详情内删除，二次确认；仅删 Leg，不影响足迹点亮</td></tr>
+      <tr><td>Per-leg override</td><td>Sheet 内任何选择只作用于本段，<strong>不回写</strong>任何全局设置</td></tr>
+    </table>
+
+    <!-- ===================== 8 ===================== -->
+    <h1 class="prd" id="s8"><span class="sq">8</span>里程与统计（P1）</h1>
+    <ul>
+      <li>每段里程用<strong>大圆距离（Haversine）</strong>估算，写入 <code>distanceKmCache</code>；示意曲线不代表真实路程，统计口径统一标注「直线估算」。</li>
+      <li>轨迹视图底部小结：<code>总里程 · 段数</code>；按方式细分（✈️ 9,800 · 🚆 1,200 · ⛴️ 800 · 🚗 680 km）。</li>
+      <li>成就页新增卡片：各方式累计里程 / 段数，可作为新徽章的解锁条件（如「万里飞行」）。徽章具体阈值另议。</li>
+    </ul>
+
+    <!-- ===================== 9 ===================== -->
+    <h1 class="prd" id="s9"><span class="sq">9</span>边界场景与异常处理</h1>
+    <table class="prd">
+      <tr><th>异常类型</th><th>场景</th><th>处理逻辑</th><th>提醒方式</th><th>提示内容（EN）</th></tr>
+      <tr><td><span class="badge b-info">空态 E0</span></td><td>无任何航段</td><td>轨迹视图显示引导空态 + ＋</td><td>页内占位</td><td>Record your first leg</td></tr>
+      <tr><td><span class="badge b-note">校验 E1</span></td><td>起点或终点未选</td><td>「保存」置灰，不可提交</td><td>按钮禁用</td><td>Pick a start and destination</td></tr>
+      <tr><td><span class="badge b-note">校验 E2</span></td><td>起点=终点（同一坐标）</td><td>禁止保存，提示换终点</td><td>字段下红字</td><td>Start and destination are the same</td></tr>
+      <tr><td><span class="badge b-note">校验 E3</span></td><td>到达日期早于出发日期</td><td>禁止保存或自动对调并提示</td><td>字段下红字</td><td>Arrival is before departure</td></tr>
+      <tr><td><span class="badge b-info">显示 E4</span></td><td>当前筛选把所有段都隐藏了</td><td>地图空但保留筛选条；轻提示</td><td>页内轻提示</td><td>No legs match this filter</td></tr>
+      <tr><td><span class="badge b-warn">删除 E5</span></td><td>删除某段</td><td>二次确认；仅删 Leg，不动足迹</td><td>确认弹窗</td><td>Delete this leg? Your pins stay lit.</td></tr>
+      <tr><td><span class="badge b-info">画线 E6</span></td><td>航段跨 180° 经线</td><td>走反向短弧，分两段画，不绕地球</td><td>无（静默正确）</td><td>—</td></tr>
+      <tr><td><span class="badge b-info">画线 E7</span></td><td>起终点极近（同城）</td><td>画短弧/小环，避免退化成一个点</td><td>无</td><td>—</td></tr>
+      <tr><td><span class="badge b-note">迁移 E8</span></td><td>旧 <code>land</code> 入境记录</td><td>保留为 land 兼容值，不猜 train/car</td><td>无</td><td>—</td></tr>
+    </table>
+
+    <!-- ===================== 10 ===================== -->
+    <h1 class="prd" id="s10"><span class="sq">10</span>平台适配与隐私</h1>
+    <table class="prd">
+      <tr><th>项</th><th>说明</th></tr>
+      <tr><td>端</td><td>本期仅 iOS（SwiftUI）。轨迹视图为地图 Tab 子视图，不新增底部 Tab（现有 4 Tab 已满：地图/星迹/成就/我）。</td></tr>
+      <tr><td>中国坐标偏移</td><td>存储 WGS-84，显示统一走 <code>MapProvider.displayCoordinate</code>（国内底图 GCJ-02 偏移）；轨迹端点与足迹点用同一转换，保证对齐。</td></tr>
+      <tr><td>离线</td><td>示意曲线纯本地几何计算，无网络请求；底图沿用现有地图方案。</td></tr>
+      <tr><td>隐私</td><td>Leg 存本地 SwiftData，随 App 数据一并保留；不上传、不采集，<strong>Data Not Collected</strong> 承诺不变。</td></tr>
+      <tr><td>无障碍 / RTL</td><td>方式 chip / 按钮支持 Dynamic Type 与 VoiceOver；阿拉伯语下筛选条与 Sheet 走 RTL（见 §12）。</td></tr>
+    </table>
+    <div class="call red"><b class="h">实现细节不在本 PRD</b>坐标转换算法、SwiftData 迁移写法、曲线采样精度、动画帧率等属实现层，由开发在技术方案中定，本 PRD 只约束产品行为。</div>
+
+    <!-- ===================== 11 ===================== -->
+    <h1 class="prd" id="s11"><span class="sq">11</span>验收标准 · QA Checklist</h1>
+    <ul class="qa">
+      <li class="grp">轨迹视图</li>
+      <li><span class="cb"></span>地图 Tab 顶部可在「点亮 / 轨迹」间切换，状态正确保留。</li>
+      <li><span class="cb"></span>4 种方式各以规定线型/颜色/图标渲染，可肉眼区分。</li>
+      <li><span class="cb"></span>方式 chip 显隐即时生效，「全部」可一键全开/全关，且不改数据。</li>
+      <li><span class="cb"></span>点轨迹段浮出详情，含方式/起终点/日期/里程。</li>
+      <li><span class="cb"></span>无航段时显示引导空态 + ＋。</li>
+      <li class="grp">航段录入</li>
+      <li><span class="cb"></span>方式 4 选 1，切换高亮正确。</li>
+      <li><span class="cb"></span>起终点可来自已点亮城市 / 搜索 / 地图选点。</li>
+      <li><span class="cb"></span>起终点未选齐时「保存」置灰；起点=终点、到达早于出发均被拦截。</li>
+      <li><span class="cb"></span>保存后即时上图并定位到该段。</li>
+      <li><span class="cb"></span>编辑/删除生效；删除有二次确认，且不影响足迹点亮。</li>
+      <li class="grp">画线正确性</li>
+      <li><span class="cb"></span>跨 180° 经线的航段走反向短弧，不绕地球一圈。</li>
+      <li><span class="cb"></span>国内地点与足迹点在偏移底图上对齐（同一 MapProvider）。</li>
+      <li class="grp">播放 / 统计（P1）</li>
+      <li><span class="cb"></span>播放按 departAt 顺序沿可见轨迹滑行一遍，可暂停。</li>
+      <li><span class="cb"></span>里程/段数统计正确，按方式细分，标注「直线估算」。</li>
+      <li class="grp">平台 / 隐私</li>
+      <li><span class="cb"></span>全程无网络请求；杀进程重启数据不丢。</li>
+      <li><span class="cb"></span>阿拉伯语下筛选条/Sheet 正确 RTL；VoiceOver 可读方式与操作。</li>
+    </ul>
+
+    <!-- ===================== 12 ===================== -->
+    <h1 class="prd" id="s12"><span class="sq">12</span>UI 文案对照表</h1>
+    <p>界面文案用英文，随语言切换；阿拉伯语含 RTL。</p>
+    <table class="prd">
+      <tr><th>场景</th><th>中文（参考）</th><th>English</th><th>العربية (RTL)</th></tr>
+      <tr><td>视图切换 · 点亮</td><td>点亮</td><td>Map</td><td class="rtl">الخريطة</td></tr>
+      <tr><td>视图切换 · 轨迹</td><td>轨迹</td><td>Trajectory</td><td class="rtl">المسار</td></tr>
+      <tr><td>方式 · 全部</td><td>全部</td><td>All</td><td class="rtl">الكل</td></tr>
+      <tr><td>方式 · 航线</td><td>航线</td><td>Flight</td><td class="rtl">طيران</td></tr>
+      <tr><td>方式 · 火车</td><td>火车</td><td>Train</td><td class="rtl">قطار</td></tr>
+      <tr><td>方式 · 航行</td><td>航行</td><td>Ferry</td><td class="rtl">عبّارة</td></tr>
+      <tr><td>方式 · 自驾</td><td>自驾</td><td>Drive</td><td class="rtl">قيادة</td></tr>
+      <tr><td>新增航段</td><td>新增航段</td><td>New Leg</td><td class="rtl">رحلة جديدة</td></tr>
+      <tr><td>字段 · 起点</td><td>起点</td><td>From</td><td class="rtl">من</td></tr>
+      <tr><td>字段 · 终点</td><td>终点</td><td>To</td><td class="rtl">إلى</td></tr>
+      <tr><td>字段 · 日期</td><td>日期</td><td>Date</td><td class="rtl">التاريخ</td></tr>
+      <tr><td>字段 · 备注</td><td>备注（可选）</td><td>Note (optional)</td><td class="rtl">ملاحظة (اختياري)</td></tr>
+      <tr><td>按钮 · 保存</td><td>保存航段</td><td>Save leg</td><td class="rtl">حفظ الرحلة</td></tr>
+      <tr><td>按钮 · 播放</td><td>播放轨迹</td><td>Play trip</td><td class="rtl">تشغيل الرحلة</td></tr>
+      <tr><td>同时点亮</td><td>同时点亮起终点</td><td>Also light up both ends</td><td class="rtl">أضئ نقطتَي البداية والنهاية</td></tr>
+      <tr><td>空态</td><td>记录你的第一段旅程</td><td>Record your first leg</td><td class="rtl">سجّل أول رحلة لك</td></tr>
+      <tr><td>错误 · 未选齐</td><td>请选择起点和终点</td><td>Pick a start and destination</td><td class="rtl">اختر نقطة البداية والوجهة</td></tr>
+      <tr><td>错误 · 同点</td><td>起点和终点相同</td><td>Start and destination are the same</td><td class="rtl">نقطة البداية والوجهة متطابقتان</td></tr>
+      <tr><td>错误 · 日期倒序</td><td>到达早于出发</td><td>Arrival is before departure</td><td class="rtl">الوصول قبل المغادرة</td></tr>
+      <tr><td>筛选空</td><td>没有符合筛选的轨迹</td><td>No legs match this filter</td><td class="rtl">لا رحلات تطابق هذا الفلتر</td></tr>
+      <tr><td>删除确认</td><td>删除这段？足迹点亮保留。</td><td>Delete this leg? Your pins stay lit.</td><td class="rtl">حذف هذه الرحلة؟ ستبقى نقاطك مضيئة.</td></tr>
+      <tr><td>里程标注</td><td>直线估算</td><td>Straight-line estimate</td><td class="rtl">تقدير بخط مستقيم</td></tr>
+    </table>
+
+    <!-- ===================== 13 ===================== -->
+    <h1 class="prd" id="s13"><span class="sq">13</span>待确认项</h1>
+    <table class="prd">
+      <tr><th>#</th><th>问题</th><th>建议默认</th></tr>
+      <tr><td>Q1</td><td>旧 <code>entryMeans=land</code> 记录如何迁移到细化枚举？</td><td>保留为 <code>land</code> 兼容值，入境章显示通用陆运图标，不猜 train/car（§3.3）</td></tr>
+      <tr><td>Q2</td><td>录入航段时是否顺带点亮起终点城市？</td><td>默认不点亮；Sheet 底部给「同时点亮」开关，默认关（§7.1）</td></tr>
+      <tr><td>Q3</td><td>轨迹入口放在「地图 Tab 顶部分段」还是替换/新增 Tab？</td><td>地图 Tab 顶部分段（Tab 栏已 4 个，不再加）（§10）</td></tr>
+      <tr><td>Q4</td><td>火车/自驾的「地面折线」是否要多于 2 个途经点（中途站）？</td><td>本期仅起终点两点；多途经点作为 P2</td></tr>
+      <tr><td>Q5</td><td>里程用大圆直线估算是否可接受（示意曲线≠真实路程）？</td><td>可接受，统一标注「直线估算」（§8）</td></tr>
+      <tr><td>Q6</td><td>是否需要「按 Trip 分组只看某次旅行的轨迹」？</td><td>P1：轨迹视图顶部可选行程过滤；本期先展示全部</td></tr>
+    </table>
+
+    <div class="call green">
+      <b class="h">线框稿对接（Axure）</b>
+      交互稿见 Axure「轨迹/轨迹视图」与「轨迹/新增航段Sheet」，分别对应本文档 §6 与 §7。Axure 页面备注请回填对应章节号。
+    </div>
+
+    <hr class="sec">
+    <p style="color:var(--text-muted);font-size:12px;margin-top:20px">
+      Lumi · 轨迹视图 PRD v0.1 草案 · 2026-08-29 · 本文档为产品行为规格，不含实现细节 · Data Not Collected
+    </p>
+  </main>
+</div>
+
+<script>
+/* ---------- 侧栏滚动高亮 ---------- */
+(function(){
+  const links=[...document.querySelectorAll('nav.side a')];
+  const secs=links.map(a=>document.querySelector(a.getAttribute('href')));
+  const obs=new IntersectionObserver(es=>{
+    es.forEach(e=>{ if(e.isIntersecting){
+      const i=secs.indexOf(e.target);
+      links.forEach(l=>l.classList.remove('on'));
+      if(links[i]) links[i].classList.add('on');
+    }});
+  },{rootMargin:'-10% 0px -80% 0px'});
+  secs.forEach(s=>s&&obs.observe(s));
+})();
+
+/* ---------- 火车轨枕纹（图例）---------- */
+(function(){
+  const g=document.getElementById('trainTies'); if(!g) return;
+  let ties=''; for(let x=10;x<=140;x+=12){ ties+=`<line x1="${x}" y1="4" x2="${x}" y2="14"/>`; }
+  g.innerHTML=ties;
+})();
+
+/* ---------- 交互原型：轨迹视图 ---------- */
+(function(){
+  const svg=document.getElementById('mapSvg'); if(!svg) return;
+  const NS='http://www.w3.org/2000/svg';
+  // 背景点阵
+  for(let y=14;y<150;y+=16){ for(let x=12;x<212;x+=16){
+    const c=document.createElementNS(NS,'circle');
+    c.setAttribute('cx',x);c.setAttribute('cy',y);c.setAttribute('r',.9);c.setAttribute('fill','#1a2338');
+    svg.appendChild(c);
+  }}
+  // 节点（示意，非真实地理）
+  const P=[
+    {x:24,y:96,n:'PEK'},{x:78,y:52,n:'DXB'},{x:126,y:88,n:'SIN'},
+    {x:170,y:58,n:'HKG'},{x:196,y:108,n:'NRT'}
+  ];
+  const COL={flight:'#5AA9E6',train:'#EBA25C',sea:'#2FB6A3',car:'#E0709A'};
+  const ICON={flight:'✈️',train:'🚆',sea:'⛴️',car:'🚗'};
+  // 4 段，各一种方式
+  const LEGS=[
+    {a:0,b:1,m:'flight'},{a:1,b:2,m:'train'},{a:2,b:3,m:'car'},{a:3,b:4,m:'sea'}
+  ];
+  // 采样一段路径点（用于播放）
+  function samples(l){
+    const A=P[l.a],B=P[l.b],pts=[];
+    const mx=(A.x+B.x)/2, my=(A.y+B.y)/2;
+    let cx=mx, cy=my;
+    if(l.m==='flight') cy=my-26;          // 大圆弧上凸
+    else if(l.m==='sea') cy=my-10;         // 海路轻弧
+    else cy=my+8;                          // 陆路贴地下坠
+    for(let t=0;t<=1;t+=0.05){
+      const x=(1-t)*(1-t)*A.x+2*(1-t)*t*cx+t*t*B.x;
+      const y=(1-t)*(1-t)*A.y+2*(1-t)*t*cy+t*t*B.y;
+      pts.push({x,y});
+    }
+    return {pts,cx,cy,A,B};
+  }
+  const paths={};
+  LEGS.forEach((l,i)=>{
+    const s=samples(l);
+    const p=document.createElementNS(NS,'path');
+    p.setAttribute('d',`M${s.A.x} ${s.A.y} Q${s.cx} ${s.cy} ${s.B.x} ${s.B.y}`);
+    p.setAttribute('fill','none');
+    p.setAttribute('stroke',COL[l.m]);
+    p.setAttribute('stroke-width', l.m==='train'?2.6:2.2);
+    p.setAttribute('stroke-linecap','round');
+    if(l.m==='flight') p.setAttribute('stroke-dasharray','5 4');
+    else if(l.m==='sea') p.setAttribute('stroke-dasharray','3 3');
+    else if(l.m==='car') p.setAttribute('stroke-dasharray','0.5 6');
+    p.dataset.m=l.m; p.style.transition='opacity .2s';
+    svg.appendChild(p);
+    paths[i]={el:p,leg:l,s};
+  });
+  // 节点圆点
+  P.forEach(pt=>{
+    const g=document.createElementNS(NS,'circle');
+    g.setAttribute('cx',pt.x);g.setAttribute('cy',pt.y);g.setAttribute('r',3.2);
+    g.setAttribute('fill','#fff');g.setAttribute('stroke','#5AA9E6');g.setAttribute('stroke-width',1.4);
+    svg.appendChild(g);
+  });
+  // 播放标记
+  const marker=document.createElementNS(NS,'text');
+  marker.setAttribute('font-size','13');marker.setAttribute('text-anchor','middle');
+  marker.style.opacity='0'; svg.appendChild(marker);
+
+  // 筛选
+  const bar=document.getElementById('modebar');
+  const state={all:true,flight:true,train:true,sea:true,car:true};
+  function apply(){
+    Object.values(paths).forEach(o=>{
+      o.el.style.opacity = state[o.leg.m] ? '1':'0';
+    });
+  }
+  bar.addEventListener('click',e=>{
+    const m=e.target.closest('.m'); if(!m) return;
+    const k=m.dataset.m;
+    if(k==='all'){
+      const turnOn=!state.all;
+      ['all','flight','train','sea','car'].forEach(x=>state[x]=turnOn);
+    }else{
+      state[k]=!state[k];
+      state.all=['flight','train','sea','car'].every(x=>state[x]);
+    }
+    [...bar.children].forEach(ch=>{
+      const on=state[ch.dataset.m];
+      ch.classList.toggle('on',on); ch.classList.toggle('off',!on);
+    });
+    apply();
+  });
+
+  // 播放
+  const btn=document.getElementById('playBtn'); let playing=false, raf=null;
+  btn.addEventListener('click',()=>{
+    if(playing){ stop(); return; }
+    const seq=Object.values(paths).filter(o=>state[o.leg.m]);
+    if(!seq.length) return;
+    playing=true; btn.textContent='❚❚';
+    let li=0,ti=0;
+    marker.style.opacity='1';
+    function tick(){
+      if(li>=seq.length){ stop(); return; }
+      const o=seq[li], pts=o.s.pts;
+      const pt=pts[ti]; marker.textContent=ICON[o.leg.m];
+      marker.setAttribute('x',pt.x); marker.setAttribute('y',pt.y+4);
+      ti++; if(ti>=pts.length){ ti=0; li++; }
+      raf=setTimeout(()=>requestAnimationFrame(tick),38);
+    }
+    tick();
+  });
+  function stop(){ playing=false; btn.textContent='▶'; marker.style.opacity='0'; if(raf)clearTimeout(raf); }
+
+  // 视图分段（点亮/轨迹）仅做视觉切换演示
+  document.querySelectorAll('#protoView .seg .chip').forEach(c=>{
+    c.addEventListener('click',()=>{
+      document.querySelectorAll('#protoView .seg .chip').forEach(x=>x.classList.remove('on'));
+      c.classList.add('on');
+    });
+  });
+})();
+
+/* ---------- 交互原型：方式选择 ---------- */
+(function(){
+  const pick=document.getElementById('modepick'); if(!pick) return;
+  const COL={flight:'#5AA9E6',train:'#EBA25C',sea:'#2FB6A3',car:'#E0709A'};
+  pick.addEventListener('click',e=>{
+    const mp=e.target.closest('.mp'); if(!mp) return;
+    [...pick.children].forEach(c=>{c.classList.remove('on');c.style.borderColor='#2c2c33';});
+    mp.classList.add('on'); mp.style.borderColor=COL[mp.dataset.m];
+  });
+})();
+</script>
+</body>
+</html>
