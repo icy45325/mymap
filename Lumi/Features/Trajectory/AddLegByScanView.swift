@@ -85,17 +85,20 @@ struct AddLegByScanView: View {
                     Text(passenger).font(.system(size: 13, weight: .medium)).foregroundStyle(Color.muted)
                 }
                 if let message {
-                    Text(message).font(.system(size: 13)).foregroundStyle(Color.nPink)
+                    Text(LocalizedStringKey(message)).font(.system(size: 13)).foregroundStyle(Color.nPink)
                         .padding(12).panelCard(12)
                 }
                 ForEach(previews) { legCard($0) }
 
                 if !previews.isEmpty {
                     Button(action: save) {
-                        Text(previews.count > 1 ? "加入 \(previews.count) 段航线" : "加入这段航线")
-                            .font(.system(size: 15, weight: .semibold)).foregroundStyle(.white)
-                            .frame(maxWidth: .infinity).padding(.vertical, 14)
-                            .background(LinearGradient.neonH, in: Capsule())
+                        Group {
+                            if previews.count > 1 { Text("加入 \(previews.count) 段航线") }
+                            else { Text("加入这段航线") }
+                        }
+                        .font(.system(size: 15, weight: .semibold)).foregroundStyle(.white)
+                        .frame(maxWidth: .infinity).padding(.vertical, 14)
+                        .background(LinearGradient.neonH, in: Capsule())
                     }
                     .buttonStyle(.plain)
                 }
@@ -121,7 +124,7 @@ struct AddLegByScanView: View {
                     Image(systemName: "arrow.right").font(.system(size: 11)).foregroundStyle(Color.faint)
                     Text(leg.to.iata).font(.system(size: 16, weight: .bold)).foregroundStyle(Color.text)
                 }
-                Text("\(leg.from.name) → \(leg.to.name)")
+                Text(verbatim: "\(leg.from.name) → \(leg.to.name)")
                     .font(.system(size: 11)).foregroundStyle(Color.muted).lineLimit(2)
                 HStack(spacing: 10) {
                     Text(leg.flight).font(.system(size: 11, weight: .semibold)).foregroundStyle(Color.nCyan)

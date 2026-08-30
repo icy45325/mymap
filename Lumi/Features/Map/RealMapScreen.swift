@@ -19,8 +19,11 @@ struct RealMapScreen: View {
     @State private var tapped: TappedPlace?
     /// 航线图层开关：默认关闭，勾选才展示（持久化记住选择）。
     @AppStorage("map.showRoutes") private var showRoutes = false
-    /// 扫登机牌加航线弹层。
-    @State private var scanning = false
+    /// 「添加航线」选择弹层 + 具体录入弹层。
+    @State private var addChoice = false
+    @State private var addSheet: AddSheet?
+
+    enum AddSheet: Identifiable { case scan, manual; var id: Int { hashValue } }
 
     fileprivate struct TappedPlace: Identifiable {
         let id = UUID()
@@ -134,7 +137,6 @@ struct RealMapScreen: View {
         ZStack(alignment: .top) {
             Color.bg.ignoresSafeArea()
             provider.makeMapView(renderState).ignoresSafeArea()
-            hint
             leadingControls.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             closeButton.frame(maxWidth: .infinity, alignment: .trailing)
             legend.frame(maxHeight: .infinity, alignment: .bottom)
@@ -147,19 +149,7 @@ struct RealMapScreen: View {
         }
     }
 
-    // MARK: - 顶部提示 / 关闭 / 图例
-
-    private var hint: some View {
-        Text("点一个国家：标记去过或加入心愿")
-            .font(.system(size: 12, weight: .medium))
-            .foregroundStyle(Color.text)
-            .padding(.vertical, 8).padding(.horizontal, 14)
-            .background(Color.panel.opacity(0.85), in: Capsule())
-            .overlay(Capsule().stroke(Color.line, lineWidth: 1))
-            .padding(.top, 54)
-            .frame(maxWidth: .infinity, alignment: .center)
-            .allowsHitTesting(false)
-    }
+    // MARK: - 关闭 / 图例
 
     /// 颜色图例：点亮（粉）/ 心愿（青）。心愿为空时不显示心愿项。
     private var legend: some View {
@@ -189,14 +179,24 @@ struct RealMapScreen: View {
         }
     }
 
-    /// 左上角控制列：航线开关 + 扫登机牌。
+    /// 左上角控制列：航线开关 + 添加航线。
     private var leadingControls: some View {
         VStack(alignment: .leading, spacing: 10) {
             routeToggle
-            scanButton
+            addButton
         }
         .padding(.leading, 22).padding(.top, 54)
-        .sheet(isPresented: $scanning) { AddLegByScanView() }
+        .confirmationDialog("添加航线", isPresented: $addChoice, titleVisibility: .visible) {
+            Button("扫登机牌") { addSheet = .scan }
+            Button("手动录入") { addSheet = .manual }
+            Button("取消", role: .cancel) {}
+        }
+        .sheet(item: $addSheet) { sheet in
+            switch sheet {
+            case .scan:   AddLegByScanView()
+            case .manual: ManualLegEntryView()
+            }
+        }
     }
 
     /// 航线图层开关：勾选才展示航线。
@@ -219,15 +219,15 @@ struct RealMapScreen: View {
         .buttonStyle(.plain)
     }
 
-    /// 扫登机牌加航线。
-    private var scanButton: some View {
+    /// 添加航线：弹出「扫登机牌 / 手动录入」二选一。
+    private var addButton: some View {
         Button {
-            scanning = true
+            addChoice = true
             Haptics.selection()
         } label: {
             HStack(spacing: 6) {
-                Image(systemName: "barcode.viewfinder").font(.system(size: 12, weight: .semibold))
-                Text("扫登机牌").font(.system(size: 12, weight: .medium))
+                Image(systemName: "plus").font(.system(size: 12, weight: .semibold))
+                Text("添加航线").font(.system(size: 12, weight: .medium))
             }
             .foregroundStyle(Color.text)
             .padding(.vertical, 8).padding(.horizontal, 14)
