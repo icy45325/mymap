@@ -17,6 +17,8 @@ struct RealMapScreen: View {
     @Query(sort: \Leg.departAt) private var legs: [Leg]
 
     @State private var tapped: TappedPlace?
+    /// 航线图层开关：默认关闭，勾选才展示（持久化记住选择）。
+    @AppStorage("map.showRoutes") private var showRoutes = false
 
     fileprivate struct TappedPlace: Identifiable {
         let id = UUID()
@@ -51,7 +53,7 @@ struct RealMapScreen: View {
                                                   emirateCodes: litEmirateCodes),
             wishRegions: Boundaries.shared.regions(forCountryCodes: wishCountryCodes,
                                                    emirateCodes: []),
-            routes: routeLegs,
+            routes: showRoutes ? routeLegs : [],          // 勾选航线开关才画
             pins: footprints.filter { !$0.isReceived }   // 收到的卡用信封 pin 表达，不再重复圆点
                             .map { MapPin(id: $0.id, coordinate: $0.coordinate) },
             postcardPins: postcardPins,
@@ -90,6 +92,7 @@ struct RealMapScreen: View {
             Color.bg.ignoresSafeArea()
             provider.makeMapView(renderState).ignoresSafeArea()
             hint
+            routeToggle.frame(maxWidth: .infinity, alignment: .leading)
             closeButton.frame(maxWidth: .infinity, alignment: .trailing)
             legend.frame(maxHeight: .infinity, alignment: .bottom)
         }
@@ -135,6 +138,27 @@ struct RealMapScreen: View {
             Circle().fill(color.opacity(0.85)).frame(width: 9, height: 9)
             Text(label).font(.system(size: 12, weight: .medium)).foregroundStyle(Color.text)
         }
+    }
+
+    /// 航线图层开关（左上角）：勾选才展示航线。
+    private var routeToggle: some View {
+        Button {
+            showRoutes.toggle()
+            Haptics.selection()
+        } label: {
+            HStack(spacing: 6) {
+                Image(systemName: showRoutes ? "airplane" : "airplane.departure")
+                    .font(.system(size: 12, weight: .semibold))
+                Text("航线")
+                    .font(.system(size: 12, weight: .medium))
+            }
+            .foregroundStyle(showRoutes ? Color.nCyan : Color.text)
+            .padding(.vertical, 8).padding(.horizontal, 14)
+            .background(Color.panel.opacity(0.85), in: Capsule())
+            .overlay(Capsule().stroke(showRoutes ? Color.nCyan.opacity(0.7) : Color.line, lineWidth: 1))
+        }
+        .buttonStyle(.plain)
+        .padding(.leading, 22).padding(.top, 54)
     }
 
     private var closeButton: some View {
