@@ -19,6 +19,8 @@ struct RealMapScreen: View {
     @State private var tapped: TappedPlace?
     /// 航线图层开关：默认关闭，勾选才展示（持久化记住选择）。
     @AppStorage("map.showRoutes") private var showRoutes = false
+    /// 扫登机牌加航线弹层。
+    @State private var scanning = false
 
     fileprivate struct TappedPlace: Identifiable {
         let id = UUID()
@@ -92,7 +94,7 @@ struct RealMapScreen: View {
             Color.bg.ignoresSafeArea()
             provider.makeMapView(renderState).ignoresSafeArea()
             hint
-            routeToggle.frame(maxWidth: .infinity, alignment: .leading)
+            leadingControls.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             closeButton.frame(maxWidth: .infinity, alignment: .trailing)
             legend.frame(maxHeight: .infinity, alignment: .bottom)
         }
@@ -140,7 +142,17 @@ struct RealMapScreen: View {
         }
     }
 
-    /// 航线图层开关（左上角）：勾选才展示航线。
+    /// 左上角控制列：航线开关 + 扫登机牌。
+    private var leadingControls: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            routeToggle
+            scanButton
+        }
+        .padding(.leading, 22).padding(.top, 54)
+        .sheet(isPresented: $scanning) { AddLegByScanView() }
+    }
+
+    /// 航线图层开关：勾选才展示航线。
     private var routeToggle: some View {
         Button {
             showRoutes.toggle()
@@ -158,7 +170,24 @@ struct RealMapScreen: View {
             .overlay(Capsule().stroke(showRoutes ? Color.nCyan.opacity(0.7) : Color.line, lineWidth: 1))
         }
         .buttonStyle(.plain)
-        .padding(.leading, 22).padding(.top, 54)
+    }
+
+    /// 扫登机牌加航线。
+    private var scanButton: some View {
+        Button {
+            scanning = true
+            Haptics.selection()
+        } label: {
+            HStack(spacing: 6) {
+                Image(systemName: "barcode.viewfinder").font(.system(size: 12, weight: .semibold))
+                Text("扫登机牌").font(.system(size: 12, weight: .medium))
+            }
+            .foregroundStyle(Color.text)
+            .padding(.vertical, 8).padding(.horizontal, 14)
+            .background(Color.panel.opacity(0.85), in: Capsule())
+            .overlay(Capsule().stroke(Color.line, lineWidth: 1))
+        }
+        .buttonStyle(.plain)
     }
 
     private var closeButton: some View {
