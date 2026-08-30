@@ -34,13 +34,27 @@ struct PostcardMapPin: Identifiable {
     let count: Int
 }
 
-/// 地图上要绘制的一条航线（从 A 到 B 的一段轨迹 + 交通方式）。
+/// 航线分档（按大圆距离，对齐大屏参考的三档配色）。
+enum RouteCategory {
+    case near   // 近程（<3000km）· 青
+    case mid    // 中程（3000–8000km）· 橙
+    case far    // 洲际超长（>8000km）· 粉
+}
+
+/// 地图上要绘制的一条航线（从 A 到 B 的一段轨迹 + 交通方式 + 距离分档）。
 /// 坐标为 WGS-84；由 provider 用大圆弧（geodesic）画在真实底图上。
 struct RouteLeg: Identifiable {
     let id: UUID
     let from: CLLocationCoordinate2D
     let to: CLLocationCoordinate2D
     let mode: TransportMode
+    let category: RouteCategory
+}
+
+/// 航线端点的涟漪节点（发光脉冲）。id 用坐标键，跨帧稳定不重启动画。
+struct RouteNode: Identifiable {
+    let id: String
+    let coordinate: CLLocationCoordinate2D
 }
 
 /// 一帧地图渲染所需的全部输入。View 只描述"要画什么"，怎么画交给 provider。
@@ -51,6 +65,8 @@ struct MapRenderState {
     var wishRegions: [LitRegion] = []
     /// 航线（在真实底图上画的大圆弧轨迹；默认空 = 不画）。
     var routes: [RouteLeg] = []
+    /// 航线端点涟漪节点（默认空）。
+    var routeNodes: [RouteNode] = []
     /// 足迹点（发光圆点）。
     var pins: [MapPin]
     /// 收到明信片的来源点（信封 pin + 计数；默认空 = 不画）。

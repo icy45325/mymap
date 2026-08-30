@@ -56,6 +56,7 @@ struct RealMapScreen: View {
             wishRegions: Boundaries.shared.regions(forCountryCodes: wishCountryCodes,
                                                    emirateCodes: []),
             routes: showRoutes ? routeLegs : [],          // 勾选航线开关才画
+            routeNodes: showRoutes ? routeNodes : [],
             pins: footprints.filter { !$0.isReceived }   // 收到的卡用信封 pin 表达，不再重复圆点
                             .map { MapPin(id: $0.id, coordinate: $0.coordinate) },
             postcardPins: postcardPins,
@@ -66,10 +67,50 @@ struct RealMapScreen: View {
     /// 让航线在真实地图上立刻可见（航段录入流程落地后，此回退可移除）。
     private var routeLegs: [RouteLeg] {
         if !legs.isEmpty {
-            return legs.map { RouteLeg(id: $0.id, from: $0.fromCoordinate,
-                                       to: $0.toCoordinate, mode: $0.mode) }
+            return legs.map { makeRoute(id: $0.id, from: $0.fromCoordinate,
+                                        to: $0.toCoordinate, mode: $0.mode) }
         }
         return derivedRoutes()
+    }
+
+    /// 航线端点涟漪节点：所有航线的起终点去重（约 1km 网格）。
+    private var routeNodes: [RouteNode] {
+        var seen = Set<String>()
+        var out: [RouteNode] = []
+        for r in routeLegs {
+            for c in [r.from, r.to] {
+                let key = "\((c.latitude * 100).rounded())|\((c.longitude * 100).rounded())"
+                if seen.insert(key).inserted {
+                    out.append(RouteNode(id: key, coordinate: c))
+                }
+            }
+        }
+        return out
+    }
+
+    /// 组装一条航线并按大圆距离分档。
+    private func makeRoute(id: UUID, from: CLLocationCoordinate2D,
+                           to: CLLocationCoordinate2D, mode: TransportMode) -> RouteLeg {
+        RouteLeg(id: id, from: from, to: to, mode: mode,
+                 category: Self.category(from, to))
+    }
+
+    /// 大圆距离分档：<3000km 近程 / <8000km 中程 / 其余洲际。
+    static func category(_ a: CLLocationCoordinate2D, _ b: CLLocationCoordinate2D) -> RouteCategory {
+        let km = greatCircleKm(a, b)
+        if km < 3000 { return .near }
+        if km < 8000 { return .mid }
+        return .far
+    }
+
+    /// Haversine 大圆距离（km）。
+    static func greatCircleKm(_ a: CLLocationCoordinate2D, _ b: CLLocationCoordinate2D) -> Double {
+        let r = 6371.0
+        let dLat = (b.latitude - a.latitude) * .pi / 180
+        let dLon = (b.longitude - a.longitude) * .pi / 180
+        let la1 = a.latitude * .pi / 180, la2 = b.latitude * .pi / 180
+        let h = sin(dLat / 2) * sin(dLat / 2) + cos(la1) * cos(la2) * sin(dLon / 2) * sin(dLon / 2)
+        return 2 * r * asin(min(1, sqrt(h)))
     }
 
     /// v0 回退：把自己点亮、有城市名的足迹按时间升序两两相连，
@@ -83,8 +124,8 @@ struct RealMapScreen: View {
         for i in 1..<pts.count {
             let a = pts[i - 1], b = pts[i]
             if a.latitude == b.latitude && a.longitude == b.longitude { continue }
-            out.append(RouteLeg(id: b.id, from: a.coordinate, to: b.coordinate,
-                                mode: TransportMode.from(entryMeans: b.entryMeans)))
+            out.append(makeRoute(id: b.id, from: a.coordinate, to: b.coordinate,
+                                 mode: TransportMode.from(entryMeans: b.entryMeans)))
         }
         return out
     }
@@ -123,9 +164,15 @@ struct RealMapScreen: View {
     /// 颜色图例：点亮（粉）/ 心愿（青）。心愿为空时不显示心愿项。
     private var legend: some View {
         HStack(spacing: 14) {
-            legendItem(color: .nPink, label: "去过")
-            if !wishCountryCodes.isEmpty {
-                legendItem(color: .nCyan, label: "心愿")
+            if showRoutes {
+                legendItem(color: Color(hex: 0x00F0FF), label: "近程")
+                legendItem(color: Color(hex: 0xFFAA00), label: "中程")
+                legendItem(color: Color(hex: 0xFF4777), label: "洲际")
+            } else {
+                legendItem(color: .nPink, label: "去过")
+                if !wishCountryCodes.isEmpty {
+                    legendItem(color: .nCyan, label: "心愿")
+                }
             }
         }
         .padding(.vertical, 8).padding(.horizontal, 16)
