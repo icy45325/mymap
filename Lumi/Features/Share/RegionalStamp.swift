@@ -22,8 +22,9 @@ struct RegionalStamp: Identifiable, Equatable, Hashable {
         }
     }
 
-    /// 精选 12 国（图案 = 该国最具辨识度的地标/意象）。
+    /// 精选 13 国（图案 = 该国最具辨识度的地标/意象）。
     static let all: [RegionalStamp] = [
+        RegionalStamp(code: "GE", motif: "building.columns.fill",      inner: Color(hex: 0x3A6E8F), caption: "GEORGIA"),
         RegionalStamp(code: "JP", motif: "mountain.2.fill",            inner: Color(hex: 0xC0392B), caption: "JAPAN"),
         RegionalStamp(code: "FR", motif: "building.columns.fill",      inner: Color(hex: 0x26418F), caption: "FRANCE"),
         RegionalStamp(code: "IT", motif: "laurel.leading",             inner: Color(hex: 0x1E7A46), caption: "ITALIA"),
@@ -162,8 +163,8 @@ struct RegionalStampView: View {
     }
 }
 
-/// 地标意象：GB / CN / US / SG 用**手绘矢量**（大本钟 / 长城 / 自由女神 / 鱼尾狮，SF Symbol 无对应地标），
-/// 其余国家用 SF Symbol。`fill` 为主体色、`accent` 为镂空细节色（钟面 / 鳞片等）。
+/// 地标意象：GB / CN / US / SG / GE 用**手绘矢量**（大本钟 / 长城 / 自由女神 / 鱼尾狮 / 十字圆顶教堂，
+/// SF Symbol 无对应地标），其余国家用 SF Symbol。`fill` 为主体色、`accent` 为镂空细节色（钟面 / 鳞片等）。
 struct RegionalMotifView: View {
     let stamp: RegionalStamp
     var fill: Color = .white
@@ -171,7 +172,7 @@ struct RegionalMotifView: View {
 
     var body: some View {
         switch stamp.code {
-        case "GB", "CN", "US", "SG":
+        case "GB", "CN", "US", "SG", "GE":
             LandmarkCanvas(code: stamp.code, fill: fill, accent: accent)
         default:
             Image(systemName: stamp.motif)
@@ -181,7 +182,7 @@ struct RegionalMotifView: View {
     }
 }
 
-/// 四国地标的 Canvas 绘制。坐标系归一化自 40×46 设计稿（与预览 SVG 同源）。
+/// 五国地标的 Canvas 绘制。坐标系归一化自 40×46 设计稿（与预览 SVG 同源）。
 private struct LandmarkCanvas: View {
     let code: String
     let fill: Color
@@ -206,6 +207,7 @@ private struct LandmarkCanvas: View {
             case "CN": drawGreatWall(ctx, pt: pt, rect: rect, poly: poly, lw: lw)
             case "US": drawLiberty(ctx, pt: pt, poly: poly, lw: lw)
             case "SG": drawMerlion(ctx, pt: pt, lw: lw)
+            case "GE": drawGeorgiaChurch(ctx, pt: pt, rect: rect, poly: poly)
             default: break
             }
         }
@@ -359,5 +361,42 @@ private struct LandmarkCanvas: View {
         base.move(to: pt(12.5, 43.8))
         base.addCurve(to: pt(30.8, 43.8), control1: pt(17.5, 45.2), control2: pt(26, 45.2))
         ctx.stroke(base, with: .color(fill), style: StrokeStyle(lineWidth: lw, lineCap: .round))
+    }
+
+    // MARK: 格鲁吉亚十字圆顶教堂（Gergeti 意象）：顶十字 + 锥顶 + 鼓座 + 侧翼 + 主体（圆窗/拱门镂空）
+    private func drawGeorgiaChurch(_ ctx: GraphicsContext,
+                                   pt: (CGFloat, CGFloat) -> CGPoint,
+                                   rect: (CGFloat, CGFloat, CGFloat, CGFloat) -> CGRect,
+                                   poly: ([(CGFloat, CGFloat)]) -> Path) {
+        // 顶十字
+        ctx.fill(Path(rect(19.2, 0.6, 1.6, 6)), with: .color(fill))
+        ctx.fill(Path(rect(17.3, 2.4, 5.4, 1.5)), with: .color(fill))
+        // 锥形圆顶
+        ctx.fill(poly([(20, 6), (26, 17.2), (14, 17.2)]), with: .color(fill))
+        // 鼓座
+        ctx.fill(Path(rect(15, 17, 10, 6.4)), with: .color(fill))
+        // 侧翼 + 坡顶
+        ctx.fill(Path(rect(6.5, 30, 5.6, 11.2)), with: .color(fill))
+        ctx.fill(Path(rect(27.9, 30, 5.6, 11.2)), with: .color(fill))
+        ctx.fill(poly([(6.5, 30), (9.3, 26.5), (12.1, 30)]), with: .color(fill))
+        ctx.fill(poly([(27.9, 30), (30.7, 26.5), (33.5, 30)]), with: .color(fill))
+        // 主体
+        ctx.fill(Path(rect(11.5, 23.4, 17, 17.8)), with: .color(fill))
+        // 基座
+        ctx.fill(Path(rect(5, 41, 30, 2.4)), with: .color(fill))
+        // 鼓座双窗（镂空内芯色）
+        ctx.fill(Path(rect(17.4, 18.4, 1.4, 3.6)), with: .color(accent))
+        ctx.fill(Path(rect(21.2, 18.4, 1.4, 3.6)), with: .color(accent))
+        // 圆窗
+        ctx.fill(Path(ellipseIn: CGRect(x: pt(18.3, 26.3).x, y: pt(18.3, 26.3).y,
+                                        width: pt(21.7, 29.7).x - pt(18.3, 26.3).x,
+                                        height: pt(21.7, 29.7).y - pt(18.3, 26.3).y)),
+                 with: .color(accent))
+        // 拱门
+        var door = Path()
+        door.move(to: pt(16.8, 41.2)); door.addLine(to: pt(16.8, 35.4))
+        door.addQuadCurve(to: pt(23.2, 35.4), control: pt(20, 31.4))
+        door.addLine(to: pt(23.2, 41.2)); door.closeSubpath()
+        ctx.fill(door, with: .color(accent))
     }
 }
