@@ -14,8 +14,16 @@ struct RealMapScreen: View {
 
     @Query(sort: \Footprint.visitedAt, order: .reverse) private var footprints: [Footprint]
     @Query private var wishes: [Wish]
+    @Query(sort: \Leg.departAt) private var legs: [Leg]
 
     @State private var tapped: TappedPlace?
+    /// 航线图层开关：默认关闭，勾选才展示（持久化记住选择）。
+    @AppStorage("map.showRoutes") private var showRoutes = false
+    /// 「添加航线」选择弹层 + 具体录入弹层。
+    @State private var addChoice = false
+    @State private var addSheet: AddSheet?
+
+    enum AddSheet: Identifiable { case scan, manual; var id: Int { hashValue } }
 
     fileprivate struct TappedPlace: Identifiable {
         let id = UUID()
@@ -50,17 +58,86 @@ struct RealMapScreen: View {
                                                   emirateCodes: litEmirateCodes),
             wishRegions: Boundaries.shared.regions(forCountryCodes: wishCountryCodes,
                                                    emirateCodes: []),
+            routes: showRoutes ? routeLegs : [],          // 勾选航线开关才画
+            routeNodes: showRoutes ? routeNodes : [],
             pins: footprints.filter { !$0.isReceived }   // 收到的卡用信封 pin 表达，不再重复圆点
                             .map { MapPin(id: $0.id, coordinate: $0.coordinate) },
             postcardPins: postcardPins,
             onTapCoordinate: handleTap)
     }
 
+    /// 要画的航线：有航段数据就用 `Leg`；否则用「按时间连起已点亮城市」派生一条示意轨迹，
+    /// 让航线在真实地图上立刻可见（航段录入流程落地后，此回退可移除）。
+    private var routeLegs: [RouteLeg] {
+        if !legs.isEmpty {
+            return legs.map { makeRoute(id: $0.id, from: $0.fromCoordinate,
+                                        to: $0.toCoordinate, mode: $0.mode) }
+        }
+        return derivedRoutes()
+    }
+
+    /// 航线端点涟漪节点：所有航线的起终点去重（约 1km 网格）。
+    private var routeNodes: [RouteNode] {
+        var seen = Set<String>()
+        var out: [RouteNode] = []
+        for r in routeLegs {
+            for c in [r.from, r.to] {
+                let key = "\((c.latitude * 100).rounded())|\((c.longitude * 100).rounded())"
+                if seen.insert(key).inserted {
+                    out.append(RouteNode(id: key, coordinate: c))
+                }
+            }
+        }
+        return out
+    }
+
+    /// 组装一条航线并按大圆距离分档。
+    private func makeRoute(id: UUID, from: CLLocationCoordinate2D,
+                           to: CLLocationCoordinate2D, mode: TransportMode) -> RouteLeg {
+        RouteLeg(id: id, from: from, to: to, mode: mode,
+                 category: Self.category(from, to))
+    }
+
+    /// 大圆距离分档：<3000km 近程 / <8000km 中程 / 其余洲际。
+    static func category(_ a: CLLocationCoordinate2D, _ b: CLLocationCoordinate2D) -> RouteCategory {
+        let km = greatCircleKm(a, b)
+        if km < 3000 { return .near }
+        if km < 8000 { return .mid }
+        return .far
+    }
+
+    /// Haversine 大圆距离（km）。
+    static func greatCircleKm(_ a: CLLocationCoordinate2D, _ b: CLLocationCoordinate2D) -> Double {
+        let r = 6371.0
+        let dLat = (b.latitude - a.latitude) * .pi / 180
+        let dLon = (b.longitude - a.longitude) * .pi / 180
+        let la1 = a.latitude * .pi / 180, la2 = b.latitude * .pi / 180
+        let h = sin(dLat / 2) * sin(dLat / 2) + cos(la1) * cos(la2) * sin(dLon / 2) * sin(dLon / 2)
+        return 2 * r * asin(min(1, sqrt(h)))
+    }
+
+    /// v0 回退：把自己点亮、有城市名的足迹按时间升序两两相连，
+    /// 每段的交通方式取「到达点」的入境方式（entryMeans）。
+    private func derivedRoutes() -> [RouteLeg] {
+        let pts = visited
+            .filter { $0.cityName != nil }
+            .sorted { $0.visitedAt < $1.visitedAt }
+        guard pts.count >= 2 else { return [] }
+        var out: [RouteLeg] = []
+        for i in 1..<pts.count {
+            let a = pts[i - 1], b = pts[i]
+            if a.latitude == b.latitude && a.longitude == b.longitude { continue }
+            out.append(makeRoute(id: b.id, from: a.coordinate, to: b.coordinate,
+                                 mode: TransportMode.from(entryMeans: b.entryMeans)))
+        }
+        return out
+    }
+
     var body: some View {
         ZStack(alignment: .top) {
             Color.bg.ignoresSafeArea()
             provider.makeMapView(renderState).ignoresSafeArea()
-            hint
+            leadingControls.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             closeButton.frame(maxWidth: .infinity, alignment: .trailing)
             legend.frame(maxHeight: .infinity, alignment: .bottom)
         }
@@ -72,26 +149,20 @@ struct RealMapScreen: View {
         }
     }
 
-    // MARK: - 顶部提示 / 关闭 / 图例
-
-    private var hint: some View {
-        Text("点一个国家：标记去过或加入心愿")
-            .font(.system(size: 12, weight: .medium))
-            .foregroundStyle(Color.text)
-            .padding(.vertical, 8).padding(.horizontal, 14)
-            .background(Color.panel.opacity(0.85), in: Capsule())
-            .overlay(Capsule().stroke(Color.line, lineWidth: 1))
-            .padding(.top, 54)
-            .frame(maxWidth: .infinity, alignment: .center)
-            .allowsHitTesting(false)
-    }
+    // MARK: - 关闭 / 图例
 
     /// 颜色图例：点亮（粉）/ 心愿（青）。心愿为空时不显示心愿项。
     private var legend: some View {
         HStack(spacing: 14) {
-            legendItem(color: .nPink, label: "去过")
-            if !wishCountryCodes.isEmpty {
-                legendItem(color: .nCyan, label: "心愿")
+            if showRoutes {
+                legendItem(color: Color(hex: 0x00F0FF), label: "近程")
+                legendItem(color: Color(hex: 0xFFAA00), label: "中程")
+                legendItem(color: Color(hex: 0xFF4777), label: "洲际")
+            } else {
+                legendItem(color: .nPink, label: "去过")
+                if !wishCountryCodes.isEmpty {
+                    legendItem(color: .nCyan, label: "心愿")
+                }
             }
         }
         .padding(.vertical, 8).padding(.horizontal, 16)
@@ -106,6 +177,64 @@ struct RealMapScreen: View {
             Circle().fill(color.opacity(0.85)).frame(width: 9, height: 9)
             Text(label).font(.system(size: 12, weight: .medium)).foregroundStyle(Color.text)
         }
+    }
+
+    /// 左上角控制列：航线开关 + 添加航线。
+    private var leadingControls: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            routeToggle
+            addButton
+        }
+        .padding(.leading, 22).padding(.top, 54)
+        .confirmationDialog("添加航线", isPresented: $addChoice, titleVisibility: .visible) {
+            Button("扫登机牌") { addSheet = .scan }
+            Button("手动录入") { addSheet = .manual }
+            Button("取消", role: .cancel) {}
+        }
+        .sheet(item: $addSheet) { sheet in
+            switch sheet {
+            case .scan:   AddLegByScanView()
+            case .manual: ManualLegEntryView()
+            }
+        }
+    }
+
+    /// 航线图层开关：勾选才展示航线。
+    private var routeToggle: some View {
+        Button {
+            showRoutes.toggle()
+            Haptics.selection()
+        } label: {
+            HStack(spacing: 6) {
+                Image(systemName: showRoutes ? "airplane" : "airplane.departure")
+                    .font(.system(size: 12, weight: .semibold))
+                Text("航线")
+                    .font(.system(size: 12, weight: .medium))
+            }
+            .foregroundStyle(showRoutes ? Color.nCyan : Color.text)
+            .padding(.vertical, 8).padding(.horizontal, 14)
+            .background(Color.panel.opacity(0.85), in: Capsule())
+            .overlay(Capsule().stroke(showRoutes ? Color.nCyan.opacity(0.7) : Color.line, lineWidth: 1))
+        }
+        .buttonStyle(.plain)
+    }
+
+    /// 添加航线：弹出「扫登机牌 / 手动录入」二选一。
+    private var addButton: some View {
+        Button {
+            addChoice = true
+            Haptics.selection()
+        } label: {
+            HStack(spacing: 6) {
+                Image(systemName: "plus").font(.system(size: 12, weight: .semibold))
+                Text("添加航线").font(.system(size: 12, weight: .medium))
+            }
+            .foregroundStyle(Color.text)
+            .padding(.vertical, 8).padding(.horizontal, 14)
+            .background(Color.panel.opacity(0.85), in: Capsule())
+            .overlay(Capsule().stroke(Color.line, lineWidth: 1))
+        }
+        .buttonStyle(.plain)
     }
 
     private var closeButton: some View {

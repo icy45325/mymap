@@ -45,6 +45,25 @@ private struct LumiMapView: View {
                             .stroke(skin.litStroke.opacity(0.9), lineWidth: 1)
                     }
                 }
+                // ②.5 航线发光底层：宽、半透明（伪 glow）
+                ForEach(state.routes) { r in
+                    MapPolyline(coordinates: [r.from, r.to], contourStyle: .geodesic)
+                        .stroke(Self.categoryColor(r.category).opacity(0.22),
+                                style: StrokeStyle(lineWidth: 7, lineCap: .round, lineJoin: .round))
+                }
+                // ②.6 航线亮芯：细、高亮，按大圆距离分档着色
+                ForEach(state.routes) { r in
+                    MapPolyline(coordinates: [r.from, r.to], contourStyle: .geodesic)
+                        .stroke(Self.categoryColor(r.category),
+                                style: StrokeStyle(lineWidth: 1.8, lineCap: .round, lineJoin: .round))
+                }
+                // ②.7 航线端点涟漪节点
+                ForEach(state.routeNodes) { node in
+                    Annotation("", coordinate: node.coordinate, anchor: .center) {
+                        RouteNodeView()
+                    }
+                    .annotationTitles(.hidden)
+                }
                 // ③ 足迹点：发光琥珀圆点
                 ForEach(state.pins) { pin in
                     Annotation("", coordinate: pin.coordinate, anchor: .center) {
@@ -68,6 +87,41 @@ private struct LumiMapView: View {
                 if let coordinate = proxy.convert(screenPoint, from: .local) {
                     state.onTapCoordinate(coordinate)
                 }
+            }
+        }
+    }
+
+    // MARK: 航线样式（按大圆距离分档，对齐大屏参考配色）
+
+    /// 分档配色：近程青 / 中程橙 / 洲际粉。
+    static func categoryColor(_ c: RouteCategory) -> Color {
+        switch c {
+        case .near: return Color(hex: 0x00F0FF)
+        case .mid:  return Color(hex: 0xFFAA00)
+        case .far:  return Color(hex: 0xFF4777)
+        }
+    }
+}
+
+/// 航线端点涟漪节点：亮青实心 + 向外扩散的脉冲环（对齐参考图 effectScatter）。
+private struct RouteNodeView: View {
+    @State private var pulse = false
+    private let cyan = Color(hex: 0x00F0FF)
+    var body: some View {
+        ZStack {
+            Circle()
+                .stroke(cyan.opacity(0.7), lineWidth: 1.5)
+                .frame(width: 10, height: 10)
+                .scaleEffect(pulse ? 2.6 : 1)
+                .opacity(pulse ? 0 : 0.8)
+            Circle()
+                .fill(cyan)
+                .frame(width: 6, height: 6)
+                .shadow(color: cyan, radius: 5)
+        }
+        .onAppear {
+            withAnimation(.easeOut(duration: 1.8).repeatForever(autoreverses: false)) {
+                pulse = true
             }
         }
     }

@@ -41,6 +41,12 @@ struct PremiumStamp: Identifiable, Equatable, Hashable {
         PremiumStamp(id: "es_toro",       code: "ES", subRegion: nil, imageName: "premium_es_toro",     nameKey: "斗牛士"),
         PremiumStamp(id: "es_flamenco",   code: "ES", subRegion: nil, imageName: "premium_es_flamenco", nameKey: "弗拉明戈"),
         PremiumStamp(id: "es_quixote",    code: "ES", subRegion: nil, imageName: "premium_es_quixote",  nameKey: "堂吉诃德"),
+        // 格鲁吉亚（2026 · 用户原图）
+        PremiumStamp(id: "ge_tbilisi",    code: "GE", subRegion: nil, imageName: "premium_ge_tbilisi",   nameKey: "第比利斯"),
+        PremiumStamp(id: "ge_bridge",     code: "GE", subRegion: nil, imageName: "premium_ge_bridge",    nameKey: "和平桥"),
+        PremiumStamp(id: "ge_belltower",  code: "GE", subRegion: nil, imageName: "premium_ge_belltower", nameKey: "钟楼"),
+        PremiumStamp(id: "ge_kazbegi",    code: "GE", subRegion: nil, imageName: "premium_ge_kazbegi",   nameKey: "卡兹别克雪山"),
+        PremiumStamp(id: "ge_flag",       code: "GE", subRegion: nil, imageName: "premium_ge_flag",      nameKey: "格鲁吉亚国旗"),
     ]
 
     static func byID(_ id: String) -> PremiumStamp? { all.first { $0.id == id } }
